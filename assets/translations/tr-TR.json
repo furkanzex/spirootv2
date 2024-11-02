@@ -1,0 +1,23 @@
+{
+  "path": "assets/translations/tr-TR.json",
+  "locale": "tr-TR",
+  "lang": "Türkçe",
+  "errors": {},
+  "internet": {
+    "title": "Ups...",
+    "desc": "Görünüşe göre internet bağlantınızda bir sorun var. Bağlantı sağlandıktan sonra uygulamamızı kullanmaya devam edebilirsiniz!"
+  },
+  "text_field_label": {
+    "email":"E-posta",
+    "password":"Şifre"
+  },
+  "signin": {
+    "title": "Spiroot'a hoşgeldin!",
+    "other_login_button":"İşletme Hesabı Oluştur",
+    "button_label":"Haydi başlayalım!"
+  },
+  "signup": {},
+  "onboarding":{},
+  "main": {},
+  "more": {}
+}

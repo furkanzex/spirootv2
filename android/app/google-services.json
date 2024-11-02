@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "121839034936",
+    "project_id": "spirootv2",
+    "storage_bucket": "spirootv2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:121839034936:android:5f3f7484bcfaf217bd7ccd",
+        "android_client_info": {
+          "package_name": "com.apptoic.spiroot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "121839034936-po046rr3hdbntd25n6edkvt2n73507um.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZRbqYjq7o-1bU10aO_BJRnq9WmYZoP7M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "121839034936-po046rr3hdbntd25n6edkvt2n73507um.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "121839034936-u5fsali0um0kgheihgpm1qh292pi2k05.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.apptoic.spiroot"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
