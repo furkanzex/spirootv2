@@ -16,6 +16,12 @@
     "other_login_button":"İşletme Hesabı Oluştur",
     "button_label":"Haydi başlayalım!"
   },
+  "navigation": {
+    "home":"Anasayfa",
+    "fortune":"Fal",
+    "astrology":"Astroloji",
+    "explore":"Keşfet"
+  },
   "signup": {},
   "onboarding":{},
   "main": {},

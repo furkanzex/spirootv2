@@ -1,6 +1,6 @@
-import 'package:spirootv2/auth/welcome_screen.dart';
+import 'package:spirootv2/view/auth/welcome_screen.dart';
 import 'package:spirootv2/core/helper/local_storage.dart';
-import 'package:spirootv2/navigation/homepage.dart';
+import 'package:spirootv2/view/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -79,7 +79,7 @@ class AuthController extends GetxController {
 
   void navigateUser() {
     if (isLogin.value) {
-      Get.to(() => isRegistered.value ? const HomePage() : WelcomeScreen());
+      Get.offAll(() => isRegistered.value ? const HomePage() : WelcomeScreen());
     } else {
       signInAnonymously();
     }
