@@ -20,7 +20,14 @@
     "home":"Anasayfa",
     "fortune":"Fal",
     "astrology":"Astroloji",
-    "explore":"Keşfet"
+    "shops":"Mağazalar",
+    "explore":"Keşfet",
+    "enlightenment":"Aydınlan",
+    "rest_your_soul":"Ruhunu Dinlendir"
+  },
+  "home": {
+    "greeting":"Hoş Geldin",
+    "see_all":"tümünü gör"
   },
   "signup": {},
   "onboarding":{},
