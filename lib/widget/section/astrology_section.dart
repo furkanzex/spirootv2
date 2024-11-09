@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/widget/astrology/love_career_money.dart';
@@ -15,7 +16,7 @@ Widget astrologySection() {
       sectionTitle(
           text: "🪐 ${easy.tr("navigation.astrology")}",
           trailingLabel: easy.tr("home.see_all"),
-          icon: Icons.keyboard_arrow_right,
+          icon: MyIcon.forward,
           color: MyColor.primaryLightColor),
       verticalGap(MySize.defaultPadding),
       ClipRRect(
@@ -26,7 +27,7 @@ Widget astrologySection() {
             width: double.infinity,
             padding: EdgeInsets.all(MySize.defaultPadding),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: MyColor.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(MySize.halfRadius),
             ),
             child: Column(

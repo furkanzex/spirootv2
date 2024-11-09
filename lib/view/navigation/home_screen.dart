@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
+import 'package:spirootv2/widget/footer/footer.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/widget/section/astrology_section.dart';
 import 'package:spirootv2/widget/section/fortune_section.dart';
 import 'package:spirootv2/widget/section/greeting_section.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/widget/section/luck_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,6 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
             astrologySection(),
             verticalGap(MySize.doublePadding),
             fortuneSection(),
+            verticalGap(MySize.doublePadding),
+            luckSection(),
+            verticalGap(MySize.doublePadding * 2),
+            footer(),
           ],
         ),
       ),

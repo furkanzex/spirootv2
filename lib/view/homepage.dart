@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       appBar: AppBar(
+        surfaceTintColor: MyColor.transparent,
         backgroundColor: MyColor.transparent,
         title: Text(
           MyText.appName,
@@ -51,7 +52,7 @@ class _HomePageState extends State<HomePage> {
                 // Profil ve ayarlar
               },
               icon: Icon(
-                MingCute.magic_3_fill,
+                MingCute.angel_line,
                 color: MyColor.white,
               ))
         ],

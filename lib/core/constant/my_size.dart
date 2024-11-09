@@ -27,4 +27,6 @@ class MySize {
   static const double iconSizeSmall = 32.0;
   static const double iconSizeMedium = 48.0;
   static const double iconSizeBig = 64.0;
+
+  static const double gridSize = 54.0;
 }
