@@ -9,6 +9,7 @@ Widget footer() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
+      verticalGap(MySize.doublePadding * 3),
       SizedBox(
         height: MySize.gridSize,
         width: MySize.gridSize,

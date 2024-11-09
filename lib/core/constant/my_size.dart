@@ -29,4 +29,6 @@ class MySize {
   static const double iconSizeBig = 64.0;
 
   static const double gridSize = 54.0;
+  static const double cardHeight = 150.0;
+  static const double cardWidth = 275.0;
 }

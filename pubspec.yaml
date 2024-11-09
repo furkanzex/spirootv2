@@ -32,6 +32,7 @@ dependencies:
   scaffold_gradient_background: ^1.0.3+1
   extended_image: ^8.2.0
   flutter_cache_manager: ^3.3.1
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
