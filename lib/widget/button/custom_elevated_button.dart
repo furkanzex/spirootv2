@@ -3,7 +3,7 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 
 Widget customElevatedButton({
-  required VoidCallback onPressed,
+  VoidCallback? onPressed,
   final String? title,
   final String? imgPath,
   final double? imgSize,
@@ -13,6 +13,7 @@ Widget customElevatedButton({
   final Color? frontColor,
   required Color bgPrimaryColor,
   final Color? bgSecondaryColor,
+  final Widget? child,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -32,33 +33,34 @@ Widget customElevatedButton({
           vertical: MySize.halfPadding,
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (imgPath != null)
-            SizedBox(
-              width: imgSize ?? MySize.iconSizeTiny,
-              child: Image.asset(imgPath),
-            ),
-          if (icon != null)
-            Icon(
-              icon,
-              size: iconSize ?? MySize.iconSizeTiny,
-              color: frontColor,
-            ),
-          if ((imgPath != null && title != null) ||
-              (icon != null && title != null))
-            const SizedBox(
-              width: MySize.defaultPadding,
-            ),
-          if (title != null)
-            Text(
-              title,
-              style: titleStyle,
-            ),
-        ],
-      ),
+      child: child ??
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (imgPath != null)
+                SizedBox(
+                  width: imgSize ?? MySize.iconSizeTiny,
+                  child: Image.asset(imgPath),
+                ),
+              if (icon != null)
+                Icon(
+                  icon,
+                  size: iconSize ?? MySize.iconSizeTiny,
+                  color: frontColor,
+                ),
+              if ((imgPath != null && title != null) ||
+                  (icon != null && title != null))
+                const SizedBox(
+                  width: MySize.defaultPadding,
+                ),
+              if (title != null)
+                Text(
+                  title,
+                  style: titleStyle,
+                ),
+            ],
+          ),
     ),
   );
 }

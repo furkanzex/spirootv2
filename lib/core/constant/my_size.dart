@@ -17,6 +17,7 @@ class MySize {
   static const double defaultPadding = 16.0;
   static const double sixQuartersPadding = 24.0;
   static const double doublePadding = 32.0;
+  static const double tenQuartersPadding = 40.0;
 
   static const double quarterRadius = 8.0;
   static const double halfRadius = 16.0;
@@ -31,4 +32,6 @@ class MySize {
   static const double gridSize = 54.0;
   static const double cardHeight = 150.0;
   static const double cardWidth = 275.0;
+
+  static const double welcomeImageSize = 240.0;
 }

@@ -1,3 +1,4 @@
+import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/view/auth/welcome_screen.dart';
 import 'package:spirootv2/core/helper/local_storage.dart';
 import 'package:spirootv2/view/homepage.dart';
@@ -13,6 +14,7 @@ class AuthController extends GetxController {
 
   var isLogin = false.obs;
   var isRegistered = false.obs;
+  var isLoading = false.obs;
 
   @override
   void onInit() {
@@ -94,6 +96,55 @@ class AuthController extends GetxController {
     } catch (e) {
       debugPrint('Çıkış yapma hatası: $e');
       Get.snackbar('Hata', 'Çıkış yapılamadı: $e');
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    try {
+      // Mevcut kullanıcı ID'sini al
+      final String? userId = _auth.currentUser?.uid;
+
+      if (userId != null) {
+        // Önce Firestore'dan kullanıcı verilerini sil
+        await _firestore.collection('users').doc(userId).delete();
+
+        // Sonra Authentication'dan kullanıcıyı sil
+        await _auth.currentUser?.delete();
+
+        // Local storage'ı temizle
+        await _storage.removeUserId();
+
+        // State'i güncelle
+        isLogin.value = false;
+        isRegistered.value = false;
+
+        // Welcome sayfasına yönlendir
+        Get.offAll(() => WelcomeScreen());
+      } else {
+        throw Exception('Kullanıcı bulunamadı');
+      }
+    } catch (e) {
+      debugPrint('Hesap silme hatası: $e');
+      throw Exception('Hesap silinemedi: $e');
+    }
+  }
+
+  Future<void> handleSignIn() async {
+    try {
+      isLoading.value = true;
+
+      // Anonim giriş yap
+      await signInAnonymously();
+    } catch (e) {
+      Get.snackbar(
+        'Hata',
+        'Giriş yapılırken bir hata oluştu: $e',
+        backgroundColor: MyColor.darkBackgroundColor,
+        colorText: MyColor.white,
+      );
+      throw Exception(e);
+    } finally {
+      isLoading.value = false;
     }
   }
 }

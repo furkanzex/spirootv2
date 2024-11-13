@@ -9,6 +9,7 @@ import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_text.dart';
+import 'package:spirootv2/widget/section/settings_modal_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -49,7 +50,7 @@ class _HomePageState extends State<HomePage> {
           ),
           IconButton(
               onPressed: () {
-                // Profil ve ayarlar
+                showSettingsBottomSheet(context);
               },
               icon: Icon(
                 MingCute.angel_line,

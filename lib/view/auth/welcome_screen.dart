@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:spirootv2/core/constant/my_text.dart';
 import 'package:spirootv2/widget/button/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/controller/auth_controller.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class WelcomeScreen extends StatefulWidget {
   final AuthController controller = AuthController();
@@ -35,8 +36,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: MySize.appBarHeight),
                   child: SizedBox(
-                    height: 250,
-                    width: 250,
+                    height: MySize.welcomeImageSize,
+                    width: MySize.welcomeImageSize,
                     child: SvgPicture.asset(MyImage.welcomeImage),
                   ),
                 ),
@@ -46,36 +47,52 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   style: MyStyle.b1.copyWith(color: MyColor.textWhiteColor),
                 ),
                 Text(
-                  "signin.title".tr(),
+                  easy.tr("signin.title"),
                   style: MyStyle.s1.copyWith(
                       color: MyColor.textWhiteColor,
                       fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(
-                  height: MySize.doublePadding,
-                ),
+                const SizedBox(height: MySize.doublePadding),
                 Row(
                   children: [
                     Expanded(
-                      child: customElevatedButton(
-                        onPressed: () {
-                          widget.controller.signInAnonymously();
-                        },
-                        titleStyle: MyStyle.buttonBig
-                            .copyWith(color: MyColor.primaryDarkColor),
-                        bgPrimaryColor: MyColor.textWhiteColor,
-                        frontColor: MyColor.primaryDarkColor,
-                        title: "signin.button_label".tr(),
-                      ),
+                      child: Obx(() => customElevatedButton(
+                            onPressed: widget.controller.isLoading.value
+                                ? null
+                                : () => widget.controller.handleSignIn(),
+                            titleStyle: MyStyle.buttonBig.copyWith(
+                              color: MyColor.primaryDarkColor,
+                            ),
+                            bgPrimaryColor: MyColor.textWhiteColor,
+                            frontColor: MyColor.primaryDarkColor,
+                            title: widget.controller.isLoading.value
+                                ? ""
+                                : easy.tr("signin.button_label"),
+                            icon: widget.controller.isLoading.value
+                                ? Icons.circle
+                                : null,
+                            iconSize: MySize.iconSizeSmall,
+                            child: widget.controller.isLoading.value
+                                ? SizedBox(
+                                    width: MySize.iconSizeSmall,
+                                    height: MySize.iconSizeSmall,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        MyColor.primaryDarkColor,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                          )),
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: MySize.doublePadding,
-                ),
+                const SizedBox(height: MySize.doublePadding),
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: MySize.doublePadding),
+                    horizontal: MySize.doublePadding,
+                  ),
                   child: SizedBox(
                     width: MySize.iconSizeMedium,
                     child: Image.asset(MyImage.logoImage),

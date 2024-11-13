@@ -25,6 +25,10 @@ Widget enlightenmentSection() {
       "title": "Blog Yazıları",
       "image": "https://apptoic.com/spiroot/images/blog.png"
     },
+    {
+      "title": "Ritüeller",
+      "image": "https://apptoic.com/spiroot/images/ritual.png"
+    },
   ];
 
   return Column(

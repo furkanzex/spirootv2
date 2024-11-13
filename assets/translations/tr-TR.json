@@ -30,8 +30,36 @@
     "greeting":"Hoş Geldin",
     "see_all":"tümünü gör"
   },
-  "signup": {},
-  "onboarding":{},
-  "main": {},
-  "more": {}
+  "profile":{},
+  "settings": {
+    "account": {
+      "title": "Hesap",
+      "guest_user": "Misafir Kullanıcı",
+      "free_account": "Ücretsiz Hesap",
+      "upgrade": "Abonelik Yükselt",
+      "delete": "Hesabı Sil",
+      "delete_confirmation": {
+        "title": "Hesabı Sil",
+        "message": "Hesabınız kalıcı olarak silinecektir. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?",
+        "cancel": "İptal",
+        "confirm": "Hesabı Sil"
+      }
+    },
+    "app": {
+      "title": "Uygulama",
+      "notifications": "Bildirim Ayarları",
+      "language": {
+        "title": "Dil",
+        "current": "Türkçe"
+      }
+    },
+    "support": {
+      "title": "Destek & Bilgi",
+      "help_center": "Yardım Merkezi"
+    },
+    "legal": {
+      "privacy_policy": "Gizlilik Politikası",
+      "terms_of_use": "Kullanım Koşulları"
+    }
+  }
 }
