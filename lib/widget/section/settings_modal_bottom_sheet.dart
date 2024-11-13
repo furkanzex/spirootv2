@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/controller/auth_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
@@ -304,7 +305,7 @@ Widget _buildSettingsItem({
             style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
           )
         : Icon(
-            MingCute.right_line,
+            MyIcon.forward,
             color: MyColor.textGreyColor,
             size: MySize.iconSizeTiny,
           ),

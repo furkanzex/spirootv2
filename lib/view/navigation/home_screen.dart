@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 verticalGap(MySize.doublePadding),
                 astrologySection(),
                 verticalGap(MySize.doublePadding),
-                fortuneSection(),
+                fortuneSection(isMainPageWidget: true),
                 verticalGap(MySize.doublePadding),
                 luckSection(),
                 verticalGap(MySize.doublePadding),

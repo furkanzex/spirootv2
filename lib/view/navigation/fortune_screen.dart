@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_size.dart';
+import 'package:spirootv2/widget/section/fortune_history_section.dart';
+import 'package:spirootv2/widget/section/fortune_section.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
-class FortuneScreen extends StatefulWidget {
+class FortuneScreen extends StatelessWidget {
   const FortuneScreen({super.key});
 
   @override
-  State<FortuneScreen> createState() => _FortuneScreenState();
-}
-
-class _FortuneScreenState extends State<FortuneScreen> {
-  @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    bool hasFortunes = true; // Bu değer Firestore'dan gelecek
+
+    return Scaffold(
+      backgroundColor: MyColor.transparent,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(MySize.defaultPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!hasFortunes) ...[
+                  fortuneSection(),
+                ] else
+                  fortuneHistorySection(context),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

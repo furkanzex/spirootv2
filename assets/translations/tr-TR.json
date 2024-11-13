@@ -30,6 +30,19 @@
     "greeting":"Hoş Geldin",
     "see_all":"tümünü gör"
   },
+  "fortune":{
+    "fortune_history":"Fal Geçmişim",
+    "fortune_history_button":"fal geçmişim",
+    "coffee":"Kahve Falı",
+    "tarot":"Tarot Falı",
+    "palm":"El Falı",
+    "katina":"Katina Falı",
+    "face":"Yüz Falı",
+    "angel":"Melek Falı",
+    "dream":"Rüya Tabiri",
+    "no_fortune_history":"Daha önce hiç fal baktırmamışsın...",
+    "no_fortune_history_desc":"Falcı teyzenin yerini aldık, gel bir bak neler varmış kısmetinde!"
+  },
   "profile":{},
   "settings": {
     "account": {

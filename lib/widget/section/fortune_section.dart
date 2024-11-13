@@ -12,8 +12,10 @@ import 'package:spirootv2/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/widget/text_field/section_title.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:extended_image/extended_image.dart';
+import 'package:get/get.dart';
+import 'package:spirootv2/controller/home_controller.dart';
 
-Widget fortuneSection() {
+Widget fortuneSection({bool isMainPageWidget = false}) {
   final List<FortuneCard> fortuneCards = [
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/coffee.png",
@@ -68,8 +70,51 @@ Widget fortuneSection() {
   return Column(
     children: [
       sectionTitle(
-        text: "🔮 ${easy.tr("navigation.fortune")}",
+        text:
+            "🔮 ${isMainPageWidget ? easy.tr("navigation.fortune") : easy.tr("fortune.fortune_history")}",
+        trailingLabel:
+            isMainPageWidget ? easy.tr("fortune.fortune_history_button") : null,
+        onTap: isMainPageWidget
+            ? () {
+                final controller = Get.find<HomeController>();
+                controller.changePage(1);
+              }
+            : null,
+        icon: isMainPageWidget ? MyIcon.forward : null,
+        color: isMainPageWidget ? MyColor.primaryLightColor : null,
       ),
+      if (!isMainPageWidget) verticalGap(MySize.defaultPadding),
+      if (!isMainPageWidget)
+        Container(
+          padding: const EdgeInsets.all(MySize.defaultPadding),
+          decoration: BoxDecoration(
+            color: MyColor.primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(MySize.halfRadius),
+            border: Border.all(
+              color: MyColor.primaryLightColor.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "${easy.tr("fortune.no_fortune_history")} 🫢",
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: MySize.halfPadding),
+              Text(
+                easy.tr("fortune.no_fortune_history_desc"),
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.textGreyColor,
+                ),
+              ),
+            ],
+          ),
+        ),
       verticalGap(MySize.defaultPadding),
       GridView.count(
         padding: EdgeInsets.all(0),
@@ -84,7 +129,7 @@ Widget fortuneSection() {
       verticalGap(MySize.sixQuartersPadding),
       GestureDetector(
         onTap: () {
-          // Tüm fallar sayfasına git
+          // Rüya yorumu sayfasına git
         },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(MySize.halfRadius),
@@ -97,51 +142,49 @@ Widget fortuneSection() {
                 color: Colors.white.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(MySize.halfRadius),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        height: MySize.gridSize,
-                        width: MySize.gridSize,
-                        child: ExtendedImage.network(
-                          "https://apptoic.com/spiroot/images/fortune_list.png",
-                          cache: true,
-                          loadStateChanged: (ExtendedImageState state) {
-                            switch (state.extendedImageLoadState) {
-                              case LoadState.loading:
-                                return SizedBox(
-                                  width: MySize.iconSizeSmall,
-                                  height: MySize.iconSizeSmall,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: MyColor.primaryLightColor,
-                                  ),
-                                );
-                              case LoadState.completed:
-                                return state.completedWidget;
-                              case LoadState.failed:
-                                return Center(child: Icon(Icons.error));
-                              default:
-                                return Container();
-                            }
-                          },
-                        ),
-                      ),
-                      horizontalGap(MySize.defaultPadding),
-                      Text(
-                        "Tüm Fallarım",
-                        style: MyStyle.s1.copyWith(
-                            fontWeight: FontWeight.bold, color: MyColor.white),
-                      ),
-                      const Spacer(),
-                      Icon(
-                        MyIcon.forward,
+                  SizedBox(
+                    height: MySize.gridSize,
+                    width: MySize.gridSize,
+                    child: ExtendedImage.network(
+                      "https://apptoic.com/spiroot/images/dream.png",
+                      cache: true,
+                      loadStateChanged: (ExtendedImageState state) {
+                        switch (state.extendedImageLoadState) {
+                          case LoadState.loading:
+                            return SizedBox(
+                              width: MySize.iconSizeSmall,
+                              height: MySize.iconSizeSmall,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: MyColor.primaryLightColor,
+                              ),
+                            );
+                          case LoadState.completed:
+                            return state.completedWidget;
+                          case LoadState.failed:
+                            return Center(child: Icon(Icons.error));
+                          default:
+                            return Container();
+                        }
+                      },
+                    ),
+                  ),
+                  horizontalGap(MySize.defaultPadding),
+                  Expanded(
+                    child: Text(
+                      "Rüyanı Yorumla",
+                      style: MyStyle.s1.copyWith(
+                        fontWeight: FontWeight.bold,
                         color: MyColor.white,
-                        size: MySize.iconSizeSmall,
-                      )
-                    ],
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    MyIcon.forward,
+                    color: MyColor.white,
+                    size: MySize.iconSizeSmall,
                   ),
                 ],
               ),
