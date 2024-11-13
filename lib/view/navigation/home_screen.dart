@@ -9,6 +9,7 @@ import 'package:spirootv2/widget/section/greeting_section.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/widget/section/luck_section.dart';
 import 'package:spirootv2/widget/section/rest_ur_spirit_section.dart';
+import 'package:spirootv2/widget/section/top_shops_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 astrologySection(),
                 verticalGap(MySize.doublePadding),
                 fortuneSection(isMainPageWidget: true),
+                verticalGap(MySize.doublePadding),
+                topShopsSection(),
                 verticalGap(MySize.doublePadding),
                 luckSection(),
                 verticalGap(MySize.doublePadding),

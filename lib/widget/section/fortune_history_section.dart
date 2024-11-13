@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:spirootv2/widget/gap/horizontal_gap.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
@@ -81,10 +82,9 @@ Genel olarak fincanın çok olumlu mesajlar veriyor. Önündeki dönem, uzun zam
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Fal ikonu - 44x44pt minimum touch target
                               Container(
-                                width: 44,
-                                height: 44,
+                                width: MySize.iconSizeMedium,
+                                height: MySize.iconSizeMedium,
                                 decoration: BoxDecoration(
                                   color: MyColor.primaryColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(
@@ -94,17 +94,15 @@ Genel olarak fincanın çok olumlu mesajlar veriyor. Önündeki dönem, uzun zam
                                   item.image,
                                   cache: true,
                                   fit: BoxFit.contain,
-                                  width: 32,
-                                  height: 32,
+                                  width: MySize.iconSizeSmall,
+                                  height: MySize.iconSizeSmall,
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              // İçerik kısmı
+                              horizontalGap(MySize.threeQuartersPadding),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Fal türü ve tarih yan yana
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -124,8 +122,7 @@ Genel olarak fincanın çok olumlu mesajlar veriyor. Önündeki dönem, uzun zam
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
-                                    // Fal içeriği
+                                    horizontalGap(MySize.halfPadding),
                                     Text(
                                       item.content,
                                       style: MyStyle.s3.copyWith(

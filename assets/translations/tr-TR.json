@@ -20,11 +20,12 @@
     "home":"Anasayfa",
     "fortune":"Fal",
     "astrology":"Astroloji",
-    "shops":"Mağazalar",
+    "shops":"Dükkanlar",
     "explore":"Keşfet",
     "enlightenment":"Aydınlan",
     "rest_ur_spirit":"Ruhunu Dinlendir",
-    "luck":"Gizemli Şans Yolu"
+    "luck":"Gizemli Şans Yolu",
+    "top_rated_shops":"Öne Çıkan Mekanlar"
   },
   "home": {
     "greeting":"Hoş Geldin",
