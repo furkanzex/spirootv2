@@ -7,6 +7,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:icons_plus/icons_plus.dart';
+import 'package:spirootv2/widget/divider/divider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void showSettingsBottomSheet(BuildContext context) {
@@ -76,7 +77,7 @@ void showSettingsBottomSheet(BuildContext context) {
             ),
           ),
 
-          const Divider(color: Colors.white10),
+          divider(),
 
           // Settings
           Expanded(

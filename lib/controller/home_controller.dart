@@ -14,7 +14,7 @@ class HomeController extends GetxController {
   final List<Widget> pages = [
     const HomeScreen(),
     const FortuneScreen(),
-    const AstrologyScreen(),
+    AstrologyScreen(),
     const ShopsScreen(),
     const ExploreScreen(),
   ];

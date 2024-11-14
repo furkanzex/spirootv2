@@ -297,10 +297,9 @@ final List<Post> _dummyPosts = [
     id: "1",
     userId: "user1",
     userName: "Ruhsal Rehber",
-    userImage: "https://apptoic.com/spiroot/images/users/user1.jpg",
+    userImage: "https://apptoic.com/spiroot/images/guide1.png",
     content:
         "Bugün meditasyon seansımızda harika enerjiler aldık! Katılan herkese teşekkürler 🙏",
-    image: "https://apptoic.com/spiroot/images/posts/meditation.jpg",
     createdAt: DateTime.now().subtract(const Duration(hours: 2)),
     likeCount: 128,
     commentCount: 23,

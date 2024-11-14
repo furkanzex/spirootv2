@@ -8,8 +8,10 @@ import 'package:spirootv2/core/constant/my_text.dart';
 import 'package:spirootv2/firebase_options.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:spirootv2/core/helper/local_storage.dart';
+import 'package:spirootv2/controller/astrology_controller.dart';
 
 void main() async {
+  Get.put(AstrologyController());
   await GetStorage.init();
   final storage = LocalStorage();
   await storage.saveAppVersion(MyText.appVersion);
