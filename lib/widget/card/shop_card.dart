@@ -21,81 +21,78 @@ Widget buildShopCard(Shop shop) {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(MySize.halfRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.all(MySize.defaultPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Dükkan görseli
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: ExtendedImage.network(
-                      shop.images.first,
-                      fit: BoxFit.cover,
-                      cache: true,
-                    ),
+        child: Container(
+          padding: const EdgeInsets.all(MySize.defaultPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Dükkan görseli
+              ClipRRect(
+                borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: ExtendedImage.network(
+                    shop.images.first,
+                    fit: BoxFit.cover,
+                    cache: true,
                   ),
                 ),
-                verticalGap(MySize.defaultPadding),
-                // Dükkan bilgileri
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            shop.name,
-                            style: MyStyle.s1.copyWith(
-                              color: MyColor.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            shop.city,
-                            style: MyStyle.s3.copyWith(
-                              color: MyColor.textGreyColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+              ),
+              verticalGap(MySize.defaultPadding),
+              // Dükkan bilgileri
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                              size: MySize.iconSizeSmall,
-                            ),
-                            Text(
-                              shop.rating.toString(),
-                              style: MyStyle.s2.copyWith(
-                                color: MyColor.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          shop.name,
+                          style: MyStyle.s1.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Text(
-                          "${shop.reviewCount} ${easy.tr("shops.reviews")}",
+                          shop.city,
                           style: MyStyle.s3.copyWith(
                             color: MyColor.textGreyColor,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: MySize.iconSizeSmall,
+                          ),
+                          Text(
+                            shop.rating.toString(),
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        "${shop.reviewCount} ${easy.tr("shops.reviews")}",
+                        style: MyStyle.s3.copyWith(
+                          color: MyColor.textGreyColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
