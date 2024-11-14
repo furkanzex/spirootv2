@@ -38,7 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 verticalGap(MySize.doublePadding),
                 fortuneSection(isMainPageWidget: true),
                 verticalGap(MySize.doublePadding),
-                topShopsSection(),
+              ],
+            ),
+          ),
+          topShopsSection(),
+          Padding(
+            padding: const EdgeInsets.all(MySize.defaultPadding),
+            child: Column(
+              children: [
                 verticalGap(MySize.doublePadding),
                 luckSection(),
                 verticalGap(MySize.doublePadding),

@@ -143,15 +143,18 @@ Widget topShopsSection() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      sectionTitle(
-        text: "⭐️ ${easy.tr("navigation.top_rated_shops")}",
-        trailingLabel: easy.tr("home.see_all"),
-        icon: MyIcon.forward,
-        color: MyColor.primaryLightColor,
-        onTap: () {
-          final controller = Get.find<HomeController>();
-          controller.changePage(3);
-        },
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
+        child: sectionTitle(
+          text: "⭐️ ${easy.tr("navigation.top_rated_shops")}",
+          trailingLabel: easy.tr("home.see_all"),
+          icon: MyIcon.forward,
+          color: MyColor.primaryLightColor,
+          onTap: () {
+            final controller = Get.find<HomeController>();
+            controller.changePage(3);
+          },
+        ),
       ),
       verticalGap(MySize.defaultPadding),
       CarouselSlider(
