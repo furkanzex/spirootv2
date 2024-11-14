@@ -326,7 +326,7 @@ class AstrologyScreen extends StatelessWidget {
           height: 220,
           padding: const EdgeInsets.all(MySize.defaultPadding),
           decoration: BoxDecoration(
-            color: MyColor.primaryColor.withOpacity(0.1),
+            color: MyColor.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(MySize.halfRadius),
           ),
           child: LineChart(
@@ -515,8 +515,101 @@ class AstrologyScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Ay Takvimi
         Text(
           easy.tr("Ay Takvimi"),
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        verticalGap(MySize.defaultPadding),
+        Container(
+          padding: const EdgeInsets.all(MySize.defaultPadding),
+          decoration: BoxDecoration(
+            color: MyColor.white.withOpacity(0.0),
+            borderRadius: BorderRadius.circular(MySize.halfRadius),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Büyük Ay Görseli ve Bilgiler
+              Row(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: MyColor.white.withOpacity(0.9),
+                    ),
+                  ),
+                  const SizedBox(width: MySize.defaultPadding),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Waxing Gibbous",
+                          style: MyStyle.s2.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          "in taurus ♉️ (5°63')",
+                          style: MyStyle.s3.copyWith(
+                            color: MyColor.textGreyColor,
+                          ),
+                        ),
+                        Text(
+                          "Illumination 99%",
+                          style: MyStyle.s3.copyWith(
+                            color: MyColor.textGreyColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              verticalGap(MySize.defaultPadding),
+
+              // Ay Fazları
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildMoonPhase("Nov 1", "🌑"),
+                  _buildMoonPhase("Nov 9", "🌓"),
+                  _buildMoonPhase("Nov 15", "🌕"),
+                  _buildMoonPhase("Nov 22", "🌗"),
+                ],
+              ),
+
+              verticalGap(MySize.defaultPadding),
+              Text(
+                "Moon in Taurus",
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              verticalGap(8),
+              Text(
+                "Today brings much emotional security. You find comfort in that which you can control. You may struggle to express your affections to loved ones and come off as possessive or clingy.",
+                style: MyStyle.s3.copyWith(
+                  color: MyColor.white,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Önemli Astroloji Olayı
+        verticalGap(MySize.doublePadding),
+        Text(
+          easy.tr("Önemli Astroloji Olayı"),
           style: MyStyle.s2.copyWith(
             color: MyColor.white,
             fontWeight: FontWeight.w500,
@@ -529,32 +622,54 @@ class AstrologyScreen extends StatelessWidget {
             color: MyColor.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(MySize.halfRadius),
           ),
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "🌕 Dolunay",
-                    style: MyStyle.s2.copyWith(
-                      color: MyColor.white,
+              Container(
+                padding: const EdgeInsets.all(MySize.defaultPadding),
+                decoration: BoxDecoration(
+                  color: MyColor.primaryLightColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "14",
+                      style: MyStyle.s1.copyWith(
+                        color: MyColor.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                    "24 Mart 2024",
-                    style: MyStyle.s3.copyWith(
-                      color: MyColor.textGreyColor,
+                    Text(
+                      "NOV",
+                      style: MyStyle.s3.copyWith(
+                        color: MyColor.textGreyColor,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              verticalGap(MySize.defaultPadding),
-              Text(
-                "Dolunay zamanı, duygularınızın yoğun olduğu ve sezgilerinizin güçlendiği bir dönem. İçsel farkındalığınız artabilir ve önemli kararlar almak için uygun bir zaman.",
-                style: MyStyle.s2.copyWith(
-                  color: MyColor.white,
-                  height: 1.5,
+              const SizedBox(width: MySize.defaultPadding),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Mercury semi-square Pluto",
+                      style: MyStyle.s2.copyWith(
+                        color: MyColor.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    verticalGap(8),
+                    Text(
+                      "You are highly concentrated on making your dreams come true. You want to be the doer in your life. When you get into arguments you will hold your ground. Be careful when interactive with your boss or father.",
+                      style: MyStyle.s3.copyWith(
+                        color: MyColor.white,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -564,93 +679,112 @@ class AstrologyScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildMoonPhase(String date, String emoji) {
+    return Column(
+      children: [
+        Text(
+          emoji,
+          style: const TextStyle(fontSize: 24),
+        ),
+        verticalGap(4),
+        Text(
+          date,
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildCompatibilityTestCard() {
     return Container(
-      padding: const EdgeInsets.all(MySize.defaultPadding),
+      height: 150,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: MyColor.primaryColor.withOpacity(0.1),
+        color: MyColor.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(MySize.halfRadius),
-        border: Border.all(
-          color: MyColor.primaryLightColor.withOpacity(0.2),
-          width: 1,
-        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Başlık ve İkon
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: MyColor.primaryLightColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                ),
-                child: Icon(
-                  Icons.favorite_rounded,
-                  color: MyColor.primaryLightColor,
-                  size: 20,
-                ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(MySize.halfRadius),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ExtendedImage.network(
+              "https://apptoic.com/spiroot/images/compatibility.png",
+              fit: BoxFit.cover,
+              cache: true,
+            ),
+            // Gradient overlay
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
               ),
-              const SizedBox(width: MySize.defaultPadding),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      easy.tr("astrology.compatibility_test"),
-                      style: MyStyle.s2.copyWith(
+            ),
+            Padding(
+              padding: const EdgeInsets.all(MySize.defaultPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Başlık ve İkon
+                  Row(
+                    children: [
+                      Icon(
+                        MingCute.group_fill,
                         color: MyColor.white,
-                        fontWeight: FontWeight.w500,
+                        size: MySize.iconSizeSmall,
                       ),
-                    ),
-                    Text(
-                      easy.tr("astrology.compatibility_description"),
-                      style: MyStyle.s3.copyWith(
-                        color: MyColor.textGreyColor,
-                        height: 1.3,
+                      const SizedBox(width: MySize.defaultPadding),
+                      Expanded(
+                        child: Text(
+                          easy.tr("Uyum Testi"),
+                          style: MyStyle.s2.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          verticalGap(MySize.defaultPadding),
+                    ],
+                  ),
+                  verticalGap(MySize.defaultPadding),
 
-          // Test Butonları
-          Row(
-            children: [
-              Expanded(
-                child: _buildTestButton(
-                  "Aşk Uyumu",
-                  Icons.favorite_outline_rounded,
-                  () => Get.toNamed('/compatibility/love'),
-                ),
+                  // Test Butonları
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: _buildTestButton(
+                          "Aşk",
+                          MingCute.heart_line,
+                          () => Get.toNamed('/compatibility/love'),
+                        ),
+                      ),
+                      const SizedBox(width: MySize.defaultPadding),
+                      Expanded(
+                        child: _buildTestButton(
+                          "Arkadaşlık",
+                          MingCute.group_line,
+                          () => Get.toNamed('/compatibility/friendship'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(width: MySize.defaultPadding),
-              Expanded(
-                child: _buildTestButton(
-                  "Arkadaşlık Uyumu",
-                  Icons.people_outline_rounded,
-                  () => Get.toNamed('/compatibility/friendship'),
-                ),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTestButton(String text, IconData icon, VoidCallback onPressed) {
     return SizedBox(
-      height: 44, // Apple minimum touch target
+      height: MySize.iconSizeMedium,
       child: TextButton(
         onPressed: onPressed,
         style: TextButton.styleFrom(
-          backgroundColor: MyColor.white.withOpacity(0.1),
+          backgroundColor: MyColor.primaryDarkColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MySize.quarterRadius),
           ),
@@ -665,11 +799,12 @@ class AstrologyScreen extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: MyColor.primaryLightColor,
+              color: MyColor.white,
             ),
             const SizedBox(width: 8),
             Text(
               text,
+              maxLines: 2,
               style: MyStyle.s3.copyWith(
                 color: MyColor.white,
                 fontWeight: FontWeight.w500,
