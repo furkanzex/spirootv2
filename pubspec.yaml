@@ -36,6 +36,9 @@ dependencies:
   url_launcher: ^6.3.1
   share: ^2.0.4
   fl_chart: ^0.69.0
+  flutter_datetime_picker_plus: ^2.1.0
+  google_places_flutter: ^2.0.8
+  animate_do: ^3.3.4
 
 dev_dependencies:
   flutter_test:

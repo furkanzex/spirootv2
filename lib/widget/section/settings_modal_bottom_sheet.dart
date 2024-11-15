@@ -7,6 +7,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:icons_plus/icons_plus.dart';
+import 'package:spirootv2/view/onboarding/profile_onboarding.dart';
 import 'package:spirootv2/widget/divider/divider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -37,43 +38,48 @@ void showSettingsBottomSheet(BuildContext context) {
           // Profile
           Padding(
             padding: const EdgeInsets.all(MySize.defaultPadding),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: MyColor.primaryColor,
-                  child: Icon(MingCute.user_4_fill,
-                      color: MyColor.white, size: 30),
-                ),
-                const SizedBox(width: MySize.defaultPadding),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        easy.tr("settings.account.guest_user"),
-                        style: MyStyle.s1.copyWith(
-                          color: MyColor.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        easy.tr("settings.account.free_account"),
-                        style:
-                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
-                      ),
-                    ],
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                Get.to(() => const ProfileOnboarding(),
+                    transition: Transition.rightToLeft,
+                    duration: const Duration(milliseconds: 300));
+              },
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: MyColor.primaryColor,
+                    child: Icon(MingCute.user_4_fill,
+                        color: MyColor.white, size: 30),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
+                  const SizedBox(width: MySize.defaultPadding),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          easy.tr("settings.account.guest_user"),
+                          style: MyStyle.s1.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          easy.tr("settings.account.free_account"),
+                          style:
+                              MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
                     MingCute.right_line,
                     color: MyColor.white,
                     size: MySize.iconSizeSmall,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
