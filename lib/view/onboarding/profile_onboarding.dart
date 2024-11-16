@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:spirootv2/controller/astrology_controller.dart';
 import 'package:spirootv2/controller/profile_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
@@ -23,11 +24,29 @@ class ProfileOnboarding extends StatefulWidget {
 }
 
 class _ProfileOnboardingState extends State<ProfileOnboarding> {
-  final PageController _pageController = PageController();
-  final ProfileController _controller = Get.put(ProfileController());
-  final AstrologyController controller = Get.put(AstrologyController());
+  late final PageController _pageController;
+  late final ProfileController _controller;
+  late final AstrologyController _astrologyController;
+  final FocusNode _focusNode = FocusNode();
   int _currentPage = 0;
   double _previousRotation = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _controller = Get.put(ProfileController());
+    _astrologyController = Get.put(AstrologyController());
+    _pageController.addListener(_onPageChanged);
+  }
+
+  void _onPageChanged() {
+    if (_pageController.page != null) {
+      setState(() {
+        _currentPage = _pageController.page!.round();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,40 +54,89 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
       onTap: () {
         FocusScope.of(context).unfocus();
       },
-      child: Scaffold(
-        backgroundColor: MyColor.primaryDarkColor,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // İlerleme göstergesi
-              LinearProgressIndicator(
-                value: (_currentPage + 1) / 5,
-                backgroundColor: MyColor.white.withOpacity(0.1),
-                valueColor: AlwaysStoppedAnimation<Color>(MyColor.primaryColor),
+      child: Focus(
+        focusNode: _focusNode,
+        child: Scaffold(
+          backgroundColor: MyColor.primaryDarkColor,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            leading: _currentPage > 0
+                ? IconButton(
+                    icon: Icon(MyIcon.back, color: MyColor.white),
+                    onPressed: () {
+                      _pageController.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                  )
+                : null,
+            title: Text(
+              _getPageTitle(_currentPage),
+              style: MyStyle.s1.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.bold,
               ),
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onPageChanged: (int page) {
-                    setState(() {
-                      _currentPage = page;
-                    });
-                  },
-                  children: [
-                    _buildNamePage(),
-                    _buildBirthDatePage(),
-                    _buildBirthTimePage(),
-                    _buildBirthPlacePage(),
-                    _buildInterestsPage(),
-                  ],
+            ),
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                LinearProgressIndicator(
+                  value: (_currentPage + 1) / 7,
+                  backgroundColor: MyColor.white.withOpacity(0.1),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(MyColor.primaryLightColor),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onPageChanged: (int page) {
+                      setState(() {
+                        _currentPage = page;
+                      });
+                    },
+                    children: [
+                      _buildNamePage(),
+                      _buildBirthDatePage(),
+                      _buildBirthTimePage(),
+                      _buildBirthPlacePage(),
+                      _buildGenderPage(),
+                      _buildRelationshipStatusPage(),
+                      _buildInterestsPage(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  String _getPageTitle(int page) {
+    switch (page) {
+      case 0:
+        return 'Seni tanıyalım';
+      case 1:
+        return 'Doğum tarihin';
+      case 2:
+        return 'Doğum saatin';
+      case 3:
+        return 'Doğum yerin';
+      case 4:
+        return 'Cinsiyetin';
+      case 5:
+        return 'İlişki durumun';
+      case 6:
+        return 'İlgi alanların';
+      default:
+        return '';
+    }
   }
 
   Widget _buildNamePage() {
@@ -79,28 +147,22 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
           vertical: MySize.doublePadding,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Seni tanıyalım',
-              style: MyStyle.s1.copyWith(
-                color: MyColor.white,
-                fontWeight: FontWeight.bold,
+            SizedBox(
+              height: 150,
+              child: Image.asset(
+                'assets/images/name.png',
+                width: 250,
               ),
-            ),
-            verticalGap(MySize.halfPadding),
-            Text(
-              'İsmini öğrenebilir miyiz?',
-              style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
             ),
             verticalGap(MySize.doublePadding),
             TextField(
               controller: _controller.nameController,
               style: MyStyle.s2.copyWith(color: MyColor.white),
-              onChanged: _controller.validateName,
               decoration: InputDecoration(
-                hintText: 'Adın',
-                hintStyle: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                labelText: 'İsmin nedir?',
+                labelStyle: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                 filled: true,
                 fillColor: MyColor.white.withOpacity(0.1),
                 border: OutlineInputBorder(
@@ -108,38 +170,13 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.all(MySize.defaultPadding),
-                errorText: _controller.nameController.text.isNotEmpty &&
-                        !_controller.isNameValid.value
-                    ? 'Geçerli bir isim giriniz'
+                errorText: _controller.showNameError.value
+                    ? 'İsim alanı boş bırakılamaz'
                     : null,
               ),
             ),
             const Spacer(),
-            Obx(() => ElevatedButton(
-                  onPressed: _controller.isNameValid.value
-                      ? () => _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          )
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: MyColor.primaryColor,
-                    minimumSize:
-                        const Size(double.infinity, 56), // Apple's 44pt minimum
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(MySize.halfRadius),
-                    ),
-                    disabledBackgroundColor:
-                        MyColor.primaryColor.withOpacity(0.3),
-                  ),
-                  child: Text(
-                    'Devam Et',
-                    style: MyStyle.s2.copyWith(
-                      color: MyColor.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )),
+            _buildNavigationButtons(onValidate: _controller.validateNamePage),
           ],
         ),
       ),
@@ -152,140 +189,146 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
         padding: const EdgeInsets.all(MySize.defaultPadding),
         child: Column(
           children: [
-            // Başlık
-            Text(
-              'Doğum tarihin',
-              style: MyStyle.s1.copyWith(
-                color: MyColor.white,
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Expanded(
+              child: Obx(() {
+                final zodiacSign = _astrologyController
+                    .getZodiacSign(_controller.selectedDate.value);
+                final zodiacDetails = _astrologyController
+                    .getZodiacDetails(_controller.selectedDate.value);
 
-            // İlerleme çubuğu
-            Container(
-              margin:
-                  const EdgeInsets.symmetric(vertical: MySize.defaultPadding),
-              height: 2,
-              width: MediaQuery.of(context).size.width * 0.3,
-              color: MyColor.primaryColor,
-            ),
-
-            verticalGap(MySize.doublePadding),
-
-            // Burç çarkı
-            Obx(() => SizedBox(
-                  height: 250,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Burç çarkı arka planı
-                      TweenAnimationBuilder(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                        tween: Tween<double>(
-                          begin: _previousRotation,
-                          end: controller.getZodiacRotation(
-                              _controller.selectedDate.value),
-                        ),
-                        onEnd: () {
-                          _previousRotation = controller.getZodiacRotation(
-                              _controller.selectedDate.value);
-                        },
-                        builder: (context, double angle, child) {
-                          return Transform.rotate(
-                            angle: angle,
-                            child: Image.asset(
-                              'assets/images/zodiac_wheel.png',
-                              width: 250,
+                return Column(
+                  children: [
+                    verticalGap(MySize.defaultPadding),
+                    SizedBox(
+                      height: 300,
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          // Burç çarkı arka planı
+                          TweenAnimationBuilder(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                            tween: Tween<double>(
+                              begin: _previousRotation,
+                              end: _astrologyController.calculateZodiacRotation(
+                                  _controller.selectedDate.value),
                             ),
-                          );
-                        },
-                      ),
-                      // Işık efekti
-                      Container(
-                        width: 250,
-                        height: 250,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.center,
-                            colors: [
-                              MyColor.primaryDarkColor.withOpacity(0.3),
-                              MyColor.primaryDarkColor,
-                            ],
+                            onEnd: () {
+                              _previousRotation =
+                                  _astrologyController.calculateZodiacRotation(
+                                      _controller.selectedDate.value);
+                            },
+                            builder: (context, double angle, child) {
+                              return Transform.rotate(
+                                angle: angle,
+                                child: Image.asset(
+                                  'assets/images/zodiac_wheel.png',
+                                  width: 300,
+                                ),
+                              );
+                            },
                           ),
-                        ),
+                          // Işık efekti
+                          Container(
+                            width: 300,
+                            height: 300,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.center,
+                                colors: [
+                                  MyColor.primaryDarkColor.withOpacity(0),
+                                  MyColor.primaryDarkColor,
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (zodiacDetails.isNotEmpty)
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Burç: $zodiacSign ${zodiacDetails['symbol']}',
+                                  style:
+                                      MyStyle.s2.copyWith(color: MyColor.white),
+                                ),
+                                verticalGap(MySize.halfPadding),
+                                Text(
+                                  'Element: ${zodiacDetails['element']}',
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
+                                ),
+                                Text(
+                                  'Nitelik: ${zodiacDetails['quality']}',
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
+                                ),
+                                Text(
+                                  'Yönetici Gezegen: ${zodiacDetails['ruler']}',
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
+                                ),
+                                verticalGap(MySize.defaultPadding),
+                                Text(
+                                  'Tarih Aralığı: ${zodiacDetails['dateRange']}',
+                                  style: MyStyle.s3.copyWith(
+                                      color: MyColor.primaryLightColor),
+                                ),
+                              ],
+                            ),
+                        ],
                       ),
-                      verticalGap(MySize.doublePadding),
-                      Text(
-                        'Tarih burç, numeroloji ve uyumluluk hesaplamaları için önemlidir',
-                        textAlign: TextAlign.center,
-                        style: MyStyle.s2.copyWith(
-                          color: MyColor.textGreyColor,
+                    ),
+                  ],
+                );
+              }),
+            ),
+            Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(MySize.defaultPadding),
+                  decoration: BoxDecoration(
+                    color: MyColor.darkBackgroundColor,
+                    borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 180,
+                        decoration: BoxDecoration(
+                          color: MyColor.transparent,
+                          borderRadius:
+                              BorderRadius.circular(MySize.halfRadius),
+                        ),
+                        child: CupertinoTheme(
+                          data: CupertinoThemeData(
+                            textTheme: CupertinoTextThemeData(
+                              dateTimePickerTextStyle: MyStyle.s1.copyWith(
+                                color: MyColor.white,
+                                fontSize: 22,
+                              ),
+                            ),
+                          ),
+                          child: CupertinoDatePicker(
+                            mode: CupertinoDatePickerMode.date,
+                            initialDateTime: _controller.selectedDate.value,
+                            maximumDate: DateTime.now(),
+                            minimumDate: DateTime(1900),
+                            onDateTimeChanged: (DateTime value) {
+                              _controller.selectedDate.value = value;
+                              _controller.validateDate();
+                            },
+                          ),
                         ),
                       ),
                     ],
                   ),
-                )),
-
-            // Açıklama metni
-
-            const Spacer(),
-
-            // Tarih seçici
-            Container(
-              height: 180,
-              decoration: BoxDecoration(
-                color: MyColor.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(MySize.halfRadius),
-              ),
-              child: CupertinoTheme(
-                data: CupertinoThemeData(
-                  textTheme: CupertinoTextThemeData(
-                    dateTimePickerTextStyle: MyStyle.s1.copyWith(
-                      color: MyColor.white,
-                      fontSize: 22,
-                    ),
-                  ),
                 ),
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.date,
-                  initialDateTime: _controller.selectedDate.value,
-                  maximumDate: DateTime.now(),
-                  minimumDate: DateTime(1900),
-                  onDateTimeChanged: (DateTime value) {
-                    _controller.selectedDate.value = value;
-                    _controller.validateDate();
-                  },
+                verticalGap(MySize.defaultPadding),
+                _buildNavigationButtons(
+                  onValidate: () => _controller.validateDatePage(),
                 ),
-              ),
-            ),
-
-            verticalGap(MySize.defaultPadding),
-
-            // İleri butonu
-            ElevatedButton(
-              onPressed: _controller.isDateValid.value
-                  ? () => _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      )
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MyColor.primaryColor,
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(MySize.halfRadius),
-                ),
-              ),
-              child: Text(
-                'İleri',
-                style: MyStyle.s2.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              ],
             ),
           ],
         ),
@@ -301,19 +344,14 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
           vertical: MySize.doublePadding,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Doğum saatin',
-              style: MyStyle.s1.copyWith(
-                color: MyColor.white,
-                fontWeight: FontWeight.bold,
+              'Tarih burç, numeroloji ve uyumluluk hesaplamaları için önemlidir',
+              textAlign: TextAlign.center,
+              style: MyStyle.s3.copyWith(
+                color: MyColor.textGreyColor,
               ),
-            ),
-            verticalGap(MySize.halfPadding),
-            Text(
-              'Bilmiyorsan boş bırakabilirsin',
-              style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
             ),
             verticalGap(MySize.doublePadding),
             // İki sütunlu saat seçici
@@ -331,7 +369,9 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                       onSelectedItemChanged: (int index) {
                         _controller.selectedHour.value =
                             index.toString().padLeft(2, '0');
-                        _controller.updateSelectedTime();
+                        _controller.updateSelectedTime(
+                            _controller.selectedHour.value,
+                            _controller.selectedMinute.value);
                       },
                       children: List<Widget>.generate(24, (int index) {
                         return Center(
@@ -349,7 +389,9 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                       onSelectedItemChanged: (int index) {
                         _controller.selectedMinute.value =
                             index.toString().padLeft(2, '0');
-                        _controller.updateSelectedTime();
+                        _controller.updateSelectedTime(
+                            _controller.selectedHour.value,
+                            _controller.selectedMinute.value);
                       },
                       children: List<Widget>.generate(60, (int index) {
                         return Center(
@@ -365,7 +407,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               ),
             ),
             const Spacer(),
-            _buildNavigationButtons(),
+            _buildNavigationButtons(onValidate: _controller.validateTimePage),
           ],
         ),
       ),
@@ -403,36 +445,29 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               textStyle: MyStyle.s2.copyWith(color: MyColor.white),
 
               inputDecoration: InputDecoration(
-                hintText: 'Doğum yerini ara',
-                hintStyle: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                labelText: 'Doğum yerini ara',
+                labelStyle: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                 filled: false,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(MySize.halfRadius),
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.all(MySize.defaultPadding),
-                prefixIcon:
-                    Icon(MingCute.search_2_line, color: MyColor.textGreyColor),
-                suffixIcon: _controller.birthPlaceController.text.isNotEmpty
-                    ? IconButton(
-                        onPressed: () {
-                          _controller.birthPlaceController.clear();
-                        },
-                        icon: Icon(MingCute.close_line,
-                            color: MyColor.textGreyColor),
-                      )
-                    : null,
+                prefixIcon: Icon(MingCute.search_2_line,
+                    color: MyColor.textGreyColor.withOpacity(0.5)),
               ),
               debounceTime: 800,
-              countries: const ["tr"],
+              countries: const ["tr", "us", "gb"],
               isLatLngRequired: true,
               getPlaceDetailWithLatLng: (Prediction prediction) {
                 _controller.birthPlaceController.text = prediction.description!;
                 _controller.validatePlace(prediction.description!);
+                FocusScope.of(context).unfocus();
               },
               itemClick: (Prediction prediction) {
                 _controller.birthPlaceController.text = prediction.description!;
                 _controller.validatePlace(prediction.description!);
+                FocusScope.of(context).unfocus();
               },
               // Özel liste görünümü
               seperatedBuilder: Divider(
@@ -507,7 +542,126 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               isCrossBtnShown: true,
             ),
             const Spacer(),
-            _buildNavigationButtons(),
+            _buildNavigationButtons(onValidate: _controller.validatePlacePage),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenderPage() {
+    return FadeInRight(
+      child: Padding(
+        padding: const EdgeInsets.all(MySize.defaultPadding),
+        child: Column(
+          children: [
+            Lottie.asset(
+              'assets/lottie/gender_animation.json',
+              height: 200,
+            ),
+            verticalGap(MySize.defaultPadding),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _controller.genders.length,
+                itemBuilder: (context, index) {
+                  final gender = _controller.genders[index];
+                  return Obx(() {
+                    final isSelected =
+                        _controller.selectedGender.value == gender;
+                    return Padding(
+                      padding:
+                          const EdgeInsets.only(bottom: MySize.defaultPadding),
+                      child: InkWell(
+                        onTap: () {
+                          _controller.selectedGender.value = gender;
+                          _controller.validateGender(gender);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(MySize.defaultPadding),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? MyColor.primaryColor
+                                : MyColor.white.withOpacity(0.1),
+                            borderRadius:
+                                BorderRadius.circular(MySize.halfRadius),
+                          ),
+                          child: Text(
+                            gender,
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  });
+                },
+              ),
+            ),
+            _buildNavigationButtons(onValidate: _controller.validateGenderPage),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRelationshipStatusPage() {
+    return FadeInRight(
+      child: Padding(
+        padding: const EdgeInsets.all(MySize.defaultPadding),
+        child: Column(
+          children: [
+            Lottie.asset(
+              'assets/lottie/relationship_animation.json',
+              height: 200,
+            ),
+            verticalGap(MySize.defaultPadding),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _controller.relationshipStatuses.length,
+                itemBuilder: (context, index) {
+                  final status = _controller.relationshipStatuses[index];
+                  return Obx(() {
+                    final isSelected =
+                        _controller.selectedRelationshipStatus.value == status;
+                    return Padding(
+                      padding:
+                          const EdgeInsets.only(bottom: MySize.defaultPadding),
+                      child: InkWell(
+                        onTap: () {
+                          _controller.selectedRelationshipStatus.value = status;
+                          _controller.validateRelationshipStatus(status);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(MySize.defaultPadding),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? MyColor.primaryColor
+                                : MyColor.white.withOpacity(0.1),
+                            borderRadius:
+                                BorderRadius.circular(MySize.halfRadius),
+                          ),
+                          child: Text(
+                            status,
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  });
+                },
+              ),
+            ),
+            _buildNavigationButtons(
+                onValidate: _controller.validateRelationshipPage),
           ],
         ),
       ),
@@ -631,32 +785,24 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
     );
   }
 
-  Widget _buildNavigationButtons() {
+  Widget _buildNavigationButtons({
+    required Function() onValidate,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        if (_currentPage > 0)
-          TextButton(
-            onPressed: () {
-              _pageController.previousPage(
+        const Spacer(),
+        ElevatedButton(
+          onPressed: () {
+            if (onValidate()) {
+              _pageController.nextPage(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
               );
-            },
-            child: Text(
-              'Geri',
-              style: MyStyle.s2.copyWith(color: MyColor.primaryColor),
-            ),
-          ),
-        ElevatedButton(
-          onPressed: () {
-            _pageController.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
+            }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: MyColor.primaryColor,
+            backgroundColor: MyColor.primaryLightColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(MySize.halfRadius),
             ),
@@ -668,5 +814,13 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.removeListener(_onPageChanged);
+    _pageController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 }
