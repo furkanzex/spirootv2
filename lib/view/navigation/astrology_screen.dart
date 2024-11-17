@@ -223,7 +223,7 @@ class AstrologyScreen extends StatelessWidget {
                             child: CircleAvatar(
                               backgroundColor: MyColor.white.withOpacity(0.1),
                               backgroundImage: ExtendedNetworkImageProvider(
-                                "https://apptoic.com/spiroot/images/pisces.png",
+                                "https://apptoic.com/spiroot/images/${_profileController.profileImage.value}.png",
                                 cache: true,
                               ),
                             ),
