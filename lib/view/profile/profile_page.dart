@@ -54,7 +54,9 @@ class ProfilePage extends StatelessWidget {
               // Doğum Tarihi
               _buildReadOnlyField(
                 'Doğum Tarihi',
-                '${controller.selectedDate.value.day.toString().padLeft(2, '0')}.${controller.selectedDate.value.month.toString().padLeft(2, '0')}.${controller.selectedDate.value.year}',
+                controller.selectedBirthDateTime.value != null
+                    ? '${controller.selectedBirthDateTime.value.day.toString().padLeft(2, '0')}.${controller.selectedBirthDateTime.value.month.toString().padLeft(2, '0')}.${controller.selectedBirthDateTime.value.year}'
+                    : '',
               ),
               verticalGap(MySize.defaultPadding),
 

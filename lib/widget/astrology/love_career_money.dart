@@ -8,7 +8,7 @@ import 'package:easy_localization/easy_localization.dart' as easy;
 
 Widget loveCareerMoney() {
   final AstrologyController astrologyController =
-      Get.find<AstrologyController>();
+      Get.put(AstrologyController());
 
   return Obx(() => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

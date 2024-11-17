@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -189,10 +189,8 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Obx(() {
-              final zodiacSign = _astrologyController
-                  .getZodiacSign(_controller.selectedDate.value);
               final zodiacDetails = _astrologyController
-                  .getZodiacDetails(_controller.selectedDate.value);
+                  .getZodiacDetails(_controller.selectedBirthDateTime.value);
 
               return Column(
                 children: [
@@ -209,12 +207,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                           tween: Tween<double>(
                             begin: _previousRotation,
                             end: _astrologyController.calculateZodiacRotation(
-                                _controller.selectedDate.value),
+                                _controller.selectedBirthDateTime.value),
                           ),
                           onEnd: () {
                             _previousRotation =
                                 _astrologyController.calculateZodiacRotation(
-                                    _controller.selectedDate.value);
+                                    _controller.selectedBirthDateTime.value);
                           },
                           builder: (context, double angle, child) {
                             return Transform.rotate(
@@ -310,11 +308,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                           child: CupertinoDatePicker(
                             itemExtent: MySize.tenQuartersPadding,
                             mode: CupertinoDatePickerMode.date,
-                            initialDateTime: _controller.selectedDate.value,
+                            initialDateTime:
+                                _controller.selectedBirthDateTime.value,
                             maximumDate: DateTime.now(),
                             minimumDate: DateTime(1900),
                             onDateTimeChanged: (DateTime value) {
-                              _controller.selectedDate.value = value;
+                              _controller.selectedBirthDateTime.value = value;
                               _controller.validateDate();
                             },
                           ),
@@ -395,7 +394,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                           Flexible(
                             flex: 2,
                             child: Text(
-                              'Tarih burç, numeroloji ve uyumluluk hesaplamaları için önemlidir',
+                              easy.tr("profile.explanations.birth_time"),
                               textAlign: TextAlign.center,
                               style: MyStyle.s3.copyWith(
                                 color: MyColor.textGreyColor,
@@ -537,6 +536,27 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             countries: const ["tr", "us", "gb"],
             isLatLngRequired: true,
             getPlaceDetailWithLatLng: (Prediction prediction) {
+              if (mounted) {
+                // Widget hala aktif mi kontrol et
+                _controller.validatePlace(prediction.description ?? '');
+                _birthPlaceFocusNode.unfocus();
+
+                if (_controller.validatePlacePage()) {
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              }
+            },
+            itemClick: (Prediction prediction) {
+              if (mounted) {
+                // Widget hala aktif mi kontrol et
+                _controller.validatePlace(prediction.description ?? '');
+                _birthPlaceFocusNode.unfocus();
+              }
+            },
+            /*getPlaceDetailWithLatLng: (Prediction prediction) {
               _controller.birthPlaceController.text = prediction.description!;
               _controller.validatePlace(prediction.description!);
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -561,7 +581,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                   curve: Curves.easeInOut,
                 );
               }
-            },
+            },*/
             // Özel liste görünümü
             seperatedBuilder: Divider(
               height: 1,
@@ -645,7 +665,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
           ),
           verticalGap(MySize.defaultPadding),
           Text(
-            'Tarih burç, numeroloji ve uyumluluk hesaplamaları için önemlidir',
+            easy.tr("profile.explanations.birth_place"),
             textAlign: TextAlign.center,
             style: MyStyle.s3.copyWith(
               color: MyColor.textGreyColor,
@@ -664,7 +684,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
           alignment: Alignment.topCenter,
           children: [
             Text(
-              'Tarih burç, numeroloji ve uyumluluk hesaplamaları için önemlidir',
+              easy.tr("profile.explanations.gender"),
               textAlign: TextAlign.center,
               style: MyStyle.s3.copyWith(
                 color: MyColor.textGreyColor,
@@ -766,13 +786,6 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            Text(
-              'İlişki durumunu seç',
-              textAlign: TextAlign.center,
-              style: MyStyle.s3.copyWith(
-                color: MyColor.textGreyColor,
-              ),
-            ),
             Column(
               children: [
                 const Spacer(),
@@ -892,7 +905,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
           alignment: Alignment.topCenter,
           children: [
             Text(
-              'İlgi alanlarını seç',
+              easy.tr("profile.explanations.interests"),
               textAlign: TextAlign.center,
               style: MyStyle.s3.copyWith(
                 color: MyColor.textGreyColor,

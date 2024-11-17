@@ -10,15 +10,15 @@ class ProfileController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Text Controllers
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController birthPlaceController = TextEditingController();
+  // Text Controllers'ı late olarak tanımlayalım
+  late TextEditingController nameController;
+  late TextEditingController birthPlaceController;
 
   // Observable Values
   final RxString selectedHour = '00'.obs;
   final RxString selectedMinute = '00'.obs;
-  final RxString selectedTime = ''.obs;
-  final Rx<DateTime> selectedDate = DateTime.now().obs;
+  final RxString selectedTime = '00:00'.obs;
+  final Rx<DateTime> selectedBirthDateTime = DateTime.now().obs;
   final RxString selectedGender = ''.obs;
   final RxString selectedRelationshipStatus = ''.obs;
   final RxList<String> selectedInterests = <String>[].obs;
@@ -82,19 +82,36 @@ class ProfileController extends GetxController {
   final RxString userName = ''.obs;
   final RxString profileImage = ''.obs;
 
-  // DateTime olarak doğum saati
-  final Rx<DateTime> selectedBirthDateTime = DateTime.now().obs;
+  final RxString sunSign = ''.obs;
+  final RxString moonSign = ''.obs;
+  final RxString ascendant = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
+    // Controller'ları initialize edelim
+    nameController = TextEditingController();
+    birthPlaceController = TextEditingController();
     _setupListeners();
     loadUserProfile();
   }
 
+  @override
+  void onClose() {
+    // Controller'ları dispose etmeden önce listener'ları kaldıralım
+    nameController.removeListener(_validateName);
+    birthPlaceController.removeListener(_validatePlace);
+
+    // Dispose işlemlerini yapalım
+    nameController.dispose();
+    birthPlaceController.dispose();
+    super.onClose();
+  }
+
   void _setupListeners() {
-    nameController.addListener(() => _validateName());
-    birthPlaceController.addListener(() => _validatePlace());
+    // Listener'ları ekleyelim
+    nameController.addListener(_validateName);
+    birthPlaceController.addListener(_validatePlace);
   }
 
   Future<void> loadUserProfile() async {
@@ -114,29 +131,24 @@ class ProfileController extends GetxController {
           final userData = doc.data()!;
 
           // Text controller'ları güncelle
-          nameController.text = userData['name'] ?? '';
-          birthPlaceController.text = userData['birthPlace'] ?? '';
+          nameController.text = userData['name']?.toString() ?? '';
+          birthPlaceController.text = userData['birthPlace']?.toString() ?? '';
 
           // Rx değişkenlerini güncelle
-          if (userData['birthDate'] != null) {
-            selectedDate.value = (userData['birthDate'] as Timestamp).toDate();
-          }
-
           if (userData['birthTime'] != null) {
-            final birthTimeTimestamp = userData['birthTime'] as Timestamp;
-            final birthDateTime = birthTimeTimestamp.toDate();
-
-            selectedBirthDateTime.value = birthDateTime;
-            selectedHour.value = birthDateTime.hour.toString().padLeft(2, '0');
+            selectedBirthDateTime.value =
+                (userData['birthTime'] as Timestamp).toDate();
+            selectedHour.value =
+                selectedBirthDateTime.value.hour.toString().padLeft(2, '0');
             selectedMinute.value =
-                birthDateTime.minute.toString().padLeft(2, '0');
+                selectedBirthDateTime.value.minute.toString().padLeft(2, '0');
             selectedTime.value =
                 '${selectedHour.value}:${selectedMinute.value}';
           }
 
-          selectedGender.value = userData['gender'] ?? '';
+          selectedGender.value = userData['gender']?.toString() ?? '';
           selectedRelationshipStatus.value =
-              userData['relationshipStatus'] ?? '';
+              userData['relationshipStatus']?.toString() ?? '';
 
           if (userData['interests'] != null) {
             selectedInterests.value = List<String>.from(userData['interests']);
@@ -155,6 +167,9 @@ class ProfileController extends GetxController {
           isProfileComplete.value = userData['isProfileComplete'] ?? false;
           userName.value = userData['name'] ?? '';
           profileImage.value = userData['zodiacSign'] ?? '';
+          sunSign.value = userData['sunSign'] ?? '';
+          moonSign.value = userData['moonSign'] ?? '';
+          ascendant.value = userData['ascendant'] ?? '';
         }
       }
     } catch (e) {
@@ -173,19 +188,25 @@ class ProfileController extends GetxController {
 
   void _validateDate() {
     final now = DateTime.now();
-    final age = now.year - selectedDate.value.year;
+    final age = now.year - selectedBirthDateTime.value.year;
     isDateValid.value = age >= 13 && age <= 100;
 
     if (isDateValid.value) {
-      final zodiacSign =
-          Get.find<AstrologyController>().getZodiacSign(selectedDate.value);
-      _saveFieldToFirestore('birthDate', selectedDate.value);
-      _saveFieldToFirestore('zodiacSign', zodiacSign);
+      final astrologyController = Get.find<AstrologyController>();
 
-      // Burç detaylarını da kaydet
-      final zodiacDetails =
-          Get.find<AstrologyController>().getZodiacDetails(selectedDate.value);
-      _saveFieldToFirestore('zodiacDetails', zodiacDetails);
+      // Burçları hesapla
+      sunSign.value =
+          astrologyController.getZodiacSign(selectedBirthDateTime.value);
+      moonSign.value =
+          astrologyController.getMoonSign(selectedBirthDateTime.value);
+      ascendant.value = astrologyController.getAscendant(
+          selectedBirthDateTime.value, birthPlaceController.text);
+
+      // Firebase'e kaydet
+      _saveFieldToFirestore('birthTime', selectedBirthDateTime.value);
+      _saveFieldToFirestore('sunSign', sunSign.value);
+      _saveFieldToFirestore('moonSign', moonSign.value);
+      _saveFieldToFirestore('ascendant', ascendant.value);
     }
   }
 
@@ -256,12 +277,12 @@ class ProfileController extends GetxController {
       isLoading.value = true;
       final user = _auth.currentUser;
       if (user != null) {
-        final zodiacSign =
-            Get.find<AstrologyController>().getZodiacSign(selectedDate.value);
+        final zodiacSign = Get.find<AstrologyController>()
+            .getZodiacSign(selectedBirthDateTime.value);
 
         await _firestore.collection('users').doc(user.uid).set({
           'name': nameController.text.trim(),
-          'birthDate': selectedDate.value,
+          'birthDate': selectedBirthDateTime.value,
           'birthTime': selectedBirthDateTime.value,
           'birthPlace': birthPlaceController.text.trim(),
           'gender': selectedGender.value,
@@ -282,36 +303,27 @@ class ProfileController extends GetxController {
 
   void _handleError(dynamic error) {
     debugPrint('Hata: $error');
-    Get.snackbar(
-      'Hata',
-      error.toString(),
-      backgroundColor: MyColor.errorColor,
-      colorText: MyColor.white,
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  }
-
-  @override
-  void onClose() {
-    nameController.dispose();
-    birthPlaceController.dispose();
-    super.onClose();
+    if (Get.context != null) {
+      Get.snackbar(
+        'Hata',
+        error.toString(),
+        backgroundColor: MyColor.errorColor,
+        colorText: MyColor.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   void validateDate() {
     final now = DateTime.now();
-    final age = now.year - selectedDate.value.year;
+    final age = now.year - selectedBirthDateTime.value.year;
     isDateValid.value = age >= 13 && age <= 100;
 
     if (isDateValid.value) {
-      final zodiacSign =
-          Get.find<AstrologyController>().getZodiacSign(selectedDate.value);
-      _saveFieldToFirestore('birthDate', selectedDate.value);
+      final zodiacSign = Get.find<AstrologyController>()
+          .getZodiacSign(selectedBirthDateTime.value);
+      _saveFieldToFirestore('birthDate', selectedBirthDateTime.value);
       _saveFieldToFirestore('zodiacSign', zodiacSign);
-
-      final zodiacDetails =
-          Get.find<AstrologyController>().getZodiacDetails(selectedDate.value);
-      _saveFieldToFirestore('zodiacDetails', zodiacDetails);
     }
   }
 
@@ -341,20 +353,28 @@ class ProfileController extends GetxController {
     }
   }
 
-  void updateSelectedTime(String hour, String minute) {
-    // Mevcut seçili tarihi al
-    final currentDate = selectedDate.value;
-
-    // Yeni bir DateTime oluştur (seçili tarih + seçili saat)
+  void updateBirthDate(DateTime date) {
     selectedBirthDateTime.value = DateTime(
-      currentDate.year,
-      currentDate.month,
-      currentDate.day,
+      date.year,
+      date.month,
+      date.day,
+      int.parse(selectedHour.value),
+      int.parse(selectedMinute.value),
+    );
+    _validateDate();
+  }
+
+  void updateSelectedTime(String hour, String minute) {
+    // Mevcut tarihi koru, sadece saati güncelle
+    selectedBirthDateTime.value = DateTime(
+      selectedBirthDateTime.value.year,
+      selectedBirthDateTime.value.month,
+      selectedBirthDateTime.value.day,
       int.parse(hour),
       int.parse(minute),
     );
 
-    // Eski string formatını da güncelle (geriye uyumluluk için)
+    // String formatları güncelle
     selectedHour.value = hour;
     selectedMinute.value = minute;
     selectedTime.value = '$hour:$minute';
@@ -439,12 +459,14 @@ class ProfileController extends GetxController {
       if (userId != null) {
         await _firestore.collection('users').doc(userId).update({
           'name': nameController.text.trim(),
-          'birthDate': selectedDate.value,
           'birthTime': selectedBirthDateTime.value,
           'birthPlace': birthPlaceController.text.trim(),
           'gender': selectedGender.value,
           'relationshipStatus': selectedRelationshipStatus.value,
           'interests': selectedInterests,
+          'sunSign': sunSign.value,
+          'moonSign': moonSign.value,
+          'ascendant': ascendant.value,
           'updatedAt': FieldValue.serverTimestamp(),
         });
         Get.snackbar(

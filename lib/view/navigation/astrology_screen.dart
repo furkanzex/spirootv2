@@ -2,10 +2,14 @@ import 'dart:math';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:spirootv2/controller/profile_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_image.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:spirootv2/view/onboarding/profile_onboarding.dart';
 import 'package:spirootv2/widget/astrology/love_career_money.dart';
 import 'package:spirootv2/widget/divider/divider.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
@@ -14,169 +18,318 @@ import 'package:get/get.dart';
 import 'package:spirootv2/controller/astrology_controller.dart';
 import 'package:share/share.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 
 class AstrologyScreen extends StatelessWidget {
   AstrologyScreen({super.key});
 
-  final AstrologyController astrologyController =
-      Get.find<AstrologyController>();
+  final AstrologyController _astrologyController =
+      Get.put(AstrologyController());
+  final ProfileController _profileController = Get.put(ProfileController());
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
-        // Kullanıcı Bilgileri
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(MySize.defaultPadding),
-            child: Column(
-              children: [
-                // Kullanıcı Adı ve Tarih
-                Text(
-                  "Furkan Zekiri",
-                  style: MyStyle.s1.copyWith(
-                    color: MyColor.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  "Mart 9, 2002 · 13:3",
-                  style: MyStyle.s2.copyWith(
-                    color: MyColor.textGreyColor,
-                  ),
-                ),
-                verticalGap(MySize.doublePadding),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Burç Detayları Grid
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildAstroDetail("Sun sign", "Pisces", "♓️"),
-                        _buildAstroDetail("Moon sign", "Taurus", "♉️"),
-                        _buildAstroDetail("Ascendant", "Libra", "♎️"),
-                      ],
-                    ),
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [
-                                MyColor.primaryColor.withOpacity(0.2),
-                                MyColor.primaryLightColor.withOpacity(0.1),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: CircleAvatar(
-                            backgroundColor: MyColor.white.withOpacity(0.1),
-                            backgroundImage: ExtendedNetworkImageProvider(
-                              "https://apptoic.com/spiroot/images/pisces.png",
-                              cache: true,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildAstroDetail("Element", "Water", "🌊"),
-                        _buildAstroDetail("Polarity", "Feminine", "⚛️"),
-                        _buildAstroDetail("Modality", "Mutable", "🔄"),
-                      ],
-                    ),
-                  ],
-                ),
-                verticalGap(MySize.defaultPadding),
-                Container(
-                  width: double.infinity,
-                  height: MySize.iconSizeMedium,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Doğum haritası sayfasına yönlendirme
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: MyColor.white.withOpacity(0.1),
-                      foregroundColor: MyColor.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(MySize.halfRadius),
-                      ),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: MySize.defaultPadding,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons
-                              .auto_graph_rounded, // veya astroloji ile ilgili başka bir ikon
-                          size: 20,
-                        ),
-                        const SizedBox(width: MySize.halfPadding),
-                        Text(
-                          easy.tr("Doğum Haritası"),
-                          style: MyStyle.s2.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                verticalGap(MySize.defaultPadding),
-                _buildEssentials(),
-
-                // Zaman Seçici
-                verticalGap(MySize.defaultPadding),
-                divider(),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
+            child: Obx(() {
+              if (!_profileController.isProfileComplete.value) {
+                return Center(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Row(
+                      // Üst Görsel
+                      SizedBox(
+                        height: MySize.welcomeImageSize,
+                        width: MySize.welcomeImageSize,
+                        child: SvgPicture.asset(MyImage.welcomeImage),
+                      ),
+                      verticalGap(MySize.doublePadding),
+
+                      // Ana Başlık
+                      Text(
+                        easy.tr("Yıldızların Sana\nNeler Söylediğini Keşfet"),
+                        textAlign: TextAlign.center,
+                        style: MyStyle.s1.copyWith(
+                          color: MyColor.white,
+                          fontSize: 32,
+                          height: 1.3,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      verticalGap(MySize.defaultPadding),
+
+                      // Alt Başlık
+                      Text(
+                        easy.tr(
+                            "Kişiselleştirilmiş astrolojik içgörülerle\nhayatını aydınlat"),
+                        textAlign: TextAlign.center,
+                        style: MyStyle.s2.copyWith(
+                          color: MyColor.textGreyColor,
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                      ),
+                      verticalGap(MySize.doublePadding),
+// Başla Butonu
+                      Container(
+                        width: 280,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              MyColor.primaryColor,
+                              MyColor.secondaryColor,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: MyColor.primaryColor.withOpacity(0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => Get.to(ProfileOnboarding()),
+                            borderRadius: BorderRadius.circular(30),
+                            child: Center(
+                              child: Text(
+                                easy.tr("Yolculuğa Başla"),
+                                style: MyStyle.s1.copyWith(
+                                  color: MyColor.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      verticalGap(MySize.doublePadding * 2),
+                      // Özellik Kartları
+                      Wrap(
+                        spacing: MySize.defaultPadding,
+                        runSpacing: MySize.defaultPadding,
+                        alignment: WrapAlignment.center,
                         children: [
-                          _buildTimeButton("YESTERDAY", false),
-                          _buildTimeButton("TODAY", true),
-                          _buildTimeButton("TOMORROW", false),
-                          _buildTimeButton("WEEK", false),
-                          _buildTimeButton("MONTH", false),
+                          _buildFeatureCard(
+                            icon: "🌌",
+                            title: "Burç Kartı",
+                            subtitle: "Kişisel burç kartını gör",
+                          ),
+                          _buildFeatureCard(
+                            icon: "🌠",
+                            title: "Doğum Haritası",
+                            subtitle: "Kişisel astrolojik haritanı gör",
+                          ),
+                          _buildFeatureCard(
+                            icon: "🎯",
+                            title: "Öngörü ve Tavsiyeler",
+                            subtitle: "Günlük öngörüler ve tavsiyeler al",
+                          ),
+                          _buildFeatureCard(
+                            icon: "💫",
+                            title: "Uyumluluk",
+                            subtitle: "İlişki ve uyum analizleri yaptır",
+                          ),
+                          _buildFeatureCard(
+                            icon: "📈",
+                            title: "Biyoritim Analizi",
+                            subtitle:
+                                "Kişisel biyoritim analizini ve tablonu gör",
+                          ),
+                          _buildFeatureCard(
+                            icon: "🌘",
+                            title: "Ay Takvimi",
+                            subtitle: "Kişisel ay takvimini gör",
+                          ),
+                        ],
+                      ),
+                      verticalGap(MySize.doublePadding * 2),
+                    ],
+                  ),
+                );
+              }
+
+              return Column(
+                children: [
+                  Text(
+                    _profileController.userName.value,
+                    style: MyStyle.s1.copyWith(
+                      color: MyColor.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    "${DateFormat('MMMM d, yyyy').format(_profileController.selectedBirthDateTime.value)} · ${_profileController.selectedTime.value}",
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.textGreyColor,
+                    ),
+                  ),
+                  verticalGap(MySize.doublePadding),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Burç Detayları Grid
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildAstroDetail(
+                              "Sun sign",
+                              _profileController.sunSign.value,
+                              _astrologyController.getZodiacSymbolByName(
+                                  _profileController.sunSign.value)),
+                          _buildAstroDetail(
+                              "Moon sign",
+                              _profileController.moonSign.value,
+                              _astrologyController.getZodiacSymbolByName(
+                                  _profileController.moonSign.value)),
+                          _buildAstroDetail(
+                              "Ascendant",
+                              _profileController.ascendant.value,
+                              _astrologyController.getZodiacSymbolByName(
+                                  _profileController.ascendant.value)),
+                        ],
+                      ),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [
+                                  MyColor.primaryColor.withOpacity(0.2),
+                                  MyColor.primaryLightColor.withOpacity(0.1),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: CircleAvatar(
+                              backgroundColor: MyColor.white.withOpacity(0.1),
+                              backgroundImage: ExtendedNetworkImageProvider(
+                                "https://apptoic.com/spiroot/images/pisces.png",
+                                cache: true,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildAstroDetail("Element", "Water", "🌊"),
+                          _buildAstroDetail("Polarity", "Feminine", "⚛️"),
+                          _buildAstroDetail("Modality", "Mutable", "🔄"),
                         ],
                       ),
                     ],
                   ),
-                ),
+                  verticalGap(MySize.defaultPadding),
+                  Container(
+                    width: double.infinity,
+                    height: MySize.iconSizeMedium,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Doğum haritası sayfasına yönlendirme
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MyColor.white.withOpacity(0.1),
+                        foregroundColor: MyColor.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(MySize.halfRadius),
+                        ),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: MySize.defaultPadding,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons
+                                .auto_graph_rounded, // veya astroloji ile ilgili başka bir ikon
+                            size: 20,
+                          ),
+                          const SizedBox(width: MySize.halfPadding),
+                          Text(
+                            easy.tr("Doğum Haritası"),
+                            style: MyStyle.s2.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  verticalGap(MySize.defaultPadding),
+                  _buildEssentials(),
 
-                // Love, Career, Money Bars
-                verticalGap(MySize.doublePadding),
-                loveCareerMoney(),
+                  // Zaman Seçici
+                  verticalGap(MySize.defaultPadding),
+                  divider(),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            _buildTimeButton(
+                                easy.tr("astrology.horoscope.dates.yesterday"),
+                                false),
+                            _buildTimeButton(
+                                easy.tr("astrology.horoscope.dates.today"),
+                                true),
+                            _buildTimeButton(
+                                easy.tr("astrology.horoscope.dates.tomorrow"),
+                                false),
+                            _buildTimeButton(
+                                easy.tr("astrology.horoscope.dates.week"),
+                                false),
+                            _buildTimeButton(
+                                easy.tr("astrology.horoscope.dates.month"),
+                                false),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
 
-                // Günlük Yorum
-                verticalGap(MySize.doublePadding),
-                _buildHoroscopeText(),
-                verticalGap(MySize.doublePadding),
-                _buildCompatibilityTestCard(),
-                verticalGap(MySize.doublePadding),
-                _buildBiorhythmChart(),
-                verticalGap(MySize.doublePadding),
-                _buildMoonCalendar(),
-              ],
-            ),
+                  // Love, Career, Money Bars
+                  verticalGap(MySize.doublePadding),
+                  loveCareerMoney(),
+
+                  // Günlük Yorum
+                  verticalGap(MySize.doublePadding),
+                  _buildHoroscopeText(),
+                  verticalGap(MySize.doublePadding),
+                  _buildCompatibilityTestCard(),
+                  verticalGap(MySize.doublePadding),
+                  _buildBiorhythmChart(),
+                  verticalGap(MySize.doublePadding),
+                  _buildMoonCalendar(),
+                ],
+              );
+            }),
           ),
         ),
       ],
@@ -208,7 +361,7 @@ class AstrologyScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(right: MySize.defaultPadding),
       child: TextButton(
-        onPressed: () => astrologyController.changeDay(text),
+        onPressed: () => _astrologyController.changeDay(text),
         style: TextButton.styleFrom(
           minimumSize: const Size(44, 44),
           padding:
@@ -217,10 +370,10 @@ class AstrologyScreen extends StatelessWidget {
         child: Obx(() => Text(
               text,
               style: MyStyle.s2.copyWith(
-                color: astrologyController.selectedDay.value == text
+                color: _astrologyController.selectedDay.value == text
                     ? MyColor.white
                     : MyColor.primaryLightColor,
-                fontWeight: astrologyController.selectedDay.value == text
+                fontWeight: _astrologyController.selectedDay.value == text
                     ? FontWeight.bold
                     : FontWeight.normal,
               ),
@@ -239,7 +392,7 @@ class AstrologyScreen extends StatelessWidget {
             ),
             verticalGap(4),
             Text(
-              astrologyController.currentHoroscope.essential,
+              _astrologyController.currentHoroscope.essential,
               style: MyStyle.s2.copyWith(
                 color: MyColor.white,
                 fontWeight: FontWeight.w500,
@@ -266,7 +419,7 @@ class AstrologyScreen extends StatelessWidget {
                 IconButton(
                   onPressed: () {
                     Share.share(
-                      '${astrologyController.currentHoroscope.horoscopeText}\n\nSpirootV2 uygulamasından paylaşıldı.',
+                      '${_astrologyController.currentHoroscope.horoscopeText}\n\nSpirootV2 uygulamasından paylaşıldı.',
                       subject: 'Günlük Burç Yorumum',
                     );
                   },
@@ -286,7 +439,7 @@ class AstrologyScreen extends StatelessWidget {
             ),
             verticalGap(MySize.defaultPadding),
             Text(
-              astrologyController.currentHoroscope.horoscopeText,
+              _astrologyController.currentHoroscope.horoscopeText,
               style: MyStyle.s2.copyWith(
                 color: MyColor.white,
                 height: 1.5,
@@ -463,7 +616,7 @@ class AstrologyScreen extends StatelessWidget {
         Column(
           children: [
             _buildLegendItemDetailed(MyColor.primaryLightColor, "Fiziksel",
-                "23 günlük döngü - Enerji, güç ve dayanıklılık"),
+                "23 günlük döngü - Enerji, gç ve dayanıklılık"),
             verticalGap(8),
             _buildLegendItemDetailed(MyColor.secondaryColor, "Duygusal",
                 "28 günlük döngü - Duygu durumu ve hassasiyet"),
@@ -812,6 +965,51 @@ class AstrologyScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard({
+    required String icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Container(
+      width: 160,
+      padding: const EdgeInsets.all(MySize.defaultPadding),
+      decoration: BoxDecoration(
+        color: MyColor.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(MySize.defaultRadius),
+        border: Border.all(
+          color: MyColor.white.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            icon,
+            style: const TextStyle(fontSize: MySize.iconSizeSmall),
+          ),
+          verticalGap(8),
+          Text(
+            title,
+            style: MyStyle.s2.copyWith(
+              color: MyColor.white,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          verticalGap(4),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: MyStyle.s3.copyWith(
+              color: MyColor.textGreyColor,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }

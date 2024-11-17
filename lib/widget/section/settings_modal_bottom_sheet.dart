@@ -15,7 +15,7 @@ import 'package:spirootv2/controller/profile_controller.dart';
 import 'package:spirootv2/view/profile/profile_page.dart';
 
 void showSettingsBottomSheet(BuildContext context) {
-  final controller = Get.find<ProfileController>();
+  final controller = Get.put(ProfileController());
 
   showModalBottomSheet(
     context: context,

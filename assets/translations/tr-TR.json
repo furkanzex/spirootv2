@@ -44,7 +44,19 @@
     "no_fortune_history":"Daha önce hiç fal baktırmamışsın...",
     "no_fortune_history_desc":"Falcı teyzenin yerini aldık, gel bir bak neler varmış kısmetinde!"
   },
-  "profile":{},
+  "profile":{
+    "profile_loading": {
+      "0": "Kozmik enerjiler birleşiyor, bilgileriniz değerlendiriliyor...",
+      "1": "Yıldızlar hizalanıyor, kaderiniz analiz ediliyor...",
+      "2": "Evrensel güçler bir araya geliyor, profiliniz oluşturuluyor..."
+    },
+    "explanations": {
+      "birth_time": "Doğum saatiniz, yükselen burcunuzu ve ay burcunuzu belirleyerek astrolojik haritanızı tamamlar.",
+      "birth_place": "Doğum yeriniz, gökyüzünün tam konumunu belirleyerek astrolojik yorumlarınızın doğruluğunu artırır.",
+      "gender": "Cinsiyet enerjiniz, astrolojik uyumluluk analizlerinizi ve gezegen etkileşimlerinizi şekillendirir.",
+      "interests": "İlgi alanlarınız, astrolojik öngörülerinizi hayatınızın önemli alanlarına odaklar."
+    }
+  },
   "settings": {
     "account": {
       "title": "Hesap",
@@ -74,6 +86,140 @@
     "legal": {
       "privacy_policy": "Gizlilik Politikası",
       "terms_of_use": "Kullanım Koşulları"
+    }
+  },
+  "astrology": {
+    "horoscope": {
+      "dates": {
+        "yesterday": "Dün",
+        "today": "Bugün",
+        "tomorrow": "Yarın",
+        "week": "Bu Hafta",
+        "month": "Bu Ay",
+        "year": "Bu Yıl"
+      }
+    },
+    "zodiac": {
+      "aries": {
+        "name": "Koç",
+        "element": "Ateş",
+        "quality": "Öncü",
+        "ruler": "Mars",
+        "symbol": "♈️",
+        "dateRange": "21 Mart - 19 Nisan",
+        "characteristics": "Lider,Enerjik,Cesur",
+        "color": "Kırmızı"
+      },
+      "taurus": {
+        "name": "Boğa",
+        "element": "Toprak",
+        "quality": "Sabit",
+        "ruler": "Venüs",
+        "symbol": "♉️",
+        "dateRange": "20 Nisan - 20 Mayıs",
+        "characteristics": "Kararlı,Güvenilir,Sabırlı",
+        "color": "Yeşil"
+      },
+      "gemini": {
+        "name": "İkizler",
+        "element": "Hava",
+        "quality": "Değişken",
+        "ruler": "Merkür",
+        "symbol": "♊",
+        "dateRange": "21 Mayıs - 20 Haziran",
+        "characteristics": "İletişimci,Meraklı,Uyumlu",
+        "color": "Sarı"
+      },
+      "cancer": {
+        "name": "Yengeç",
+        "element": "Su",
+        "quality": "Öncü",
+        "ruler": "Ay",
+        "symbol": "♋",
+        "dateRange": "21 Haziran - 22 Temmuz",
+        "characteristics": "Duygusal,Koruyucu,Sezgisel",
+        "color": "Gümüş"
+      },
+      "leo": {
+        "name": "Aslan",
+        "element": "Ateş",
+        "quality": "Sabit",
+        "ruler": "Güneş",
+        "symbol": "♌",
+        "dateRange": "23 Temmuz - 22 Ağustos",
+        "characteristics": "Yaratıcı,Cömert,Gururlu",
+        "color": "Altın"
+      },
+      "virgo": {
+        "name": "Başak",
+        "element": "Toprak",
+        "quality": "Değişken",
+        "ruler": "Merkür",
+        "symbol": "♍",
+        "dateRange": "23 Ağustos - 22 Eylül",
+        "characteristics": "Analitik,Pratik,Mükemmeliyetçi",
+        "color": "Kahverengi"
+      },
+      "libra": {
+        "name": "Terazi",
+        "element": "Hava",
+        "quality": "Öncü",
+        "ruler": "Venüs",
+        "symbol": "♎",
+        "dateRange": "23 Eylül - 22 Ekim",
+        "characteristics": "Diplomatik,Adil,Sosyal",
+        "color": "Pembe"
+      },
+      "scorpio": {
+        "name": "Akrep",
+        "element": "Su",
+        "quality": "Sabit",
+        "ruler": "Mars/Plüton",
+        "symbol": "♏",
+        "dateRange": "23 Ekim - 21 Kasım",
+        "characteristics": "Tutkulu,Kararlı,Gizemli",
+        "color": "Bordo"
+      },
+      "sagittarius": {
+        "name": "Yay",
+        "element": "Ateş",
+        "quality": "Değişken",
+        "ruler": "Jüpiter",
+        "symbol": "♐",
+        "dateRange": "22 Kasım - 21 Aralık",
+        "characteristics": "Maceracı,İyimser,Özgür",
+        "color": "Mor"
+      },
+      "capricorn": {
+        "name": "Oğlak",
+        "element": "Toprak",
+        "quality": "Öncü",
+        "ruler": "Satürn",
+        "symbol": "♑",
+        "dateRange": "22 Aralık - 19 Ocak",
+        "characteristics": "Disiplinli,Hırslı,Sorumlu",
+        "color": "Siyah"
+      },
+      "aquarius": {
+        "name": "Kova",
+        "element": "Hava",
+        "quality": "Sabit",
+        "ruler": "Uranüs/Satürn",
+        "symbol": "♒",
+        "dateRange": "20 Ocak - 18 Şubat",
+        "characteristics": "Yenilikçi,Özgün,İnsancıl",
+        "color": "Mavi"
+      },
+      "pisces": {
+        "name": "Balık",
+        "element": "Su",
+        "quality": "Değişken",
+        "ruler": "Neptün/Jüpiter",
+        "symbol": "♓",
+        "dateRange": "19 Şubat - 20 Mart",
+        "characteristics": "Sezgisel,Sanatsal,Şefkatli",
+        "color": "Turkuaz"
+      }
     }
   }
 }

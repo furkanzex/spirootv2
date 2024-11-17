@@ -2,136 +2,161 @@ import 'dart:math';
 
 import 'package:get/get.dart';
 import 'package:spirootv2/model/astrology/daily_horoscope.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class AstrologyController extends GetxController {
-  final selectedDay = "TODAY".obs;
+  final String yesterday = easy.tr("astrology.horoscope.dates.yesterday");
+  final String today = easy.tr("astrology.horoscope.dates.today");
+  final String tomorrow = easy.tr("astrology.horoscope.dates.tomorrow");
+  final String week = easy.tr("astrology.horoscope.dates.week");
+  final String month = easy.tr("astrology.horoscope.dates.month");
+
   final RxDouble zodiacRotation = 0.0.obs;
+  late final selectedDay;
+
+  @override
+  void onInit() {
+    super.onInit();
+    selectedDay = today.obs;
+  }
 
   final Map<String, Map<String, dynamic>> zodiacInfo = {
     "aries": {
-      "name": "Koç",
-      "element": "Ateş",
-      "quality": "Öncü",
-      "ruler": "Mars",
-      "symbol": "♈",
-      "dateRange": "21 Mart - 19 Nisan",
-      "characteristics": ["Lider", "Enerjik", "Cesur"],
-      "color": "Kırmızı",
+      "name": easy.tr("astrology.zodiac.aries.name"),
+      "element": easy.tr("astrology.zodiac.aries.element"),
+      "quality": easy.tr("astrology.zodiac.aries.quality"),
+      "ruler": easy.tr("astrology.zodiac.aries.ruler"),
+      "symbol": easy.tr("astrology.zodiac.aries.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.aries.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.aries.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.aries.color"),
     },
     "taurus": {
-      "name": "Boğa",
-      "element": "Toprak",
-      "quality": "Sabit",
-      "ruler": "Venüs",
-      "symbol": "♉",
-      "dateRange": "20 Nisan - 20 Mayıs",
-      "characteristics": ["Kararlı", "Güvenilir", "Sabırlı"],
-      "color": "Yeşil",
+      "name": easy.tr("astrology.zodiac.taurus.name"),
+      "element": easy.tr("astrology.zodiac.taurus.element"),
+      "quality": easy.tr("astrology.zodiac.taurus.quality"),
+      "ruler": easy.tr("astrology.zodiac.taurus.ruler"),
+      "symbol": easy.tr("astrology.zodiac.taurus.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.taurus.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.taurus.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.taurus.color"),
     },
     "gemini": {
-      "name": "İkizler",
-      "element": "Hava",
-      "quality": "Değişken",
-      "ruler": "Merkür",
-      "symbol": "♊",
-      "dateRange": "21 Mayıs - 20 Haziran",
-      "characteristics": ["İletişimci", "Meraklı", "Uyumlu"],
-      "color": "Sarı",
+      "name": easy.tr("astrology.zodiac.gemini.name"),
+      "element": easy.tr("astrology.zodiac.gemini.element"),
+      "quality": easy.tr("astrology.zodiac.gemini.quality"),
+      "ruler": easy.tr("astrology.zodiac.gemini.ruler"),
+      "symbol": easy.tr("astrology.zodiac.gemini.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.gemini.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.gemini.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.gemini.color"),
     },
     "cancer": {
-      "name": "Yengeç",
-      "element": "Su",
-      "quality": "Öncü",
-      "ruler": "Ay",
-      "symbol": "♋",
-      "dateRange": "21 Haziran - 22 Temmuz",
-      "characteristics": ["Duygusal", "Koruyucu", "Sezgisel"],
-      "color": "Gümüş",
+      "name": easy.tr("astrology.zodiac.cancer.name"),
+      "element": easy.tr("astrology.zodiac.cancer.element"),
+      "quality": easy.tr("astrology.zodiac.cancer.quality"),
+      "ruler": easy.tr("astrology.zodiac.cancer.ruler"),
+      "symbol": easy.tr("astrology.zodiac.cancer.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.cancer.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.cancer.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.cancer.color"),
     },
     "leo": {
-      "name": "Aslan",
-      "element": "Ateş",
-      "quality": "Sabit",
-      "ruler": "Güneş",
-      "symbol": "♌",
-      "dateRange": "23 Temmuz - 22 Ağustos",
-      "characteristics": ["Yaratıcı", "Cömert", "Gururlu"],
-      "color": "Altın",
+      "name": easy.tr("astrology.zodiac.leo.name"),
+      "element": easy.tr("astrology.zodiac.leo.element"),
+      "quality": easy.tr("astrology.zodiac.leo.quality"),
+      "ruler": easy.tr("astrology.zodiac.leo.ruler"),
+      "symbol": easy.tr("astrology.zodiac.leo.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.leo.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.leo.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.leo.color"),
     },
     "virgo": {
-      "name": "Başak",
-      "element": "Toprak",
-      "quality": "Değişken",
-      "ruler": "Merkür",
-      "symbol": "♍",
-      "dateRange": "23 Ağustos - 22 Eylül",
-      "characteristics": ["Analitik", "Pratik", "Mükemmeliyetçi"],
-      "color": "Kahverengi",
+      "name": easy.tr("astrology.zodiac.virgo.name"),
+      "element": easy.tr("astrology.zodiac.virgo.element"),
+      "quality": easy.tr("astrology.zodiac.virgo.quality"),
+      "ruler": easy.tr("astrology.zodiac.virgo.ruler"),
+      "symbol": easy.tr("astrology.zodiac.virgo.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.virgo.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.virgo.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.virgo.color"),
     },
     "libra": {
-      "name": "Terazi",
-      "element": "Hava",
-      "quality": "Öncü",
-      "ruler": "Venüs",
-      "symbol": "♎",
-      "dateRange": "23 Eylül - 22 Ekim",
-      "characteristics": ["Diplomatik", "Adil", "Sosyal"],
-      "color": "Pembe",
+      "name": easy.tr("astrology.zodiac.libra.name"),
+      "element": easy.tr("astrology.zodiac.libra.element"),
+      "quality": easy.tr("astrology.zodiac.libra.quality"),
+      "ruler": easy.tr("astrology.zodiac.libra.ruler"),
+      "symbol": easy.tr("astrology.zodiac.libra.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.libra.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.libra.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.libra.color"),
     },
     "scorpio": {
-      "name": "Akrep",
-      "element": "Su",
-      "quality": "Sabit",
-      "ruler": "Mars/Plüton",
-      "symbol": "♏",
-      "dateRange": "23 Ekim - 21 Kasım",
-      "characteristics": ["Tutkulu", "Kararlı", "Gizemli"],
-      "color": "Bordo",
+      "name": easy.tr("astrology.zodiac.scorpio.name"),
+      "element": easy.tr("astrology.zodiac.scorpio.element"),
+      "quality": easy.tr("astrology.zodiac.scorpio.quality"),
+      "ruler": easy.tr("astrology.zodiac.scorpio.ruler"),
+      "symbol": easy.tr("astrology.zodiac.scorpio.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.scorpio.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.scorpio.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.scorpio.color"),
     },
     "sagittarius": {
-      "name": "Yay",
-      "element": "Ateş",
-      "quality": "Değişken",
-      "ruler": "Jüpiter",
-      "symbol": "♐",
-      "dateRange": "22 Kasım - 21 Aralık",
-      "characteristics": ["Maceracı", "İyimser", "Özgür"],
-      "color": "Mor",
+      "name": easy.tr("astrology.zodiac.sagittarius.name"),
+      "element": easy.tr("astrology.zodiac.sagittarius.element"),
+      "quality": easy.tr("astrology.zodiac.sagittarius.quality"),
+      "ruler": easy.tr("astrology.zodiac.sagittarius.ruler"),
+      "symbol": easy.tr("astrology.zodiac.sagittarius.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.sagittarius.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.sagittarius.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.sagittarius.color"),
     },
     "capricorn": {
-      "name": "Oğlak",
-      "element": "Toprak",
-      "quality": "Öncü",
-      "ruler": "Satürn",
-      "symbol": "♑",
-      "dateRange": "22 Aralık - 19 Ocak",
-      "characteristics": ["Disiplinli", "Hırslı", "Sorumlu"],
-      "color": "Siyah",
+      "name": easy.tr("astrology.zodiac.capricorn.name"),
+      "element": easy.tr("astrology.zodiac.capricorn.element"),
+      "quality": easy.tr("astrology.zodiac.capricorn.quality"),
+      "ruler": easy.tr("astrology.zodiac.capricorn.ruler"),
+      "symbol": easy.tr("astrology.zodiac.capricorn.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.capricorn.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.capricorn.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.capricorn.color"),
     },
     "aquarius": {
-      "name": "Kova",
-      "element": "Hava",
-      "quality": "Sabit",
-      "ruler": "Uranüs/Satürn",
-      "symbol": "♒",
-      "dateRange": "20 Ocak - 18 Şubat",
-      "characteristics": ["Yenilikçi", "Özgün", "İnsancıl"],
-      "color": "Mavi",
+      "name": easy.tr("astrology.zodiac.aquarius.name"),
+      "element": easy.tr("astrology.zodiac.aquarius.element"),
+      "quality": easy.tr("astrology.zodiac.aquarius.quality"),
+      "ruler": easy.tr("astrology.zodiac.aquarius.ruler"),
+      "symbol": easy.tr("astrology.zodiac.aquarius.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.aquarius.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.aquarius.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.aquarius.color"),
     },
     "pisces": {
-      "name": "Balık",
-      "element": "Su",
-      "quality": "Değişken",
-      "ruler": "Neptün/Jüpiter",
-      "symbol": "♓",
-      "dateRange": "19 Şubat - 20 Mart",
-      "characteristics": ["Sezgisel", "Sanatsal", "Şefkatli"],
-      "color": "Turkuaz",
+      "name": easy.tr("astrology.zodiac.pisces.name"),
+      "element": easy.tr("astrology.zodiac.pisces.element"),
+      "quality": easy.tr("astrology.zodiac.pisces.quality"),
+      "ruler": easy.tr("astrology.zodiac.pisces.ruler"),
+      "symbol": easy.tr("astrology.zodiac.pisces.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.pisces.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.pisces.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.pisces.color"),
     },
   };
 
   final Map<String, DailyHoroscope> horoscopes = {
-    "YESTERDAY": DailyHoroscope(
+    easy.tr("astrology.horoscope.dates.yesterday"): DailyHoroscope(
       date: "8 Mart 2024",
       essential: "Meditation, inner peace, reflection",
       affirmation: "I am at peace with myself and my surroundings",
@@ -141,7 +166,7 @@ class AstrologyController extends GetxController {
       careerPercentage: 0.45,
       moneyPercentage: 0.70,
     ),
-    "TODAY": DailyHoroscope(
+    easy.tr("astrology.horoscope.dates.today"): DailyHoroscope(
       date: "9 Mart 2024",
       essential: "Communication, creativity, social connections",
       affirmation: "I express myself freely and authentically",
@@ -151,7 +176,7 @@ class AstrologyController extends GetxController {
       careerPercentage: 0.80,
       moneyPercentage: 0.60,
     ),
-    "TOMORROW": DailyHoroscope(
+    easy.tr("astrology.horoscope.dates.tomorrow"): DailyHoroscope(
       date: "10 Mart 2024",
       essential: "Growth, transformation, new beginnings",
       affirmation: "I embrace change and grow stronger each day",
@@ -161,7 +186,7 @@ class AstrologyController extends GetxController {
       careerPercentage: 0.70,
       moneyPercentage: 0.65,
     ),
-    "WEEK": DailyHoroscope(
+    easy.tr("astrology.horoscope.dates.week"): DailyHoroscope(
       date: "9-15 Mart 2024",
       essential: "Balance, harmony, achievement",
       affirmation: "I create balance in all areas of my life",
@@ -171,7 +196,7 @@ class AstrologyController extends GetxController {
       careerPercentage: 0.75,
       moneyPercentage: 0.70,
     ),
-    "MONTH": DailyHoroscope(
+    easy.tr("astrology.horoscope.dates.month"): DailyHoroscope(
       date: "Mart 2024",
       essential: "Long-term planning, relationships, success",
       affirmation: "I am creating my ideal future",
@@ -213,8 +238,20 @@ class AstrologyController extends GetxController {
   }
 
   Map<String, dynamic> getZodiacDetails(DateTime date) {
-    String sign = getZodiacSign(date);
-    return zodiacInfo[sign] ?? {};
+    String zodiacSign = getZodiacSign(date);
+    final zodiacKey = zodiacSign.toLowerCase();
+
+    return {
+      "name": easy.tr("astrology.zodiac.$zodiacKey.name"),
+      "element": easy.tr("astrology.zodiac.$zodiacKey.element"),
+      "quality": easy.tr("astrology.zodiac.$zodiacKey.quality"),
+      "ruler": easy.tr("astrology.zodiac.$zodiacKey.ruler"),
+      "symbol": easy.tr("astrology.zodiac.$zodiacKey.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.$zodiacKey.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.$zodiacKey.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.$zodiacKey.color"),
+    };
   }
 
   double calculateZodiacRotation(DateTime date) {
@@ -284,5 +321,74 @@ class AstrologyController extends GetxController {
 
   String getZodiacColor(DateTime date) {
     return getZodiacDetails(date)['color'] ?? '';
+  }
+
+  String getMoonSign(DateTime birthDateTime) {
+    // Basit bir hesaplama için şimdilik güneş burcundan 2 burç sonrasını döndürelim
+    // Gerçek hesaplama için astronomi kütüphanesi kullanılmalı
+    final sunSign = getZodiacSign(birthDateTime);
+    final zodiacSigns = [
+      'aries',
+      'taurus',
+      'gemini',
+      'cancer',
+      'leo',
+      'virgo',
+      'libra',
+      'scorpio',
+      'sagittarius',
+      'capricorn',
+      'aquarius',
+      'pisces'
+    ];
+
+    final currentIndex = zodiacSigns.indexOf(sunSign.toLowerCase());
+    final moonIndex = (currentIndex + 2) % 12;
+    return zodiacSigns[moonIndex];
+  }
+
+  String getAscendant(DateTime birthDateTime, String birthPlace) {
+    // Basit bir hesaplama için şimdilik güneş burcundan 3 burç sonrasını döndürelim
+    // Gerçek hesaplama için doğum yeri koordinatları ve astronomi kütüphanesi kullanılmalı
+    final sunSign = getZodiacSign(birthDateTime);
+    final zodiacSigns = [
+      'aries',
+      'taurus',
+      'gemini',
+      'cancer',
+      'leo',
+      'virgo',
+      'libra',
+      'scorpio',
+      'sagittarius',
+      'capricorn',
+      'aquarius',
+      'pisces'
+    ];
+
+    final currentIndex = zodiacSigns.indexOf(sunSign.toLowerCase());
+    final ascendantIndex = (currentIndex + 3) % 12;
+    return zodiacSigns[ascendantIndex];
+  }
+
+  Map<String, dynamic> getZodiacDetailsByName(String zodiacName) {
+    final zodiacKey = zodiacName.toLowerCase();
+
+    return {
+      "name": easy.tr("astrology.zodiac.$zodiacKey.name"),
+      "element": easy.tr("astrology.zodiac.$zodiacKey.element"),
+      "quality": easy.tr("astrology.zodiac.$zodiacKey.quality"),
+      "ruler": easy.tr("astrology.zodiac.$zodiacKey.ruler"),
+      "symbol": easy.tr("astrology.zodiac.$zodiacKey.symbol"),
+      "dateRange": easy.tr("astrology.zodiac.$zodiacKey.dateRange"),
+      "characteristics":
+          easy.tr("astrology.zodiac.$zodiacKey.characteristics").split(","),
+      "color": easy.tr("astrology.zodiac.$zodiacKey.color"),
+    };
+  }
+
+  // Sadece sembol almak için yardımcı metod
+  String getZodiacSymbolByName(String zodiacName) {
+    return getZodiacDetailsByName(zodiacName)['symbol'] ?? '';
   }
 }
