@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/controller/auth_controller.dart';
@@ -10,8 +11,12 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:spirootv2/view/onboarding/profile_onboarding.dart';
 import 'package:spirootv2/widget/divider/divider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:spirootv2/controller/profile_controller.dart';
+import 'package:spirootv2/view/profile/profile_page.dart';
 
 void showSettingsBottomSheet(BuildContext context) {
+  final controller = Get.find<ProfileController>();
+
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -35,51 +40,66 @@ void showSettingsBottomSheet(BuildContext context) {
             ),
           ),
 
-          // Profile
+          // Profile Section
           Padding(
             padding: const EdgeInsets.all(MySize.defaultPadding),
             child: GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                Get.to(() => const ProfileOnboarding(),
+                Get.to(
+                    () => controller.isProfileComplete.value
+                        ? const ProfilePage()
+                        : const ProfileOnboarding(),
                     transition: Transition.rightToLeft,
                     duration: const Duration(milliseconds: 300));
               },
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: MyColor.primaryColor,
-                    child: Icon(MingCute.user_4_fill,
-                        color: MyColor.white, size: 30),
-                  ),
-                  const SizedBox(width: MySize.defaultPadding),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          easy.tr("settings.account.guest_user"),
-                          style: MyStyle.s1.copyWith(
-                            color: MyColor.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+              child: Obx(() => Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: MyColor.primaryColor,
+                        backgroundImage: controller.isProfileComplete.value &&
+                                controller.profileImage.value.isNotEmpty
+                            ? ExtendedNetworkImageProvider(
+                                "https://apptoic.com/spiroot/images/${controller.profileImage.value}.png",
+                                cache: true,
+                              )
+                            : null,
+                        child: controller.isProfileComplete.value &&
+                                controller.profileImage.value.isNotEmpty
+                            ? null
+                            : Icon(MingCute.user_4_fill,
+                                color: MyColor.white, size: 30),
+                      ),
+                      const SizedBox(width: MySize.defaultPadding),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.isProfileComplete.value
+                                  ? controller.userName.value
+                                  : easy.tr("settings.account.guest_user"),
+                              style: MyStyle.s1.copyWith(
+                                color: MyColor.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              easy.tr("settings.account.free_account"),
+                              style: MyStyle.s3
+                                  .copyWith(color: MyColor.textGreyColor),
+                            ),
+                          ],
                         ),
-                        Text(
-                          easy.tr("settings.account.free_account"),
-                          style:
-                              MyStyle.s3.copyWith(color: MyColor.textGreyColor),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    MingCute.right_line,
-                    color: MyColor.white,
-                    size: MySize.iconSizeSmall,
-                  ),
-                ],
-              ),
+                      ),
+                      Icon(
+                        MingCute.right_line,
+                        color: MyColor.white,
+                        size: MySize.iconSizeSmall,
+                      ),
+                    ],
+                  )),
             ),
           ),
 

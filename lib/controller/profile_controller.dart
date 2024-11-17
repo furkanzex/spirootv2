@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/controller/astrology_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/helper/local_storage.dart';
 
 class ProfileController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -21,6 +22,7 @@ class ProfileController extends GetxController {
   final RxString selectedGender = ''.obs;
   final RxString selectedRelationshipStatus = ''.obs;
   final RxList<String> selectedInterests = <String>[].obs;
+  final RxString userId = ''.obs;
 
   // Validation States
   final RxBool showNameError = false.obs;
@@ -41,14 +43,53 @@ class ProfileController extends GetxController {
     'İlişkisi var',
     'Nişanlı',
     'Evli',
+    'Boşanmış',
+    'Dul',
     'Karmaşık'
   ];
+  final List<String> interestStatuses = [
+    'Para',
+    'İş',
+    'Arkadaşlık',
+    'Aşk',
+    'Aile',
+    'Kariyer',
+  ];
+
+  // Gender ve RelationshipStatus için index tabanlı yapı
+  final Map<String, int> genderIndices = {'female': 0, 'male': 1, 'other': 2};
+
+  final Map<String, int> relationshipIndices = {
+    'single': 0,
+    'in_relationship': 1,
+    'engaged': 2,
+    'married': 3,
+    'divorced': 4,
+    'widowed': 5,
+    'complicated': 6
+  };
+
+  final Map<String, int> interestIndices = {
+    'money': 0,
+    'work': 1,
+    'friendship': 2,
+    'love': 3,
+    'family': 4,
+    'career': 5,
+  };
+
+  final RxBool isProfileComplete = false.obs;
+  final RxString userName = ''.obs;
+  final RxString profileImage = ''.obs;
+
+  // DateTime olarak doğum saati
+  final Rx<DateTime> selectedBirthDateTime = DateTime.now().obs;
 
   @override
   void onInit() {
     super.onInit();
     _setupListeners();
-    _loadUserProfile();
+    loadUserProfile();
   }
 
   void _setupListeners() {
@@ -56,52 +97,64 @@ class ProfileController extends GetxController {
     birthPlaceController.addListener(() => _validatePlace());
   }
 
-  Future<void> _loadUserProfile() async {
+  Future<void> loadUserProfile() async {
     try {
       isLoading.value = true;
       final user = _auth.currentUser;
+
       if (user != null) {
+        userId.value = user.uid;
+        // Kullanıcı ID'sini locale kaydet
+        await LocalStorage().saveUserId(user.uid);
+
+        // Firestore'dan kullanıcı verilerini çek
         final doc = await _firestore.collection('users').doc(user.uid).get();
+
         if (doc.exists && doc.data() != null) {
           final userData = doc.data()!;
 
-          // Load existing data if available
-          if (userData['name'] != null) {
-            nameController.text = userData['name'];
-            _validateName();
-          }
+          // Text controller'ları güncelle
+          nameController.text = userData['name'] ?? '';
+          birthPlaceController.text = userData['birthPlace'] ?? '';
 
+          // Rx değişkenlerini güncelle
           if (userData['birthDate'] != null) {
             selectedDate.value = (userData['birthDate'] as Timestamp).toDate();
-            _validateDate();
           }
 
           if (userData['birthTime'] != null) {
-            selectedTime.value = userData['birthTime'];
-            final timeParts = userData['birthTime'].split(':');
-            selectedHour.value = timeParts[0];
-            selectedMinute.value = timeParts[1];
-            _validateTime();
+            final birthTimeTimestamp = userData['birthTime'] as Timestamp;
+            final birthDateTime = birthTimeTimestamp.toDate();
+
+            selectedBirthDateTime.value = birthDateTime;
+            selectedHour.value = birthDateTime.hour.toString().padLeft(2, '0');
+            selectedMinute.value =
+                birthDateTime.minute.toString().padLeft(2, '0');
+            selectedTime.value =
+                '${selectedHour.value}:${selectedMinute.value}';
           }
 
-          if (userData['birthPlace'] != null) {
-            birthPlaceController.text = userData['birthPlace'];
-            _validatePlace();
-          }
-
-          if (userData['gender'] != null) {
-            selectedGender.value = userData['gender'];
-            _validateGender(userData['gender']);
-          }
-
-          if (userData['relationshipStatus'] != null) {
-            selectedRelationshipStatus.value = userData['relationshipStatus'];
-            _validateRelationshipStatus(userData['relationshipStatus']);
-          }
+          selectedGender.value = userData['gender'] ?? '';
+          selectedRelationshipStatus.value =
+              userData['relationshipStatus'] ?? '';
 
           if (userData['interests'] != null) {
             selectedInterests.value = List<String>.from(userData['interests']);
           }
+
+          // Validation states'i güncelle
+          isNameValid.value = nameController.text.isNotEmpty;
+          isDateValid.value = true; // Tarih kontrolü yapılabilir
+          isTimeValid.value = selectedTime.value.isNotEmpty;
+          isPlaceValid.value = birthPlaceController.text.isNotEmpty;
+          isGenderValid.value = selectedGender.value.isNotEmpty;
+          isRelationshipStatusValid.value =
+              selectedRelationshipStatus.value.isNotEmpty;
+
+          // Yeni alanları yükle
+          isProfileComplete.value = userData['isProfileComplete'] ?? false;
+          userName.value = userData['name'] ?? '';
+          profileImage.value = userData['zodiacSign'] ?? '';
         }
       }
     } catch (e) {
@@ -209,7 +262,7 @@ class ProfileController extends GetxController {
         await _firestore.collection('users').doc(user.uid).set({
           'name': nameController.text.trim(),
           'birthDate': selectedDate.value,
-          'birthTime': selectedTime.value,
+          'birthTime': selectedBirthDateTime.value,
           'birthPlace': birthPlaceController.text.trim(),
           'gender': selectedGender.value,
           'relationshipStatus': selectedRelationshipStatus.value,
@@ -262,37 +315,69 @@ class ProfileController extends GetxController {
     }
   }
 
-  void validateGender(String value) {
-    selectedGender.value = value;
-    isGenderValid.value = value.isNotEmpty;
+  void validateGender(String localizedGender) {
+    selectedGender.value = localizedGender;
+    isGenderValid.value = localizedGender.isNotEmpty;
     if (isGenderValid.value) {
-      _saveFieldToFirestore('gender', value);
+      final genderKey = getGenderKey(localizedGender);
+      _saveFieldToFirestore('gender', {
+        'localized': localizedGender,
+        'key': genderKey,
+        'index': genderIndices[genderKey]
+      });
     }
   }
 
-  void validateRelationshipStatus(String value) {
-    selectedRelationshipStatus.value = value;
-    isRelationshipStatusValid.value = value.isNotEmpty;
+  void validateRelationshipStatus(String localizedStatus) {
+    selectedRelationshipStatus.value = localizedStatus;
+    isRelationshipStatusValid.value = localizedStatus.isNotEmpty;
     if (isRelationshipStatusValid.value) {
-      _saveFieldToFirestore('relationshipStatus', value);
+      final statusKey = getRelationshipKey(localizedStatus);
+      _saveFieldToFirestore('relationshipStatus', {
+        'localized': localizedStatus,
+        'key': statusKey,
+        'index': relationshipIndices[statusKey]
+      });
     }
   }
 
   void updateSelectedTime(String hour, String minute) {
+    // Mevcut seçili tarihi al
+    final currentDate = selectedDate.value;
+
+    // Yeni bir DateTime oluştur (seçili tarih + seçili saat)
+    selectedBirthDateTime.value = DateTime(
+      currentDate.year,
+      currentDate.month,
+      currentDate.day,
+      int.parse(hour),
+      int.parse(minute),
+    );
+
+    // Eski string formatını da güncelle (geriye uyumluluk için)
     selectedHour.value = hour;
     selectedMinute.value = minute;
     selectedTime.value = '$hour:$minute';
     isTimeValid.value = true;
-    _saveFieldToFirestore('birthTime', selectedTime.value);
+
+    // Firebase'e kaydet
+    _saveFieldToFirestore('birthTime', selectedBirthDateTime.value);
   }
 
-  void toggleInterest(String interest) {
-    if (selectedInterests.contains(interest)) {
-      selectedInterests.remove(interest);
+  void toggleInterest(String localizedInterest) {
+    if (selectedInterests.contains(localizedInterest)) {
+      selectedInterests.remove(localizedInterest);
     } else {
-      selectedInterests.add(interest);
+      selectedInterests.add(localizedInterest);
     }
-    _saveFieldToFirestore('interests', selectedInterests);
+
+    final List<Map<String, dynamic>> indexedInterests =
+        selectedInterests.map((interest) {
+      final key = interest.toLowerCase().replaceAll(' ', '_');
+      return {'localized': interest, 'key': key, 'index': interestIndices[key]};
+    }).toList();
+
+    _saveFieldToFirestore('interests', indexedInterests);
   }
 
   bool isFieldValid(String field) {
@@ -313,6 +398,66 @@ class ProfileController extends GetxController {
         return selectedInterests.isNotEmpty;
       default:
         return false;
+    }
+  }
+
+  String getGenderKey(String localizedGender) {
+    switch (localizedGender) {
+      case 'Kadın':
+        return 'female';
+      case 'Erkek':
+        return 'male';
+      case 'Diğer':
+        return 'other';
+      default:
+        return 'other';
+    }
+  }
+
+  String getRelationshipKey(String localizedStatus) {
+    switch (localizedStatus) {
+      case 'Bekar':
+        return 'single';
+      case 'İlişkisi var':
+        return 'in_relationship';
+      case 'Nişanlı':
+        return 'engaged';
+      case 'Evli':
+        return 'married';
+      case 'Karmaşık':
+        return 'complicated';
+      default:
+        return 'single';
+    }
+  }
+
+  // Profil güncelleme metodu
+  Future<void> updateProfile() async {
+    try {
+      isLoading.value = true;
+      final userId = LocalStorage().getUserId();
+      if (userId != null) {
+        await _firestore.collection('users').doc(userId).update({
+          'name': nameController.text.trim(),
+          'birthDate': selectedDate.value,
+          'birthTime': selectedBirthDateTime.value,
+          'birthPlace': birthPlaceController.text.trim(),
+          'gender': selectedGender.value,
+          'relationshipStatus': selectedRelationshipStatus.value,
+          'interests': selectedInterests,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        Get.snackbar(
+          'Başarılı',
+          'Profiliniz güncellendi',
+          backgroundColor: MyColor.successColor.withOpacity(0.5),
+          colorText: MyColor.white,
+        );
+      }
+    } catch (e) {
+      _handleError(e);
+    } finally {
+      isLoading.value = false;
     }
   }
 }

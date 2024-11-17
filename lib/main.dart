@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:spirootv2/controller/profile_controller.dart';
 import 'package:spirootv2/view/auth/splash_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -11,15 +12,17 @@ import 'package:spirootv2/core/helper/local_storage.dart';
 import 'package:spirootv2/controller/astrology_controller.dart';
 
 void main() async {
-  Get.put(AstrologyController());
   await GetStorage.init();
-  final storage = LocalStorage();
-  await storage.saveAppVersion(MyText.appVersion);
   await EasyLocalization.ensureInitialized();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  Get.put(AstrologyController());
+  final storage = LocalStorage();
+  await storage.saveAppVersion(MyText.appVersion);
+  final profileController = Get.put(ProfileController());
+  await profileController.loadUserProfile();
 
   runApp(
     EasyLocalization(

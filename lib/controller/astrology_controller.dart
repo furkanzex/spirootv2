@@ -182,21 +182,22 @@ class AstrologyController extends GetxController {
     int month = date.month;
     int day = date.day;
 
-    if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return "Koç";
-    if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return "Boğa";
-    if ((month == 5 && day >= 21) || (month == 6 && day <= 20))
-      return "İkizler";
-    if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return "Yengeç";
-    if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return "Aslan";
-    if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return "Başak";
-    if ((month == 9 && day >= 23) || (month == 10 && day <= 22))
-      return "Terazi";
+    if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return "aries";
+    if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return "taurus";
+    if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return "gemini";
+    if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return "cancer";
+    if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return "leo";
+    if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return "virgo";
+    if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return "libra";
     if ((month == 10 && day >= 23) || (month == 11 && day <= 21))
-      return "Akrep";
-    if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return "Yay";
-    if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return "Oğlak";
-    if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return "Kova";
-    return "Balık";
+      return "scorpio";
+    if ((month == 11 && day >= 22) || (month == 12 && day <= 21))
+      return "sagittarius";
+    if ((month == 12 && day >= 22) || (month == 1 && day <= 19))
+      return "capricorn";
+    if ((month == 1 && day >= 20) || (month == 2 && day <= 18))
+      return "aquarius";
+    return "pisces";
   }
 
   Map<String, dynamic> getZodiacDetails(DateTime date) {
