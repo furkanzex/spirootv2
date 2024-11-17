@@ -23,6 +23,12 @@ class ProfileController extends GetxController {
   final RxString selectedRelationshipStatus = ''.obs;
   final RxList<String> selectedInterests = <String>[].obs;
   final RxString userId = ''.obs;
+  final RxBool isProfileComplete = false.obs;
+  final RxString userName = ''.obs;
+  final RxString profileImage = ''.obs;
+  final RxString sunSign = ''.obs;
+  final RxString moonSign = ''.obs;
+  final RxString ascendant = ''.obs;
 
   // Validation States
   final RxBool showNameError = false.obs;
@@ -77,14 +83,6 @@ class ProfileController extends GetxController {
     'family': 4,
     'career': 5,
   };
-
-  final RxBool isProfileComplete = false.obs;
-  final RxString userName = ''.obs;
-  final RxString profileImage = ''.obs;
-
-  final RxString sunSign = ''.obs;
-  final RxString moonSign = ''.obs;
-  final RxString ascendant = ''.obs;
 
   @override
   void onInit() {
@@ -167,9 +165,17 @@ class ProfileController extends GetxController {
           isProfileComplete.value = userData['isProfileComplete'] ?? false;
           userName.value = userData['name'] ?? '';
           profileImage.value = userData['zodiacSign'] ?? '';
+
           sunSign.value = userData['sunSign'] ?? '';
           moonSign.value = userData['moonSign'] ?? '';
           ascendant.value = userData['ascendant'] ?? '';
+
+          // Astroloji Burçlarını Hesapla
+          if (userData['birthTime'] != null) {
+            final astrologyController = Get.find<AstrologyController>();
+            astrologyController
+                .calculateZodiacRotation(selectedBirthDateTime.value);
+          }
         }
       }
     } catch (e) {
@@ -195,11 +201,9 @@ class ProfileController extends GetxController {
       final astrologyController = Get.find<AstrologyController>();
 
       // Burçları hesapla
-      sunSign.value =
-          astrologyController.getZodiacSign(selectedBirthDateTime.value);
-      moonSign.value =
-          astrologyController.getMoonSign(selectedBirthDateTime.value);
-      ascendant.value = astrologyController.getAscendant(
+      sunSign.value = _calculateSunSign(selectedBirthDateTime.value);
+      moonSign.value = _calculateMoonSign(selectedBirthDateTime.value);
+      ascendant.value = _calculateAscendant(
           selectedBirthDateTime.value, birthPlaceController.text);
 
       // Firebase'e kaydet
@@ -208,6 +212,70 @@ class ProfileController extends GetxController {
       _saveFieldToFirestore('moonSign', moonSign.value);
       _saveFieldToFirestore('ascendant', ascendant.value);
     }
+  }
+
+  String _calculateSunSign(DateTime birthDate) {
+    int month = birthDate.month;
+    int day = birthDate.day;
+
+    if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return 'aries';
+    if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return 'taurus';
+    if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return 'gemini';
+    if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return 'cancer';
+    if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return 'leo';
+    if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return 'virgo';
+    if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return 'libra';
+    if ((month == 10 && day >= 23) || (month == 11 && day <= 21))
+      return 'scorpio';
+    if ((month == 11 && day >= 22) || (month == 12 && day <= 21))
+      return 'sagittarius';
+    if ((month == 12 && day >= 22) || (month == 1 && day <= 19))
+      return 'capricorn';
+    if ((month == 1 && day >= 20) || (month == 2 && day <= 18))
+      return 'aquarius';
+    return 'pisces';
+  }
+
+  String _calculateMoonSign(DateTime birthDate) {
+    // Basit bir hesaplama için şimdilik güneş burcundan bir sonraki burcu döndürelim
+    final sunSign = _calculateSunSign(birthDate);
+    final zodiacSigns = [
+      'aries',
+      'taurus',
+      'gemini',
+      'cancer',
+      'leo',
+      'virgo',
+      'libra',
+      'scorpio',
+      'sagittarius',
+      'capricorn',
+      'aquarius',
+      'pisces'
+    ];
+    final currentIndex = zodiacSigns.indexOf(sunSign);
+    return zodiacSigns[(currentIndex + 1) % 12];
+  }
+
+  String _calculateAscendant(DateTime birthDate, String birthPlace) {
+    // Basit bir hesaplama için şimdilik güneş burcundan iki sonraki burcu döndürelim
+    final sunSign = _calculateSunSign(birthDate);
+    final zodiacSigns = [
+      'aries',
+      'taurus',
+      'gemini',
+      'cancer',
+      'leo',
+      'virgo',
+      'libra',
+      'scorpio',
+      'sagittarius',
+      'capricorn',
+      'aquarius',
+      'pisces'
+    ];
+    final currentIndex = zodiacSigns.indexOf(sunSign);
+    return zodiacSigns[(currentIndex + 2) % 12];
   }
 
   void _validateTime() {

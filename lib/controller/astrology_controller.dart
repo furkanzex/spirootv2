@@ -5,19 +5,23 @@ import 'package:spirootv2/model/astrology/daily_horoscope.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
 class AstrologyController extends GetxController {
-  final String yesterday = easy.tr("astrology.horoscope.dates.yesterday");
-  final String today = easy.tr("astrology.horoscope.dates.today");
-  final String tomorrow = easy.tr("astrology.horoscope.dates.tomorrow");
-  final String week = easy.tr("astrology.horoscope.dates.week");
-  final String month = easy.tr("astrology.horoscope.dates.month");
-
   final RxDouble zodiacRotation = 0.0.obs;
-  late final selectedDay;
+  final RxString selectedDay = easy.tr("astrology.horoscope.dates.today").obs;
+  final Rx<DailyHoroscope> selectedHoroscope = DailyHoroscope(
+    date: DateTime.now().toString(),
+    essential: "",
+    affirmation: "",
+    horoscopeText: "",
+    lovePercentage: 0.0,
+    careerPercentage: 0.0,
+    moneyPercentage: 0.0,
+  ).obs;
 
   @override
   void onInit() {
     super.onInit();
-    selectedDay = today.obs;
+    // Varsayılan horoskopu yükle
+    updateHoroscope(selectedDay.value);
   }
 
   final Map<String, Map<String, dynamic>> zodiacInfo = {
@@ -208,10 +212,34 @@ class AstrologyController extends GetxController {
     ),
   };
 
-  DailyHoroscope get currentHoroscope => horoscopes[selectedDay.value]!;
+  DailyHoroscope get currentHoroscope =>
+      horoscopes[selectedDay.value] ??
+      DailyHoroscope(
+        date: DateTime.now().toString(),
+        essential: "",
+        affirmation: "",
+        horoscopeText: "Henüz yorum yok",
+        lovePercentage: 0.0,
+        careerPercentage: 0.0,
+        moneyPercentage: 0.0,
+      );
 
   void changeDay(String day) {
     selectedDay.value = day;
+    updateHoroscope(day);
+  }
+
+  void updateHoroscope(String day) {
+    selectedHoroscope.value = horoscopes[day] ??
+        DailyHoroscope(
+          date: DateTime.now().toString(),
+          essential: "",
+          affirmation: "",
+          horoscopeText: "Henüz yorum yok",
+          lovePercentage: 0.0,
+          careerPercentage: 0.0,
+          moneyPercentage: 0.0,
+        );
     update();
   }
 
