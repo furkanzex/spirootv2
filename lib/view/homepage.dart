@@ -9,6 +9,7 @@ import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_text.dart';
+import 'package:spirootv2/view/onboarding/profile_loading_screen.dart';
 import 'package:spirootv2/widget/section/settings_modal_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
@@ -45,6 +46,14 @@ class _HomePageState extends State<HomePage> {
             height: MySize.iconSizeSmall,
             width: MySize.iconSizeSmall,
             child: GestureDetector(
+              onTap: () {
+                Get.to(
+                  () => ProfileLoadingScreen(
+                    onLoadComplete: () async {},
+                  ),
+                  fullscreenDialog: true,
+                );
+              },
               child: LottieBuilder.asset("assets/lottie/gift_icon.json"),
             ),
           ),

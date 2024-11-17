@@ -8,7 +8,8 @@ class AstrologyController extends GetxController {
   final RxDouble zodiacRotation = 0.0.obs;
 
   final Map<String, Map<String, dynamic>> zodiacInfo = {
-    "Koç": {
+    "aries": {
+      "name": "Koç",
       "element": "Ateş",
       "quality": "Öncü",
       "ruler": "Mars",
@@ -17,7 +18,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Lider", "Enerjik", "Cesur"],
       "color": "Kırmızı",
     },
-    "Boğa": {
+    "taurus": {
+      "name": "Boğa",
       "element": "Toprak",
       "quality": "Sabit",
       "ruler": "Venüs",
@@ -26,7 +28,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Kararlı", "Güvenilir", "Sabırlı"],
       "color": "Yeşil",
     },
-    "İkizler": {
+    "gemini": {
+      "name": "İkizler",
       "element": "Hava",
       "quality": "Değişken",
       "ruler": "Merkür",
@@ -35,7 +38,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["İletişimci", "Meraklı", "Uyumlu"],
       "color": "Sarı",
     },
-    "Yengeç": {
+    "cancer": {
+      "name": "Yengeç",
       "element": "Su",
       "quality": "Öncü",
       "ruler": "Ay",
@@ -44,7 +48,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Duygusal", "Koruyucu", "Sezgisel"],
       "color": "Gümüş",
     },
-    "Aslan": {
+    "leo": {
+      "name": "Aslan",
       "element": "Ateş",
       "quality": "Sabit",
       "ruler": "Güneş",
@@ -53,7 +58,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Yaratıcı", "Cömert", "Gururlu"],
       "color": "Altın",
     },
-    "Başak": {
+    "virgo": {
+      "name": "Başak",
       "element": "Toprak",
       "quality": "Değişken",
       "ruler": "Merkür",
@@ -62,7 +68,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Analitik", "Pratik", "Mükemmeliyetçi"],
       "color": "Kahverengi",
     },
-    "Terazi": {
+    "libra": {
+      "name": "Terazi",
       "element": "Hava",
       "quality": "Öncü",
       "ruler": "Venüs",
@@ -71,7 +78,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Diplomatik", "Adil", "Sosyal"],
       "color": "Pembe",
     },
-    "Akrep": {
+    "scorpio": {
+      "name": "Akrep",
       "element": "Su",
       "quality": "Sabit",
       "ruler": "Mars/Plüton",
@@ -80,7 +88,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Tutkulu", "Kararlı", "Gizemli"],
       "color": "Bordo",
     },
-    "Yay": {
+    "sagittarius": {
+      "name": "Yay",
       "element": "Ateş",
       "quality": "Değişken",
       "ruler": "Jüpiter",
@@ -89,7 +98,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Maceracı", "İyimser", "Özgür"],
       "color": "Mor",
     },
-    "Oğlak": {
+    "capricorn": {
+      "name": "Oğlak",
       "element": "Toprak",
       "quality": "Öncü",
       "ruler": "Satürn",
@@ -98,7 +108,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Disiplinli", "Hırslı", "Sorumlu"],
       "color": "Siyah",
     },
-    "Kova": {
+    "aquarius": {
+      "name": "Kova",
       "element": "Hava",
       "quality": "Sabit",
       "ruler": "Uranüs/Satürn",
@@ -107,7 +118,8 @@ class AstrologyController extends GetxController {
       "characteristics": ["Yenilikçi", "Özgün", "İnsancıl"],
       "color": "Mavi",
     },
-    "Balık": {
+    "pisces": {
+      "name": "Balık",
       "element": "Su",
       "quality": "Değişken",
       "ruler": "Neptün/Jüpiter",

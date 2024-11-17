@@ -246,7 +246,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Burç: $zodiacSign ${zodiacDetails['symbol']}',
+                                'Burç: ${zodiacDetails['name']} ${zodiacDetails['symbol']}',
                                 style:
                                     MyStyle.s2.copyWith(color: MyColor.white),
                               ),

@@ -41,18 +41,18 @@ void showSettingsBottomSheet(BuildContext context) {
           ),
 
           // Profile Section
-          Padding(
-            padding: const EdgeInsets.all(MySize.defaultPadding),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-                Get.to(
-                    () => controller.isProfileComplete.value
-                        ? const ProfilePage()
-                        : const ProfileOnboarding(),
-                    transition: Transition.rightToLeft,
-                    duration: const Duration(milliseconds: 300));
-              },
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+              Get.to(
+                  () => controller.isProfileComplete.value
+                      ? const ProfilePage()
+                      : const ProfileOnboarding(),
+                  transition: Transition.rightToLeft,
+                  duration: const Duration(milliseconds: 300));
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(MySize.defaultPadding),
               child: Obx(() => Row(
                     children: [
                       CircleAvatar(
