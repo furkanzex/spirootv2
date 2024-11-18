@@ -6,6 +6,7 @@ import '../data/user_repository.dart';
 import '../core/service/astrology_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class UserController extends GetxController {
   final UserRepository _repository;
@@ -36,26 +37,24 @@ class UserController extends GetxController {
   final RxBool isRelationshipStatusValid = false.obs;
 
   // Constants
-  final List<String> genders = ['Kadın', 'Erkek', 'Diğer'];
-  final List<String> relationshipStatuses = [
-    'Bekar',
-    'İlişkisi var',
-    'Nişanlı',
-    'Evli',
-    'Boşanmış',
-    'Dul',
-    'Karmaşık'
+  final List<String> genderKeys = ['female', 'male', 'other'];
+  final List<String> relationshipStatusKeys = [
+    'single',
+    'in_relationship',
+    'engaged',
+    'married',
+    'divorced',
+    'widowed',
+    'complicated'
   ];
-  final List<String> interestStatuses = [
-    'Para',
-    'İş',
-    'Arkadaşlık',
-    'Aşk',
-    'Aile',
-    'Kariyer',
+  final List<String> interestKeys = [
+    'money',
+    'business',
+    'friendship',
+    'love',
+    'family',
+    'career'
   ];
-
-  final Map<String, int> genderIndices = {'female': 0, 'male': 1, 'other': 2};
 
   UserController({UserRepository? repository})
       : _repository = repository ?? UserRepository();
@@ -145,7 +144,13 @@ class UserController extends GetxController {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return;
 
-      print('Kaydedilecek doğum yeri: ${birthPlaceController.text}');
+      // Seçili değerleri key'lere dönüştür
+      final genderKey = getGenderKey(selectedGender.value);
+      final relationshipStatusKey =
+          getRelationshipStatusKey(selectedRelationshipStatus.value);
+      final interestKeys = selectedInterests
+          .map((interest) => getInterestKey(interest))
+          .toList();
 
       await createOrUpdateUser(
         uid: currentUser.uid,
@@ -153,9 +158,9 @@ class UserController extends GetxController {
         birthDate: selectedBirthDateTime.value,
         birthTime: '${selectedHour.value}:${selectedMinute.value}',
         birthPlace: birthPlaceController.text,
-        gender: selectedGender.value,
-        relationshipStatus: selectedRelationshipStatus.value,
-        interests: selectedInterests.toList(),
+        gender: genderKey, // Key olarak kaydet
+        relationshipStatus: relationshipStatusKey, // Key olarak kaydet
+        interests: interestKeys, // Key'ler listesi olarak kaydet
       );
 
       Get.offAll(() => const HomePage());
@@ -243,9 +248,12 @@ class UserController extends GetxController {
           selectedMinute.value = timeParts[1];
         }
 
-        selectedGender.value = user.gender;
-        selectedRelationshipStatus.value = user.relationshipStatus;
-        selectedInterests.value = user.interests;
+        // Key'leri value'lara dönüştür
+        selectedGender.value = getGenderValue(user.gender);
+        selectedRelationshipStatus.value =
+            getRelationshipStatusValue(user.relationshipStatus);
+        selectedInterests.value =
+            user.interests.map((key) => getInterestValue(key)).toList();
       }
     } finally {
       isLoading.value = false;
@@ -309,4 +317,44 @@ class UserController extends GetxController {
 
   // userName getter'ı da ekleyelim
   String get userName => currentUser.value?.name ?? '';
+
+  // Görüntülenecek değerleri getiren getterlar
+  List<String> get genders =>
+      genderKeys.map((key) => easy.tr('profile.gender.$key')).toList();
+
+  List<String> get relationshipStatuses => relationshipStatusKeys
+      .map((key) => easy.tr('profile.relationship_status.$key'))
+      .toList();
+
+  List<String> get interestStatuses =>
+      interestKeys.map((key) => easy.tr('profile.interests.$key')).toList();
+
+  // Key'den value'ya dönüşüm metodları
+  String getGenderKey(String displayValue) {
+    final index = genders.indexOf(displayValue);
+    return index != -1 ? genderKeys[index] : '';
+  }
+
+  String getRelationshipStatusKey(String displayValue) {
+    final index = relationshipStatuses.indexOf(displayValue);
+    return index != -1 ? relationshipStatusKeys[index] : '';
+  }
+
+  String getInterestKey(String displayValue) {
+    final index = interestStatuses.indexOf(displayValue);
+    return index != -1 ? interestKeys[index] : '';
+  }
+
+  // Value'dan key'e dönüşüm metodları
+  String getGenderValue(String key) {
+    return easy.tr('profile.gender.$key');
+  }
+
+  String getRelationshipStatusValue(String key) {
+    return easy.tr('profile.relationship_status.$key');
+  }
+
+  String getInterestValue(String key) {
+    return easy.tr('profile.interests.$key');
+  }
 }

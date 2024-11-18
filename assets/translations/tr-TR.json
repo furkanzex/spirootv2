@@ -55,6 +55,28 @@
       "birth_place": "Doğum yeriniz, gökyüzünün tam konumunu belirleyerek astrolojik yorumlarınızın doğruluğunu artırır.",
       "gender": "Cinsiyet enerjiniz, astrolojik uyumluluk analizlerinizi ve gezegen etkileşimlerinizi şekillendirir.",
       "interests": "İlgi alanlarınız, astrolojik öngörülerinizi hayatınızın önemli alanlarına odaklar."
+    },
+    "gender": {
+      "female": "Kadın",
+      "male": "Erkek",
+      "other": "Diğer"
+    },
+    "relationship_status": {
+      "single": "Bekar",
+      "in_relationship": "İlişkisi var",
+      "engaged": "Nişanlı",
+      "married": "Evli",
+      "divorced": "Boşanmış",
+      "widowed": "Dul",
+      "complicated": "Karmaşık"
+    },
+    "interests": {
+      "money": "Para",
+      "business": "İş",
+      "friendship": "Arkadaşlık",
+      "love": "Aşk",
+      "family": "Aile",
+      "career": "Kariyer"
     }
   },
   "settings": {
