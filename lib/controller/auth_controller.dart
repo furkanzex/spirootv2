@@ -1,3 +1,4 @@
+import 'package:spirootv2/controller/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/view/auth/welcome_screen.dart';
 import 'package:spirootv2/core/helper/local_storage.dart';
@@ -110,6 +111,10 @@ class AuthController extends GetxController {
       if (userId != null) {
         // Önce Firestore'dan kullanıcı verilerini sil
         await _firestore.collection('users').doc(userId).delete();
+
+        // UserController'ı temizle
+        final userController = Get.find<UserController>();
+        userController.resetController();
 
         // Sonra Authentication'dan kullanıcıyı sil
         await _auth.currentUser?.delete();

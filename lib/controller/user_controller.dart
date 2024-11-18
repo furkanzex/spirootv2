@@ -231,12 +231,18 @@ class UserController extends GetxController {
 
   Future<void> loadUser(String uid) async {
     try {
+      // Eğer uid boşsa veya null ise, controller'ı sıfırla
+      if (uid.isEmpty) {
+        resetController();
+        return;
+      }
+
       isLoading.value = true;
       userId.value = uid;
       final user = await _repository.getUser(uid);
+      
       if (user != null) {
         currentUser.value = user;
-
         // Form değerlerini güncelle
         nameController.text = user.name;
         birthPlaceController.text = user.birthPlace;
@@ -248,12 +254,12 @@ class UserController extends GetxController {
           selectedMinute.value = timeParts[1];
         }
 
-        // Key'leri value'lara dönüştür
         selectedGender.value = getGenderValue(user.gender);
-        selectedRelationshipStatus.value =
-            getRelationshipStatusValue(user.relationshipStatus);
-        selectedInterests.value =
-            user.interests.map((key) => getInterestValue(key)).toList();
+        selectedRelationshipStatus.value = getRelationshipStatusValue(user.relationshipStatus);
+        selectedInterests.value = user.interests.map((key) => getInterestValue(key)).toList();
+      } else {
+        // Kullanıcı bulunamadıysa controller'ı sıfırla
+        resetController();
       }
     } finally {
       isLoading.value = false;
@@ -356,5 +362,34 @@ class UserController extends GetxController {
 
   String getInterestValue(String key) {
     return easy.tr('profile.interests.$key');
+  }
+
+  // Controller'ı sıfırlama metodu
+  void resetController() {
+    // Form Controllers
+    nameController.clear();
+    birthPlaceController.clear();
+
+    // Form Values
+    selectedBirthDateTime.value = DateTime.now();
+    selectedHour.value = '00';
+    selectedMinute.value = '00';
+    selectedGender.value = '';
+    selectedRelationshipStatus.value = '';
+    selectedInterests.clear();
+
+    // Form Validation States
+    showNameError.value = false;
+    isNameValid.value = false;
+    isDateValid.value = false;
+    isTimeValid.value = false;
+    isPlaceValid.value = false;
+    isGenderValid.value = false;
+    isRelationshipStatusValid.value = false;
+
+    // User Data
+    currentUser.value = null;
+    userId.value = '';
+    isLoading.value = false;
   }
 }
