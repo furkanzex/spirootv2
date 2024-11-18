@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:spirootv2/controller/astrology_controller.dart';
-import 'package:spirootv2/controller/profile_controller.dart';
+import 'package:spirootv2/controller/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
@@ -26,9 +26,22 @@ class ProfileOnboarding extends StatefulWidget {
 
 class _ProfileOnboardingState extends State<ProfileOnboarding> {
   late final PageController _pageController;
-  late final ProfileController _controller;
+  late final UserController _userController;
   late final AstrologyController _astrologyController;
+
+  // Form kontrolcüleri
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _birthPlaceController = TextEditingController();
   final FocusNode _birthPlaceFocusNode = FocusNode();
+
+  // Form değerleri
+  final RxString selectedGender = ''.obs;
+  final RxString selectedRelationshipStatus = ''.obs;
+  final RxList<String> selectedInterests = <String>[].obs;
+  final Rx<DateTime> selectedBirthDateTime = DateTime.now().obs;
+  final RxString selectedHour = '00'.obs;
+  final RxString selectedMinute = '00'.obs;
+
   int _currentPage = 0;
   double _previousRotation = 0.0;
 
@@ -36,8 +49,8 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    _controller = Get.put(ProfileController());
-    _astrologyController = Get.put(AstrologyController());
+    _userController = Get.find<UserController>();
+    _astrologyController = Get.find<AstrologyController>();
     _pageController.addListener(_onPageChanged);
   }
 
@@ -156,7 +169,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             ),
             verticalGap(MySize.doublePadding),
             TextField(
-              controller: _controller.nameController,
+              controller: _nameController,
               style: MyStyle.s2.copyWith(color: MyColor.white),
               decoration: InputDecoration(
                 labelText: 'İsmin nedir?',
@@ -168,13 +181,14 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.all(MySize.defaultPadding),
-                errorText: _controller.showNameError.value
+                errorText: _userController.showNameError.value
                     ? 'İsim alanı boş bırakılamaz'
                     : null,
               ),
             ),
             const Spacer(),
-            _buildNavigationButtons(onValidate: _controller.validateNamePage),
+            _buildNavigationButtons(
+                onValidate: _userController.validateNamePage),
           ],
         ),
       ),
@@ -189,8 +203,8 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Obx(() {
-              final zodiacDetails = _astrologyController
-                  .getZodiacDetails(_controller.selectedBirthDateTime.value);
+              final zodiacDetails = _astrologyController.getZodiacDetails(
+                  _userController.selectedBirthDateTime.value);
 
               return Column(
                 children: [
@@ -207,12 +221,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                           tween: Tween<double>(
                             begin: _previousRotation,
                             end: _astrologyController.calculateZodiacRotation(
-                                _controller.selectedBirthDateTime.value),
+                                _userController.selectedBirthDateTime.value),
                           ),
                           onEnd: () {
-                            _previousRotation =
-                                _astrologyController.calculateZodiacRotation(
-                                    _controller.selectedBirthDateTime.value);
+                            _previousRotation = _astrologyController
+                                .calculateZodiacRotation(_userController
+                                    .selectedBirthDateTime.value);
                           },
                           builder: (context, double angle, child) {
                             return Transform.rotate(
@@ -309,12 +323,13 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                             itemExtent: MySize.tenQuartersPadding,
                             mode: CupertinoDatePickerMode.date,
                             initialDateTime:
-                                _controller.selectedBirthDateTime.value,
+                                _userController.selectedBirthDateTime.value,
                             maximumDate: DateTime.now(),
                             minimumDate: DateTime(1900),
                             onDateTimeChanged: (DateTime value) {
-                              _controller.selectedBirthDateTime.value = value;
-                              _controller.validateDate();
+                              _userController.selectedBirthDateTime.value =
+                                  value;
+                              _userController.validateDate();
                             },
                           ),
                         ),
@@ -326,7 +341,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             ),
             const Spacer(),
             _buildNavigationButtons(
-              onValidate: () => _controller.validateDatePage(),
+              onValidate: () => _userController.validateDatePage(),
             ),
           ],
         ),
@@ -449,11 +464,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                                     child: CupertinoPicker(
                                       itemExtent: MySize.doublePadding,
                                       onSelectedItemChanged: (int index) {
-                                        _controller.selectedHour.value =
+                                        _userController.selectedHour.value =
                                             index.toString().padLeft(2, '0');
-                                        _controller.updateSelectedTime(
-                                            _controller.selectedHour.value,
-                                            _controller.selectedMinute.value);
+                                        _userController.updateSelectedTime(
+                                            _userController.selectedHour.value,
+                                            _userController
+                                                .selectedMinute.value);
                                       },
                                       children: List<Widget>.generate(24,
                                           (int index) {
@@ -471,11 +487,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                                     child: CupertinoPicker(
                                       itemExtent: MySize.doublePadding,
                                       onSelectedItemChanged: (int index) {
-                                        _controller.selectedMinute.value =
+                                        _userController.selectedMinute.value =
                                             index.toString().padLeft(2, '0');
-                                        _controller.updateSelectedTime(
-                                            _controller.selectedHour.value,
-                                            _controller.selectedMinute.value);
+                                        _userController.updateSelectedTime(
+                                            _userController.selectedHour.value,
+                                            _userController
+                                                .selectedMinute.value);
                                       },
                                       children: List<Widget>.generate(60,
                                           (int index) {
@@ -501,7 +518,8 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               ],
             ),
             const Spacer(),
-            _buildNavigationButtons(onValidate: _controller.validateTimePage),
+            _buildNavigationButtons(
+                onValidate: _userController.validateTimePage),
           ],
         ),
       ),
@@ -514,7 +532,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
       child: Column(
         children: [
           GooglePlaceAutoCompleteTextField(
-            textEditingController: _controller.birthPlaceController,
+            textEditingController: _birthPlaceController,
             googleAPIKey: "AIzaSyDri3yUianYuZw3PfZlruuFLg196-UhXE8",
             textStyle: MyStyle.s2.copyWith(color: MyColor.white),
             focusNode: _birthPlaceFocusNode,
@@ -538,10 +556,10 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             getPlaceDetailWithLatLng: (Prediction prediction) {
               if (mounted) {
                 // Widget hala aktif mi kontrol et
-                _controller.validatePlace(prediction.description ?? '');
+                _userController.validatePlace(prediction.description ?? '');
                 _birthPlaceFocusNode.unfocus();
 
-                if (_controller.validatePlacePage()) {
+                if (_userController.validatePlacePage()) {
                   _pageController.nextPage(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
@@ -552,17 +570,17 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             itemClick: (Prediction prediction) {
               if (mounted) {
                 // Widget hala aktif mi kontrol et
-                _controller.validatePlace(prediction.description ?? '');
+                _userController.validatePlace(prediction.description ?? '');
                 _birthPlaceFocusNode.unfocus();
               }
             },
             /*getPlaceDetailWithLatLng: (Prediction prediction) {
-              _controller.birthPlaceController.text = prediction.description!;
-              _controller.validatePlace(prediction.description!);
+              _userController.birthPlaceController.text = prediction.description!;
+              _userController.validatePlace(prediction.description!);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _birthPlaceFocusNode.unfocus(); // Tahmin menüsünü kapat
               });
-              if (_controller.validatePlacePage()) {
+              if (_userController.validatePlacePage()) {
                 _pageController.nextPage(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
@@ -570,12 +588,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               }
             },
             itemClick: (Prediction prediction) {
-              _controller.birthPlaceController.text = prediction.description!;
-              _controller.validatePlace(prediction.description!);
+              _userController.birthPlaceController.text = prediction.description!;
+              _userController.validatePlace(prediction.description!);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _birthPlaceFocusNode.unfocus(); // Tahmin menüsünü kapat
               });
-              if (_controller.validatePlacePage()) {
+              if (_userController.validatePlacePage()) {
                 _pageController.nextPage(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
@@ -603,13 +621,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {
-                      _controller.birthPlaceController.text =
-                          prediction.description!;
-                      _controller.validatePlace(prediction.description!);
+                      _birthPlaceController.text = prediction.description!;
+                      _userController.validatePlace(prediction.description!);
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _birthPlaceFocusNode.unfocus(); // Tahmin menüsünü kapat
                       });
-                      if (_controller.validatePlacePage()) {
+                      if (_userController.validatePlacePage()) {
                         _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
@@ -697,25 +714,25 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildGenderBox(
-                      _controller.genders[0],
-                      _controller.genderIndices.keys.elementAt(0),
-                      _controller,
+                      _userController.genders[0],
+                      _userController.genderIndices.keys.elementAt(0),
+                      _userController,
                     ),
                     _buildGenderBox(
-                      _controller.genders[1],
-                      _controller.genderIndices.keys.elementAt(1),
-                      _controller,
+                      _userController.genders[1],
+                      _userController.genderIndices.keys.elementAt(1),
+                      _userController,
                     ),
                     _buildGenderBox(
-                      _controller.genders[2],
-                      _controller.genderIndices.keys.elementAt(2),
-                      _controller,
+                      _userController.genders[2],
+                      _userController.genderIndices.keys.elementAt(2),
+                      _userController,
                     ),
                   ],
                 ),
                 const Spacer(),
                 _buildNavigationButtons(
-                    onValidate: _controller.validateGenderPage),
+                    onValidate: _userController.validateGenderPage),
               ],
             ),
           ],
@@ -725,7 +742,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
   }
 
   Widget _buildGenderBox(
-      String gender, String genderIcon, ProfileController controller) {
+      String gender, String genderIcon, UserController controller) {
     return Obx(() {
       final isSelected = controller.selectedGender.value == gender;
       IconData icon;
@@ -795,45 +812,45 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                   alignment: WrapAlignment.center,
                   children: [
                     _buildRelationshipBox(
-                      _controller.relationshipStatuses[0],
+                      _userController.relationshipStatuses[0],
                       MingCute.user_2_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildRelationshipBox(
-                      _controller.relationshipStatuses[1],
+                      _userController.relationshipStatuses[1],
                       MingCute.hand_heart_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildRelationshipBox(
-                      _controller.relationshipStatuses[2],
+                      _userController.relationshipStatuses[2],
                       MingCute.heart_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildRelationshipBox(
-                      _controller.relationshipStatuses[3],
+                      _userController.relationshipStatuses[3],
                       MingCute.love_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildRelationshipBox(
-                      _controller.relationshipStatuses[4],
+                      _userController.relationshipStatuses[4],
                       MingCute.book_3_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildRelationshipBox(
-                      _controller.relationshipStatuses[5],
+                      _userController.relationshipStatuses[5],
                       MingCute.heart_crack_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildRelationshipBox(
-                      _controller.relationshipStatuses[6],
+                      _userController.relationshipStatuses[6],
                       MingCute.question_line,
-                      _controller,
+                      _userController,
                     ),
                   ],
                 ),
                 const Spacer(),
                 _buildNavigationButtons(
-                  onValidate: _controller.validateRelationshipPage,
+                  onValidate: _userController.validateRelationshipPage,
                 ),
               ],
             ),
@@ -846,7 +863,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
   Widget _buildRelationshipBox(
     String status,
     IconData icon,
-    ProfileController controller,
+    UserController controller,
   ) {
     return Obx(() {
       final isSelected = controller.selectedRelationshipStatus.value == status;
@@ -920,46 +937,46 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                   alignment: WrapAlignment.center,
                   children: [
                     _buildInterestBox(
-                      _controller.interestStatuses[0],
+                      _userController.interestStatuses[0],
                       MingCute.currency_dollar_2_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildInterestBox(
-                      _controller.interestStatuses[1],
+                      _userController.interestStatuses[1],
                       MingCute.briefcase_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildInterestBox(
-                      _controller.interestStatuses[2],
+                      _userController.interestStatuses[2],
                       MingCute.group_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildInterestBox(
-                      _controller.interestStatuses[3],
+                      _userController.interestStatuses[3],
                       MingCute.love_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildInterestBox(
-                      _controller.interestStatuses[4],
+                      _userController.interestStatuses[4],
                       MingCute.home_3_line,
-                      _controller,
+                      _userController,
                     ),
                     _buildInterestBox(
-                      _controller.interestStatuses[5],
+                      _userController.interestStatuses[5],
                       MingCute.trending_up_line,
-                      _controller,
+                      _userController,
                     ),
                   ],
                 ),
                 const Spacer(),
                 ElevatedButton(
                   onPressed: () async {
-                    if (_controller.selectedInterests.isNotEmpty) {
+                    if (_userController.selectedInterests.isNotEmpty) {
                       Get.to(
                         () => ProfileLoadingScreen(
                           onLoadComplete: () async {
                             try {
-                              await _controller.saveUserProfile();
+                              await _userController.saveUserProfile();
                             } catch (e) {
                               Get.snackbar(
                                 'Hata',
@@ -1001,7 +1018,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
   Widget _buildInterestBox(
     String interest,
     IconData icon,
-    ProfileController controller,
+    UserController controller,
   ) {
     return Obx(() {
       final isSelected = controller.selectedInterests.contains(interest);

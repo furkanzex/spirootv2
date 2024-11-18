@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
-import 'package:spirootv2/model/shop/shop_model.dart';
+import 'package:spirootv2/model/shop_model.dart';
 import 'package:spirootv2/widget/card/shop_card.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/widget/text_field/section_title.dart';

@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:spirootv2/controller/home_controller.dart';
-import 'package:spirootv2/controller/profile_controller.dart';
+import 'package:spirootv2/controller/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_image.dart';
@@ -18,7 +18,7 @@ import 'package:spirootv2/widget/text_field/section_title.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
 Widget astrologySection() {
-  final controller = Get.put(ProfileController());
+  final controller = Get.put(UserController());
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -33,7 +33,7 @@ Widget astrologySection() {
         },
       ),
       verticalGap(MySize.defaultPadding),
-      if (controller.isProfileComplete.value)
+      if (controller.isProfileComplete)
         ClipRRect(
           borderRadius: BorderRadius.circular(MySize.halfRadius),
           child: BackdropFilter(
@@ -55,9 +55,9 @@ Widget astrologySection() {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            controller.userName.value.isEmpty
+                            controller.userName.isEmpty
                                 ? "Profilinizi hemen oluşturun!"
-                                : controller.userName.value,
+                                : controller.userName,
                             style: MyStyle.s3.copyWith(
                                 color: MyColor.white,
                                 fontWeight: FontWeight.bold),
@@ -91,7 +91,7 @@ Widget astrologySection() {
             ),
           ),
         ),
-      if (!controller.isProfileComplete.value)
+      if (!controller.isProfileComplete)
         ClipRRect(
           borderRadius: BorderRadius.circular(MySize.halfRadius),
           child: InkWell(

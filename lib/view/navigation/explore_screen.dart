@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/model/post/post_model.dart';
+import 'package:spirootv2/model/post_model.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;

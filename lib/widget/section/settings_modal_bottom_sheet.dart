@@ -2,6 +2,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/controller/auth_controller.dart';
+import 'package:spirootv2/controller/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
@@ -11,11 +12,10 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:spirootv2/view/onboarding/profile_onboarding.dart';
 import 'package:spirootv2/widget/divider/divider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:spirootv2/controller/profile_controller.dart';
 import 'package:spirootv2/view/profile/profile_page.dart';
 
 void showSettingsBottomSheet(BuildContext context) {
-  final controller = Get.put(ProfileController());
+  final userController = Get.find<UserController>();
 
   showModalBottomSheet(
     context: context,
@@ -45,8 +45,8 @@ void showSettingsBottomSheet(BuildContext context) {
             onTap: () {
               Navigator.pop(context);
               Get.to(
-                  () => controller.isProfileComplete.value
-                      ? const ProfilePage()
+                  () => userController.isProfileComplete
+                      ? ProfilePage()
                       : const ProfileOnboarding(),
                   transition: Transition.rightToLeft,
                   duration: const Duration(milliseconds: 300));
@@ -58,15 +58,19 @@ void showSettingsBottomSheet(BuildContext context) {
                       CircleAvatar(
                         radius: 30,
                         backgroundColor: MyColor.primaryColor,
-                        backgroundImage: controller.isProfileComplete.value &&
-                                controller.profileImage.value.isNotEmpty
+                        backgroundImage: userController.isProfileComplete &&
+                                userController.currentUser.value?.zodiacSign
+                                        .isNotEmpty ==
+                                    true
                             ? ExtendedNetworkImageProvider(
-                                "https://apptoic.com/spiroot/images/${controller.profileImage.value}.png",
+                                "https://apptoic.com/spiroot/images/${userController.currentUser.value?.zodiacSign}.png",
                                 cache: true,
                               )
                             : null,
-                        child: controller.isProfileComplete.value &&
-                                controller.profileImage.value.isNotEmpty
+                        child: userController.isProfileComplete &&
+                                userController.currentUser.value?.zodiacSign
+                                        .isNotEmpty ==
+                                    true
                             ? null
                             : Icon(MingCute.user_4_fill,
                                 color: MyColor.white, size: 30),
@@ -77,8 +81,8 @@ void showSettingsBottomSheet(BuildContext context) {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              controller.isProfileComplete.value
-                                  ? controller.userName.value
+                              userController.isProfileComplete
+                                  ? userController.userName
                                   : easy.tr("settings.account.guest_user"),
                               style: MyStyle.s1.copyWith(
                                 color: MyColor.white,

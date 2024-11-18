@@ -5,7 +5,7 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/model/fortune/fortune_card_model.dart';
+import 'package:spirootv2/model/fortune_card_model.dart';
 import 'package:spirootv2/widget/card/fortune_card.dart';
 import 'package:spirootv2/widget/gap/horizontal_gap.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';

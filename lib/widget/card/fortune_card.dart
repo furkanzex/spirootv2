@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/model/fortune/fortune_card_model.dart';
+import 'package:spirootv2/model/fortune_card_model.dart';
 
 Widget buildFortuneCard(FortuneCard card) {
   return GestureDetector(

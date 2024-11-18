@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:get/get.dart';
-import 'package:spirootv2/model/astrology/daily_horoscope.dart';
+import 'package:spirootv2/model/daily_horoscope.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
 class AstrologyController extends GetxController {

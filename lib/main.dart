@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:spirootv2/controller/profile_controller.dart';
 import 'package:spirootv2/view/auth/splash_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +9,8 @@ import 'package:spirootv2/firebase_options.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:spirootv2/core/helper/local_storage.dart';
 import 'package:spirootv2/controller/astrology_controller.dart';
+import 'package:spirootv2/controller/user_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   await GetStorage.init();
@@ -18,19 +19,20 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  final userController = Get.put(UserController());
   Get.put(AstrologyController());
+
   final storage = LocalStorage();
   await storage.saveAppVersion(MyText.appVersion);
-  final profileController = Get.put(ProfileController());
-  await profileController.loadUserProfile();
+
+  await userController.loadUser(FirebaseAuth.instance.currentUser?.uid ?? '');
 
   runApp(
     EasyLocalization(
       supportedLocales: const [
         Locale('en', 'US'),
         Locale('tr', 'TR'),
-        //Locale('de', 'DE'),
-        //Locale('pt', 'PT'),
       ],
       path: 'assets/translations',
       fallbackLocale: const Locale('en', 'US'),

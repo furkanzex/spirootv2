@@ -7,7 +7,6 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/view/homepage.dart';
-import 'package:spirootv2/controller/profile_controller.dart';
 import 'package:spirootv2/controller/astrology_controller.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
@@ -65,10 +64,8 @@ class _ProfileLoadingScreenState extends State<ProfileLoadingScreen>
     await widget.onLoadComplete();
 
     if (mounted) {
-      Get.delete<ProfileController>();
       Get.delete<AstrologyController>();
 
-      Get.put(ProfileController());
       Get.put(AstrologyController());
 
       Get.offAll(() => const HomePage());

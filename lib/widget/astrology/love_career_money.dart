@@ -4,7 +4,6 @@ import 'package:spirootv2/controller/astrology_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
-import 'package:easy_localization/easy_localization.dart' as easy;
 
 Widget loveCareerMoney() {
   final AstrologyController astrologyController =

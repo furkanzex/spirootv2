@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/model/shop/shop_model.dart';
+import 'package:spirootv2/model/shop_model.dart';
 import 'package:spirootv2/view/shop/shop_detail_screen.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;

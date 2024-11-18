@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spirootv2/controller/profile_controller.dart';
+import 'package:spirootv2/controller/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
@@ -8,12 +8,12 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  ProfilePage({Key? key}) : super(key: key);
+
+  final UserController _userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ProfileController>();
-
     return Scaffold(
       backgroundColor: MyColor.primaryDarkColor,
       appBar: AppBar(
@@ -34,7 +34,7 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        if (controller.isLoading.value) {
+        if (_userController.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
 
@@ -44,41 +44,40 @@ class ProfilePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Kullanıcı ID'si
-              _buildReadOnlyField('Kullanıcı ID', controller.userId.value),
+              _buildReadOnlyField('Kullanıcı ID', _userController.userId.value),
               verticalGap(MySize.defaultPadding),
 
               // İsim
-              _buildReadOnlyField('İsim', controller.nameController.text),
+              _buildReadOnlyField('İsim', _userController.nameController.text),
               verticalGap(MySize.defaultPadding),
 
               // Doğum Tarihi
               _buildReadOnlyField(
                 'Doğum Tarihi',
-                controller.selectedBirthDateTime.value != null
-                    ? '${controller.selectedBirthDateTime.value.day.toString().padLeft(2, '0')}.${controller.selectedBirthDateTime.value.month.toString().padLeft(2, '0')}.${controller.selectedBirthDateTime.value.year}'
-                    : '',
+                '${_userController.selectedBirthDateTime.value.day.toString().padLeft(2, '0')}.${_userController.selectedBirthDateTime.value.month.toString().padLeft(2, '0')}.${_userController.selectedBirthDateTime.value.year}',
               ),
               verticalGap(MySize.defaultPadding),
 
               // Doğum Saati
               _buildReadOnlyField(
                 'Doğum Saati',
-                '${controller.selectedHour.value}:${controller.selectedMinute.value}',
+                '${_userController.selectedHour.value}:${_userController.selectedMinute.value}',
               ),
               verticalGap(MySize.defaultPadding),
 
               // Doğum Yeri
               _buildReadOnlyField(
-                  'Doğum Yeri', controller.birthPlaceController.text),
+                  'Doğum Yeri', _userController.birthPlaceController.text),
               verticalGap(MySize.defaultPadding),
 
               // Cinsiyet
-              _buildReadOnlyField('Cinsiyet', controller.selectedGender.value),
+              _buildReadOnlyField(
+                  'Cinsiyet', _userController.selectedGender.value),
               verticalGap(MySize.defaultPadding),
 
               // İlişki Durumu
-              _buildReadOnlyField(
-                  'İlişki Durumu', controller.selectedRelationshipStatus.value),
+              _buildReadOnlyField('İlişki Durumu',
+                  _userController.selectedRelationshipStatus.value),
               verticalGap(MySize.defaultPadding),
 
               // İlgi Alanları
@@ -90,7 +89,7 @@ class ProfilePage extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: controller.selectedInterests.map((interest) {
+                children: _userController.selectedInterests.map((interest) {
                   return Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: MySize.defaultPadding,

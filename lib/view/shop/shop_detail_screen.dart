@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/model/shop/shop_model.dart';
+import 'package:spirootv2/model/shop_model.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
 
 class ShopDetailScreen extends StatelessWidget {
