@@ -7,9 +7,10 @@ import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class ProfilePage extends StatelessWidget {
-  ProfilePage({Key? key}) : super(key: key);
+  ProfilePage({super.key});
 
   final UserController _userController = Get.find<UserController>();
 
@@ -74,12 +75,12 @@ class ProfilePage extends StatelessWidget {
 
               // Cinsiyet
               _buildReadOnlyField(
-                  'Cinsiyet', _userController.selectedGender.value),
+                  'Cinsiyet', easy.tr(_userController.selectedGender.value)),
               verticalGap(MySize.defaultPadding),
 
               // İlişki Durumu
               _buildReadOnlyField('İlişki Durumu',
-                  _userController.selectedRelationshipStatus.value),
+                  easy.tr(_userController.selectedRelationshipStatus.value)),
               verticalGap(MySize.defaultPadding),
 
               // İlgi Alanları
@@ -102,7 +103,7 @@ class ProfilePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(MySize.halfRadius),
                     ),
                     child: Text(
-                      interest,
+                      easy.tr(interest),
                       style: MyStyle.s3.copyWith(color: MyColor.white),
                     ),
                   );
