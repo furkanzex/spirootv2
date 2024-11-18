@@ -8,43 +8,48 @@
     "desc": "Görünüşe göre internet bağlantınızda bir sorun var. Bağlantı sağlandıktan sonra uygulamamızı kullanmaya devam edebilirsiniz!"
   },
   "text_field_label": {
-    "email":"E-posta",
-    "password":"Şifre"
+    "email": "E-posta",
+    "password": "Şifre"
   },
   "signin": {
     "title": "Spiroot'a hoşgeldin!",
-    "other_login_button":"İşletme Hesabı Oluştur",
-    "button_label":"Haydi başlayalım!"
+    "other_login_button": "İşletme Hesabı Oluştur",
+    "button_label": "Haydi başlayalım!"
   },
   "navigation": {
-    "home":"Anasayfa",
-    "fortune":"Fal",
-    "astrology":"Astroloji",
-    "shops":"Dükkanlar",
-    "explore":"Keşfet",
-    "enlightenment":"Aydınlan",
-    "rest_ur_spirit":"Ruhunu Dinlendir",
-    "luck":"Gizemli Şans Yolu",
-    "top_rated_shops":"Öne Çıkan Mekanlar"
+    "home": "Anasayfa",
+    "fortune": "Fal",
+    "astrology": "Astroloji",
+    "shops": "Dükkanlar",
+    "explore": "Keşfet",
+    "enlightenment": "Aydınlan",
+    "rest_ur_spirit": "Ruhunu Dinlendir",
+    "luck": "Gizemli Şans Yolu",
+    "top_rated_shops": "Öne Çıkan Mekanlar",
+    "guide": "Spiritüel Rehberin"
   },
   "home": {
-    "greeting":"Hoş Geldin",
-    "see_all":"tümünü gör"
+    "greeting": "Hoş Geldin",
+    "see_all": "tümünü gör",
+    "spiritual_advisor": {
+      "title": "Hoşgeldin. Ben de seni bekliyordum. Neyi merak ediyorsun?",
+      "ask_now": "hemen soru sor"
+    }
   },
-  "fortune":{
-    "fortune_history":"Fal Geçmişim",
-    "fortune_history_button":"fal geçmişim",
-    "coffee":"Kahve Falı",
-    "tarot":"Tarot Falı",
-    "palm":"El Falı",
-    "katina":"Katina Falı",
-    "face":"Yüz Falı",
-    "angel":"Melek Falı",
-    "dream":"Rüya Tabiri",
-    "no_fortune_history":"Daha önce hiç fal baktırmamışsın...",
-    "no_fortune_history_desc":"Falcı teyzenin yerini aldık, gel bir bak neler varmış kısmetinde!"
+  "fortune": {
+    "fortune_history": "Fal Geçmişim",
+    "fortune_history_button": "fal geçmişim",
+    "coffee": "Kahve Falı",
+    "tarot": "Tarot Falı",
+    "palm": "El Falı",
+    "katina": "Katina Falı",
+    "face": "Yüz Falı",
+    "angel": "Melek Falı",
+    "dream": "Rüya Tabiri",
+    "no_fortune_history": "Daha önce hiç fal baktırmamışsın...",
+    "no_fortune_history_desc": "Falcı teyzenin yerini aldık, gel bir bak neler varmış kısmetinde!"
   },
-  "profile":{
+  "profile": {
     "profile_loading": {
       "0": "Kozmik enerjiler birleşiyor, bilgileriniz değerlendiriliyor...",
       "1": "Yıldızlar hizalanıyor, kaderiniz analiz ediliyor...",

@@ -33,7 +33,7 @@ void main() async {
     await userController.loadUser(currentUser.uid);
   } else {
     userController.resetController();
-    
+
     final userRepository = UserRepository();
     final anonymousUser = await userRepository.createAnonymousUser();
     await userController.loadUser(anonymousUser.uid);

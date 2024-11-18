@@ -240,7 +240,7 @@ class UserController extends GetxController {
       isLoading.value = true;
       userId.value = uid;
       final user = await _repository.getUser(uid);
-      
+
       if (user != null) {
         currentUser.value = user;
         // Form değerlerini güncelle
@@ -255,8 +255,10 @@ class UserController extends GetxController {
         }
 
         selectedGender.value = getGenderValue(user.gender);
-        selectedRelationshipStatus.value = getRelationshipStatusValue(user.relationshipStatus);
-        selectedInterests.value = user.interests.map((key) => getInterestValue(key)).toList();
+        selectedRelationshipStatus.value =
+            getRelationshipStatusValue(user.relationshipStatus);
+        selectedInterests.value =
+            user.interests.map((key) => getInterestValue(key)).toList();
       } else {
         // Kullanıcı bulunamadıysa controller'ı sıfırla
         resetController();

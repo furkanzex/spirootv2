@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:spirootv2/controller/user_controller.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/widget/footer/footer.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
@@ -19,6 +21,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final userController = Get.put(UserController());
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -29,10 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               children: [
                 greetingSection(
-                    title: easy.tr("home.greeting"),
-                    quote:
-                        "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...",
-                    quoteOwner: "~ Çeyru Guvero"),
+                  title: easy.tr("home.greeting"),
+                  name: userController.userName,
+                ),
                 verticalGap(MySize.doublePadding),
                 astrologySection(),
                 verticalGap(MySize.doublePadding),

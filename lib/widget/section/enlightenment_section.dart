@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
@@ -13,10 +12,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 Widget enlightenmentSection() {
   final List<Map<String, String>> items = [
-    {
-      "title": "Spiritüel Rehberlik",
-      "image": "https://apptoic.com/spiroot/images/guidance.png"
-    },
     {
       "title": "El Kitapları",
       "image": "https://apptoic.com/spiroot/images/guidebook.png"

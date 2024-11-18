@@ -10,7 +10,6 @@ import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_image.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/view/onboarding/profile_onboarding.dart';
 import 'package:spirootv2/widget/astrology/love_career_money.dart';
 import 'package:spirootv2/widget/gap/horizontal_gap.dart';
 import 'package:spirootv2/widget/gap/vertical_gap.dart';
@@ -55,15 +54,13 @@ Widget astrologySection() {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            controller.userName.isEmpty
-                                ? "Profilinizi hemen oluşturun!"
-                                : controller.userName,
+                            controller.userName,
                             style: MyStyle.s3.copyWith(
                                 color: MyColor.white,
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            "${DateFormat('MMMM d, yyyy').format(controller.selectedBirthDateTime.value)} • ${DateFormat('HH:mm').format(controller.selectedBirthDateTime.value)}",
+                            "${DateFormat('MMMM d, yyyy').format(controller.currentUser.value?.birthDate ?? DateTime.now())} • ${controller.currentUser.value?.birthTime ?? '00:00'}",
                             style: MyStyle.s3.copyWith(
                                 color: MyColor.textGreyColor,
                                 fontWeight: FontWeight.normal),
@@ -71,7 +68,7 @@ Widget astrologySection() {
                         ],
                       ),
                       Text(
-                        "Bugün",
+                        easy.tr("astrology.horoscope.dates.today"),
                         style: MyStyle.s2.copyWith(
                             color: MyColor.textGreyColor,
                             fontWeight: FontWeight.bold),
@@ -95,7 +92,10 @@ Widget astrologySection() {
         ClipRRect(
           borderRadius: BorderRadius.circular(MySize.halfRadius),
           child: InkWell(
-            onTap: () => Get.to(ProfileOnboarding()),
+            onTap: () {
+              final controller = Get.find<HomeController>();
+              controller.changePage(2);
+            },
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.all(MySize.defaultPadding),

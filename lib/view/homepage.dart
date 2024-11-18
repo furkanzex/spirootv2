@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:lottie/lottie.dart';
 import 'package:spirootv2/controller/home_controller.dart';
+import 'package:spirootv2/controller/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
@@ -45,17 +46,25 @@ class _HomePageState extends State<HomePage> {
           SizedBox(
             height: MySize.iconSizeSmall,
             width: MySize.iconSizeSmall,
-            child: GestureDetector(
-              onTap: () {
-                Get.to(
-                  () => ProfileLoadingScreen(
-                    onLoadComplete: () async {},
-                  ),
-                  fullscreenDialog: true,
-                );
-              },
-              child: LottieBuilder.asset("assets/lottie/gift_icon.json"),
-            ),
+            child: Obx(() {
+              final userController = Get.find<UserController>();
+              final isSubscribed =
+                  userController.currentUser.value?.isSubscribed ?? false;
+
+              return GestureDetector(
+                onTap: () {
+                  Get.to(
+                    () => ProfileLoadingScreen(
+                      onLoadComplete: () async {},
+                    ),
+                    fullscreenDialog: true,
+                  );
+                },
+                child: isSubscribed
+                    ? LottieBuilder.asset("assets/lottie/diamond.json")
+                    : LottieBuilder.asset("assets/lottie/gift_icon.json"),
+              );
+            }),
           ),
           IconButton(
               onPressed: () {
