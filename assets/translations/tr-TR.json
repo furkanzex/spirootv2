@@ -107,7 +107,7 @@
         "ruler": "Mars",
         "symbol": "♈️",
         "dateRange": "21 Mart - 19 Nisan",
-        "characteristics": "Lider,Enerjik,Cesur",
+        "characteristics": "Lider, Enerjik, Cesur",
         "color": "Kırmızı"
       },
       "taurus": {
@@ -117,7 +117,7 @@
         "ruler": "Venüs",
         "symbol": "♉️",
         "dateRange": "20 Nisan - 20 Mayıs",
-        "characteristics": "Kararlı,Güvenilir,Sabırlı",
+        "characteristics": "Kararlı, Güvenilir, Sabırlı",
         "color": "Yeşil"
       },
       "gemini": {
@@ -127,7 +127,7 @@
         "ruler": "Merkür",
         "symbol": "♊",
         "dateRange": "21 Mayıs - 20 Haziran",
-        "characteristics": "İletişimci,Meraklı,Uyumlu",
+        "characteristics": "İletişimci, Meraklı, Uyumlu",
         "color": "Sarı"
       },
       "cancer": {
@@ -137,7 +137,7 @@
         "ruler": "Ay",
         "symbol": "♋",
         "dateRange": "21 Haziran - 22 Temmuz",
-        "characteristics": "Duygusal,Koruyucu,Sezgisel",
+        "characteristics": "Duygusal, Koruyucu, Sezgisel",
         "color": "Gümüş"
       },
       "leo": {
@@ -147,7 +147,7 @@
         "ruler": "Güneş",
         "symbol": "♌",
         "dateRange": "23 Temmuz - 22 Ağustos",
-        "characteristics": "Yaratıcı,Cömert,Gururlu",
+        "characteristics": "Yaratıcı, Cömert, Gururlu",
         "color": "Altın"
       },
       "virgo": {
@@ -157,7 +157,7 @@
         "ruler": "Merkür",
         "symbol": "♍",
         "dateRange": "23 Ağustos - 22 Eylül",
-        "characteristics": "Analitik,Pratik,Mükemmeliyetçi",
+        "characteristics": "Analitik, Pratik, Mükemmeliyetçi",
         "color": "Kahverengi"
       },
       "libra": {
@@ -167,7 +167,7 @@
         "ruler": "Venüs",
         "symbol": "♎",
         "dateRange": "23 Eylül - 22 Ekim",
-        "characteristics": "Diplomatik,Adil,Sosyal",
+        "characteristics": "Diplomatik, Adil, Sosyal",
         "color": "Pembe"
       },
       "scorpio": {
@@ -177,7 +177,7 @@
         "ruler": "Mars",
         "symbol": "♏",
         "dateRange": "23 Ekim - 21 Kasım",
-        "characteristics": "Tutkulu,Kararlı,Gizemli",
+        "characteristics": "Tutkulu, Kararlı, Gizemli",
         "color": "Bordo"
       },
       "sagittarius": {
@@ -187,7 +187,7 @@
         "ruler": "Jüpiter",
         "symbol": "♐",
         "dateRange": "22 Kasım - 21 Aralık",
-        "characteristics": "Maceracı,İyimser,Özgür",
+        "characteristics": "Maceracı, İyimser, Özgür",
         "color": "Mor"
       },
       "capricorn": {
@@ -197,7 +197,7 @@
         "ruler": "Satürn",
         "symbol": "♑",
         "dateRange": "22 Aralık - 19 Ocak",
-        "characteristics": "Disiplinli,Hırslı,Sorumlu",
+        "characteristics": "Disiplinli, Hırslı, Sorumlu",
         "color": "Siyah"
       },
       "aquarius": {
@@ -207,7 +207,7 @@
         "ruler": "Uranüs",
         "symbol": "♒",
         "dateRange": "20 Ocak - 18 Şubat",
-        "characteristics": "Yenilikçi,Özgün,İnsancıl",
+        "characteristics": "Yenilikçi, Özgün, İnsancıl",
         "color": "Mavi"
       },
       "pisces": {
@@ -217,7 +217,7 @@
         "ruler": "Neptün",
         "symbol": "♓",
         "dateRange": "19 Şubat - 20 Mart",
-        "characteristics": "Sezgisel,Sanatsal,Şefkatli",
+        "characteristics": "Sezgisel, Sanatsal, Şefkatli",
         "color": "Turkuaz"
       }
     }

@@ -409,8 +409,7 @@ class AstrologyController extends GetxController {
       "ruler": easy.tr("astrology.zodiac.$zodiacKey.ruler"),
       "symbol": easy.tr("astrology.zodiac.$zodiacKey.symbol"),
       "dateRange": easy.tr("astrology.zodiac.$zodiacKey.dateRange"),
-      "characteristics":
-          easy.tr("astrology.zodiac.$zodiacKey.characteristics").split(","),
+      "characteristics": easy.tr("astrology.zodiac.$zodiacKey.characteristics"),
       "color": easy.tr("astrology.zodiac.$zodiacKey.color"),
     };
   }

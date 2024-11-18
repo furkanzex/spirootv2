@@ -339,7 +339,7 @@ class AstrologyScreen extends StatelessWidget {
               ),
             ),
             verticalGap(MySize.defaultPadding),
-            _buildEssentials(),
+            _buildCharacteristics(zodiacDetails['characteristics'] ?? ''),
 
             // Zaman Seçici
             verticalGap(MySize.defaultPadding),
@@ -433,24 +433,24 @@ class AstrologyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEssentials() {
-    return Obx(() => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Essential:",
-              style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
-            ),
-            verticalGap(4),
-            Text(
-              _astrologyController.currentHoroscope.essential,
-              style: MyStyle.s2.copyWith(
-                color: MyColor.white,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ));
+  Widget _buildCharacteristics(String characteristics) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Karakteristik:",
+          style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+        ),
+        verticalGap(4),
+        Text(
+          characteristics,
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildHoroscopeText() {
@@ -470,7 +470,7 @@ class AstrologyScreen extends StatelessWidget {
                 IconButton(
                   onPressed: () {
                     Share.share(
-                      '${_astrologyController.currentHoroscope.horoscopeText}\n\nSpirootV2 uygulamasından paylaşıldı.',
+                      '${_astrologyController.currentHoroscope.horoscopeText} \n\n\n SPIROOT uygulamasından paylaşıldı.',
                       subject: 'Günlük Burç Yorumum',
                     );
                   },
