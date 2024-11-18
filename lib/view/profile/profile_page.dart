@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:spirootv2/controller/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
@@ -54,7 +55,8 @@ class ProfilePage extends StatelessWidget {
               // Doğum Tarihi
               _buildReadOnlyField(
                 'Doğum Tarihi',
-                '${_userController.selectedBirthDateTime.value.day.toString().padLeft(2, '0')}.${_userController.selectedBirthDateTime.value.month.toString().padLeft(2, '0')}.${_userController.selectedBirthDateTime.value.year}',
+                DateFormat('MMMM d, yyyy')
+                    .format(_userController.selectedBirthDateTime.value),
               ),
               verticalGap(MySize.defaultPadding),
 
