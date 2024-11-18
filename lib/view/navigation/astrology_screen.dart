@@ -25,7 +25,7 @@ class AstrologyScreen extends StatelessWidget {
 
   final UserController _userController = Get.find<UserController>();
   final AstrologyController _astrologyController =
-      Get.find<AstrologyController>();
+      Get.put(AstrologyController());
 
   @override
   Widget build(BuildContext context) {

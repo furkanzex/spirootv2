@@ -170,6 +170,10 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             verticalGap(MySize.doublePadding),
             TextField(
               controller: _nameController,
+              onChanged: (value) {
+                _userController.nameController.text = value;
+                _userController.validateNamePage();
+              },
               style: MyStyle.s2.copyWith(color: MyColor.white),
               decoration: InputDecoration(
                 labelText: 'İsmin nedir?',
@@ -188,7 +192,11 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             ),
             const Spacer(),
             _buildNavigationButtons(
-                onValidate: _userController.validateNamePage),
+              onValidate: () {
+                _userController.nameController.text = _nameController.text;
+                return _userController.validateNamePage();
+              },
+            ),
           ],
         ),
       ),
@@ -555,7 +563,9 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             isLatLngRequired: true,
             getPlaceDetailWithLatLng: (Prediction prediction) {
               if (mounted) {
-                // Widget hala aktif mi kontrol et
+                _birthPlaceController.text = prediction.description ?? '';
+                _userController.birthPlaceController.text =
+                    prediction.description ?? '';
                 _userController.validatePlace(prediction.description ?? '');
                 _birthPlaceFocusNode.unfocus();
 
@@ -569,37 +579,13 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             },
             itemClick: (Prediction prediction) {
               if (mounted) {
-                // Widget hala aktif mi kontrol et
+                _birthPlaceController.text = prediction.description ?? '';
+                _userController.birthPlaceController.text =
+                    prediction.description ?? '';
                 _userController.validatePlace(prediction.description ?? '');
                 _birthPlaceFocusNode.unfocus();
               }
             },
-            /*getPlaceDetailWithLatLng: (Prediction prediction) {
-              _userController.birthPlaceController.text = prediction.description!;
-              _userController.validatePlace(prediction.description!);
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _birthPlaceFocusNode.unfocus(); // Tahmin menüsünü kapat
-              });
-              if (_userController.validatePlacePage()) {
-                _pageController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              }
-            },
-            itemClick: (Prediction prediction) {
-              _userController.birthPlaceController.text = prediction.description!;
-              _userController.validatePlace(prediction.description!);
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _birthPlaceFocusNode.unfocus(); // Tahmin menüsünü kapat
-              });
-              if (_userController.validatePlacePage()) {
-                _pageController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              }
-            },*/
             // Özel liste görünümü
             seperatedBuilder: Divider(
               height: 1,
@@ -713,26 +699,22 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildGenderBox(
-                      _userController.genders[0],
-                      _userController.genderIndices.keys.elementAt(0),
-                      _userController,
-                    ),
-                    _buildGenderBox(
-                      _userController.genders[1],
-                      _userController.genderIndices.keys.elementAt(1),
-                      _userController,
-                    ),
-                    _buildGenderBox(
-                      _userController.genders[2],
-                      _userController.genderIndices.keys.elementAt(2),
-                      _userController,
-                    ),
+                    _buildGenderBox('Kadın', 'female', _userController),
+                    _buildGenderBox('Erkek', 'male', _userController),
+                    _buildGenderBox('Diğer', 'other', _userController),
                   ],
                 ),
                 const Spacer(),
                 _buildNavigationButtons(
-                    onValidate: _userController.validateGenderPage),
+                  onValidate: () {
+                    try {
+                      return _userController.validateGenderPage();
+                    } catch (e) {
+                      print('Cinsiyet sayfası validasyon hatası: $e');
+                      return false;
+                    }
+                  },
+                ),
               ],
             ),
           ],
@@ -742,57 +724,74 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
   }
 
   Widget _buildGenderBox(
-      String gender, String genderIcon, UserController controller) {
+      String gender, String genderKey, UserController controller) {
     return Obx(() {
-      final isSelected = controller.selectedGender.value == gender;
-      IconData icon;
-      if (genderIcon == 'male') {
-        icon = MingCute.male_line;
-      } else if (genderIcon == 'female') {
-        icon = MingCute.female_line;
-      } else {
-        icon = MingCute.round_line;
-      }
-      return Column(
-        children: [
-          InkWell(
-            overlayColor: WidgetStateProperty.all(MyColor.transparent),
-            onTap: () => controller.validateGender(gender),
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(MySize.halfRadius),
-                gradient: isSelected
-                    ? LinearGradient(
-                        colors: [
-                          MyColor.primaryLightColor,
-                          MyColor.secondaryColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
-                color: isSelected ? null : MyColor.white.withOpacity(0.1),
+      try {
+        final isSelected = controller.selectedGender.value == gender;
+        IconData icon;
+
+        // Cinsiyet ikonlarını belirle
+        switch (genderKey) {
+          case 'female':
+            icon = MingCute.female_line;
+            break;
+          case 'male':
+            icon = MingCute.male_line;
+            break;
+          default:
+            icon = MingCute.round_line;
+        }
+
+        return Column(
+          children: [
+            InkWell(
+              overlayColor: MaterialStateProperty.all(MyColor.transparent),
+              onTap: () {
+                try {
+                  controller.validateGender(gender);
+                } catch (e) {
+                  print('Cinsiyet seçim hatası: $e');
+                }
+              },
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  gradient: isSelected
+                      ? LinearGradient(
+                          colors: [
+                            MyColor.primaryLightColor,
+                            MyColor.secondaryColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : null,
+                  color: isSelected ? null : MyColor.white.withOpacity(0.1),
+                ),
+                padding: const EdgeInsets.all(MySize.defaultPadding),
+                child: Icon(
+                  icon,
+                  color: MyColor.white,
+                  size: MySize.iconSizeMedium,
+                ),
               ),
-              padding: const EdgeInsets.all(MySize.defaultPadding),
-              child: Icon(
-                icon,
+            ),
+            verticalGap(MySize.defaultPadding),
+            Text(
+              gender,
+              style: MyStyle.s2.copyWith(
                 color: MyColor.white,
-                size: MySize.iconSizeMedium,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
-          ),
-          verticalGap(MySize.defaultPadding),
-          Text(
-            gender,
-            style: MyStyle.s2.copyWith(
-              color: MyColor.white,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      );
+          ],
+        );
+      } catch (e) {
+        print('Gender box build hatası: $e');
+        return const SizedBox(); // Hata durumunda boş widget döndür
+      }
     });
   }
 

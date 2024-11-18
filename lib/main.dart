@@ -11,8 +11,10 @@ import 'package:spirootv2/core/helper/local_storage.dart';
 import 'package:spirootv2/controller/astrology_controller.dart';
 import 'package:spirootv2/controller/user_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:spirootv2/data/user_repository.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();
 
@@ -26,7 +28,14 @@ void main() async {
   final storage = LocalStorage();
   await storage.saveAppVersion(MyText.appVersion);
 
-  await userController.loadUser(FirebaseAuth.instance.currentUser?.uid ?? '');
+  final currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser != null) {
+    await userController.loadUser(currentUser.uid);
+  } else {
+    final userRepository = UserRepository();
+    final anonymousUser = await userRepository.createAnonymousUser();
+    await userController.loadUser(anonymousUser.uid);
+  }
 
   runApp(
     EasyLocalization(

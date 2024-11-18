@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/view/homepage.dart';
 import '../model/user_model.dart';
 import '../data/user_repository.dart';
@@ -86,15 +87,41 @@ class UserController extends GetxController {
 
   // Page Validation Methods
   bool validateNamePage() {
+    final name = nameController.text.trim();
+    isNameValid.value = name.length >= 2;
     showNameError.value = !isNameValid.value;
     return isNameValid.value;
   }
 
-  bool validateDatePage() => isDateValid.value;
-  bool validateTimePage() => isTimeValid.value;
-  bool validatePlacePage() => isPlaceValid.value;
-  bool validateGenderPage() => isGenderValid.value;
-  bool validateRelationshipPage() => isRelationshipStatusValid.value;
+  bool validateDatePage() {
+    return isDateValid.value;
+  }
+
+  bool validateTimePage() {
+    return isTimeValid.value;
+  }
+
+  bool validatePlacePage() {
+    final isValid = birthPlaceController.text.trim().isNotEmpty;
+    isPlaceValid.value = isValid;
+    print('Doğum yeri sayfası validasyonu: $isValid');
+    return isValid;
+  }
+
+  bool validateGenderPage() {
+    try {
+      print(
+          'Cinsiyet sayfası validasyonu - Seçili cinsiyet: ${selectedGender.value}');
+      return isGenderValid.value && selectedGender.value.isNotEmpty;
+    } catch (e) {
+      print('Cinsiyet sayfası validasyon hatası: $e');
+      return false;
+    }
+  }
+
+  bool validateRelationshipPage() {
+    return isRelationshipStatusValid.value;
+  }
 
   // Time Management
   void updateSelectedTime(String hour, String minute) {
@@ -118,6 +145,8 @@ class UserController extends GetxController {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return;
 
+      print('Kaydedilecek doğum yeri: ${birthPlaceController.text}');
+
       await createOrUpdateUser(
         uid: currentUser.uid,
         name: nameController.text,
@@ -132,6 +161,12 @@ class UserController extends GetxController {
       Get.offAll(() => const HomePage());
     } catch (e) {
       print('Profil kaydetme hatası: $e');
+      Get.snackbar(
+        'Hata',
+        'Profil kaydedilirken bir hata oluştu: $e',
+        backgroundColor: MyColor.errorColor,
+        colorText: MyColor.white,
+      );
       rethrow;
     }
   }
@@ -172,6 +207,7 @@ class UserController extends GetxController {
         zodiacSign: zodiacSign,
         moonSign: moonSign,
         ascendant: ascendant,
+        isSubscribed: false,
       );
 
       print('Kaydedilecek kullanıcı bilgileri:');
@@ -244,16 +280,26 @@ class UserController extends GetxController {
   }
 
   bool validatePlace(String place) {
+    print('Doğum yeri validasyonu: $place');
     isPlaceValid.value = place.isNotEmpty;
+    birthPlaceController.text = place;
     return isPlaceValid.value;
   }
 
   bool validateGender(String gender) {
-    isGenderValid.value = gender.isNotEmpty;
-    return isGenderValid.value;
+    try {
+      print('Seçilen cinsiyet: $gender'); // Debug için
+      selectedGender.value = gender;
+      isGenderValid.value = gender.isNotEmpty;
+      return isGenderValid.value;
+    } catch (e) {
+      print('Cinsiyet validasyon hatası: $e');
+      return false;
+    }
   }
 
   bool validateRelationshipStatus(String status) {
+    selectedRelationshipStatus.value = status;
     isRelationshipStatusValid.value = status.isNotEmpty;
     return isRelationshipStatusValid.value;
   }

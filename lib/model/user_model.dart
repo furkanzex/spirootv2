@@ -15,6 +15,7 @@ class UserModel {
   final String zodiacSign;
   final String moonSign;
   final String ascendant;
+  final bool isSubscribed;
 
   UserModel({
     required this.uid,
@@ -31,6 +32,7 @@ class UserModel {
     required this.zodiacSign,
     required this.moonSign,
     required this.ascendant,
+    required this.isSubscribed,
   });
 
   Map<String, dynamic> toMap() {
@@ -40,23 +42,16 @@ class UserModel {
       'birthDate': Timestamp.fromDate(birthDate),
       'birthTime': birthTime,
       'birthPlace': birthPlace,
-      'gender': {
-        'key': gender,
-      },
-      'relationshipStatus': {
-        'key': relationshipStatus,
-      },
-      'interests': interests
-          .map((interest) => {
-                'key': interest,
-              })
-          .toList(),
+      'gender': gender,
+      'relationshipStatus': relationshipStatus,
+      'interests': interests,
       'isProfileComplete': isProfileComplete,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
       'zodiacSign': zodiacSign,
       'moonSign': moonSign,
       'ascendant': ascendant,
+      'isSubscribed': isSubscribed,
     };
   }
 
@@ -67,16 +62,16 @@ class UserModel {
       birthDate: (map['birthDate'] as Timestamp).toDate(),
       birthTime: map['birthTime'] ?? '',
       birthPlace: map['birthPlace'] ?? '',
-      gender: map['gender']?['key'] ?? '',
-      relationshipStatus: map['relationshipStatus']?['key'] ?? '',
-      interests: List<String>.from(
-          (map['interests'] ?? []).map((i) => i['key'] ?? '')),
+      gender: map['gender'] ?? '',
+      relationshipStatus: map['relationshipStatus'] ?? '',
+      interests: List<String>.from(map['interests'] ?? []),
       isProfileComplete: map['isProfileComplete'] ?? false,
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       updatedAt: (map['updatedAt'] as Timestamp).toDate(),
       zodiacSign: map['zodiacSign'] ?? '',
       moonSign: map['moonSign'] ?? '',
       ascendant: map['ascendant'] ?? '',
+      isSubscribed: map['isSubscribed'] ?? false,
     );
   }
 }

@@ -60,7 +60,10 @@ class AuthController extends GetxController {
         await userDoc.set({
           'uid': user.uid,
           'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
           'isAnonymous': true,
+          'isSubscribed': false,
+          'isProfileComplete': false,
         });
       }
     } catch (e) {
