@@ -302,45 +302,7 @@ class AstrologyScreen extends StatelessWidget {
               ],
             ),
             verticalGap(MySize.defaultPadding),
-            Container(
-              width: double.infinity,
-              height: MySize.iconSizeMedium,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Doğum haritası sayfasına yönlendirme
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: MyColor.white.withOpacity(0.1),
-                  foregroundColor: MyColor.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(MySize.halfRadius),
-                  ),
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: MySize.defaultPadding,
-                    vertical: 12,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons
-                          .auto_graph_rounded, // veya astroloji ile ilgili başka bir ikon
-                      size: 20,
-                    ),
-                    const SizedBox(width: MySize.halfPadding),
-                    Text(
-                      easy.tr("Doğum Haritası"),
-                      style: MyStyle.s2.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            verticalGap(MySize.defaultPadding),
+
             _buildCharacteristics(zodiacDetails['characteristics'] ?? ''),
 
             // Zaman Seçici
@@ -442,20 +404,25 @@ class AstrologyScreen extends StatelessWidget {
   }
 
   Widget _buildCharacteristics(String characteristics) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          "Karakteristik:",
-          style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
-        ),
-        verticalGap(4),
-        Text(
-          characteristics,
-          style: MyStyle.s2.copyWith(
-            color: MyColor.white,
-            fontWeight: FontWeight.w500,
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              "Karakteristik",
+              style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+            ),
+            verticalGap(4),
+            Text(
+              characteristics,
+              style: MyStyle.s2.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ],
     );
