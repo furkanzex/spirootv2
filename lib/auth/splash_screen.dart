@@ -1,0 +1,166 @@
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:spirootv2/auth/welcome_screen.dart';
+import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:flutter/material.dart';
+import 'package:spirootv2/core/constant/my_text.dart';
+import 'package:spirootv2/auth/auth_controller.dart';
+import 'package:spirootv2/home/homepage.dart';
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+  double _fontSize = 2;
+  double _containerSize = 1.5;
+  double _textOpacity = 0.0;
+  double _containerOpacity = 0.0;
+
+  late AnimationController _controller;
+  late Animation<double> animation1;
+
+  final AuthController controller = Get.put(AuthController());
+  bool isLogin = false;
+  bool isRegistered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 3));
+
+    animation1 = Tween<double>(begin: 40, end: 20).animate(CurvedAnimation(
+        parent: _controller, curve: Curves.fastLinearToSlowEaseIn))
+      ..addListener(() {
+        setState(() {
+          _textOpacity = 1.0;
+        });
+      });
+
+    _controller.forward();
+
+    Timer(const Duration(seconds: 2), () {
+      setState(() {
+        _fontSize = 1.06;
+      });
+    });
+
+    Timer(const Duration(seconds: 2), () {
+      setState(() {
+        _containerSize = 2;
+        _containerOpacity = 1;
+      });
+    });
+
+    checkIfLogin();
+
+    Timer(const Duration(seconds: 4), () async {
+      if (controller.isLogin.value) {
+        isRegistered = await controller
+            .checkUserInFirestore(FirebaseAuth.instance.currentUser!.uid);
+      }
+      setState(() {
+        Navigator.pushReplacement(
+          context,
+          PageTransition(controller.isLogin.value
+              ? (controller.isRegistered.value
+                  ? const HomePage()
+                  : WelcomeScreen())
+              : WelcomeScreen()),
+        );
+      });
+    });
+  }
+
+  void checkIfLogin() async {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null && mounted) {
+        setState(() {
+          isLogin = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      backgroundColor: MyColor.darkBackgroundColor,
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              AnimatedContainer(
+                  duration: const Duration(milliseconds: 2000),
+                  curve: Curves.fastLinearToSlowEaseIn,
+                  height: height / _fontSize),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 1000),
+                opacity: _textOpacity,
+                child: Text(
+                  MyText.appName,
+                  style: MyStyle.b3.copyWith(color: MyColor.textWhiteColor),
+                ),
+              ),
+            ],
+          ),
+          Center(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 1000),
+              opacity: _containerOpacity,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 2000),
+                curve: Curves.fastLinearToSlowEaseIn,
+                height: width / _containerSize,
+                width: width / _containerSize,
+                alignment: Alignment.center,
+                child: Image.asset('assets/images/logo.png'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PageTransition extends PageRouteBuilder {
+  final Widget page;
+
+  PageTransition(this.page)
+      : super(
+          pageBuilder: (context, animation, anotherAnimation) => page,
+          transitionDuration: const Duration(milliseconds: 2000),
+          transitionsBuilder: (context, animation, anotherAnimation, child) {
+            animation = CurvedAnimation(
+              curve: Curves.fastLinearToSlowEaseIn,
+              parent: animation,
+            );
+            return Align(
+              alignment: Alignment.bottomCenter,
+              child: SizeTransition(
+                sizeFactor: animation,
+                axisAlignment: 0,
+                child: page,
+              ),
+            );
+          },
+        );
+}

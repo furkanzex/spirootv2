@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:spirootv2/view/auth/splash_screen.dart';
+import 'package:spirootv2/auth/splash_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,10 +8,10 @@ import 'package:spirootv2/core/constant/my_text.dart';
 import 'package:spirootv2/firebase_options.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:spirootv2/core/helper/local_storage.dart';
-import 'package:spirootv2/controller/astrology_controller.dart';
-import 'package:spirootv2/controller/user_controller.dart';
+import 'package:spirootv2/astrology/astrology_controller.dart';
+import 'package:spirootv2/profile/user_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:spirootv2/data/user_repository.dart';
+import 'package:spirootv2/profile/user_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
