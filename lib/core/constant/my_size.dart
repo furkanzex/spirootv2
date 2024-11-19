@@ -34,4 +34,5 @@ class MySize {
   static const double cardWidth = 275.0;
 
   static const double welcomeImageSize = 240.0;
+  static const double natalChartSize = 230.0;
 }

@@ -898,6 +898,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  sweph:
+    dependency: "direct main"
+    description:
+      name: sweph
+      sha256: f4027d876d6a78a1ad874127fb86332912ed96c005162218b4afffcf02900f0f
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1+2.10.3"
   synchronized:
     dependency: transitive
     description:
@@ -1042,6 +1050,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.2.5"
+  wasm_ffi:
+    dependency: transitive
+    description:
+      name: wasm_ffi
+      sha256: "20520670922bee88efef57a02551073203814f54afca80b2bc74be8bcdb95bc1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   web:
     dependency: transitive
     description:

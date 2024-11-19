@@ -394,4 +394,8 @@ class UserController extends GetxController {
     userId.value = '';
     isLoading.value = false;
   }
+
+  void refreshNatalChart() {
+    update(['natal_chart']); // GetBuilder için özel ID
+  }
 }
