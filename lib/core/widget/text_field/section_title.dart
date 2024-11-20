@@ -11,13 +11,13 @@ Widget sectionTitle({
   Color? color,
 }) {
   return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Text(
         text,
         style: MyStyle.s1
             .copyWith(color: MyColor.white, fontWeight: FontWeight.bold),
       ),
+      const Spacer(),
       if (trailingLabel != null || icon != null)
         GestureDetector(
           onTap: onTap,

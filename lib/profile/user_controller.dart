@@ -70,6 +70,8 @@ class UserController extends GetxController {
   void onClose() {
     nameController.dispose();
     birthPlaceController.dispose();
+    selectedGender.value = '';
+    isGenderValid.value = false;
     super.onClose();
   }
 
@@ -109,8 +111,6 @@ class UserController extends GetxController {
 
   bool validateGenderPage() {
     try {
-      print(
-          'Cinsiyet sayfası validasyonu - Seçili cinsiyet: ${selectedGender.value}');
       return isGenderValid.value && selectedGender.value.isNotEmpty;
     } catch (e) {
       print('Cinsiyet sayfası validasyon hatası: $e');
@@ -304,7 +304,6 @@ class UserController extends GetxController {
 
   bool validateGender(String gender) {
     try {
-      print('Seçilen cinsiyet: $gender'); // Debug için
       selectedGender.value = gender;
       isGenderValid.value = gender.isNotEmpty;
       return isGenderValid.value;
@@ -397,5 +396,20 @@ class UserController extends GetxController {
 
   void refreshNatalChart() {
     update(['natal_chart']); // GetBuilder için özel ID
+  }
+
+  void handleLocationError(String error) {
+    if (Get.isSnackbarOpen) {
+      Get.closeCurrentSnackbar();
+    }
+
+    Get.snackbar(
+      'Hata',
+      error,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: MyColor.errorColor,
+      colorText: MyColor.white,
+      duration: const Duration(seconds: 3),
+    );
   }
 }
