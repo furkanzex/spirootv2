@@ -203,5 +203,26 @@
     "p4desc":"Observe your monthly nutrition summaries and improve your eating habits with AI analysis.",
     "p5title":"Take the First Step Towards Your Healthy Life",
     "p5desc":"Reaching your goals has never been easier. Sign up now and start our AI-powered nutrition tracking!"
+  },
+  "astrology": {
+    "horoscope": {
+      "dates": {
+        "today": "Today",
+        "week": "This Week",
+        "month": "This Month"
+      },
+      "essential": {
+        "today": "Daily energy and opportunities",
+        "week": "Weekly flows and potentials",
+        "month": "Monthly cycles and transformations",
+        "default": "Astrological effects"
+      },
+      "affirmation": {
+        "today": "Every moment is filled with new opportunities",
+        "week": "Each week brings new beginnings",
+        "month": "I'm achieving all my goals this month",
+        "default": "I am in harmony with the universe"
+      }
+    }
   }
 }

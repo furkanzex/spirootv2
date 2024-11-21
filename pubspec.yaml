@@ -40,6 +40,7 @@ dependencies:
   google_places_flutter: ^2.0.8
   animate_do: ^3.3.4
   sweph: ^3.0.1+2.10.3
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:

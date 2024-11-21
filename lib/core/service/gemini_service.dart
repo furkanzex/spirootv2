@@ -1,116 +1,291 @@
-import 'dart:io';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:image/image.dart' as img;
+import 'package:get/get.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:intl/intl.dart';
+import 'package:spirootv2/profile/user_controller.dart';
+import 'package:spirootv2/profile/user_model.dart';
 
-final String apiKey = "";
+class GeminiService extends GetxService {
+  static const String apiKey = "AIzaSyBxt1593xpDLULlo7KJE4gTjMvPb3JXVCg";
 
-Future<File> resizeImage(File imageFile) async {
-  final bytes = await imageFile.readAsBytes();
-  img.Image image = img.decodeImage(bytes)!;
+  // Farklı kullanım senaryoları için modeller
+  late final GenerativeModel _chatModel;
+  late final GenerativeModel _textModel;
+  late final GenerativeModel _visionModel;
 
-  const maxFileSize = 4 * 1024 * 1024;
+  // Chat oturumu
+  late ChatSession _chatSession;
 
-  if (image.length > maxFileSize) {
-    final double scaleFactor = maxFileSize / image.length;
-    image = img.copyResize(image,
-        width: (image.width * scaleFactor).round(),
-        height: (image.height * scaleFactor).round());
+  // Kullanıcı bilgileri için getter
+  UserModel? get currentUser => Get.put(UserController()).currentUser.value;
+  String get currentDate => DateFormat('dd.MM.yyyy').format(DateTime.now());
+  String get currentTime => DateFormat('HH:mm').format(DateTime.now());
+
+  @override
+  void onInit() {
+    super.onInit();
+    _initializeModels();
   }
 
-  final resizedImageFile = File('${imageFile.path}.jpg');
-  await resizedImageFile.writeAsBytes(img.encodeJpg(image));
+  void _initializeModels() {
+    // Chat Modeli (Ruhsal Danışman için)
+    _chatModel = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: apiKey,
+      generationConfig: GenerationConfig(
+        temperature: 0.9,
+        topP: 0.8,
+        topK: 20,
+        maxOutputTokens: 2000,
+      ),
+      safetySettings: _defaultSafetySettings,
+    );
 
-  return resizedImageFile;
-}
+    // Text Modeli (Astroloji için)
+    _textModel = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: apiKey,
+      generationConfig: GenerationConfig(
+        temperature: 1.9,
+        topP: 0.92,
+        topK: 10,
+        maxOutputTokens: 2000,
+      ),
+      safetySettings: _defaultSafetySettings,
+    );
 
-class ConversationState {
-  final GenerativeModel _model;
-  late final ChatSession chat;
-  String conversationHistory = "";
+    // Vision Modeli (Fal yorumları için)
+    _visionModel = GenerativeModel(
+      model: 'gemini-1.5-pro',
+      apiKey: apiKey,
+      generationConfig: GenerationConfig(
+        temperature: 1.0,
+        topP: 0.9,
+        topK: 15,
+        maxOutputTokens: 4000,
+      ),
+      safetySettings: _defaultSafetySettings,
+    );
 
-  ConversationState(this._model) : chat = _model.startChat();
-
-  void updateHistory(String userMessage, String aiResponse) {
-    conversationHistory += "You: $userMessage\nAI: $aiResponse\n";
-  }
-}
-
-ConversationState? _conversationState;
-
-Future<String> geminiImageService(
-  String type,
-  List<String> imgPaths,
-  String q,
-  String category,
-  String subcategory,
-  String instructions,
-  String tone,
-  String length,
-  String audience,
-  String style,
-) async {
-  String question = q.isEmpty ? "" : q;
-  String promptText = "";
-
-  final generationConfig = GenerationConfig(
-    maxOutputTokens: 2000,
-    temperature: 1.9,
-    topP: 0.92,
-    topK: 10,
-  );
-
-  final safetySettings = [
-    SafetySetting(HarmCategory.harassment, HarmBlockThreshold.none),
-    SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.none),
-    SafetySetting(HarmCategory.sexuallyExplicit, HarmBlockThreshold.none),
-    SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.none),
-  ];
-
-  final model = GenerativeModel(
-    model: 'gemini-1.5-flash',
-    apiKey: apiKey,
-    generationConfig: generationConfig,
-    safetySettings: safetySettings,
-  );
-
-  _conversationState ??= ConversationState(model);
-
-  String sysInstructions =
-      "Answer in ${"lang".tr()}. As a sophisticated AI model, your task is to generate a comprehensive output for the category of [$category], specifically focusing on the subcategory of [$subcategory]. You should follow these detailed instructions to ensure the output meets the desired criteria: [$instructions]. The content you produce should be well-structured, coherent, and adhere to the following guidelines: **Tone and Style**: The tone should be [$tone]. **Length and Detail**: The output should be [$length]. **Audience and Purpose**: The content is intended for [$audience]. **Structure**: Ensure the content is organized logically, with a clear introduction, body, and conclusion. Use appropriate headings, subheadings, and paragraphs to enhance readability. **Creativity and Originality**: The output should be [$style]. Finally, your response should seamlessly build and provided instructions and guidelines. Answer in ${"lang".tr()}.";
-
-  if (category.isEmpty ||
-      subcategory.isEmpty ||
-      instructions.isEmpty ||
-      tone.isEmpty ||
-      style.isEmpty ||
-      audience.isEmpty ||
-      length.isEmpty) {
-    promptText =
-        "Answer in ${"lang".tr()}. ${_conversationState!.conversationHistory} $q";
-  } else {
-    promptText =
-        "**Take this text as system instruction:** [$sysInstructions]. **Our previous conversation (don't tell me this information):** ${_conversationState!.conversationHistory} **My question:** $question";
+    _startNewChatSession();
   }
 
-  List<File> resizedImagesList = [];
-  for (var i = 0; i < imgPaths.length; i++) {
-    final resizedImageFile = await resizeImage(File(imgPaths[i]));
-    resizedImagesList.add(resizedImageFile);
+  List<SafetySetting> get _defaultSafetySettings => [
+        SafetySetting(HarmCategory.harassment, HarmBlockThreshold.none),
+        SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.none),
+        SafetySetting(HarmCategory.sexuallyExplicit, HarmBlockThreshold.none),
+        SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.none),
+      ];
+
+  void _startNewChatSession() {
+    _chatSession = _chatModel.startChat(history: [
+      Content.text(_getInitialChatContext()),
+    ]);
   }
 
-  final List<DataPart> imageParts = [];
-  for (var resizedImageFile in resizedImagesList) {
-    final imageBytes = await resizedImageFile.readAsBytes();
-    imageParts.add(DataPart('image/jpeg', imageBytes));
+  String _getInitialChatContext() {
+    if (currentUser == null) return '';
+
+    return '''
+    User Information:
+    - Name: ${currentUser!.name}
+    - Birth Date: ${DateFormat('dd.MM.yyyy').format(currentUser!.birthDate)}
+    - Sun Sign: ${currentUser!.zodiacSign}
+    - Ascendant: ${currentUser!.ascendant}
+    - Moon Sign: ${currentUser!.moonSign}
+    
+    Date: $currentDate
+    Time: $currentTime
+    ''';
   }
 
-  final prompt = TextPart(promptText);
+  // ASTROLOGY METHODS
+  Future<String> generateHoroscope(String timeframe, UserModel user) async {
+    final prompt = _createHoroscopePrompt(timeframe, user);
+    return _generateWithText(prompt);
+  }
 
-  final response = await _conversationState!.chat
-      .sendMessage(Content.multi([prompt, ...imageParts]));
+  Future<String> _generateWithText(String prompt) async {
+    try {
+      final content = [Content.text(_addUserContext(prompt))];
+      final response = await _textModel.generateContent(content);
+      return response.text ?? 'Yanıt oluşturulamadı.';
+    } catch (e) {
+      print('Gemini Text Hatası: $e');
+      return 'İçerik oluşturulurken bir hata oluştu.';
+    }
+  }
 
-  _conversationState!.updateHistory(question, response.text!);
+  // FORTUNE TELLING METHODS
+  Future<String> generateFortuneReading(
+      List<String> imageUrls, String type) async {
+    try {
+      final contents = await _prepareImageContents(imageUrls);
+      contents.insert(0, Content.text(_createFortunePrompt(type)));
 
-  return response.text!;
+      final response = await _visionModel.generateContent(contents);
+      return response.text ?? 'Fal yorumu oluşturulamadı.';
+    } catch (e) {
+      print('Gemini Vision Hatası: $e');
+      return 'Fal yorumu oluşturulurken bir hata oluştu.';
+    }
+  }
+
+  Future<List<Content>> _prepareImageContents(List<String> imageUrls) async {
+    // TODO: Implement image loading and conversion
+    return [];
+  }
+
+  // SPIRITUAL CHAT METHODS
+  Future<String> chatWithSpiritualGuide(String message) async {
+    try {
+      final response = await _chatSession
+          .sendMessage(Content.text(_addUserContext(message)));
+      return response.text ?? 'Yanıt alınamadı.';
+    } catch (e) {
+      print('Gemini Chat Hatası: $e');
+      return 'Sohbet sırasında bir hata oluştu.';
+    }
+  }
+
+  String _addUserContext(String prompt) {
+    return '''
+    ${_getInitialChatContext()}
+    
+    $prompt
+    ''';
+  }
+
+  String _createHoroscopePrompt(String timeframe, UserModel user) {
+    String basePrompt = '''
+    You are an experienced astrologer. Write a horoscope reading for ${user.zodiacSign} sign for ${_getTimeframeText(timeframe)}.
+    
+    Personal Information:
+    - Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
+    - Birth Time: ${user.birthTime}
+    - Ascendant: ${user.ascendant}
+    - Moon Sign: ${user.moonSign}
+    
+    The reading should include:
+    - Love and Relationships
+    - Career and Professional Life
+    - Money and Financial Matters
+    - General Overview and Advice
+    ''';
+
+    switch (timeframe) {
+      case "astrology.horoscope.dates.today":
+        return '''
+        $basePrompt
+        
+        Write a reading for today.
+        - Highlight the most important astrological aspects of the day
+        - Provide specific advice for today
+        - Indicate important hours to pay attention to
+        - Explain lucky aspects and areas of caution for the day
+        - Give specific advice for love life today
+        - Highlight career and work matters to focus on today
+        - Discuss financial opportunities and risks for today
+        - Do not make it too long, maximum 500 characters
+        ''';
+
+      case "astrology.horoscope.dates.week":
+        return '''
+        $basePrompt
+        
+        Write a detailed reading for this week (${DateFormat('dd.MM.yyyy').format(DateTime.now())} - ${DateFormat('dd.MM.yyyy').format(DateTime.now().add(const Duration(days: 7)))}).
+        - Highlight important astrological transits and aspects for the week
+        - Provide information about weekly goals and opportunities
+        - Indicate important and critical days of the week
+        - Present weekly strategies and recommendations
+        - Discuss potential developments in love life this week
+        - Highlight important days for career and work
+        - Share weekly expectations and advice for financial matters
+        - Maximum 1500 characters
+        ''';
+
+      case "astrology.horoscope.dates.month":
+        return '''
+        $basePrompt
+        
+        Write a detailed reading for ${DateFormat('MMMM yyyy').format(DateTime.now())}.
+        - Explain important astrological events and their effects
+        - Provide information about long-term goals and opportunities
+        - Highlight important dates and periods of the month
+        - Present monthly strategies and recommendations
+        - Emphasize areas requiring attention throughout the month
+        - Discuss expected developments in love life this month
+        - Identify critical periods for career and work
+        - Share monthly plans and strategies for financial matters
+        - Make it long and detailed
+        ''';
+
+      default:
+        return basePrompt;
+    }
+  }
+
+  String _createFortunePrompt(String type) {
+    String basePrompt = '''
+    You are an experienced fortune teller. Analyze the provided images in detail and interpret the ${type} reading.
+    
+    Personal Information:
+    ${_getInitialChatContext()}
+    
+    The reading should include:
+    - General Overview and First Impressions
+    - Details About Love and Relationships
+    - Signs for Career and Professional Life
+    - Financial Matters and Opportunities
+    - Predictions for the Near Future
+    - Points of Attention
+    - Special Advice and Guidance
+    ''';
+
+    switch (type.toLowerCase()) {
+      case "coffee":
+        return '''
+        $basePrompt
+        
+        Special instructions for Coffee Reading:
+        - Analyze the shapes inside the cup in detail
+        - Interpret the signs on the saucer
+        - Distinguish between near and distant future
+        - Explain important symbols and their meanings
+        ''';
+
+      case "tarot":
+        return '''
+        $basePrompt
+        
+        Special instructions for Tarot Reading:
+        - Explain the position and meaning of each card
+        - Interpret relationships between cards
+        - Tell the overall story and message
+        - Highlight special warnings and advice
+        ''';
+
+      default:
+        return basePrompt;
+    }
+  }
+
+  String _getTimeframeText(String timeframe) {
+    switch (timeframe) {
+      case "astrology.horoscope.dates.today":
+        return '''today (${DateFormat('MMMM dd, yyyy').format(DateTime.now())})''';
+      case "astrology.horoscope.dates.week":
+        final now = DateTime.now();
+        final weekEnd = now.add(const Duration(days: 7));
+        return '''this week (${DateFormat('MMMM dd').format(now)} - ${DateFormat('MMMM dd, yyyy').format(weekEnd)})''';
+      case "astrology.horoscope.dates.month":
+        return '''${DateFormat('MMMM yyyy').format(DateTime.now())}''';
+      default:
+        return "today";
+    }
+  }
+
+  void resetChat() {
+    _startNewChatSession();
+  }
 }

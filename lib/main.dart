@@ -12,8 +12,9 @@ import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:spirootv2/profile/user_repository.dart';
+import 'package:spirootv2/core/service/gemini_service.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();
@@ -21,6 +22,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await Get.putAsync(() async => GeminiService());
 
   final userController = Get.put(UserController());
   Get.put(AstrologyController());

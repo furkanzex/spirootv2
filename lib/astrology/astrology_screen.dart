@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_image.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
@@ -22,9 +23,14 @@ import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/service/natal_chart_service.dart';
 import 'package:spirootv2/astrology/natal_chart.dart';
 
-class AstrologyScreen extends StatelessWidget {
-  AstrologyScreen({super.key});
+class AstrologyScreen extends StatefulWidget {
+  const AstrologyScreen({super.key});
 
+  @override
+  State<AstrologyScreen> createState() => _AstrologyScreenState();
+}
+
+class _AstrologyScreenState extends State<AstrologyScreen> {
   final UserController _userController = Get.find<UserController>();
   final AstrologyController _astrologyController =
       Get.put(AstrologyController());
@@ -308,28 +314,25 @@ class AstrologyScreen extends StatelessWidget {
             // Zaman Seçici
             verticalGap(MySize.defaultPadding),
             divider(),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      _buildTimeButton(
-                          easy.tr("astrology.horoscope.dates.yesterday"),
-                          false),
-                      _buildTimeButton(
-                          easy.tr("astrology.horoscope.dates.today"), true),
-                      _buildTimeButton(
-                          easy.tr("astrology.horoscope.dates.tomorrow"), false),
-                      _buildTimeButton(
-                          easy.tr("astrology.horoscope.dates.week"), false),
-                      _buildTimeButton(
-                          easy.tr("astrology.horoscope.dates.month"), false),
-                    ],
-                  ),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildTimeButton(
+                  "astrology.horoscope.dates.today",
+                  _astrologyController.selectedDay.value ==
+                      "astrology.horoscope.dates.today",
+                ),
+                _buildTimeButton(
+                  "astrology.horoscope.dates.week",
+                  _astrologyController.selectedDay.value ==
+                      "astrology.horoscope.dates.week",
+                ),
+                _buildTimeButton(
+                  "astrology.horoscope.dates.month",
+                  _astrologyController.selectedDay.value ==
+                      "astrology.horoscope.dates.month",
+                ),
+              ],
             ),
 
             // Love, Career, Money Bars
@@ -375,30 +378,32 @@ class AstrologyScreen extends StatelessWidget {
   }
 
   Widget _buildTimeButton(String text, bool isSelected) {
+    String displayText = easy.tr(text);
+
     return Container(
       margin: const EdgeInsets.only(right: MySize.defaultPadding),
       child: TextButton(
         onPressed: () {
-          Get.forceAppUpdate();
-          _userController.update();
-          Get.find<AstrologyController>().update();
+          _astrologyController.changeDay(text);
         },
         style: TextButton.styleFrom(
           minimumSize: const Size(44, 44),
           padding:
               const EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
+          backgroundColor: isSelected
+              ? MyColor.primaryColor.withOpacity(0.2)
+              : Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(MySize.quarterRadius),
+          ),
         ),
-        child: Obx(() => Text(
-              text,
-              style: MyStyle.s2.copyWith(
-                color: _astrologyController.selectedDay.value == text
-                    ? MyColor.white
-                    : MyColor.primaryLightColor,
-                fontWeight: _astrologyController.selectedDay.value == text
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-              ),
-            )),
+        child: Text(
+          displayText,
+          style: MyStyle.s2.copyWith(
+            color: isSelected ? MyColor.white : MyColor.primaryLightColor,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
       ),
     );
   }
@@ -429,23 +434,39 @@ class AstrologyScreen extends StatelessWidget {
   }
 
   Widget _buildHoroscopeText() {
-    return Obx(() => Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Bugün için yorumun:",
-                  style: MyStyle.s2.copyWith(
-                    color: MyColor.white,
-                    height: 1.5,
-                  ),
+    return Obx(() {
+      String displayText = "";
+      switch (_astrologyController.selectedDay.value) {
+        case "astrology.horoscope.dates.today":
+          displayText = easy.tr("astrology.horoscope.for_dates.today");
+          break;
+        case "astrology.horoscope.dates.week":
+          displayText = easy.tr("astrology.horoscope.for_dates.week");
+          break;
+        case "astrology.horoscope.dates.month":
+          displayText = easy.tr("astrology.horoscope.for_dates.month");
+          break;
+        default:
+          displayText = easy.tr("astrology.horoscope.for_dates.today");
+      }
+
+      return Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "$displayText:",
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  height: 1.5,
                 ),
-                // Paylaş butonu
+              ),
+              if (_astrologyController.isHoroscopeAvailable.value)
                 IconButton(
                   onPressed: () {
                     Share.share(
-                      '${_astrologyController.currentHoroscope.horoscopeText} \n\n\n SPIROOT uygulamasından paylaşıldı.',
+                      'SPIROOT uygulamasından paylaşıldı.\n\n${_astrologyController.selectedHoroscope.value.horoscopeText}',
                       subject: 'Astroloji Yorumum',
                     );
                   },
@@ -453,26 +474,161 @@ class AstrologyScreen extends StatelessWidget {
                     MingCute.upload_line,
                     color: MyColor.primaryLightColor,
                   ),
-                  padding:
-                      const EdgeInsets.all(12), // 44pt minimum touch target
+                  padding: const EdgeInsets.all(12),
                   constraints: const BoxConstraints(
                     minWidth: 44,
                     minHeight: 44,
                   ),
-                  tooltip: easy.tr("share_horoscope"),
+                  tooltip: "Paylaş",
+                ),
+            ],
+          ),
+          verticalGap(MySize.defaultPadding),
+          if (_astrologyController.isLoading.value)
+            Column(
+              children: [
+                const CircularProgressIndicator(),
+                verticalGap(MySize.defaultPadding),
+                Text(
+                  "✨ Yıldızlar sizin için konuşuyor...",
+                  style: MyStyle.s3.copyWith(
+                    color: MyColor.textGreyColor,
+                    fontWeight: FontWeight.w500,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ],
-            ),
-            verticalGap(MySize.defaultPadding),
+            )
+          else if (_astrologyController.isHoroscopeAvailable.value)
             Text(
-              _astrologyController.currentHoroscope.horoscopeText,
+              _astrologyController.selectedHoroscope.value.horoscopeText,
               style: MyStyle.s2.copyWith(
                 color: MyColor.white,
                 height: 1.5,
               ),
+            )
+          else
+            Container(
+              padding: const EdgeInsets.all(MySize.defaultPadding),
+              decoration: BoxDecoration(
+                color: MyColor.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(MySize.halfRadius),
+                border: Border.all(
+                  color: MyColor.primaryLightColor.withOpacity(0.1),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: MyColor.primaryColor.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Astroloji İkonu ve Efektler
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Arka plan efekti
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              MyColor.primaryColor.withOpacity(0.2),
+                              MyColor.secondaryColor.withOpacity(0.1),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Yıldız efekti
+                      Transform.rotate(
+                        angle: pi / 4,
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            gradient: LinearGradient(
+                              colors: [
+                                MyColor.primaryLightColor.withOpacity(0.2),
+                                MyColor.primaryColor.withOpacity(0.1),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // İkon
+                      Icon(
+                        MingCute.planet_line,
+                        color: MyColor.white,
+                        size: MySize.iconSizeMedium,
+                      ),
+                    ],
+                  ),
+                  verticalGap(MySize.defaultPadding),
+
+                  // Samimi Mesaj
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: MyStyle.s2.copyWith(
+                        color: MyColor.white,
+                        height: 1.5,
+                      ),
+                      children: [
+                        TextSpan(
+                          text:
+                              "✨ Merhaba değerli ${easy.tr("astrology.zodiac.${_userController.currentUser.value!.zodiacSign}.name")} burcu,\nyıldızlar senin için özel mesajlar hazırladı!",
+                          style: MyStyle.s2.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  verticalGap(MySize.defaultPadding),
+
+                  // Keşfet Butonu
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await _astrologyController.generateHoroscope();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MyColor.primaryColor,
+                        foregroundColor: MyColor.white,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: MySize.defaultPadding,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(MySize.quarterRadius),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: Text(
+                        "Kozmik Mesajı Gör",
+                        style: MyStyle.s2.copyWith(
+                          color: MyColor.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ));
+        ],
+      );
+    });
   }
 
   Widget _buildBiorhythmChart() {
@@ -824,64 +980,178 @@ class AstrologyScreen extends StatelessWidget {
             color: MyColor.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(MySize.halfRadius),
           ),
-          child: Column(
-            children: [
-              _buildNatalChartGraph(),
-              verticalGap(MySize.doublePadding),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(MySize.defaultPadding),
-                    decoration: BoxDecoration(
-                      color: MyColor.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          "14",
-                          style: MyStyle.s1.copyWith(
-                            color: MyColor.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          "NOV",
-                          style: MyStyle.s3.copyWith(
-                            color: MyColor.textGreyColor,
-                          ),
-                        ),
-                      ],
-                    ),
+          child: Obx(() {
+            // Kullanıcı verilerinin yüklenip yüklenmediğini kontrol et
+            if (_userController.currentUser.value == null) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            return Column(
+              children: [
+                FutureBuilder<Map<String, dynamic>>(
+                  future: NatalChartService.calculateNatalChart(
+                    _userController.currentUser.value!.birthDate,
+                    _userController.currentUser.value!.birthTime,
+                    _userController.currentUser.value!.birthPlace,
                   ),
-                  const SizedBox(width: MySize.defaultPadding),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Mercury semi-square Pluto",
-                          style: MyStyle.s2.copyWith(
-                            color: MyColor.white,
-                            fontWeight: FontWeight.w500,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return SizedBox(
+                        height: MySize.natalChartSize,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: CircularProgressIndicator(
+                                  color: MyColor.primaryLightColor,
+                                  strokeWidth: 3,
+                                  backgroundColor:
+                                      MyColor.white.withOpacity(0.1),
+                                ),
+                              ),
+                              verticalGap(MySize.defaultPadding),
+                              Text(
+                                'Natal Chart Hazırlanıyor...',
+                                style: MyStyle.s3.copyWith(
+                                  color: MyColor.white.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        verticalGap(8),
-                        Text(
-                          "You are highly concentrated on making your dreams come true. You want to be the doer in your life. When you get into arguments you will hold your ground. Be careful when interactive with your boss or father.",
-                          style: MyStyle.s3.copyWith(
-                            color: MyColor.white,
-                            height: 1.5,
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return SizedBox(
+                        height: MySize.natalChartSize,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: MyColor.textGreyColor,
+                                size: 40,
+                              ),
+                              verticalGap(MySize.defaultPadding),
+                              Text(
+                                'Yüklenirken Hata Oluştu',
+                                style: MyStyle.s3.copyWith(
+                                  color: MyColor.white,
+                                ),
+                              ),
+                              verticalGap(MySize.halfPadding),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {}); // Yeniden yüklemeyi tetikle
+                                },
+                                child: Text(
+                                  'Tekrar Dene',
+                                  style: MyStyle.s3.copyWith(
+                                    color: MyColor.primaryLightColor,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      );
+                    }
+
+                    if (snapshot.hasData) {
+                      return NatalChartWidget(natalChartData: snapshot.data!);
+                    }
+
+                    return const SizedBox.shrink();
+                  },
+                ),
+                verticalGap(MySize.defaultPadding),
+                divider(),
+                verticalGap(MySize.defaultPadding),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(MySize.halfPadding),
+                      decoration: BoxDecoration(
+                        color: MyColor.primaryLightColor,
+                        borderRadius:
+                            BorderRadius.circular(MySize.quarterRadius),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "14",
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            "NOV",
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.textGreyColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    const SizedBox(width: MySize.defaultPadding),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Mercury semi-square Pluto",
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          verticalGap(MySize.halfPadding),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              GestureDetector(
+                                onTap: () {},
+                                child: Row(
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          easy.tr("astrology.see_details"),
+                                          style: MyStyle.s3.copyWith(
+                                              color: MyColor.primaryLightColor,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Icon(
+                                          MyIcon.forward,
+                                          size: MySize.iconSizeTiny,
+                                          color: MyColor.primaryLightColor,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          }),
         ),
       ],
     );
@@ -1072,106 +1342,10 @@ class AstrologyScreen extends StatelessWidget {
         return '🚀';
       case 'sabit':
         return '🏔️';
-      case 'değişken':
+      case 'deişken':
         return '🔄';
       default:
         return '⭐';
     }
-  }
-
-  Widget _buildNatalChartGraph() {
-    return Container(
-      height: MySize.natalChartSize,
-      width: MySize.natalChartSize,
-      decoration: BoxDecoration(
-        color: MyColor.white.withOpacity(0.05),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: MyColor.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: FutureBuilder<Map<String, dynamic>>(
-        future: NatalChartService.calculateNatalChart(
-          _userController.currentUser.value!.birthDate,
-          _userController.currentUser.value!.birthTime,
-          _userController.currentUser.value!.birthPlace,
-        ),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(
-                      color: MyColor.primaryLightColor,
-                      strokeWidth: 3,
-                      backgroundColor: MyColor.white.withOpacity(0.1),
-                    ),
-                  ),
-                  verticalGap(MySize.defaultPadding),
-                  Text(
-                    'Natal Chart Hazırlanıyor...',
-                    style: MyStyle.s3.copyWith(
-                      color: MyColor.white.withOpacity(0.7),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    color: MyColor.errorColor,
-                    size: 40,
-                  ),
-                  verticalGap(MySize.defaultPadding),
-                  Text(
-                    'Yüklenirken Hata Oluştu',
-                    style: MyStyle.s3.copyWith(
-                      color: MyColor.errorColor,
-                    ),
-                  ),
-                  verticalGap(MySize.halfPadding),
-                  TextButton(
-                    onPressed: () {
-                      _userController.refreshNatalChart();
-                    },
-                    child: Text(
-                      'Tekrar Dene',
-                      style: MyStyle.s3.copyWith(
-                        color: MyColor.primaryLightColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (snapshot.hasData) {
-            return NatalChartWidget(natalChartData: snapshot.data!);
-          }
-
-          return Center(
-            child: Text(
-              'Veri Bulunamadı',
-              style: MyStyle.s3.copyWith(
-                color: MyColor.errorColor,
-              ),
-            ),
-          );
-        },
-      ),
-    );
   }
 }

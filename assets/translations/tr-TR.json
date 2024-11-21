@@ -116,14 +116,29 @@
     }
   },
   "astrology": {
+    "see_details": "tüm detayları gör",
     "horoscope": {
       "dates": {
-        "yesterday": "Dün",
         "today": "Bugün",
-        "tomorrow": "Yarın",
         "week": "Bu Hafta",
-        "month": "Bu Ay",
-        "year": "Bu Yıl"
+        "month": "Bu Ay"
+      },
+      "for_dates": {
+        "today": "Bugün için",
+        "week": "Bu Hafta için",
+        "month": "Bu Ay için"
+      },
+      "essential": {
+        "today": "Günlük enerji ve fırsatlar",
+        "week": "Haftalık akışlar ve potansiyeller",
+        "month": "Aylık döngüler ve dönüşümler",
+        "default": "Astrolojik etkiler"
+      },
+      "affirmation": {
+        "today": "Her an yeni fırsatlarla dolu",
+        "week": "Her hafta yeni başlangıçlar getiriyor",
+        "month": "Bu ay tüm hedeflerime ulaşıyorum",
+        "default": "Evrenle uyum içindeyim"
       }
     },
     "zodiac": {

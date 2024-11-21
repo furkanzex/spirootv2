@@ -1,8 +1,14 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/astrology/daily_horoscope.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/service/gemini_service.dart';
+import 'package:spirootv2/profile/user_controller.dart';
 
 class AstrologyController extends GetxController {
   final RxDouble zodiacRotation = 0.0.obs;
@@ -17,11 +23,193 @@ class AstrologyController extends GetxController {
     moneyPercentage: 0.0,
   ).obs;
 
+  final GeminiService _geminiService = Get.put(GeminiService());
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Yorum durumunu kontrol etmek için
+  final RxBool isHoroscopeAvailable = false.obs;
+  final RxBool isLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
-    // Varsayılan horoskopu yükle
-    updateHoroscope(selectedDay.value);
+    // onInit'te Future işlemi çalıştırmak için
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeHoroscope();
+    });
+  }
+
+  Future<void> _initializeHoroscope() async {
+    try {
+      // Başlangıç değerini ayarla
+      selectedDay.value = "astrology.horoscope.dates.today";
+
+      // Bugünün yorumunu kontrol et
+      await checkHoroscope(selectedDay.value);
+    } catch (e) {
+      print('Initialize Horoscope Error: $e');
+    }
+  }
+
+  Future<void> checkHoroscope(String timeframe) async {
+    try {
+      isLoading.value = true;
+      final userId = Get.find<UserController>().userId.value;
+      final zodiacSign =
+          Get.find<UserController>().currentUser.value?.zodiacSign ?? '';
+
+      final userHoroscopeRef = _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('horoscopes')
+          .doc(zodiacSign);
+
+      final doc = await userHoroscopeRef
+          .collection(timeframe)
+          .doc(_getDocumentId(timeframe))
+          .get();
+
+      if (doc.exists) {
+        final expiryDate = doc.data()?['expiryDate'].toDate();
+        if (expiryDate.isAfter(DateTime.now())) {
+          selectedHoroscope.value = DailyHoroscope.fromMap(doc.data()!);
+          isHoroscopeAvailable.value = true;
+        } else {
+          isHoroscopeAvailable.value = false;
+        }
+      } else {
+        isHoroscopeAvailable.value = false;
+      }
+    } catch (e) {
+      print('Horoscope check error: $e');
+      isHoroscopeAvailable.value = false;
+    } finally {
+      isLoading.value = false;
+      update();
+    }
+  }
+
+  Future<void> generateHoroscope() async {
+    try {
+      isLoading.value = true;
+
+      final userId = Get.find<UserController>().userId.value;
+      final user = Get.find<UserController>().currentUser.value!;
+
+      // Gemini'den yorum al
+      final response =
+          await _geminiService.generateHoroscope(selectedDay.value, user);
+
+      final expiryDate = _calculateExpiryDate(selectedDay.value);
+
+      final horoscope = DailyHoroscope(
+        date: DateTime.now().toString(),
+        horoscopeText: response,
+        essential: _getEssentialByTimeframe(selectedDay.value),
+        affirmation: _getAffirmationByTimeframe(selectedDay.value),
+        lovePercentage: Random().nextDouble() * 0.3 + 0.7,
+        careerPercentage: Random().nextDouble() * 0.3 + 0.7,
+        moneyPercentage: Random().nextDouble() * 0.3 + 0.7,
+      );
+
+      // Firebase'e kaydet
+      final userHoroscopeRef = _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('horoscopes')
+          .doc(user.zodiacSign);
+
+      await userHoroscopeRef
+          .collection(selectedDay.value)
+          .doc(_getDocumentId(selectedDay.value))
+          .set({
+        ...horoscope.toMap(),
+        'expiryDate': expiryDate,
+        'timeframe': selectedDay.value,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      selectedHoroscope.value = horoscope;
+      isHoroscopeAvailable.value = true;
+    } catch (e) {
+      print('Hata: $e');
+      Get.snackbar(
+        'Hata',
+        'Yorum oluşturulurken bir hata oluştu',
+        backgroundColor: MyColor.errorColor,
+        colorText: MyColor.white,
+      );
+    } finally {
+      isLoading.value = false;
+      update();
+    }
+  }
+
+  String _getDocumentId(String timeframe) {
+    final now = DateTime.now();
+    switch (timeframe) {
+      case "astrology.horoscope.dates.today":
+        return DateFormat('yyyy-MM-dd').format(now);
+      case "astrology.horoscope.dates.week":
+        int weekNumber =
+            ((now.difference(DateTime(now.year, 1, 1)).inDays) / 7).ceil();
+        return 'week-${now.year}-$weekNumber';
+      case "astrology.horoscope.dates.month":
+        return 'month-${now.year}-${now.month}';
+      default:
+        return DateFormat('yyyy-MM-dd').format(now);
+    }
+  }
+
+  DateTime _calculateExpiryDate(String timeframe) {
+    final now = DateTime.now();
+    switch (timeframe) {
+      case "astrology.horoscope.dates.today":
+        return DateTime(now.year, now.month, now.day, 23, 59, 59);
+      case "astrology.horoscope.dates.week":
+        return now.add(Duration(days: 7 - now.weekday));
+      case "astrology.horoscope.dates.month":
+        return DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+      default:
+        return now.add(const Duration(days: 1));
+    }
+  }
+
+  void changeDay(String day) async {
+    try {
+      selectedDay.value = day;
+      await checkHoroscope(day);
+    } catch (e) {
+      print('Change Day Error: $e');
+    }
+  }
+
+  DailyHoroscope get currentHoroscope => selectedHoroscope.value;
+
+  String _getEssentialByTimeframe(String timeframe) {
+    switch (timeframe) {
+      case "astrology.horoscope.dates.today":
+        return easy.tr("astrology.horoscope.essential.today");
+      case "astrology.horoscope.dates.week":
+        return easy.tr("astrology.horoscope.essential.week");
+      case "astrology.horoscope.dates.month":
+        return easy.tr("astrology.horoscope.essential.month");
+      default:
+        return easy.tr("astrology.horoscope.essential.default");
+    }
+  }
+
+  String _getAffirmationByTimeframe(String timeframe) {
+    switch (timeframe) {
+      case "astrology.horoscope.dates.today":
+        return easy.tr("astrology.horoscope.affirmation.today");
+      case "astrology.horoscope.dates.week":
+        return easy.tr("astrology.horoscope.affirmation.week");
+      case "astrology.horoscope.dates.month":
+        return easy.tr("astrology.horoscope.affirmation.month");
+      default:
+        return easy.tr("astrology.horoscope.affirmation.default");
+    }
   }
 
   final Map<String, Map<String, dynamic>> zodiacInfo = {
@@ -159,90 +347,6 @@ class AstrologyController extends GetxController {
     },
   };
 
-  final Map<String, DailyHoroscope> horoscopes = {
-    easy.tr("astrology.horoscope.dates.yesterday"): DailyHoroscope(
-      date: "8 Mart 2024",
-      essential: "Meditation, inner peace, reflection",
-      affirmation: "I am at peace with myself and my surroundings",
-      horoscopeText:
-          "Yesterday was a day of deep introspection. You might have felt more connected to your spiritual side and found comfort in solitary activities.",
-      lovePercentage: 0.65,
-      careerPercentage: 0.45,
-      moneyPercentage: 0.70,
-    ),
-    easy.tr("astrology.horoscope.dates.today"): DailyHoroscope(
-      date: "9 Mart 2024",
-      essential: "Communication, creativity, social connections",
-      affirmation: "I express myself freely and authentically",
-      horoscopeText:
-          "Today brings opportunities for meaningful conversations. Your creative energy is high, making it an excellent time for artistic pursuits or brainstorming sessions.",
-      lovePercentage: 0.75,
-      careerPercentage: 0.80,
-      moneyPercentage: 0.60,
-    ),
-    easy.tr("astrology.horoscope.dates.tomorrow"): DailyHoroscope(
-      date: "10 Mart 2024",
-      essential: "Growth, transformation, new beginnings",
-      affirmation: "I embrace change and grow stronger each day",
-      horoscopeText:
-          "Tomorrow holds potential for significant personal growth. Be open to new opportunities and trust your intuition.",
-      lovePercentage: 0.85,
-      careerPercentage: 0.70,
-      moneyPercentage: 0.65,
-    ),
-    easy.tr("astrology.horoscope.dates.week"): DailyHoroscope(
-      date: "9-15 Mart 2024",
-      essential: "Balance, harmony, achievement",
-      affirmation: "I create balance in all areas of my life",
-      horoscopeText:
-          "This week emphasizes finding balance between your personal and professional life. Focus on maintaining harmony while pursuing your goals.",
-      lovePercentage: 0.80,
-      careerPercentage: 0.75,
-      moneyPercentage: 0.70,
-    ),
-    easy.tr("astrology.horoscope.dates.month"): DailyHoroscope(
-      date: "Mart 2024",
-      essential: "Long-term planning, relationships, success",
-      affirmation: "I am creating my ideal future",
-      horoscopeText:
-          "This month brings opportunities for long-term planning and strengthening relationships. Focus on building foundations for future success.",
-      lovePercentage: 0.75,
-      careerPercentage: 0.85,
-      moneyPercentage: 0.80,
-    ),
-  };
-
-  DailyHoroscope get currentHoroscope =>
-      horoscopes[selectedDay.value] ??
-      DailyHoroscope(
-        date: DateTime.now().toString(),
-        essential: "",
-        affirmation: "",
-        horoscopeText: "Henüz yorum yok",
-        lovePercentage: 0.0,
-        careerPercentage: 0.0,
-        moneyPercentage: 0.0,
-      );
-
-  void changeDay(String day) {
-    selectedDay.value = day;
-    updateHoroscope(day);
-  }
-
-  void updateHoroscope(String day) {
-    selectedHoroscope.value = horoscopes[day] ??
-        DailyHoroscope(
-          date: DateTime.now().toString(),
-          essential: "",
-          affirmation: "",
-          horoscopeText: "Henüz yorum yok",
-          lovePercentage: 0.0,
-          careerPercentage: 0.0,
-          moneyPercentage: 0.0,
-        );
-    update();
-  }
-
   String getZodiacSign(DateTime date) {
     int month = date.month;
     int day = date.day;
@@ -254,14 +358,18 @@ class AstrologyController extends GetxController {
     if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return "leo";
     if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return "virgo";
     if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return "libra";
-    if ((month == 10 && day >= 23) || (month == 11 && day <= 21))
+    if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) {
       return "scorpio";
-    if ((month == 11 && day >= 22) || (month == 12 && day <= 21))
+    }
+    if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) {
       return "sagittarius";
-    if ((month == 12 && day >= 22) || (month == 1 && day <= 19))
+    }
+    if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) {
       return "capricorn";
-    if ((month == 1 && day >= 20) || (month == 2 && day <= 18))
+    }
+    if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) {
       return "aquarius";
+    }
     return "pisces";
   }
 
@@ -300,26 +408,36 @@ class AstrologyController extends GetxController {
     int day = date.day;
 
     if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return 0; // Koç
-    if ((month == 4 && day >= 20) || (month == 5 && day <= 20))
+    if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) {
       return 1; // Boğa
-    if ((month == 5 && day >= 21) || (month == 6 && day <= 20))
+    }
+    if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) {
       return 2; // İkizler
-    if ((month == 6 && day >= 21) || (month == 7 && day <= 22))
+    }
+    if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) {
       return 3; // Yengeç
-    if ((month == 7 && day >= 23) || (month == 8 && day <= 22))
+    }
+    if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) {
       return 4; // Aslan
-    if ((month == 8 && day >= 23) || (month == 9 && day <= 22))
+    }
+    if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) {
       return 5; // Başak
-    if ((month == 9 && day >= 23) || (month == 10 && day <= 22))
+    }
+    if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) {
       return 6; // Terazi
-    if ((month == 10 && day >= 23) || (month == 11 && day <= 21))
+    }
+    if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) {
       return 7; // Akrep
-    if ((month == 11 && day >= 22) || (month == 12 && day <= 21))
+    }
+    if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) {
       return 8; // Yay
-    if ((month == 12 && day >= 22) || (month == 1 && day <= 19))
+    }
+    if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) {
       return 9; // Oğlak
-    if ((month == 1 && day >= 20) || (month == 2 && day <= 18))
+    }
+    if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) {
       return 10; // Kova
+    }
     return 11; // Balık
   }
 
