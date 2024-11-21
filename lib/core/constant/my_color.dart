@@ -8,6 +8,8 @@ class MyColor {
 
   static const Color secondaryColor = Color(0xFFFFD700);
 
+  static const Color thirdColor = Color.fromARGB(255, 58, 56, 195);
+
   //Text Colors
   static const Color textBlackColor = Color.fromARGB(255, 0, 0, 0);
   static const Color textWhiteColor = Color.fromARGB(255, 255, 255, 255);

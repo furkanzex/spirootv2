@@ -59,8 +59,8 @@ Widget greetingSection({
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          MyColor.primaryLightColor,
-                          MyColor.secondaryColor,
+                          MyColor.primaryColor,
+                          MyColor.thirdColor,
                         ],
                       ),
                     ),
@@ -88,7 +88,7 @@ Widget greetingSection({
                               end: Alignment.bottomRight,
                               colors: [
                                 MyColor.primaryLightColor,
-                                MyColor.secondaryColor,
+                                MyColor.thirdColor,
                               ],
                             ),
                           ),

@@ -386,4 +386,76 @@ class GeminiService extends GetxService {
   void resetChat() {
     _startNewChatSession();
   }
+
+  // NUMEROLOGY METHODS
+  Future<String> generateNumerologyReading(
+      int lifePathNumber, UserModel user) async {
+    try {
+      final prompt = '''
+      You are an experienced numerologist. Create a weekly numerology reading based on the following information:
+      
+      User Information:
+      - Name: ${user.name}
+      - Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
+      - Life Path Number: $lifePathNumber
+      
+      Week: ${DateFormat('MMMM dd').format(DateTime.now())} - ${DateFormat('MMMM dd, yyyy').format(DateTime.now().add(const Duration(days: 7)))}
+      
+      Instructions:
+      1. Create a detailed weekly numerology reading focusing on Life Path Number $lifePathNumber
+      2. Consider the current numerological cycles and vibrations
+      3. Provide insights about personal growth, relationships, and life purpose
+      4. Keep the reading between 500-1000 characters
+      5. Write in Turkish
+      6. Make it personal and specific to the user's Life Path Number
+      
+      Create a JSON response in this format only:
+      {
+        "numerology": {
+          "weeklyReading": "Your detailed numerology reading here..."
+        }
+      }
+      ''';
+
+      final response = await _textModel.generateContent([Content.text(prompt)]);
+      String jsonStr = response.text ?? '';
+
+      // JSON formatını temizle ve kontrol et
+      jsonStr = _cleanJsonResponse(jsonStr);
+      return jsonStr;
+    } catch (e) {
+      print('Numerology reading error: $e');
+      return _createDefaultNumerologyJson(lifePathNumber);
+    }
+  }
+
+  String _createDefaultNumerologyJson(int lifePathNumber) {
+    return '''
+    {
+      "numerology": {
+        "weeklyReading": "Bu hafta, $lifePathNumber numaralı Yaşam Yolu sayınızın enerjisi özellikle güçlü. Kendinizi daha net ifade edebilir ve hayattaki amacınızı daha iyi anlayabilirsiniz. İçsel sesinizi dinlemeye ve sezgilerinize güvenmeye devam edin. Önemli kararlar almadan önce sayıların size gösterdiği yolu takip edin."
+      }
+    }
+    ''';
+  }
+
+  String _cleanJsonResponse(String jsonStr) {
+    // JSON formatını temizle ve kontrol et
+    jsonStr = jsonStr.trim();
+    if (!jsonStr.startsWith('{')) {
+      // Eğer JSON direkt başlamıyorsa, ilk { karakterinden itibaren al
+      final startIndex = jsonStr.indexOf('{');
+      if (startIndex != -1) {
+        jsonStr = jsonStr.substring(startIndex);
+      }
+    }
+    if (!jsonStr.endsWith('}')) {
+      // Eğer JSON direkt bitmiyorsa, son } karakterine kadar al
+      final endIndex = jsonStr.lastIndexOf('}') + 1;
+      if (endIndex != 0) {
+        jsonStr = jsonStr.substring(0, endIndex);
+      }
+    }
+    return jsonStr;
+  }
 }

@@ -23,6 +23,7 @@ import 'package:intl/intl.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/service/natal_chart_service.dart';
 import 'package:spirootv2/astrology/natal_chart.dart';
+import 'package:lottie/lottie.dart';
 
 class AstrologyScreen extends StatefulWidget {
   const AstrologyScreen({super.key});
@@ -351,6 +352,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             _buildMoonCalendar(),*/
             verticalGap(MySize.doublePadding),
             _buildNatalChart(),
+            verticalGap(MySize.doublePadding),
+            _buildNumerologyCard(),
           ],
         ),
       ),
@@ -1519,6 +1522,204 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           style: MyStyle.s3.copyWith(
             color: MyColor.white,
             fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNumerologyCard() {
+    final lifePathNumber = _astrologyController
+        .calculateLifePathNumber(_userController.currentUser.value!.birthDate);
+
+    // Hafta aralığını hesapla
+    final now = DateTime.now();
+    final weekEnd = now.add(const Duration(days: 7));
+    final weekRange =
+        "${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(weekEnd)}";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Numeroloji",
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        verticalGap(MySize.defaultPadding),
+        Container(
+          padding: const EdgeInsets.all(MySize.defaultPadding),
+          decoration: BoxDecoration(
+            color: MyColor.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(MySize.halfRadius),
+          ),
+          child: Column(
+            children: [
+              // Numeroloji Grafiği ve Bilgileri
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Sol taraf - Yaşam Yolu Sayısı Grafiği
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: MySize.natalChartSize,
+                        height: MySize.natalChartSize,
+                        child: Center(
+                          child: Text(
+                            lifePathNumber.toString(),
+                            style: MyStyle.b1.copyWith(
+                              color: MyColor.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Lottie animasyonu
+                      Positioned.fill(
+                        child: Lottie.asset(
+                          'assets/lottie/num.json',
+                          fit: BoxFit.cover,
+                          repeat: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              verticalGap(MySize.defaultPadding),
+              divider(),
+              verticalGap(MySize.defaultPadding),
+
+              // Alt kısım - Haftalık Özet
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(MySize.halfPadding),
+                    decoration: BoxDecoration(
+                      color: MyColor.primaryLightColor,
+                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                    ),
+                    child: Text(
+                      weekRange,
+                      style: MyStyle.s3.copyWith(
+                        color: MyColor.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _showNumerologyDetails(),
+                    child: Row(
+                      children: [
+                        Text(
+                          easy.tr("astrology.see_details"),
+                          style: MyStyle.s3.copyWith(
+                            color: MyColor.primaryLightColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Icon(
+                          MyIcon.forward,
+                          size: MySize.iconSizeTiny,
+                          color: MyColor.primaryLightColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showNumerologyDetails() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(MySize.doublePadding),
+        decoration: const BoxDecoration(
+          color: MyColor.darkBackgroundColor,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(MySize.defaultRadius),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Haftalık Numeroloji Yorumunuz",
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              verticalGap(MySize.defaultPadding),
+              Obx(() {
+                if (_astrologyController.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: MyColor.primaryColor,
+                    ),
+                  );
+                }
+
+                if (!_astrologyController.isNumerologyAvailable.value) {
+                  return Center(
+                    child: Text(
+                      "Numeroloji yorumu henüz oluşturulmadı.",
+                      style: MyStyle.s2.copyWith(
+                        color: MyColor.white,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  );
+                }
+
+                return _buildNumerologyContent();
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Eğer numeroloji yorumu yoksa, oluştur
+    if (!_astrologyController.isNumerologyAvailable.value &&
+        !_astrologyController.isLoading.value) {
+      _astrologyController.checkNumerologyReading();
+    }
+  }
+
+  Widget _buildNumerologyContent() {
+    final reading = _astrologyController.numerologyReading;
+
+    if (reading.isEmpty) {
+      return Center(
+        child: Text(
+          "Numeroloji yorumu bulunamadı.",
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          reading['weeklyReading'] ?? '',
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            height: 1.5,
           ),
         ),
       ],

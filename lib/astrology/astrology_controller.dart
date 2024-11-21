@@ -29,6 +29,10 @@ class AstrologyController extends GetxController {
   final RxBool isHoroscopeAvailable = false.obs;
   final RxBool isLoading = false.obs;
 
+  // Numeroloji ile ilgili değişkenler
+  final RxMap<String, dynamic> numerologyReading = <String, dynamic>{}.obs;
+  final RxBool isNumerologyAvailable = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -547,5 +551,106 @@ class AstrologyController extends GetxController {
   // Sadece sembol almak için yardımcı metod
   String getZodiacSymbolByName(String zodiacName) {
     return getZodiacDetailsByName(zodiacName)['symbol'] ?? '';
+  }
+
+  // Yaşam Yolu Sayısını hesapla
+  int calculateLifePathNumber(DateTime birthDate) {
+    String dateStr = DateFormat('ddMMyyyy').format(birthDate);
+    int sum = 0;
+
+    // Tüm rakamları topla
+    for (var digit in dateStr.split('')) {
+      sum += int.parse(digit);
+    }
+
+    // Tek basamaklı sayı elde edene kadar toplamaya devam et
+    while (sum > 9) {
+      int newSum = 0;
+      sum.toString().split('').forEach((digit) {
+        newSum += int.parse(digit);
+      });
+      sum = newSum;
+    }
+
+    return sum;
+  }
+
+  Future<void> checkNumerologyReading() async {
+    try {
+      isLoading.value = true;
+      final userId = Get.find<UserController>().userId.value;
+      final user = Get.find<UserController>().currentUser.value;
+
+      if (user == null) throw Exception('Kullanıcı bilgisi bulunamadı');
+
+      final doc = await _firestore.collection('users').doc(userId).get();
+
+      if (doc.exists) {
+        final numerology = doc.data()?['numerology'];
+        if (numerology != null && numerology['expiryDate'] != null) {
+          final expiryDate = numerology['expiryDate'].toDate();
+
+          if (expiryDate.isAfter(DateTime.now())) {
+            numerologyReading.value = numerology['reading']['weeklyReading'];
+            isNumerologyAvailable.value = true;
+          } else {
+            await generateNumerologyReading();
+          }
+        } else {
+          await generateNumerologyReading();
+        }
+      }
+    } catch (e) {
+      print('Numerology check error: $e');
+      isNumerologyAvailable.value = false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> generateNumerologyReading() async {
+    try {
+      final user = Get.find<UserController>().currentUser.value;
+      if (user == null) throw Exception('Kullanıcı bilgisi bulunamadı');
+
+      final lifePathNumber = calculateLifePathNumber(user.birthDate);
+      final response =
+          await _geminiService.generateNumerologyReading(lifePathNumber, user);
+
+      final jsonResponse = json.decode(response);
+      numerologyReading.value = {
+        'weeklyReading': jsonResponse['numerology']['weeklyReading']
+      };
+
+      // Firestore'a kaydet
+      await _saveNumerologyToFirestore(jsonResponse['numerology']);
+
+      isNumerologyAvailable.value = true;
+    } catch (e) {
+      print('Numerology generation error: $e');
+      isNumerologyAvailable.value = false;
+      Get.snackbar(
+        'Hata',
+        'Numeroloji yorumu oluşturulurken bir hata oluştu',
+        backgroundColor: MyColor.errorColor,
+        colorText: MyColor.white,
+      );
+    }
+  }
+
+  Future<void> _saveNumerologyToFirestore(Map<String, dynamic> reading) async {
+    try {
+      final userId = Get.find<UserController>().userId.value;
+
+      await _firestore.collection('users').doc(userId).update({
+        'numerology': {
+          'reading': reading,
+          'createdAt': DateTime.now(),
+          'expiryDate': DateTime.now().add(const Duration(days: 7)),
+        }
+      });
+    } catch (e) {
+      print('Numerology save error: $e');
+    }
   }
 }
