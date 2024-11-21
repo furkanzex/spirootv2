@@ -213,7 +213,7 @@ class GeminiService extends GetxService {
           "lucky": {
             "numbers": [lucky_numbers],
             "colors": ["lucky_colors"],
-            "days": ["lucky_days"]
+            "days": ["lucky_days"] (only in week timeframe)
           }
         }
       }

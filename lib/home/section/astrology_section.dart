@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/home/home_controller.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
@@ -18,6 +19,9 @@ import 'package:easy_localization/easy_localization.dart' as easy;
 
 Widget astrologySection() {
   final controller = Get.put(UserController());
+  final AstrologyController _astrologyController =
+      Get.put(AstrologyController());
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -76,11 +80,16 @@ Widget astrologySection() {
                     ],
                   ),
                   verticalGap(MySize.defaultPadding),
-                  Text(
-                    "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...",
-                    style: MyStyle.s3.copyWith(
-                        color: MyColor.white, fontWeight: FontWeight.bold),
-                  ),
+                  if (_astrologyController
+                      .selectedHoroscope.value.horoscopeText.isNotEmpty)
+                    Text(
+                      _astrologyController
+                          .selectedHoroscope.value.horoscopeText,
+                      style: MyStyle.s2.copyWith(
+                        color: MyColor.white,
+                        height: 1.5,
+                      ),
+                    ),
                   verticalGap(MySize.defaultPadding),
                   loveCareerMoney(),
                 ],

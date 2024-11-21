@@ -9,6 +9,7 @@ import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_image.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:spirootv2/core/widget/gap/horizontal_gap.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:spirootv2/astrology/love_career_money.dart';
 import 'package:spirootv2/core/widget/divider/divider.dart';
@@ -500,11 +501,107 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               ],
             )
           else if (_astrologyController.isHoroscopeAvailable.value)
-            Text(
-              _astrologyController.selectedHoroscope.value.horoscopeText,
-              style: MyStyle.s2.copyWith(
-                color: MyColor.white,
-                height: 1.5,
+            Container(
+              padding: const EdgeInsets.all(MySize.defaultPadding),
+              decoration: BoxDecoration(
+                color: MyColor.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(MySize.halfRadius),
+                border: Border.all(
+                  color: MyColor.primaryLightColor.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Genel Yorum
+                  Text(
+                    _astrologyController.selectedHoroscope.value.horoscopeText,
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.white,
+                      height: 1.5,
+                    ),
+                  ),
+                  verticalGap(MySize.defaultPadding),
+                  divider(),
+                  verticalGap(MySize.defaultPadding),
+
+                  // Detaylı Yorumlar
+                  if (_astrologyController.selectedHoroscope.value.details !=
+                      null) ...[
+                    // Aşk Yorumu
+                    _buildDetailSection(
+                      "💝 Aşk & İlişkiler",
+                      _astrologyController.selectedHoroscope.value
+                          .details!['love']['prediction'],
+                      _astrologyController
+                          .selectedHoroscope.value.details!['love']['advice'],
+                    ),
+                    verticalGap(MySize.defaultPadding),
+
+                    // Kariyer Yorumu
+                    _buildDetailSection(
+                      "💼 Kariyer",
+                      _astrologyController.selectedHoroscope.value
+                          .details!['career']['prediction'],
+                      _astrologyController
+                          .selectedHoroscope.value.details!['career']['advice'],
+                    ),
+                    verticalGap(MySize.defaultPadding),
+
+                    // Para Yorumu
+                    _buildDetailSection(
+                      "💰 Finansal",
+                      _astrologyController.selectedHoroscope.value
+                          .details!['money']['prediction'],
+                      _astrologyController
+                          .selectedHoroscope.value.details!['money']['advice'],
+                    ),
+                    verticalGap(MySize.defaultPadding),
+                    divider(),
+                    verticalGap(MySize.defaultPadding),
+
+                    // Şanslı Bilgiler
+                    Text(
+                      "✨ Şanslı Detaylar",
+                      style: MyStyle.s2.copyWith(
+                        color: MyColor.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    verticalGap(MySize.halfPadding),
+
+                    // Şanslı Sayılar
+                    _buildLuckyItem(
+                      "🔢 Şanslı Sayılar:",
+                      _astrologyController
+                          .selectedHoroscope.value.details!['lucky']['numbers']
+                          .join(', '),
+                    ),
+                    verticalGap(MySize.quarterPadding),
+
+                    // Şanslı Renkler
+                    _buildLuckyItem(
+                      "🎨 Şanslı Renkler:",
+                      _astrologyController
+                          .selectedHoroscope.value.details!['lucky']['colors']
+                          .join(', '),
+                    ),
+                    verticalGap(MySize.quarterPadding),
+
+                    // Şanslı Günler
+                    if (_astrologyController
+                            .selectedHoroscope.value.details!['lucky']['days']
+                            .join(', ') !=
+                        "")
+                      _buildLuckyItem(
+                        "📅 Şanslı Günler:",
+                        _astrologyController
+                            .selectedHoroscope.value.details!['lucky']['days']
+                            .join(', '),
+                      ),
+                  ],
+                ],
               ),
             )
           else
@@ -1352,5 +1449,80 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       default:
         return '⭐';
     }
+  }
+
+  Widget _buildDetailSection(String title, String prediction, String advice) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        verticalGap(MySize.halfPadding),
+        Text(
+          prediction,
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            height: 1.5,
+          ),
+        ),
+        verticalGap(MySize.halfPadding),
+        Container(
+          padding: const EdgeInsets.all(MySize.halfPadding),
+          decoration: BoxDecoration(
+            color: MyColor.primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(MySize.quarterRadius),
+            border: Border.all(
+              color: MyColor.primaryLightColor.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.tips_and_updates_outlined,
+                color: MyColor.primaryLightColor,
+                size: MySize.iconSizeSmall,
+              ),
+              horizontalGap(MySize.halfPadding),
+              Expanded(
+                child: Text(
+                  advice,
+                  style: MyStyle.s3.copyWith(
+                    color: MyColor.primaryLightColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLuckyItem(String label, String value) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+          ),
+        ),
+        horizontalGap(MySize.halfPadding),
+        Text(
+          value,
+          style: MyStyle.s3.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
   }
 }
