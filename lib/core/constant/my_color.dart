@@ -6,7 +6,7 @@ class MyColor {
   static const Color primaryLightColor = Color.fromRGBO(98, 28, 202, 1);
   static const Color primaryDarkColor = Color(0xFF2A0B57);
 
-  static const Color secondaryColor = Color.fromARGB(255, 66, 93, 246);
+  static const Color secondaryColor = Color(0xFFFFD700);
 
   //Text Colors
   static const Color textBlackColor = Color.fromARGB(255, 0, 0, 0);

@@ -1474,10 +1474,9 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         Container(
           padding: const EdgeInsets.all(MySize.halfPadding),
           decoration: BoxDecoration(
-            color: MyColor.primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(MySize.quarterRadius),
             border: Border.all(
-              color: MyColor.primaryLightColor.withOpacity(0.2),
+              color: MyColor.secondaryColor,
               width: 1,
             ),
           ),
@@ -1485,7 +1484,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             children: [
               Icon(
                 Icons.tips_and_updates_outlined,
-                color: MyColor.primaryLightColor,
+                color: MyColor.secondaryColor,
                 size: MySize.iconSizeSmall,
               ),
               horizontalGap(MySize.halfPadding),
@@ -1493,7 +1492,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 child: Text(
                   advice,
                   style: MyStyle.s3.copyWith(
-                    color: MyColor.primaryLightColor,
+                    color: MyColor.secondaryColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
