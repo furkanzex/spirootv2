@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,8 +16,6 @@ class AstrologyController extends GetxController {
   final RxString selectedDay = easy.tr("astrology.horoscope.dates.today").obs;
   final Rx<DailyHoroscope> selectedHoroscope = DailyHoroscope(
     date: DateTime.now().toString(),
-    essential: "",
-    affirmation: "",
     horoscopeText: "",
     lovePercentage: 0.0,
     careerPercentage: 0.0,
@@ -45,7 +44,8 @@ class AstrologyController extends GetxController {
       selectedDay.value = "astrology.horoscope.dates.today";
 
       // Bugünün yorumunu kontrol et
-      await checkHoroscope(selectedDay.value);
+      await checkHoroscope(
+          selectedDay.value.replaceAll("astrology.horoscope.dates.", ""));
     } catch (e) {
       print('Initialize Horoscope Error: $e');
     }
@@ -58,22 +58,29 @@ class AstrologyController extends GetxController {
       final zodiacSign =
           Get.find<UserController>().currentUser.value?.zodiacSign ?? '';
 
-      final userHoroscopeRef = _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('horoscopes')
-          .doc(zodiacSign);
+      // timeframe'den "astrology.horoscope.dates." kısmını kaldır
+      String cleanTimeframe =
+          timeframe.replaceAll("astrology.horoscope.dates.", "");
 
-      final doc = await userHoroscopeRef
-          .collection(timeframe)
-          .doc(_getDocumentId(timeframe))
-          .get();
+      // Kullanıcı dökümanından yorumu kontrol et
+      final doc = await _firestore.collection('users').doc(userId).get();
 
       if (doc.exists) {
-        final expiryDate = doc.data()?['expiryDate'].toDate();
-        if (expiryDate.isAfter(DateTime.now())) {
-          selectedHoroscope.value = DailyHoroscope.fromMap(doc.data()!);
-          isHoroscopeAvailable.value = true;
+        final interpretations = doc.data()?['interpretations'];
+        if (interpretations != null &&
+            interpretations[zodiacSign] != null &&
+            interpretations[zodiacSign][cleanTimeframe] != null) {
+          final interpretation = interpretations[zodiacSign][cleanTimeframe];
+          final expiryDate = interpretation['expiryDate'].toDate();
+
+          if (expiryDate.isAfter(DateTime.now())) {
+            selectedHoroscope.value = DailyHoroscope.fromMap(interpretation);
+            isHoroscopeAvailable.value = true;
+          } else {
+            isHoroscopeAvailable.value = false;
+            // Süresi geçmiş yorumu otomatik oluştur
+            await generateHoroscope();
+          }
         } else {
           isHoroscopeAvailable.value = false;
         }
@@ -93,55 +100,86 @@ class AstrologyController extends GetxController {
     try {
       isLoading.value = true;
 
-      final userId = Get.find<UserController>().userId.value;
-      final user = Get.find<UserController>().currentUser.value!;
+      final user = Get.find<UserController>().currentUser.value;
+      if (user == null) {
+        throw Exception('Kullanıcı bilgisi bulunamadı');
+      }
 
-      // Gemini'den yorum al
+      // Gemini servisinden yorumu al
       final response =
           await _geminiService.generateHoroscope(selectedDay.value, user);
 
-      final expiryDate = _calculateExpiryDate(selectedDay.value);
+      // JSON'ı parse et ve horoscope nesnesini oluştur
+      try {
+        final jsonResponse = json.decode(response);
+        final reading = jsonResponse['horoscope']['reading'];
 
-      final horoscope = DailyHoroscope(
-        date: DateTime.now().toString(),
-        horoscopeText: response,
-        essential: _getEssentialByTimeframe(selectedDay.value),
-        affirmation: _getAffirmationByTimeframe(selectedDay.value),
-        lovePercentage: Random().nextDouble() * 0.3 + 0.7,
-        careerPercentage: Random().nextDouble() * 0.3 + 0.7,
-        moneyPercentage: Random().nextDouble() * 0.3 + 0.7,
-      );
+        final horoscope = DailyHoroscope(
+          date: DateTime.now().toString(),
+          horoscopeText: reading['overview'],
+          lovePercentage: reading['love']['percentage'] / 100,
+          careerPercentage: reading['career']['percentage'] / 100,
+          moneyPercentage: reading['money']['percentage'] / 100,
+          details: {
+            'love': reading['love'],
+            'career': reading['career'],
+            'money': reading['money'],
+            'lucky': reading['lucky'],
+          },
+        );
 
-      // Firebase'e kaydet
-      final userHoroscopeRef = _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('horoscopes')
-          .doc(user.zodiacSign);
+        // Firestore'a kaydet
+        await _saveHoroscopeToFirestore(horoscope);
 
-      await userHoroscopeRef
-          .collection(selectedDay.value)
-          .doc(_getDocumentId(selectedDay.value))
-          .set({
-        ...horoscope.toMap(),
-        'expiryDate': expiryDate,
-        'timeframe': selectedDay.value,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      selectedHoroscope.value = horoscope;
-      isHoroscopeAvailable.value = true;
+        selectedHoroscope.value = horoscope;
+        isHoroscopeAvailable.value = true;
+      } catch (e) {
+        print('JSON parse hatası: $e');
+        throw Exception('Yorum formatı geçersiz');
+      }
     } catch (e) {
-      print('Hata: $e');
+      print('Horoscope generation error: $e');
       Get.snackbar(
         'Hata',
-        'Yorum oluşturulurken bir hata oluştu',
+        'Kozmik mesaj oluşturulurken bir hata oluştu',
         backgroundColor: MyColor.errorColor,
         colorText: MyColor.white,
       );
     } finally {
       isLoading.value = false;
       update();
+    }
+  }
+
+  Future<void> _saveHoroscopeToFirestore(DailyHoroscope horoscope) async {
+    try {
+      final userId = Get.find<UserController>().userId.value;
+      final user = Get.find<UserController>().currentUser.value!;
+
+      String cleanTimeframe =
+          selectedDay.value.replaceAll("astrology.horoscope.dates.", "");
+
+      final userRef = _firestore.collection('users').doc(userId);
+
+      Map<String, dynamic> currentInterpretations =
+          (await userRef.get()).data()?['interpretations'] ?? {};
+
+      if (!currentInterpretations.containsKey(user.zodiacSign)) {
+        currentInterpretations[user.zodiacSign] = {};
+      }
+
+      currentInterpretations[user.zodiacSign][cleanTimeframe] = {
+        ...horoscope.toMap(),
+        'expiryDate': DateTime.now().add(const Duration(days: 1)),
+        'createdAt': DateTime.now(),
+      };
+
+      await userRef.update({
+        'interpretations': currentInterpretations,
+      });
+    } catch (e) {
+      print('Firestore save error: $e');
+      throw Exception('Yorum kaydedilemedi');
     }
   }
 
@@ -185,32 +223,6 @@ class AstrologyController extends GetxController {
   }
 
   DailyHoroscope get currentHoroscope => selectedHoroscope.value;
-
-  String _getEssentialByTimeframe(String timeframe) {
-    switch (timeframe) {
-      case "astrology.horoscope.dates.today":
-        return easy.tr("astrology.horoscope.essential.today");
-      case "astrology.horoscope.dates.week":
-        return easy.tr("astrology.horoscope.essential.week");
-      case "astrology.horoscope.dates.month":
-        return easy.tr("astrology.horoscope.essential.month");
-      default:
-        return easy.tr("astrology.horoscope.essential.default");
-    }
-  }
-
-  String _getAffirmationByTimeframe(String timeframe) {
-    switch (timeframe) {
-      case "astrology.horoscope.dates.today":
-        return easy.tr("astrology.horoscope.affirmation.today");
-      case "astrology.horoscope.dates.week":
-        return easy.tr("astrology.horoscope.affirmation.week");
-      case "astrology.horoscope.dates.month":
-        return easy.tr("astrology.horoscope.affirmation.month");
-      default:
-        return easy.tr("astrology.horoscope.affirmation.default");
-    }
-  }
 
   final Map<String, Map<String, dynamic>> zodiacInfo = {
     "aries": {

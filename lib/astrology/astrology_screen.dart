@@ -600,6 +600,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () async {
+                        if (_astrologyController.isLoading.value) return;
+
                         await _astrologyController.generateHoroscope();
                       },
                       style: ElevatedButton.styleFrom(
@@ -614,12 +616,15 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                         ),
                         elevation: 2,
                       ),
-                      child: Text(
-                        "Kozmik Mesajı Gör",
-                        style: MyStyle.s2.copyWith(
-                          color: MyColor.white,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Obx(
+                        () => _astrologyController.isLoading.value
+                            ? const CircularProgressIndicator(
+                                color: MyColor.white)
+                            : Text(
+                                easy.tr("Kozmik Mesajı Gör"),
+                                style:
+                                    MyStyle.s2.copyWith(color: MyColor.white),
+                              ),
                       ),
                     ),
                   ),

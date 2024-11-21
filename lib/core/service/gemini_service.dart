@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:intl/intl.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/profile/user_model.dart';
+import 'dart:convert';
 
 class GeminiService extends GetxService {
   static const String apiKey = "AIzaSyBxt1593xpDLULlo7KJE4gTjMvPb3JXVCg";
@@ -101,18 +102,184 @@ class GeminiService extends GetxService {
 
   // ASTROLOGY METHODS
   Future<String> generateHoroscope(String timeframe, UserModel user) async {
-    final prompt = _createHoroscopePrompt(timeframe, user);
-    return _generateWithText(prompt);
+    try {
+      final prompt = _createHoroscopePrompt(timeframe, user);
+      final response = await _textModel.generateContent([Content.text(prompt)]);
+
+      // Yanıtı JSON formatına dönüştür
+      String jsonStr = response.text ?? '';
+
+      // JSON formatını doğrula ve temizle
+      jsonStr = jsonStr.trim();
+      if (!jsonStr.startsWith('{')) {
+        // Eğer JSON direkt başlamıyorsa, ilk { karakterinden itibaren al
+        final startIndex = jsonStr.indexOf('{');
+        if (startIndex != -1) {
+          jsonStr = jsonStr.substring(startIndex);
+        }
+      }
+      if (!jsonStr.endsWith('}')) {
+        // Eğer JSON direkt bitmiyorsa, son } karakterine kadar al
+        final endIndex = jsonStr.lastIndexOf('}') + 1;
+        if (endIndex != 0) {
+          jsonStr = jsonStr.substring(0, endIndex);
+        }
+      }
+
+      // JSON formatını kontrol et
+      try {
+        json.decode(jsonStr); // Test için parse et
+        return jsonStr;
+      } catch (e) {
+        print('JSON format hatası: $e');
+        // Hata durumunda varsayılan bir JSON döndür
+        return _createDefaultHoroscopeJson(user);
+      }
+    } catch (e) {
+      print('Gemini horoscope error: $e');
+      return _createDefaultHoroscopeJson(user);
+    }
   }
 
-  Future<String> _generateWithText(String prompt) async {
-    try {
-      final content = [Content.text(_addUserContext(prompt))];
-      final response = await _textModel.generateContent(content);
-      return response.text ?? 'Yanıt oluşturulamadı.';
-    } catch (e) {
-      print('Gemini Text Hatası: $e');
-      return 'İçerik oluşturulurken bir hata oluştu.';
+  String _createDefaultHoroscopeJson(UserModel user) {
+    return '''
+    {
+      "horoscope": {
+        "zodiac": "${user.zodiacSign}",
+        "timeframe": "today",
+        "reading": {
+          "overview": "Bugün yıldızlar sizin için olumlu enerjilerle dolu. Kendinizi güçlü ve motive hissedeceksiniz.",
+          "love": {
+            "prediction": "İlişkilerinizde açık iletişim önem kazanacak.",
+            "advice": "Duygularınızı ifade etmekten çekinmeyin.",
+            "percentage": 75
+          },
+          "career": {
+            "prediction": "İş hayatınızda yeni fırsatlar görünüyor.",
+            "advice": "İnisiyatif almaktan çekinmeyin.",
+            "percentage": 80
+          },
+          "money": {
+            "prediction": "Finansal konularda dikkatli olmanız gereken bir gün.",
+            "advice": "Büyük harcamalardan kaçının.",
+            "percentage": 65
+          },
+          "lucky": {
+            "numbers": [3, 7, 9],
+            "colors": ["mavi", "altın"],
+            "days": ["Çarşamba", "Cuma"]
+          }
+        }
+      }
+    }
+    ''';
+  }
+
+  String _createHoroscopePrompt(String timeframe, UserModel user) {
+    String basePrompt = '''
+    You are an experienced astrologer. Create a horoscope reading based on the following information:
+    
+    User Information:
+    - Sun Sign: ${user.zodiacSign}
+    - Ascendant: ${user.ascendant}
+    - Moon Sign: ${user.moonSign}
+    - Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
+    - Birth Time: ${user.birthTime}
+    
+    Timeframe: ${_getTimeframeText(timeframe)}
+    
+    Response Format:
+    {
+      "horoscope": {
+        "zodiac": "${user.zodiacSign}",
+        "timeframe": "${timeframe.replaceAll("astrology.horoscope.dates.", "")}",
+        "reading": {
+          "overview": "Main horoscope text",
+          "love": {
+            "prediction": "Love life prediction",
+            "advice": "Love advice",
+            "percentage": numeric_value
+          },
+          "career": {
+            "prediction": "Career prediction",
+            "advice": "Career advice",
+            "percentage": numeric_value
+          },
+          "money": {
+            "prediction": "Financial prediction",
+            "advice": "Financial advice",
+            "percentage": numeric_value
+          },
+          "lucky": {
+            "numbers": [lucky_numbers],
+            "colors": ["lucky_colors"],
+            "days": ["lucky_days"]
+          }
+        }
+      }
+    }
+    ''';
+
+    // Zaman dilimine göre özel talimatlar ekle
+    switch (timeframe) {
+      case "astrology.horoscope.dates.today":
+        return '''
+        $basePrompt
+        
+        Special Instructions for Daily Horoscope:
+        1. Overview should be max 600 characters
+        2. Focus on:
+           - Specific planetary aspects for today
+           - Immediate opportunities and challenges
+           - Hour-by-hour guidance if relevant
+           - Most influential planet of the day
+        3. Keep predictions specific and actionable
+        4. Include mood forecast and best times for activities
+        5. Write all text in Turkish
+        ''';
+
+      case "astrology.horoscope.dates.week":
+        return '''
+        $basePrompt
+        
+        Special Instructions for Weekly Horoscope:
+        1. Overview should be max 1500 characters
+        2. Focus on:
+           - Major planetary movements this week
+           - Key dates for opportunities
+           - Weekly energy flow and patterns
+           - Important lunar phases
+           - Significant planetary aspects
+        3. Break down predictions by different life areas
+        4. Include specific guidance for each major day
+        5. Write all text in Turkish
+        ''';
+
+      case "astrology.horoscope.dates.month":
+        return '''
+        $basePrompt
+        
+        Special Instructions for Monthly Horoscope:
+        1. Provide detailed and comprehensive analysis
+        2. Focus on:
+           - Major astrological events
+           - Lunar cycles and their impact
+           - Long-term trends and opportunities
+           - Planetary retrogrades if any
+           - Important conjunctions and aspects
+           - Monthly themes and lessons
+        3. Include:
+           - Week-by-week breakdown
+           - Key dates for important decisions
+           - Areas of growth and challenge
+           - Relationship dynamics
+           - Career and financial trends
+           - Personal development opportunities
+        4. Write all text in Turkish
+        ''';
+
+      default:
+        return basePrompt;
     }
   }
 
@@ -154,75 +321,6 @@ class GeminiService extends GetxService {
     
     $prompt
     ''';
-  }
-
-  String _createHoroscopePrompt(String timeframe, UserModel user) {
-    String basePrompt = '''
-    You are an experienced astrologer. Write a horoscope reading for ${user.zodiacSign} sign for ${_getTimeframeText(timeframe)}.
-    
-    Personal Information:
-    - Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
-    - Birth Time: ${user.birthTime}
-    - Ascendant: ${user.ascendant}
-    - Moon Sign: ${user.moonSign}
-    
-    The reading should include:
-    - Love and Relationships
-    - Career and Professional Life
-    - Money and Financial Matters
-    - General Overview and Advice
-    ''';
-
-    switch (timeframe) {
-      case "astrology.horoscope.dates.today":
-        return '''
-        $basePrompt
-        
-        Write a reading for today.
-        - Highlight the most important astrological aspects of the day
-        - Provide specific advice for today
-        - Indicate important hours to pay attention to
-        - Explain lucky aspects and areas of caution for the day
-        - Give specific advice for love life today
-        - Highlight career and work matters to focus on today
-        - Discuss financial opportunities and risks for today
-        - Do not make it too long, maximum 500 characters
-        ''';
-
-      case "astrology.horoscope.dates.week":
-        return '''
-        $basePrompt
-        
-        Write a detailed reading for this week (${DateFormat('dd.MM.yyyy').format(DateTime.now())} - ${DateFormat('dd.MM.yyyy').format(DateTime.now().add(const Duration(days: 7)))}).
-        - Highlight important astrological transits and aspects for the week
-        - Provide information about weekly goals and opportunities
-        - Indicate important and critical days of the week
-        - Present weekly strategies and recommendations
-        - Discuss potential developments in love life this week
-        - Highlight important days for career and work
-        - Share weekly expectations and advice for financial matters
-        - Maximum 1500 characters
-        ''';
-
-      case "astrology.horoscope.dates.month":
-        return '''
-        $basePrompt
-        
-        Write a detailed reading for ${DateFormat('MMMM yyyy').format(DateTime.now())}.
-        - Explain important astrological events and their effects
-        - Provide information about long-term goals and opportunities
-        - Highlight important dates and periods of the month
-        - Present monthly strategies and recommendations
-        - Emphasize areas requiring attention throughout the month
-        - Discuss expected developments in love life this month
-        - Identify critical periods for career and work
-        - Share monthly plans and strategies for financial matters
-        - Make it long and detailed
-        ''';
-
-      default:
-        return basePrompt;
-    }
   }
 
   String _createFortunePrompt(String type) {
