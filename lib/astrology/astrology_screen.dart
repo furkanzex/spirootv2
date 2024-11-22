@@ -1306,14 +1306,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                             fontSize: 24,
                           ),
                         ),
-                        horizontalGap(8),
-                        Text(
-                          _getPlanetName(planet),
-                          style: MyStyle.s2.copyWith(
-                            color: MyColor.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
                       ],
                     ),
                     Text(
