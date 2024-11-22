@@ -39,6 +39,7 @@ class AstrologyController extends GetxController {
     // onInit'te Future işlemi çalıştırmak için
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeHoroscope();
+      _initializeNumerology();
     });
   }
 
@@ -52,6 +53,14 @@ class AstrologyController extends GetxController {
           selectedDay.value.replaceAll("astrology.horoscope.dates.", ""));
     } catch (e) {
       print('Initialize Horoscope Error: $e');
+    }
+  }
+
+  Future<void> _initializeNumerology() async {
+    try {
+      await checkNumerologyReading();
+    } catch (e) {
+      print('Initialize Numerology Error: $e');
     }
   }
 
@@ -588,10 +597,13 @@ class AstrologyController extends GetxController {
       if (doc.exists) {
         final numerology = doc.data()?['numerology'];
         if (numerology != null && numerology['expiryDate'] != null) {
-          final expiryDate = numerology['expiryDate'].toDate();
+          final expiryDate = (numerology['expiryDate'] as Timestamp).toDate();
 
           if (expiryDate.isAfter(DateTime.now())) {
-            numerologyReading.value = numerology['reading']['weeklyReading'];
+            // Veriyi doğru şekilde al
+            numerologyReading.value = {
+              'weeklyReading': numerology['reading']['weeklyReading']
+            };
             isNumerologyAvailable.value = true;
           } else {
             await generateNumerologyReading();
@@ -599,6 +611,8 @@ class AstrologyController extends GetxController {
         } else {
           await generateNumerologyReading();
         }
+      } else {
+        isNumerologyAvailable.value = false;
       }
     } catch (e) {
       print('Numerology check error: $e');
