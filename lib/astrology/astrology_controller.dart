@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/profile/user_controller.dart';
+import 'package:spirootv2/core/service/ephemeris_service.dart';
 
 class AstrologyController extends GetxController {
   final RxDouble zodiacRotation = 0.0.obs;
@@ -33,6 +34,10 @@ class AstrologyController extends GetxController {
   final RxMap<String, dynamic> numerologyReading = <String, dynamic>{}.obs;
   final RxBool isNumerologyAvailable = false.obs;
 
+  // Mevcut sınıfa eklenecek yeni değişkenler
+  final RxDouble chartRotation = 0.0.obs;
+  final RxMap<String, double> weeklyTransits = <String, double>{}.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -40,6 +45,7 @@ class AstrologyController extends GetxController {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeHoroscope();
       _initializeNumerology();
+      _initializeWeeklyChart();
     });
   }
 
@@ -61,6 +67,50 @@ class AstrologyController extends GetxController {
       await checkNumerologyReading();
     } catch (e) {
       print('Initialize Numerology Error: $e');
+    }
+  }
+
+  Future<void> _initializeWeeklyChart() async {
+    try {
+      final user = Get.find<UserController>().currentUser.value;
+      if (user == null) return;
+
+      // Chart rotasyonunu hesapla
+      final rotation = EphemerisService.calculateChartRotation(
+        user.birthDate,
+        DateTime.now(),
+      );
+      chartRotation.value = rotation;
+
+      // Haftalık transitleri hesapla
+      final transits = EphemerisService.calculateWeeklyTransits(
+        user.birthDate,
+        user.birthTime,
+        user.birthPlace,
+      );
+      weeklyTransits.value = transits;
+
+      // Firebase'e kaydet
+      await _saveWeeklyChart();
+    } catch (e) {
+      print('Weekly chart initialization error: $e');
+    }
+  }
+
+  Future<void> _saveWeeklyChart() async {
+    try {
+      final userId = Get.find<UserController>().userId.value;
+      
+      await _firestore.collection('users').doc(userId).update({
+        'weeklyChart': {
+          'rotation': chartRotation.value,
+          'transits': weeklyTransits,
+          'updatedAt': DateTime.now(),
+          'validUntil': DateTime.now().add(const Duration(days: 7)),
+        }
+      });
+    } catch (e) {
+      print('Weekly chart save error: $e');
     }
   }
 
