@@ -458,4 +458,59 @@ class GeminiService extends GetxService {
     }
     return jsonStr;
   }
+
+  Future<String> generateRetroReadings(
+    DateTime startDate,
+    DateTime endDate,
+    String zodiacSign,
+  ) async {
+    try {
+      final prompt = '''
+      You are an experienced astrologer. Create retrograde readings for the following period:
+      
+      Date Range: ${DateFormat('MMMM dd').format(startDate)} - ${DateFormat('MMMM dd, yyyy').format(endDate)}
+      Zodiac Sign: $zodiacSign
+      
+      Create a JSON response with current retrograde planets and their interpretations:
+      {
+        "retrogrades": {
+          "activePlanets": ["planet_names"],
+          "readings": {
+            "planet_name": {
+              "period": "retrograde_period",
+              "impact": "brief_impact_description (max 150 chars)",
+              "advice": "brief_advice (max 100 chars)"
+            }
+          }
+        }
+      }
+      
+      Instructions:
+      1. Only include currently retrograde planets
+      2. Keep descriptions concise and specific
+      3. Write all text in Turkish
+      4. Focus on practical impacts and advice
+      ''';
+
+      final response = await _textModel.generateContent([Content.text(prompt)]);
+      String jsonStr = response.text ?? '';
+
+      jsonStr = _cleanJsonResponse(jsonStr);
+      return jsonStr;
+    } catch (e) {
+      print('Retrograde reading error: $e');
+      return _createDefaultRetroJson();
+    }
+  }
+
+  String _createDefaultRetroJson() {
+    return '''
+    {
+      "retrogrades": {
+        "activePlanets": [],
+        "readings": {}
+      }
+    }
+    ''';
+  }
 }

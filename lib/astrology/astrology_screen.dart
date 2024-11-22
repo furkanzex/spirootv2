@@ -1086,15 +1086,13 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             borderRadius: BorderRadius.circular(MySize.halfRadius),
           ),
           child: Obx(() {
-            // Kullanıcı verilerinin yüklenip yüklenmediğini kontrol et
             if (_userController.currentUser.value == null) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
 
             return Column(
               children: [
+                // Natal Chart
                 FutureBuilder<Map<String, dynamic>>(
                   future: NatalChartService.calculateNatalChart(
                     _userController.currentUser.value!.birthDate,
@@ -1103,70 +1101,11 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   ),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return SizedBox(
-                        height: MySize.natalChartSize,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 40,
-                                height: 40,
-                                child: CircularProgressIndicator(
-                                  color: MyColor.primaryLightColor,
-                                  strokeWidth: 3,
-                                  backgroundColor:
-                                      MyColor.white.withOpacity(0.1),
-                                ),
-                              ),
-                              verticalGap(MySize.defaultPadding),
-                              Text(
-                                'Natal Chart Hazırlanıyor...',
-                                style: MyStyle.s3.copyWith(
-                                  color: MyColor.white.withOpacity(0.7),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      return _buildLoadingWidget();
                     }
 
                     if (snapshot.hasError) {
-                      return SizedBox(
-                        height: MySize.natalChartSize,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: MyColor.textGreyColor,
-                                size: 40,
-                              ),
-                              verticalGap(MySize.defaultPadding),
-                              Text(
-                                'Yüklenirken Hata Oluştu',
-                                style: MyStyle.s3.copyWith(
-                                  color: MyColor.white,
-                                ),
-                              ),
-                              verticalGap(MySize.halfPadding),
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {}); // Yeniden yüklemeyi tetikle
-                                },
-                                child: Text(
-                                  'Tekrar Dene',
-                                  style: MyStyle.s3.copyWith(
-                                    color: MyColor.primaryLightColor,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      return _buildErrorWidget();
                     }
 
                     if (snapshot.hasData) {
@@ -1179,86 +1118,284 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 verticalGap(MySize.defaultPadding),
                 divider(),
                 verticalGap(MySize.defaultPadding),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(MySize.halfPadding),
-                      decoration: BoxDecoration(
-                        color: MyColor.primaryLightColor,
-                        borderRadius:
-                            BorderRadius.circular(MySize.quarterRadius),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "14",
-                            style: MyStyle.s2.copyWith(
-                              color: MyColor.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            "NOV",
-                            style: MyStyle.s3.copyWith(
-                              color: MyColor.textGreyColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: MySize.defaultPadding),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Mercury semi-square Pluto",
-                            style: MyStyle.s2.copyWith(
-                              color: MyColor.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          verticalGap(MySize.halfPadding),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              GestureDetector(
-                                onTap: () {},
-                                child: Row(
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          easy.tr("astrology.see_details"),
-                                          style: MyStyle.s3.copyWith(
-                                              color: MyColor.primaryLightColor,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Icon(
-                                          MyIcon.forward,
-                                          size: MySize.iconSizeTiny,
-                                          color: MyColor.primaryLightColor,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+
+                // Transit ve Retro Bilgileri
+                _buildTransitsAndRetrogrades(),
               ],
             );
           }),
         ),
       ],
+    );
+  }
+
+  Widget _buildTransitsAndRetrogrades() {
+    final now = DateTime.now();
+    final weekEnd = now.add(const Duration(days: 7));
+    final weekRange =
+        "${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(weekEnd)}";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Başlık ve Tarih
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Haftalık Transit Tablosu",
+              style: MyStyle.s2.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: MySize.halfPadding,
+                vertical: MySize.quarterPadding,
+              ),
+              decoration: BoxDecoration(
+                color: MyColor.primaryLightColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(MySize.quarterRadius),
+              ),
+              child: Text(
+                weekRange,
+                style: MyStyle.s3.copyWith(color: MyColor.white),
+              ),
+            ),
+          ],
+        ),
+        verticalGap(MySize.defaultPadding),
+
+        // Transit Tablosu
+        Container(
+          decoration: BoxDecoration(
+            color: MyColor.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(MySize.quarterRadius),
+            border: Border.all(
+              color: MyColor.primaryLightColor.withOpacity(0.1),
+              width: 1,
+            ),
+          ),
+          child: Table(
+            border: TableBorder(
+              horizontalInside: BorderSide(
+                color: MyColor.white.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            children: [
+              // Tablo Başlığı
+              TableRow(
+                decoration: BoxDecoration(
+                  color: MyColor.primaryLightColor.withOpacity(0.1),
+                ),
+                children: [
+                  _buildTableHeader("Gezegen"),
+                  _buildTableHeader("Konum"),
+                  _buildTableHeader("Açılar"),
+                ],
+              ),
+              // Gezegen Satırları
+              ..._astrologyController.currentTransits.entries.map((entry) {
+                final planetData = entry.value;
+                final sign = planetData['sign'] as String;
+                final degree = planetData['degree'] as double;
+                final aspects = planetData['aspects']
+                    as Map<String, List<Map<String, dynamic>>>;
+
+                return TableRow(
+                  children: [
+                    // Gezegen
+                    _buildTableCell(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _getPlanetSymbol(entry.key),
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                            ),
+                          ),
+                          Text(
+                            " ${_getPlanetName(entry.key)}",
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Konum
+                    _buildTableCell(
+                      Text(
+                        "${degree.toStringAsFixed(1)}° ${_getZodiacSymbol(sign)}",
+                        style: MyStyle.s3.copyWith(
+                          color: MyColor.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    // Açılar
+                    _buildTableCell(
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 4,
+                        children: aspects.entries.map((aspect) {
+                          return Text(
+                            "${_getPlanetSymbol(aspect.key)}${_getAspectSymbol(aspect.value.first['aspect'])}",
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.textGreyColor,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+
+        // Retrolar Bölümü
+        if (_astrologyController.retrogradeReadings.isNotEmpty) ...[
+          verticalGap(MySize.doublePadding),
+          Text(
+            "Retrolar",
+            style: MyStyle.s2.copyWith(
+              color: MyColor.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          ..._buildRetroCards(),
+        ],
+      ],
+    );
+  }
+
+  List<Widget> _buildRetroCards() {
+    final readings = _astrologyController.retrogradeReadings;
+    final List<Widget> widgets = [];
+
+    if (readings['activePlanets'] != null) {
+      for (String planet in readings['activePlanets']) {
+        final reading = readings['readings'][planet];
+        if (reading != null) {
+          widgets.add(Container(
+            margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
+            padding: const EdgeInsets.all(MySize.defaultPadding),
+            decoration: BoxDecoration(
+              color: MyColor.primaryDarkColor,
+              borderRadius: BorderRadius.circular(MySize.halfRadius),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Gezegen ve Tarih
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          _getPlanetSymbol(planet),
+                          style: MyStyle.s1.copyWith(
+                            color: MyColor.white,
+                            fontSize: 24,
+                          ),
+                        ),
+                        horizontalGap(8),
+                        Text(
+                          _getPlanetName(planet),
+                          style: MyStyle.s2.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      reading['period'] ?? '',
+                      style: MyStyle.s3.copyWith(
+                        color: MyColor.textGreyColor,
+                      ),
+                    ),
+                  ],
+                ),
+                verticalGap(MySize.defaultPadding),
+                // Etki ve Tavsiye
+                Text(
+                  reading['impact'] ?? '',
+                  style: MyStyle.s3.copyWith(
+                    color: MyColor.white,
+                    height: 1.5,
+                  ),
+                ),
+                if (reading['advice'] != null) ...[
+                  verticalGap(MySize.defaultPadding),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(MySize.defaultPadding),
+                    decoration: BoxDecoration(
+                      color: MyColor.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline,
+                          color: MyColor.primaryLightColor,
+                          size: 16,
+                        ),
+                        horizontalGap(MySize.halfPadding),
+                        Expanded(
+                          child: Text(
+                            reading['advice'],
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.primaryLightColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ));
+        }
+      }
+    }
+
+    return widgets;
+  }
+
+  Widget _buildTableHeader(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: MySize.halfPadding,
+        horizontal: MySize.quarterPadding,
+      ),
+      child: Text(
+        text,
+        style: MyStyle.s3.copyWith(
+          color: MyColor.white,
+          fontWeight: FontWeight.w500,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildTableCell(Widget child) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: MySize.halfPadding,
+        horizontal: MySize.quarterPadding,
+      ),
+      child: Center(child: child),
     );
   }
 
@@ -1558,21 +1695,21 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           child: Column(
             children: [
               // Numeroloji Grafiği ve Bilgileri
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Column(
                 children: [
                   // Sol taraf - Yaşam Yolu Sayısı Grafiği
                   Stack(
                     alignment: Alignment.center,
                     children: [
-                      Container(
+                      SizedBox(
                         width: MySize.natalChartSize,
                         height: MySize.natalChartSize,
                         child: Center(
                           child: Text(
                             lifePathNumber.toString(),
-                            style: MyStyle.b1.copyWith(
+                            style: MyStyle.s1.copyWith(
                               color: MyColor.white,
+                              fontSize: 32,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -1588,6 +1725,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       ),
                     ],
                   ),
+                  horizontalGap(MySize.defaultPadding),
                 ],
               ),
               verticalGap(MySize.defaultPadding),
@@ -1596,7 +1734,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
               // Alt kısım - Haftalık Özet
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(MySize.halfPadding),
@@ -1612,23 +1750,45 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () => _showNumerologyDetails(),
-                    child: Row(
-                      children: [
-                        Text(
-                          easy.tr("astrology.see_details"),
-                          style: MyStyle.s3.copyWith(
-                            color: MyColor.primaryLightColor,
-                            fontWeight: FontWeight.bold,
+                  horizontalGap(MySize.defaultPadding),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _showNumerologyDetails(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Haftalık Numeroloji Analizi",
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                              fontWeight: FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        Icon(
-                          MyIcon.forward,
-                          size: MySize.iconSizeTiny,
-                          color: MyColor.primaryLightColor,
-                        ),
-                      ],
+                          verticalGap(MySize.halfPadding),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    easy.tr("astrology.see_details"),
+                                    style: MyStyle.s3.copyWith(
+                                      color: MyColor.primaryLightColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Icon(
+                                    MyIcon.forward,
+                                    size: MySize.iconSizeTiny,
+                                    color: MyColor.primaryLightColor,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -1677,7 +1837,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       "Numeroloji yorumu henüz oluşturulmadı.",
                       style: MyStyle.s2.copyWith(
                         color: MyColor.white,
-                        fontWeight: FontWeight.normal,
                       ),
                     ),
                   );
@@ -1724,5 +1883,175 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildLoadingWidget() {
+    return SizedBox(
+      height: MySize.natalChartSize,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(
+                color: MyColor.primaryLightColor,
+                strokeWidth: 3,
+                backgroundColor: MyColor.white.withOpacity(0.1),
+              ),
+            ),
+            verticalGap(MySize.defaultPadding),
+            Text(
+              'Natal Chart Hazırlanıyor...',
+              style: MyStyle.s3.copyWith(
+                color: MyColor.white.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return SizedBox(
+      height: MySize.natalChartSize,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: MyColor.textGreyColor,
+              size: 40,
+            ),
+            verticalGap(MySize.defaultPadding),
+            Text(
+              'Natal Chart Yüklenirken Hata Oluştu',
+              style: MyStyle.s3.copyWith(
+                color: MyColor.white,
+              ),
+            ),
+            verticalGap(MySize.halfPadding),
+            TextButton(
+              onPressed: () {
+                setState(() {}); // Yeniden yüklemeyi tetikle
+              },
+              child: Text(
+                'Tekrar Dene',
+                style: MyStyle.s3.copyWith(
+                  color: MyColor.primaryLightColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Burç hesaplama yardımcı metodu
+  String _getZodiacSignForDegree(double degree) {
+    final signIndex = (degree / 30).floor();
+    final signs = [
+      'aries',
+      'taurus',
+      'gemini',
+      'cancer',
+      'leo',
+      'virgo',
+      'libra',
+      'scorpio',
+      'sagittarius',
+      'capricorn',
+      'aquarius',
+      'pisces'
+    ];
+    return signs[signIndex % 12];
+  }
+
+  // Gezegen sembollerini döndüren metod
+  String _getPlanetSymbol(String planet) {
+    final symbols = {
+      'Sun': '☉',
+      'Moon': '☽',
+      'Mercury': '☿',
+      'Venus': '♀',
+      'Mars': '♂',
+      'Jupiter': '♃',
+      'Saturn': '♄',
+      'Uranus': '⛢',
+      'Neptune': '♆',
+      'Pluto': '♇',
+    };
+    return symbols[planet] ?? planet;
+  }
+
+  // Burç sembollerini döndüren metod
+  String _getZodiacSymbol(String sign) {
+    final symbols = {
+      'aries': '♈',
+      'taurus': '♉',
+      'gemini': '♊',
+      'cancer': '♋',
+      'leo': '♌',
+      'virgo': '♍',
+      'libra': '♎',
+      'scorpio': '♏',
+      'sagittarius': '♐',
+      'capricorn': '♑',
+      'aquarius': '♒',
+      'pisces': '♓',
+    };
+    return symbols[sign] ?? sign;
+  }
+
+  // Gezegen isimlerini Türkçe döndüren metod
+  String _getPlanetName(String planet) {
+    final names = {
+      'Sun': 'Güneş',
+      'Moon': 'Ay',
+      'Mercury': 'Merkür',
+      'Venus': 'Venüs',
+      'Mars': 'Mars',
+      'Jupiter': 'Jüpiter',
+      'Saturn': 'Satürn',
+      'Uranus': 'Uranüs',
+      'Neptune': 'Neptün',
+      'Pluto': 'Plüton',
+    };
+    return names[planet] ?? planet;
+  }
+
+  // Burç emojilerini ekle
+  String _getZodiacEmoji(String sign) {
+    final emojis = {
+      'aries': '🐏',
+      'taurus': '🐂',
+      'gemini': '👥',
+      'cancer': '🦀',
+      'leo': '🦁',
+      'virgo': '👩',
+      'libra': '⚖️',
+      'scorpio': '🦂',
+      'sagittarius': '🏹',
+      'capricorn': '🐐',
+      'aquarius': '🌊',
+      'pisces': '🐟',
+    };
+    return emojis[sign] ?? '';
+  }
+
+  // Açı sembollerini döndüren metod
+  String _getAspectSymbol(String aspect) {
+    final symbols = {
+      'Conjunction': '☌', // Kavuşum
+      'Sextile': '⚹', // Altmışlık
+      'Square': '□', // Kare
+      'Trine': '△', // Üçgen
+      'Opposition': '☍', // Karşıt
+    };
+    return symbols[aspect] ?? aspect;
   }
 }

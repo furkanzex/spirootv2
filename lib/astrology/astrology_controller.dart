@@ -38,15 +38,34 @@ class AstrologyController extends GetxController {
   final RxDouble chartRotation = 0.0.obs;
   final RxMap<String, double> weeklyTransits = <String, double>{}.obs;
 
+  // Yeni değişkenler ekleyelim
+  final RxMap<String, dynamic> retrogradeReadings = <String, dynamic>{}.obs;
+  final RxBool isRetroReadingsAvailable = false.obs;
+
+  // Yeni değişkenler ekleyelim
+  final RxMap<String, Map<String, dynamic>> currentTransits =
+      <String, Map<String, dynamic>>{}.obs;
+  final RxMap<String, Map<String, dynamic>> upcomingRetrogrades =
+      <String, Map<String, dynamic>>{}.obs;
+
   @override
   void onInit() {
     super.onInit();
-    // onInit'te Future işlemi çalıştırmak için
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeHoroscope();
-      _initializeNumerology();
-      _initializeWeeklyChart();
+      _initializeAstrologyPage();
     });
+  }
+
+  Future<void> _initializeAstrologyPage() async {
+    try {
+      await Future.wait([
+        _initializeHoroscope(),
+        _checkNumerologyAndRetrogrades(),
+        _initializeWeeklyChart(),
+      ]);
+    } catch (e) {
+      print('Initialize Astrology Page Error: $e');
+    }
   }
 
   Future<void> _initializeHoroscope() async {
@@ -62,11 +81,132 @@ class AstrologyController extends GetxController {
     }
   }
 
-  Future<void> _initializeNumerology() async {
+  Future<void> _checkNumerologyAndRetrogrades() async {
     try {
-      await checkNumerologyReading();
+      final userId = Get.find<UserController>().userId.value;
+      final doc = await _firestore.collection('users').doc(userId).get();
+
+      if (!doc.exists) return;
+
+      final data = doc.data()!;
+      await Future.wait([
+        _checkExistingNumerology(data),
+        _checkExistingRetrogrades(data),
+      ]);
     } catch (e) {
-      print('Initialize Numerology Error: $e');
+      print('Check Numerology and Retrogrades Error: $e');
+    }
+  }
+
+  Future<void> _checkExistingNumerology(Map<String, dynamic> userData) async {
+    try {
+      final numerology = userData['numerology'];
+      if (numerology != null && numerology['expiryDate'] != null) {
+        final expiryDate = (numerology['expiryDate'] as Timestamp).toDate();
+
+        if (expiryDate.isAfter(DateTime.now())) {
+          numerologyReading.value = {
+            'weeklyReading': numerology['reading']['weeklyReading']
+          };
+          isNumerologyAvailable.value = true;
+        } else {
+          // Süresi dolmuş, yeni yorum oluştur ama gösterme
+          await generateNumerologyReading();
+        }
+      } else {
+        // Yorum yok, yeni yorum oluştur ama gösterme
+        await generateNumerologyReading();
+      }
+    } catch (e) {
+      print('Check Existing Numerology Error: $e');
+    }
+  }
+
+  Future<void> _checkExistingRetrogrades(Map<String, dynamic> userData) async {
+    try {
+      final retrogrades = userData['retrogrades'];
+      if (retrogrades != null && retrogrades['expiryDate'] != null) {
+        final expiryDate = (retrogrades['expiryDate'] as Timestamp).toDate();
+
+        if (expiryDate.isAfter(DateTime.now())) {
+          // Mevcut retroları getir
+          retrogradeReadings.value = retrogrades['readings'];
+          isRetroReadingsAvailable.value = true;
+        } else {
+          // Süresi dolmuş, yeni retro yorumları oluştur
+          await _generateAndSaveRetroReadings();
+        }
+      } else {
+        // Retro yorumları yok, yeni oluştur
+        await _generateAndSaveRetroReadings();
+      }
+    } catch (e) {
+      print('Check Existing Retrogrades Error: $e');
+    }
+  }
+
+  Future<void> _generateAndSaveRetroReadings() async {
+    try {
+      final user = Get.find<UserController>().currentUser.value;
+      if (user == null) return;
+
+      final now = DateTime.now();
+      final weekEnd = now.add(const Duration(days: 7));
+
+      // Gemini'den retro yorumlarını al
+      final response = await _geminiService.generateRetroReadings(
+        now,
+        weekEnd,
+        user.zodiacSign,
+      );
+
+      final jsonResponse = json.decode(response);
+      retrogradeReadings.value = jsonResponse['retrogrades'];
+
+      // Firebase'e kaydet
+      await _saveRetroReadings(jsonResponse['retrogrades']);
+
+      isRetroReadingsAvailable.value = true;
+    } catch (e) {
+      print('Generate and Save Retro Readings Error: $e');
+    }
+  }
+
+  // Numeroloji yorumu oluşturma metodunu güncelle
+  Future<void> generateNumerologyReading() async {
+    try {
+      final user = Get.find<UserController>().currentUser.value;
+      if (user == null) throw Exception('Kullanıcı bilgisi bulunamadı');
+
+      final lifePathNumber = calculateLifePathNumber(user.birthDate);
+      final response =
+          await _geminiService.generateNumerologyReading(lifePathNumber, user);
+
+      final jsonResponse = json.decode(response);
+      numerologyReading.value = {
+        'weeklyReading': jsonResponse['numerology']['weeklyReading']
+      };
+
+      // Firebase'e kaydet
+      await _saveNumerologyToFirestore(jsonResponse['numerology']);
+
+      isNumerologyAvailable.value = true;
+    } catch (e) {
+      print('Numerology generation error: $e');
+      isNumerologyAvailable.value = false;
+    }
+  }
+
+  Future<void> _saveNumerologyToFirestore(
+      Map<String, dynamic> numerology) async {
+    try {
+      final userId = Get.find<UserController>().userId.value;
+
+      await _firestore.collection('users').doc(userId).update({
+        'numerology': numerology,
+      });
+    } catch (e) {
+      print('Numerology save error: $e');
     }
   }
 
@@ -75,6 +215,26 @@ class AstrologyController extends GetxController {
       final user = Get.find<UserController>().currentUser.value;
       if (user == null) return;
 
+      // Firebase'den mevcut verileri kontrol et
+      final userId = Get.find<UserController>().userId.value;
+      final doc = await _firestore.collection('users').doc(userId).get();
+      final weeklyChart = doc.data()?['weeklyChart'];
+
+      if (weeklyChart != null && weeklyChart['validUntil'] != null) {
+        final validUntil = (weeklyChart['validUntil'] as Timestamp).toDate();
+
+        if (validUntil.isAfter(DateTime.now())) {
+          // Mevcut verileri kullan
+          chartRotation.value = weeklyChart['rotation'] ?? 0.0;
+          currentTransits.value = Map<String, Map<String, dynamic>>.from(
+              weeklyChart['currentTransits'] ?? {});
+          upcomingRetrogrades.value = Map<String, Map<String, dynamic>>.from(
+              weeklyChart['upcomingRetrogrades'] ?? {});
+          return;
+        }
+      }
+
+      // Yeni verileri hesapla
       // Chart rotasyonunu hesapla
       final rotation = EphemerisService.calculateChartRotation(
         user.birthDate,
@@ -82,29 +242,41 @@ class AstrologyController extends GetxController {
       );
       chartRotation.value = rotation;
 
-      // Haftalık transitleri hesapla
-      final transits = EphemerisService.calculateWeeklyTransits(
+      // Güncel transitleri hesapla
+      final transits = EphemerisService.calculateCurrentTransits(
         user.birthDate,
         user.birthTime,
         user.birthPlace,
       );
-      weeklyTransits.value = transits;
+      currentTransits.value = transits;
+
+      // Yaklaşan retroları hesapla
+      final retros = await EphemerisService.calculateUpcomingRetrogrades(
+        DateTime.now(),
+        DateTime.now().add(const Duration(days: 7)),
+      );
+      upcomingRetrogrades.value = retros;
 
       // Firebase'e kaydet
       await _saveWeeklyChart();
-    } catch (e) {
-      print('Weekly chart initialization error: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _saveWeeklyChart() async {
     try {
       final userId = Get.find<UserController>().userId.value;
-      
+      final Map<String, dynamic> transitData = {};
+
+      // Map'i güvenli bir şekilde dönüştür
+      currentTransits.forEach((key, value) {
+        transitData[key] = value;
+      });
+
       await _firestore.collection('users').doc(userId).update({
         'weeklyChart': {
           'rotation': chartRotation.value,
-          'transits': weeklyTransits,
+          'currentTransits': transitData,
+          'upcomingRetrogrades': upcomingRetrogrades.toJson(),
           'updatedAt': DateTime.now(),
           'validUntil': DateTime.now().add(const Duration(days: 7)),
         }
@@ -634,14 +806,97 @@ class AstrologyController extends GetxController {
     return sum;
   }
 
+  // Retrogradları kontrol eden metod
+  Future<void> _checkRetrogrades() async {
+    try {
+      final userId = Get.find<UserController>().userId.value;
+      final doc = await _firestore.collection('users').doc(userId).get();
+
+      if (doc.exists) {
+        final retrogrades = doc.data()?['retrogrades'];
+        if (retrogrades != null && retrogrades['expiryDate'] != null) {
+          final expiryDate = (retrogrades['expiryDate'] as Timestamp).toDate();
+
+          if (expiryDate.isAfter(DateTime.now())) {
+            retrogradeReadings.value = retrogrades['readings'];
+            isRetroReadingsAvailable.value = true;
+          } else {
+            await _generateRetroReadings();
+          }
+        } else {
+          await _generateRetroReadings();
+        }
+      }
+    } catch (e) {
+      print('Retrograde check error: $e');
+    }
+  }
+
+  // Retro yorumlarını oluşturan metod
+  Future<void> _generateRetroReadings() async {
+    try {
+      final user = Get.find<UserController>().currentUser.value;
+      if (user == null) return;
+
+      final now = DateTime.now();
+      final weekEnd = now.add(const Duration(days: 7));
+
+      // Gemini'den retro yorumlarını al
+      final response = await _geminiService.generateRetroReadings(
+        now,
+        weekEnd,
+        user.zodiacSign,
+      );
+
+      final jsonResponse = json.decode(response);
+      retrogradeReadings.value = jsonResponse['retrogrades'];
+
+      // Firebase'e kaydet
+      await _saveRetroReadings(jsonResponse['retrogrades']);
+
+      isRetroReadingsAvailable.value = true;
+    } catch (e) {
+      print('Retrograde generation error: $e');
+    }
+  }
+
+  // Retro yorumlarını Firebase'e kaydeden metod
+  Future<void> _saveRetroReadings(Map<String, dynamic> readings) async {
+    try {
+      final userId = Get.find<UserController>().userId.value;
+
+      await _firestore.collection('users').doc(userId).update({
+        'retrogrades': {
+          'readings': readings,
+          'createdAt': DateTime.now(),
+          'expiryDate': DateTime.now().add(const Duration(days: 7)),
+        }
+      });
+    } catch (e) {
+      print('Retrograde save error: $e');
+    }
+  }
+
+  // Retrogradları kontrol etmek için yeni metodlar
+  bool isRetrograde(String planet) {
+    // Gezegenlerin retro olma olasılıklarını kontrol et
+    if (!weeklyTransits.containsKey(planet)) return false;
+
+    final position = weeklyTransits[planet]!;
+    final retroProb =
+        EphemerisService.calculateRetrogradeStatus(planet, position);
+    return retroProb > 0.5; // 0.5'ten büyükse retro kabul et
+  }
+
+  int get retrogradeCount {
+    return weeklyTransits.keys.where((planet) => isRetrograde(planet)).length;
+  }
+
+  // Numeroloji kontrolü için public metod
   Future<void> checkNumerologyReading() async {
     try {
       isLoading.value = true;
       final userId = Get.find<UserController>().userId.value;
-      final user = Get.find<UserController>().currentUser.value;
-
-      if (user == null) throw Exception('Kullanıcı bilgisi bulunamadı');
-
       final doc = await _firestore.collection('users').doc(userId).get();
 
       if (doc.exists) {
@@ -650,71 +905,24 @@ class AstrologyController extends GetxController {
           final expiryDate = (numerology['expiryDate'] as Timestamp).toDate();
 
           if (expiryDate.isAfter(DateTime.now())) {
-            // Veriyi doğru şekilde al
             numerologyReading.value = {
               'weeklyReading': numerology['reading']['weeklyReading']
             };
             isNumerologyAvailable.value = true;
           } else {
+            // Süresi dolmuş, yeni yorum oluştur
             await generateNumerologyReading();
           }
         } else {
+          // Yorum yok, yeni yorum oluştur
           await generateNumerologyReading();
         }
-      } else {
-        isNumerologyAvailable.value = false;
       }
     } catch (e) {
-      print('Numerology check error: $e');
+      print('Check Numerology Reading Error: $e');
       isNumerologyAvailable.value = false;
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  Future<void> generateNumerologyReading() async {
-    try {
-      final user = Get.find<UserController>().currentUser.value;
-      if (user == null) throw Exception('Kullanıcı bilgisi bulunamadı');
-
-      final lifePathNumber = calculateLifePathNumber(user.birthDate);
-      final response =
-          await _geminiService.generateNumerologyReading(lifePathNumber, user);
-
-      final jsonResponse = json.decode(response);
-      numerologyReading.value = {
-        'weeklyReading': jsonResponse['numerology']['weeklyReading']
-      };
-
-      // Firestore'a kaydet
-      await _saveNumerologyToFirestore(jsonResponse['numerology']);
-
-      isNumerologyAvailable.value = true;
-    } catch (e) {
-      print('Numerology generation error: $e');
-      isNumerologyAvailable.value = false;
-      Get.snackbar(
-        'Hata',
-        'Numeroloji yorumu oluşturulurken bir hata oluştu',
-        backgroundColor: MyColor.errorColor,
-        colorText: MyColor.white,
-      );
-    }
-  }
-
-  Future<void> _saveNumerologyToFirestore(Map<String, dynamic> reading) async {
-    try {
-      final userId = Get.find<UserController>().userId.value;
-
-      await _firestore.collection('users').doc(userId).update({
-        'numerology': {
-          'reading': reading,
-          'createdAt': DateTime.now(),
-          'expiryDate': DateTime.now().add(const Duration(days: 7)),
-        }
-      });
-    } catch (e) {
-      print('Numerology save error: $e');
     }
   }
 }
