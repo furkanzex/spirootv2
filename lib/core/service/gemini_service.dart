@@ -525,7 +525,7 @@ class GeminiService extends GetxService {
     try {
       final now = DateTime.now();
       final weekEnd = now.add(const Duration(days: 7));
-      
+
       final prompt = '''
       Sen deneyimli bir astrologsun. Aşağıdaki bilgilere göre haftalık natal chart yorumu oluştur:
       

@@ -1136,37 +1136,57 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           ),
           child: Obx(() {
             if (_userController.currentUser.value == null) {
-              return const Center(child: CircularProgressIndicator());
+              return _buildLoadingWidget();
             }
 
             return Column(
               children: [
-                // Natal Chart
-                FutureBuilder<Map<String, dynamic>>(
-                  future: NatalChartService.calculateNatalChart(
-                    _userController.currentUser.value!.birthDate,
-                    _userController.currentUser.value!.birthTime,
-                    _userController.currentUser.value!.birthPlace,
-                  ),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                SizedBox(
+                  height: MySize.natalChartSize,
+                  child: FutureBuilder<Map<String, dynamic>>(
+                    future: _retryNatalChart(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: CircularProgressIndicator(
+                                  color: MyColor.primaryLightColor,
+                                  strokeWidth: 3,
+                                  backgroundColor:
+                                      MyColor.white.withOpacity(0.1),
+                                ),
+                              ),
+                              verticalGap(MySize.defaultPadding),
+                              Text(
+                                'Natal Chart Hazırlanıyor...',
+                                style: MyStyle.s3.copyWith(
+                                  color: MyColor.white.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return _buildErrorWidget();
+                      }
+
+                      if (snapshot.hasData) {
+                        return NatalChartWidget(natalChartData: snapshot.data!);
+                      }
+
                       return _buildLoadingWidget();
-                    }
-
-                    if (snapshot.hasError) {
-                      return _buildErrorWidget();
-                    }
-
-                    if (snapshot.hasData) {
-                      return NatalChartWidget(natalChartData: snapshot.data!);
-                    }
-
-                    return const SizedBox.shrink();
-                  },
+                    },
+                  ),
                 ),
                 verticalGap(MySize.defaultPadding),
                 _buildWeeklyNatalReading(),
-
                 verticalGap(MySize.defaultPadding),
                 divider(),
                 verticalGap(MySize.defaultPadding),
@@ -1177,6 +1197,28 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         ),
       ],
     );
+  }
+
+  Future<Map<String, dynamic>> _retryNatalChart() async {
+    const maxAttempts = 3;
+    const delayDuration = Duration(seconds: 2);
+    
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await NatalChartService.calculateNatalChart(
+          _userController.currentUser.value!.birthDate,
+          _userController.currentUser.value!.birthTime,
+          _userController.currentUser.value!.birthPlace,
+        );
+      } catch (e) {
+        if (attempt == maxAttempts) {
+          rethrow;
+        }
+        await Future.delayed(delayDuration);
+      }
+    }
+    
+    throw Exception('Natal chart hesaplanamadı');
   }
 
   Widget _buildTransits() {
@@ -1878,21 +1920,10 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             ),
             verticalGap(MySize.defaultPadding),
             Text(
-              'Natal Chart Yüklenirken Hata Oluştu',
+              'Natal Chart Yüklenirken Hata Oluştu\nYeniden Deneniyor...',
+              textAlign: TextAlign.center,
               style: MyStyle.s3.copyWith(
                 color: MyColor.white,
-              ),
-            ),
-            verticalGap(MySize.halfPadding),
-            TextButton(
-              onPressed: () {
-                setState(() {}); // Yeniden yüklemeyi tetikle
-              },
-              child: Text(
-                'Tekrar Dene',
-                style: MyStyle.s3.copyWith(
-                  color: MyColor.primaryLightColor,
-                ),
               ),
             ),
           ],
