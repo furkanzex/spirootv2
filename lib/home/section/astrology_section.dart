@@ -65,9 +65,8 @@ Widget astrologySection() {
                         children: [
                           Text(
                             controller.isProfileComplete
-                                ? easy.tr(
-                                    "Evren sana bir mesaj gönderdi...\nAçmaya hazır mısın?")
-                                : easy.tr("Astroloji Yolculuğunu Hemen Başlat"),
+                                ? easy.tr("home.astrology.message")
+                                : easy.tr("home.astrology.start_journey"),
                             style: MyStyle.s2.copyWith(
                               color: MyColor.white,
                               fontWeight: FontWeight.bold,
@@ -81,11 +80,14 @@ Widget astrologySection() {
                 verticalGap(MySize.defaultPadding),
                 Row(
                   children: [
-                    _buildFeatureItem("🌟", easy.tr("Burç Kartı")),
+                    _buildFeatureItem(
+                        "🌟", easy.tr("home.astrology.features.birth_chart")),
                     horizontalGap(MySize.defaultPadding),
-                    _buildFeatureItem("💫", easy.tr("Doğum Haritası")),
+                    _buildFeatureItem(
+                        "💫", easy.tr("home.astrology.features.natal_chart")),
                     horizontalGap(MySize.defaultPadding),
-                    _buildFeatureItem("🎯", easy.tr("Öngörüler")),
+                    _buildFeatureItem(
+                        "🎯", easy.tr("home.astrology.features.fortune")),
                   ],
                 ),
               ],

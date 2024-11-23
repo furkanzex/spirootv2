@@ -120,7 +120,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
             // Ana Başlık
             Text(
-              easy.tr("Yıldızların Sana\nNeler Söylediğini Keşfet"),
+              easy.tr("astrology.discover_stars"),
               textAlign: TextAlign.center,
               style: MyStyle.s1.copyWith(
                 color: MyColor.white,
@@ -170,7 +170,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   borderRadius: BorderRadius.circular(30),
                   child: Center(
                     child: Text(
-                      easy.tr("Yolculuğa Başla"),
+                      easy.tr("astrology.start_journey"),
                       style: MyStyle.s1.copyWith(
                         color: MyColor.white,
                         fontSize: 20,

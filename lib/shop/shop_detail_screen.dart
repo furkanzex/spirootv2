@@ -6,6 +6,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/shop/shop_model.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class ShopDetailScreen extends StatelessWidget {
   final Shop shop;
@@ -172,7 +173,8 @@ class ShopDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Yorum Yap",
+                          easy.tr(
+                              "shop.review.title"), // Yorum Yap -> Write a Review
                           style: MyStyle.s2.copyWith(
                             color: MyColor.white,
                             fontWeight: FontWeight.bold,
@@ -183,7 +185,8 @@ class ShopDetailScreen extends StatelessWidget {
                           style: MyStyle.s2.copyWith(color: MyColor.white),
                           maxLines: 3,
                           decoration: InputDecoration(
-                            hintText: "Deneyimini paylaş...",
+                            hintText: easy.tr(
+                                "shop.review.hint"), // Deneyimini paylaş... -> Share your experience...
                             hintStyle: MyStyle.s2.copyWith(
                               color: MyColor.textGreyColor,
                             ),
@@ -225,7 +228,7 @@ class ShopDetailScreen extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                "Gönder",
+                                easy.tr("shop.send"),
                                 style: MyStyle.s2.copyWith(
                                   color: MyColor.white,
                                   fontWeight: FontWeight.bold,
@@ -331,11 +334,11 @@ class ShopDetailScreen extends StatelessWidget {
   String _formatDate(DateTime date) {
     final difference = DateTime.now().difference(date);
     if (difference.inDays == 0) {
-      return "Bugün";
+      return easy.tr("common.today");
     } else if (difference.inDays == 1) {
-      return "Dün";
+      return easy.tr("common.yesterday");
     } else if (difference.inDays < 7) {
-      return "${difference.inDays} gün önce";
+      return easy.tr("common.days_ago", args: [difference.inDays.toString()]);
     } else {
       return "${date.day}.${date.month}.${date.year}";
     }

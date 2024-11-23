@@ -2,7 +2,17 @@
   "path": "assets/translations/tr-TR.json",
   "locale": "tr-TR",
   "lang": "Türkçe",
-  "errors": {},
+  "errors": {
+    "auth": {
+      "user_not_found": "Kullanıcı bulunamadı: Belirtilen e-posta veya kullanıcı adı ile hesap bulunamadı.",
+      "wrong_password": "Yanlış şifre: Girilen şifre yanlış.",
+      "invalid_email": "Geçersiz e-posta adresi: Lütfen geçerli bir e-posta adresi girin.",
+      "too_many_requests": "Çok fazla giriş denemesi: Çok sayıda yanlış giriş denemesi nedeniyle giriş işlemi engellendi. Bir süre sonra tekrar deneyin.",
+      "user_disabled": "Kullanıcı devre dışı bırakıldı: Bu hesap devre dışı bırakıldı.",
+      "email_already_in_use": "Mail adresi kullanımda: Bu mail adresi ile daha önce kayıt yapılmış.",
+      "default": "Bir hata oluştu."
+    }
+  },
   "internet": {
     "title": "Ups...",
     "desc": "Görünüşe göre internet bağlantınızda bir sorun var. Bağlantı sağlandıktan sonra uygulamamızı kullanmaya devam edebilirsiniz!"
@@ -30,10 +40,36 @@
   },
   "home": {
     "greeting": "Hoş Geldin",
+    "greeting_subtitle": "Bugün senin için neler var, birlikte keşfedelim!",
     "see_all": "tümünü gör",
-    "spiritual_advisor": {
-      "title": "Hoşgeldin. Ben de seni bekliyordum. Neyi merak ediyorsun?",
-      "ask_now": "hemen soru sor"
+    "astrology": {
+      "message": "Evren sana bir mesaj gönderdi...\nAçmaya hazır mısın?",
+      "start_journey": "Astroloji Yolculuğunu Hemen Başlat",
+      "features": {
+        "birth_chart": "Burç Kartı",
+        "natal_chart": "Doğum Haritası"
+      }
+    },
+    "fortune": {
+      "title": "Falına Baktır",
+      "subtitle": "Kahve, tarot ve daha fazlası...",
+      "history": "Fal Geçmişim"
+    },
+    "shops": {
+      "title": "Öne Çıkan Mekanlar",
+      "subtitle": "Spiritüel dükkanları keşfet"
+    },
+    "luck": {
+      "title": "Gizemli Şans Yolu",
+      "subtitle": "Günlük şans ritüelleri"
+    },
+    "enlightenment": {
+      "title": "Aydınlan",
+      "subtitle": "Spiritüel gelişim yolculuğun"
+    },
+    "rest_spirit": {
+      "title": "Ruhunu Dinlendir",
+      "subtitle": "Meditasyon ve rahatlama"
     }
   },
   "fortune": {
@@ -59,7 +95,7 @@
       "birth_time": "Doğum saatiniz, yükselen burcunuzu ve ay burcunuzu belirleyerek astrolojik haritanızı tamamlar.",
       "birth_place": "Doğum yeriniz, gökyüzünün tam konumunu belirleyerek astrolojik yorumlarınızın doğruluğunu artırır.",
       "gender": "Cinsiyet enerjiniz, astrolojik uyumluluk analizlerinizi ve gezegen etkileşimlerinizi şekillendirir.",
-      "interests": "İlgi alanlarınız, astrolojik ��ngörülerinizi hayatınızın önemli alanlarına odaklar."
+      "interests": "İlgi alanlarınız, astrolojik ngörülerinizi hayatınızın önemli alanlarına odaklar."
     },
     "gender": {
       "female": "Kadın",
@@ -262,6 +298,37 @@
         "characteristics": "Sezgisel, Sanatsal, Şefkatli",
         "color": "Turkuaz"
       }
+    },
+    "start_journey": "Yolculuğa Başla",
+    "feature_cards": {
+      "birth_chart": {
+        "title": "Burç Kartı",
+        "subtitle": "Kişisel burç kartını gör"
+      }
+    },
+    "loading": "✨ Yıldızlar sizin için konuşuyor...",
+    "lucky_details": "✨ Şanslı Detaylar",
+    "retro": {
+      "title": "Retrolar"
+    },
+    "discover_stars": "Yıldızların Sana\nNeler Söylediğini Keşfet",
+    "weekly_natal": {
+      "title": "Haftalık Natal Analizi",
+      "subtitle": "Gezegensel hareketlerin hayatına etkileri",
+      "important_aspects": "Önemli Açılar",
+      "advice": "Tavsiyeler"
     }
+  },
+  "shop": {
+    "review": {
+      "title": "Yorum Yap",
+      "hint": "Deneyimini paylaş..."
+    },
+    "send": "Gönder"
+  },
+  "common": {
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "days_ago": "{} gün önce"
   }
 }

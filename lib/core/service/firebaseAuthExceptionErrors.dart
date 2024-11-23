@@ -1,3 +1,5 @@
+import 'package:easy_localization/easy_localization.dart' as easy;
+
 // ignore: file_names
 import 'dart:developer';
 
@@ -8,47 +10,43 @@ firebaseAuthException(e) {
   switch (e.code) {
     case 'user-not-found':
       Fluttertoast.showToast(
-        msg:
-            'Kullanıcı bulunamadı: Belirtilen e-posta veya kullanıcı adı ile hesap bulunamadı.',
+        msg: easy.tr("errors.auth.user_not_found"),
         toastLength: Toast.LENGTH_LONG,
       );
       break;
     case 'wrong-password':
       Fluttertoast.showToast(
-        msg: 'Yanlış şifre: Girilen şifre yanlış.',
+        msg: easy.tr("errors.auth.wrong_password"),
         toastLength: Toast.LENGTH_LONG,
       );
       break;
     case 'invalid-email':
       Fluttertoast.showToast(
-        msg:
-            'Geçersiz e-posta adresi: Lütfen geçerli bir e-posta adresi girin.',
+        msg: easy.tr("errors.auth.invalid_email"),
         toastLength: Toast.LENGTH_LONG,
       );
       break;
     case 'too-many-requests':
       Fluttertoast.showToast(
-        msg:
-            'Çok fazla giriş denemesi: Çok sayıda yanlış giriş denemesi nedeniyle giriş işlemi engellendi. Bir süre sonra tekrar deneyin.',
+        msg: easy.tr("errors.auth.too_many_requests"),
         toastLength: Toast.LENGTH_LONG,
       );
       break;
     case 'user-disabled':
       Fluttertoast.showToast(
-        msg: 'Kullanıcı devre dışı bırakıldı: Bu hesap devre dışı bırakıldı.',
+        msg: easy.tr("errors.auth.user_disabled"),
         toastLength: Toast.LENGTH_LONG,
       );
       break;
     case 'email-already-in-use':
       Fluttertoast.showToast(
-        msg:
-            'Mail adresi kullanımda: Bu mail adresi ile daha önce kayıt yapılmış.',
+        msg: easy.tr("errors.auth.email_already_in_use"),
         toastLength: Toast.LENGTH_LONG,
       );
       break;
     default:
       Fluttertoast.showToast(
-        msg: 'Bir hata oluştu.',
+        msg: easy.tr("errors.auth.default"),
         toastLength: Toast.LENGTH_LONG,
       );
       break;

@@ -2,7 +2,17 @@
   "path": "assets/translations/en-US.json",
   "locale": "en-US",
   "lang": "English",
-  "errors": {},
+  "errors": {
+    "auth": {
+      "user_not_found": "User not found: No account exists with the specified email or username.",
+      "wrong_password": "Wrong password: The entered password is incorrect.",
+      "invalid_email": "Invalid email: Please enter a valid email address.",
+      "too_many_requests": "Too many attempts: Login has been blocked due to multiple failed login attempts. Please try again later.",
+      "user_disabled": "User disabled: This account has been disabled.",
+      "email_already_in_use": "Email already in use: An account already exists with this email address.",
+      "default": "An error occurred."
+    }
+  },
   "internet": {
     "title": "Oops...",
     "desc": "It seems there's an issue with your internet connection. You can continue using our app once the connection is restored!"
@@ -30,10 +40,40 @@
   },
   "home": {
     "greeting": "Welcome",
+    "greeting_subtitle": "Let's discover what's in store for you today!",
     "see_all": "see all",
     "spiritual_advisor": {
       "title": "Welcome. I've been waiting for you. What are you curious about?",
-      "ask_now": "ask a question now"
+      "ask_now": "ask now"
+    },
+    "astrology": {
+      "message": "The universe sent you a message...Are you ready to open it?",
+      "start_journey": "Start Your Astrology Journey Now",
+      "features": {
+        "birth_chart": "Birth Chart",
+        "natal_chart": "Natal Chart"
+      }
+    },
+    "fortune": {
+      "title": "Get Your Fortune Told",
+      "subtitle": "Coffee, tarot and more...",
+      "history": "My Fortune History"
+    },
+    "shops": {
+      "title": "Featured Shops",
+      "subtitle": "Discover spiritual shops"
+    },
+    "luck": {
+      "title": "Mystical Luck Path",
+      "subtitle": "Daily luck rituals"
+    },
+    "enlightenment": {
+      "title": "Enlighten",
+      "subtitle": "Your spiritual development journey"
+    },
+    "rest_spirit": {
+      "title": "Rest Your Spirit",
+      "subtitle": "Meditation and relaxation"
     }
   },
   "fortune": {
@@ -262,6 +302,37 @@
         "characteristics": "Empathetic, Artistic, Dreamy",
         "color": "Aqua"
       }
+    },
+    "start_journey": "Start Journey",
+    "feature_cards": {
+      "birth_chart": {
+        "title": "Birth Chart",
+        "subtitle": "View your personal birth chart"
+      }
+    },
+    "loading": "✨ The stars are speaking for you...",
+    "lucky_details": "✨ Lucky Details",
+    "retro": {
+      "title": "Retrogrades"
+    },
+    "discover_stars": "Discover What\nThe Stars Are Telling You",
+    "weekly_natal": {
+      "title": "Weekly Natal Analysis",
+      "subtitle": "Effects of planetary movements on your life",
+      "important_aspects": "Important Aspects",
+      "advice": "Advice"
     }
+  },
+  "shop": {
+    "review": {
+      "title": "Write a Review",
+      "hint": "Share your experience..."
+    },
+    "send": "Send"
+  },
+  "common": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "days_ago": "{} days ago"
   }
 }

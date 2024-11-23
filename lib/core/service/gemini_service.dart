@@ -179,6 +179,8 @@ class GeminiService extends GetxService {
         }
       }
     }
+
+    Important: Write the response in $_currentLanguage
     ''';
   }
 
@@ -225,6 +227,8 @@ class GeminiService extends GetxService {
         }
       }
     }
+
+    Important: Write the response in $_currentLanguage
     ''';
 
     // Zaman dilimine göre özel talimatlar ekle
@@ -242,7 +246,6 @@ class GeminiService extends GetxService {
            - Most influential planet of the day
         3. Keep predictions specific and actionable
         4. Include mood forecast and best times for activities
-        5. Write all text in Turkish
         ''';
 
       case "astrology.horoscope.dates.week":
@@ -259,7 +262,7 @@ class GeminiService extends GetxService {
            - Significant planetary aspects
         3. Break down predictions by different life areas
         4. Include specific guidance for each major day
-        5. Write all text in Turkish
+
         ''';
 
       case "astrology.horoscope.dates.month":
@@ -282,7 +285,7 @@ class GeminiService extends GetxService {
            - Relationship dynamics
            - Career and financial trends
            - Personal development opportunities
-        4. Write all text in Turkish
+        
         ''';
 
       default:
@@ -345,6 +348,8 @@ class GeminiService extends GetxService {
     - Predictions for the Near Future
     - Points of Attention
     - Special Advice and Guidance
+
+    Important: Write the response in $_currentLanguage
     ''';
 
     switch (type.toLowerCase()) {
@@ -413,8 +418,7 @@ class GeminiService extends GetxService {
       2. Consider the current numerological cycles and vibrations
       3. Provide insights about personal growth, relationships, and life purpose
       4. Keep the reading between 500-1000 characters
-      5. Write in Turkish
-      6. Make it personal and specific to the user's Life Path Number
+      5. Make it personal and specific to the user's Life Path Number
       
       Create a JSON response in this format only:
       {
@@ -422,6 +426,8 @@ class GeminiService extends GetxService {
           "weeklyReading": "Your detailed numerology reading here..."
         }
       }
+
+      Important: Write the response in $_currentLanguage
       ''';
 
       final response = await _textModel.generateContent([Content.text(prompt)]);
@@ -495,8 +501,9 @@ class GeminiService extends GetxService {
       Instructions:
       1. Only include currently retrograde planets
       2. Keep descriptions concise and specific
-      3. Write all text in Turkish
-      4. Focus on practical impacts and advice
+      3. Focus on practical impacts and advice
+
+Important: Write the response in $_currentLanguage
       ''';
 
       final response = await _textModel.generateContent([Content.text(prompt)]);
@@ -532,45 +539,47 @@ class GeminiService extends GetxService {
     try {
       final now = DateTime.now();
       final weekEnd = now.add(const Duration(days: 7));
+      final bool isTurkish = _currentLanguage == 'tr';
 
       final prompt = '''
-      Sen deneyimli bir astrologsun. Aşağıdaki bilgilere göre haftalık natal chart yorumu oluştur:
+      You are an experienced astrologer. Create a weekly natal chart interpretation based on the following information:
       
-      Doğum Bilgileri:
-      - Tarih: ${DateFormat('dd.MM.yyyy').format(birthDate)}
-      - Saat: $birthTime
-      - Yer: $birthPlace
-      - Güneş Burcu: $zodiacSign
-      - Yükselen: $ascendant
-      - Ay Burcu: $moonSign
+      Birth Information:
+      - Date: ${DateFormat('dd.MM.yyyy').format(birthDate)}
+      - Time: $birthTime
+      - Place: $birthPlace
+      - Sun Sign: $zodiacSign
+      - Ascendant: $ascendant
+      - Moon Sign: $moonSign
       
-      Hafta: ${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(weekEnd)}
+      Week: ${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(weekEnd)}
       
-      Talimatlar:
-      1. Şu anki transit gezegenlerin natal chart pozisyonlarıyla ilişkisini analiz et
-      2. Odaklan:
-         - Transit ve natal gezegenler arasındaki önemli açılar
-         - Önemli ev aktivasyonları
-         - Kişisel gelişim fırsatları
-         - Zorluk veya gerilim alanları
-         - Özellikle retro gezegenlerin etkileri
-         - Dolunay/Yeniay etkileri
-      3. Yorum uzunluğu:
-         - Genel bakış: 400-600 karakter
-         - Açılar: 300-400 karakter
-         - Tavsiyeler: 200-300 karakter
-      4. Türkçe yaz
-      5. Kişisel ve natal charta özel olsun
-      6. Pratik ve uygulanabilir tavsiyeler ver
+      Instructions:
+      1. Analyze the relationship between current transit planets and natal chart positions
+      2. Focus on:
+         - Important aspects between transit and natal planets
+         - Significant house activations
+         - Personal growth opportunities
+         - Areas of challenge or tension
+         - Effects of retrograde planets in particular
+         - Full Moon/New Moon effects
+      3. Length requirements:
+         - Overview: 400-600 characters
+         - Aspects: 300-400 characters
+         - Advice: 200-300 characters
+      4.  Make it personal and specific to the natal chart
+      5. Provide practical and applicable advice
       
-      Bu formatta JSON yanıt oluştur:
+      Create JSON response in this format:
       {
         "weeklyNatalReading": {
-          "overview": "Haftalık genel analiz ve temalar",
-          "aspects": "Önemli gezegensel açılar ve anlamları",
-          "advice": "Pratik rehberlik ve öneriler"
+          "overview": "Weekly general analysis and themes",
+          "aspects": "Important planetary aspects and their meanings",
+          "advice": "Practical guidance and suggestions"
         }
       }
+
+      Important: Write the response in $_currentLanguage
       ''';
 
       final response = await _textModel.generateContent([Content.text(prompt)]);
@@ -593,6 +602,8 @@ class GeminiService extends GetxService {
         "advice": "Bu hafta özellikle kişisel projelerinize odaklanın ve içsel sesinizi dinleyin. İlişkilerinizde açık iletişimi tercih edin ve yeni fırsatlara karşı açık olun."
       }
     }
+
+    Important: Write the response in $_currentLanguage
     ''';
   }
 }
