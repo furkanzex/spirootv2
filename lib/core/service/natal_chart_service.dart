@@ -1,4 +1,5 @@
 import 'package:sweph/sweph.dart';
+import 'package:path_provider/path_provider.dart';
 
 class NatalChartService {
   static bool _isInitialized = false;
@@ -18,6 +19,11 @@ class NatalChartService {
     }
   }
 
+  static Future<String> getEphePath() async {
+    final appDir = await getApplicationDocumentsDirectory();
+    return '${appDir.path}/ephe_files';
+  }
+
   static Future<Map<String, dynamic>> calculateNatalChart(
       DateTime birthDate, String birthTime, String birthPlace) async {
     // Her hesaplama öncesi initialize kontrolü
@@ -28,6 +34,9 @@ class NatalChartService {
     }
 
     try {
+      final ephePath = await getEphePath();
+      Sweph.swe_set_ephe_path(ephePath);
+
       // Koordinat bilgilerini alacak bir servis gerekli
       final coordinates = await _getCoordinates(birthPlace);
 

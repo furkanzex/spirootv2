@@ -41,6 +41,7 @@ dependencies:
   animate_do: ^3.3.4
   sweph: ^3.0.1+2.10.3
   http: ^1.1.0
+  path_provider: ^2.1.1
 
 dev_dependencies:
   flutter_test:
@@ -61,3 +62,4 @@ flutter:
     - assets/translations/
     - assets/lottie/
     - assets/svg/
+    - assets/ephe/

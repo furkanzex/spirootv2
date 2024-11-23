@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:extended_image/extended_image.dart';
@@ -36,6 +37,52 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   final UserController _userController = Get.find<UserController>();
   final AstrologyController _astrologyController =
       Get.put(AstrologyController());
+  Timer? _countdownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Her 1 saatte bir geri sayımı güncelle
+    _countdownTimer = Timer.periodic(const Duration(hours: 1), (timer) {
+      setState(() {
+        // Retro kartlarını yeniden oluştur
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  // Kalan gün sayısını hesaplayan yardımcı metod
+  String _getRemainingDays(String endDateStr) {
+    try {
+      final now = DateTime.now();
+      final end = DateFormat('dd MMM').parse(endDateStr);
+      final endWithYear = DateTime(
+        now.year + (end.month < now.month ? 1 : 0),
+        end.month,
+        end.day,
+      );
+
+      final difference = endWithYear.difference(now);
+      final days = difference.inDays;
+      final hours = difference.inHours % 24;
+
+      if (days > 0) {
+        return "$days gün kaldı";
+      } else if (hours > 0) {
+        return "$hours saat kaldı";
+      } else {
+        return "Son gün";
+      }
+    } catch (e) {
+      print('Tarih hesaplama hatası: $e');
+      return "";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -352,6 +399,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             _buildMoonCalendar(),*/
             verticalGap(MySize.doublePadding),
             _buildNatalChart(),
+            verticalGap(MySize.doublePadding),
+            _buildRetroSection(),
             verticalGap(MySize.doublePadding),
             _buildNumerologyCard(),
           ],
@@ -1116,11 +1165,11 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   },
                 ),
                 verticalGap(MySize.defaultPadding),
+                //haftalık natal chart yorumu gelecek
+                verticalGap(MySize.defaultPadding),
                 divider(),
                 verticalGap(MySize.defaultPadding),
-
-                // Transit ve Retro Bilgileri
-                _buildTransitsAndRetrogrades(),
+                _buildTransits(),
               ],
             );
           }),
@@ -1129,7 +1178,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     );
   }
 
-  Widget _buildTransitsAndRetrogrades() {
+  Widget _buildTransits() {
     final now = DateTime.now();
     final weekEnd = now.add(const Duration(days: 7));
     final weekRange =
@@ -1201,8 +1250,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 final planetData = entry.value;
                 final sign = planetData['sign'] as String;
                 final degree = planetData['degree'] as double;
-                final aspects = planetData['aspects']
-                    as Map<String, List<Map<String, dynamic>>>;
+                final aspects = planetData['aspects'] as Map<String, dynamic>;
 
                 return TableRow(
                   children: [
@@ -1242,8 +1290,20 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                         alignment: WrapAlignment.center,
                         spacing: 4,
                         children: aspects.entries.map((aspect) {
+                          final aspectData = aspect.value;
+                          String aspectType = '';
+
+                          if (aspectData is List) {
+                            if (aspectData.isNotEmpty && aspectData[0] is Map) {
+                              aspectType =
+                                  aspectData[0]['aspect'] as String? ?? '';
+                            }
+                          } else if (aspectData is Map) {
+                            aspectType = aspectData['aspect'] as String? ?? '';
+                          }
+
                           return Text(
-                            "${_getPlanetSymbol(aspect.key)}${_getAspectSymbol(aspect.value.first['aspect'])}",
+                            "${_getPlanetSymbol(aspect.key)}${_getAspectSymbol(aspectType)}",
                             style: MyStyle.s3.copyWith(
                               color: MyColor.textGreyColor,
                             ),
@@ -1257,111 +1317,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             ],
           ),
         ),
-
-        // Retrolar Bölümü
-        if (_astrologyController.retrogradeReadings.isNotEmpty) ...[
-          verticalGap(MySize.doublePadding),
-          Text(
-            "Retrolar",
-            style: MyStyle.s2.copyWith(
-              color: MyColor.white,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          verticalGap(MySize.defaultPadding),
-          ..._buildRetroCards(),
-        ],
       ],
     );
-  }
-
-  List<Widget> _buildRetroCards() {
-    final readings = _astrologyController.retrogradeReadings;
-    final List<Widget> widgets = [];
-
-    if (readings['activePlanets'] != null) {
-      for (String planet in readings['activePlanets']) {
-        final reading = readings['readings'][planet];
-        if (reading != null) {
-          widgets.add(Container(
-            margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
-            padding: const EdgeInsets.all(MySize.defaultPadding),
-            decoration: BoxDecoration(
-              color: MyColor.primaryDarkColor,
-              borderRadius: BorderRadius.circular(MySize.halfRadius),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Gezegen ve Tarih
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          _getPlanetSymbol(planet),
-                          style: MyStyle.s1.copyWith(
-                            color: MyColor.white,
-                            fontSize: 24,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      reading['period'] ?? '',
-                      style: MyStyle.s3.copyWith(
-                        color: MyColor.textGreyColor,
-                      ),
-                    ),
-                  ],
-                ),
-                verticalGap(MySize.defaultPadding),
-                // Etki ve Tavsiye
-                Text(
-                  reading['impact'] ?? '',
-                  style: MyStyle.s3.copyWith(
-                    color: MyColor.white,
-                    height: 1.5,
-                  ),
-                ),
-                if (reading['advice'] != null) ...[
-                  verticalGap(MySize.defaultPadding),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(MySize.defaultPadding),
-                    decoration: BoxDecoration(
-                      color: MyColor.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.lightbulb_outline,
-                          color: MyColor.primaryLightColor,
-                          size: 16,
-                        ),
-                        horizontalGap(MySize.halfPadding),
-                        Expanded(
-                          child: Text(
-                            reading['advice'],
-                            style: MyStyle.s3.copyWith(
-                              color: MyColor.primaryLightColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ));
-        }
-      }
-    }
-
-    return widgets;
   }
 
   Widget _buildTableHeader(String text) {
@@ -1999,21 +1956,47 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     return symbols[sign] ?? sign;
   }
 
-  // Gezegen isimlerini Türkçe döndüren metod
+  // Gezegen isimlerini Türkçe'den İngilizce'ye çeviren metod
   String _getPlanetName(String planet) {
-    final names = {
-      'Sun': 'Güneş',
-      'Moon': 'Ay',
-      'Mercury': 'Merkür',
-      'Venus': 'Venüs',
-      'Mars': 'Mars',
-      'Jupiter': 'Jüpiter',
-      'Saturn': 'Satürn',
-      'Uranus': 'Uranüs',
-      'Neptune': 'Neptün',
-      'Pluto': 'Plüton',
-    };
-    return names[planet] ?? planet;
+    // Önce gelen gezegen ismini küçük harfe çevirelim
+    final planetLower = planet.toLowerCase();
+
+    // İngilizce isimleri döndür
+    switch (planetLower) {
+      case 'sun':
+      case 'güneş':
+        return 'Sun';
+      case 'moon':
+      case 'ay':
+        return 'Moon';
+      case 'mercury':
+      case 'merkür':
+        return 'Mercury';
+      case 'venus':
+      case 'venüs':
+        return 'Venus';
+      case 'mars':
+        return 'Mars';
+      case 'jupiter':
+      case 'jüpiter':
+        return 'Jupiter';
+      case 'saturn':
+      case 'satürn':
+        return 'Saturn';
+      case 'uranus':
+      case 'uranüs':
+        return 'Uranus';
+      case 'neptune':
+      case 'neptün':
+        return 'Neptune';
+      case 'pluto':
+      case 'plüton':
+        return 'Pluto';
+      default:
+        // Bilinmeyen bir gezegen gelirse, ilk harfi büyük yapıp döndür
+        return planet.substring(0, 1).toUpperCase() +
+            planet.substring(1).toLowerCase();
+    }
   }
 
   // Burç emojilerini ekle
@@ -2045,5 +2028,348 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       'Opposition': '☍', // Karşıt
     };
     return symbols[aspect] ?? aspect;
+  }
+
+  Widget _buildRetroSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Retrolar",
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        verticalGap(MySize.defaultPadding),
+
+        // Retro kartları
+        ...(_astrologyController.retrogradeReadings['activePlanets'] as List? ??
+                [])
+            .map((planet) {
+          final reading =
+              _astrologyController.retrogradeReadings['readings']?[planet];
+          if (reading == null) return const SizedBox.shrink();
+
+          final period = reading['period'] as String? ?? '';
+          final dates = period.split(' - ');
+          final startDate = dates.isNotEmpty ? dates[0] : '';
+          final endDate = dates.length > 1 ? dates[1] : '';
+
+          // Kalan süreyi hesapla
+          final remainingTime = _getRemainingDays(endDate);
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
+            decoration: BoxDecoration(
+              color: MyColor.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(MySize.halfRadius),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _showRetroDetails(planet, reading),
+                borderRadius: BorderRadius.circular(MySize.halfRadius),
+                child: Padding(
+                  padding: const EdgeInsets.all(MySize.defaultPadding),
+                  child: Row(
+                    children: [
+                      // Gezegen ikonu
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: ExtendedImage.network(
+                          "https://apptoic.com/spiroot/images/${_getPlanetImageName(planet)}.png",
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          cache: true,
+                          loadStateChanged: (state) {
+                            if (state.extendedImageLoadState ==
+                                LoadState.loading) {
+                              return Container(
+                                width: 60,
+                                height: 60,
+                                color:
+                                    MyColor.primaryLightColor.withOpacity(0.1),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              );
+                            }
+                            if (state.extendedImageLoadState ==
+                                LoadState.failed) {
+                              print(
+                                  'Görsel yükleme hatası: ${state.lastException}');
+                              return Container(
+                                width: 60,
+                                height: 60,
+                                color:
+                                    MyColor.primaryLightColor.withOpacity(0.1),
+                                child: Icon(
+                                  Icons.error_outline,
+                                  color: MyColor.white,
+                                  size: 24,
+                                ),
+                              );
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      horizontalGap(MySize.defaultPadding),
+
+                      // Gezegen bilgileri
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  _getPlanetName(planet),
+                                  style: MyStyle.s2.copyWith(
+                                    color: MyColor.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                horizontalGap(MySize.halfPadding),
+                                Text(
+                                  _getZodiacSymbol(reading['sign'] ?? ''),
+                                  style: MyStyle.s2.copyWith(
+                                    color: MyColor.white,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    " ${_getZodiacName(reading['sign'] ?? '')} burcunda",
+                                    style: MyStyle.s3.copyWith(
+                                      color: MyColor.white,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            verticalGap(MySize.quarterPadding),
+                            Text(
+                              "$startDate → $endDate",
+                              style: MyStyle.s3.copyWith(
+                                color: MyColor.textGreyColor,
+                              ),
+                            ),
+                            verticalGap(MySize.quarterPadding),
+                            Text(
+                              remainingTime, // Dinamik geri sayım metni
+                              style: MyStyle.s3.copyWith(
+                                color: remainingTime.contains("saat")
+                                    ? MyColor.primaryLightColor
+                                    : MyColor.textGreyColor,
+                                fontWeight: remainingTime.contains("saat")
+                                    ? FontWeight.w500
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  void _showRetroDetails(String planet, Map<String, dynamic> reading) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(MySize.doublePadding),
+        decoration: const BoxDecoration(
+          color: MyColor.darkBackgroundColor,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(MySize.defaultRadius),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Gezegen başlığı
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: ExtendedImage.network(
+                      "https://apptoic.com/spiroot/images/${_getPlanetImageName(planet)}.png",
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      cache: true,
+                      loadStateChanged: (state) {
+                        if (state.extendedImageLoadState == LoadState.loading) {
+                          return Container(
+                            width: 40,
+                            height: 40,
+                            color: MyColor.primaryLightColor.withOpacity(0.1),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        }
+                        if (state.extendedImageLoadState == LoadState.failed) {
+                          print(
+                              'Görsel yükleme hatası: ${state.lastException}');
+                          return Container(
+                            width: 40,
+                            height: 40,
+                            color: MyColor.primaryLightColor.withOpacity(0.1),
+                            child: Icon(
+                              Icons.error_outline,
+                              color: MyColor.white,
+                              size: 24,
+                            ),
+                          );
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  horizontalGap(MySize.defaultPadding),
+                  Text(
+                    "${_getPlanetName(planet)} Retrosu",
+                    style: MyStyle.s1.copyWith(
+                      color: MyColor.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              verticalGap(MySize.defaultPadding),
+
+              // Retro detayları
+              Text(
+                reading['impact'] ?? '',
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  height: 1.5,
+                ),
+              ),
+              verticalGap(MySize.defaultPadding),
+
+              // Tavsiye
+              if (reading['advice'] != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(MySize.defaultPadding),
+                  decoration: BoxDecoration(
+                    color: MyColor.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(MySize.halfRadius),
+                    border: Border.all(
+                      color: MyColor.primaryLightColor.withOpacity(0.1),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Tavsiyeler",
+                        style: MyStyle.s2.copyWith(
+                          color: MyColor.primaryLightColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      verticalGap(MySize.halfPadding),
+                      Text(
+                        reading['advice'],
+                        style: MyStyle.s3.copyWith(
+                          color: MyColor.white,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getPlanetImageName(String planet) {
+    // Gezegen isimlerini küçük harfle ve İngilizce olarak döndür
+    switch (planet.toLowerCase()) {
+      case 'jupiter':
+      case 'jüpiter':
+        return 'jupiter';
+      case 'uranus':
+      case 'uranüs':
+        return 'uranus';
+      case 'neptune':
+      case 'neptün':
+        return 'neptune';
+      case 'saturn':
+      case 'satürn':
+        return 'saturn';
+      case 'mars':
+        return 'mars';
+      case 'mercury':
+      case 'merkür':
+        return 'mercury';
+      case 'venus':
+      case 'venüs':
+        return 'venus';
+      case 'pluto':
+      case 'plüton':
+        return 'pluto';
+      case 'sun':
+      case 'güneş':
+        return 'sun';
+      case 'moon':
+      case 'ay':
+        return 'moon';
+      default:
+        // Eğer bilinmeyen bir gezegen gelirse, küçük harfe çevirip döndür
+        return planet.toLowerCase();
+    }
+  }
+
+  String _getZodiacName(String sign) {
+    // Burç isimlerini Türkçe'ye çevir
+    switch (sign.toLowerCase()) {
+      case 'aries':
+        return 'Koç';
+      case 'taurus':
+        return 'Boğa';
+      case 'gemini':
+        return 'İkizler';
+      case 'cancer':
+        return 'Yengeç';
+      case 'leo':
+        return 'Aslan';
+      case 'virgo':
+        return 'Başak';
+      case 'libra':
+        return 'Terazi';
+      case 'scorpio':
+        return 'Akrep';
+      case 'sagittarius':
+        return 'Yay';
+      case 'capricorn':
+        return 'Oğlak';
+      case 'aquarius':
+        return 'Kova';
+      case 'pisces':
+        return 'Balık';
+      default:
+        return sign;
+    }
   }
 }
