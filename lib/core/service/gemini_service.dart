@@ -22,6 +22,12 @@ class GeminiService extends GetxService {
   String get currentDate => DateFormat('dd.MM.yyyy').format(DateTime.now());
   String get currentTime => DateFormat('HH:mm').format(DateTime.now());
 
+  String get _currentLanguage => Get.locale?.languageCode ?? 'tr';
+
+  String _getPromptLanguage() {
+    return _currentLanguage == 'tr' ? 'Turkish' : 'English';
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -102,6 +108,7 @@ class GeminiService extends GetxService {
 
   // ASTROLOGY METHODS
   Future<String> generateHoroscope(String timeframe, UserModel user) async {
+    final language = _getPromptLanguage();
     try {
       final prompt = _createHoroscopePrompt(timeframe, user);
       final response = await _textModel.generateContent([Content.text(prompt)]);

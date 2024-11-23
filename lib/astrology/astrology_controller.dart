@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -51,9 +52,13 @@ class AstrologyController extends GetxController {
   final RxMap<String, dynamic> weeklyNatalReading = <String, dynamic>{}.obs;
   final RxBool isWeeklyNatalAvailable = false.obs;
 
+  final RxBool isSubscribed = false.obs;
+
   @override
   void onInit() {
     super.onInit();
+    _checkSubscription();
+    _setupAutoRefresh();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeAstrologyPage();
     });
@@ -834,7 +839,7 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Retro yorumlar��nı Firebase'e kaydeden metod
+  // Retro yorumlarını Firebase'e kaydeden metod
   Future<void> _saveRetroReadings(Map<String, dynamic> readings) async {
     try {
       final userId = Get.find<UserController>().userId.value;
@@ -967,6 +972,112 @@ class AstrologyController extends GetxController {
       });
     } catch (e) {
       print('Weekly natal reading save error: $e');
+    }
+  }
+
+  Future<void> _checkSubscription() async {
+    try {
+      final userId = Get.find<UserController>().userId.value;
+      final doc = await _firestore.collection('users').doc(userId).get();
+      isSubscribed.value = doc.data()?['isSubscribed'] ?? false;
+
+      // Generate readings based on subscription
+      if (isSubscribed.value) {
+        await _generateAllReadings();
+      } else {
+        await _generateDailyHoroscopeOnly();
+      }
+    } catch (e) {
+      print('Subscription check error: $e');
+    }
+  }
+
+  void _setupAutoRefresh() {
+    // Daily refresh at midnight
+    Timer.periodic(const Duration(hours: 1), (timer) {
+      final now = DateTime.now();
+      if (now.hour == 0 && now.minute == 0) {
+        _refreshDailyReadings();
+      }
+    });
+
+    // Weekly refresh
+    Timer.periodic(const Duration(days: 1), (timer) {
+      final now = DateTime.now();
+      if (now.weekday == DateTime.monday && now.hour == 0) {
+        _refreshWeeklyReadings();
+      }
+    });
+
+    // Monthly refresh
+    Timer.periodic(const Duration(days: 1), (timer) {
+      final now = DateTime.now();
+      if (now.day == 1 && now.hour == 0) {
+        _refreshMonthlyReadings();
+      }
+    });
+  }
+
+  Future<void> _generateAllReadings() async {
+    try {
+      // Günlük yorum
+      await generateHoroscope();
+
+      // Haftalık natal okuma
+      await _generateWeeklyNatalReading();
+
+      // Numeroloji okuması
+      await generateNumerologyReading();
+
+      // Retro yorumları
+      await _generateRetroReadings();
+    } catch (e) {
+      print('Generate all readings error: $e');
+    }
+  }
+
+  Future<void> _generateDailyHoroscopeOnly() async {
+    try {
+      await generateHoroscope();
+    } catch (e) {
+      print('Generate daily horoscope error: $e');
+    }
+  }
+
+  Future<void> _refreshDailyReadings() async {
+    try {
+      if (isSubscribed.value) {
+        // Günlük yorumu yenile
+        selectedDay.value = "astrology.horoscope.dates.today";
+        await generateHoroscope();
+      }
+    } catch (e) {
+      print('Refresh daily readings error: $e');
+    }
+  }
+
+  Future<void> _refreshWeeklyReadings() async {
+    try {
+      if (isSubscribed.value) {
+        // Haftalık yorumları yenile
+        await _generateWeeklyNatalReading();
+        await _generateRetroReadings();
+        await generateNumerologyReading();
+      }
+    } catch (e) {
+      print('Refresh weekly readings error: $e');
+    }
+  }
+
+  Future<void> _refreshMonthlyReadings() async {
+    try {
+      if (isSubscribed.value) {
+        // Aylık yorumları yenile
+        selectedDay.value = "astrology.horoscope.dates.month";
+        await generateHoroscope();
+      }
+    } catch (e) {
+      print('Refresh monthly readings error: $e');
     }
   }
 }

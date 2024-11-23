@@ -1,227 +1,266 @@
 {
-  "path": "lib/assets/translations/en-US.json",
+  "path": "assets/translations/en-US.json",
   "locale": "en-US",
   "lang": "English",
-  "loading": "Loading... ",
-  "analyze_loading": "Analyzing... ",
-  "creating_loading": "Creating Your Customized Plan... ",
-  "unlock":"Unlock",
-  "signin": {
-    "description_text": "At NUTROIC, we provide all the tools you need for a healthy lifestyle in one place. Track your daily nutrient intake, get recommendations tailored to your goals, and rely on our analysis to optimize your diet. Sign up now!",
-    "apple_login_button": "Sign in with Apple",
-    "google_login_button": "Sign in with Google"
-  },
-  "signup": {
-    "welcome":"Welcome!",
-    "desc":"Hi there! Please tell us about yourself so we can better serve you.",
-    "signup": "Sign Up",
-    "name": "Name",
-    "nameWarn": "Please enter your name",
-    "lName": "Last Name",
-    "lNameWarn": "Please enter your last name",
-    "gender": "Gender",
-    "genderWarn": "Please select your gender",
-    "genderList": {
-      "male": "Male",
-      "female": "Female",
-      "other": "Other"
-    }
-  },
-  "main": {
-    "user_data_error_message": "User data: {error}",
-    "user_data_not_found_message": "User data not found!",
-    "hello": "Hello,",
-    "name": "{name}!",
-    "greeting_title": "Create Your Personalized Nutrition Plan",
-    "greeting_desc": "Reach your goals with our monthly nutrition plan!",
-    "program_title": "View Your Monthly Nutrition Plan",
-    "homenav": "Home",
-    "tracknav": "Nutrition Tracking",
-    "insightnav": "Analysis",
-    "meals": "My Recipes",
-    "settingsnav": "Settings",
-    "meal_add": "Add Meal",
-    "meal_add_dialog_from_title": "Scan Meal",
-    "meal_add_dialog_manual_title": "Add Manually",
-    "meal_add_dialog_gallery": "Gallery",
-    "meal_add_dialog_camera": "Camera",
-    "meal_add_dialog_manual": "Add Meal",
-    "meal_add_dialog_manual_ai": "Add with AI",
-    "meal_search": "Search Recipe",
-    "see_program":"My Program",
-    "create_program":"Create Program",
-    "barcode_scan": "Scan Barcode",
-    "barcode_dialog_from_title": "Scan Barcode",
-    "barcode_dialog_gallery": "Gallery",
-    "barcode_dialog_camera": "Camera",
-    "track_program":"Program Tracking",
-    "glass":"Glass",
-    "water_track_title":"Water Tracking",
-    "weight_track_title":"Weight Tracking",
-    "save_button":"Save"
-  },
-  "scan_meal": {
-    "title_hint": "Title...",
-    "again_hint": "Recreate with additional instructions...",
-    "analyze_manual_ai_hint": "Analyze with AI by entering food name and amount...",
-    "meal_title": "When did you eat this meal?",
-    "datetime_title": "Select date and time",
-    "add_button": "Add Meal",
-    "edit_button": "Edit",
-    "again_button": "Recreate",
-    "delete_button": "Delete",
-    "analyze": "Analyze",
-    "table_title": "Nutritional Values",
-    "col_title1": "Title",
-    "col_title2": "Value",
-    "name": "Food Name",
-    "amount": "Amount",
-    "cal": "Calories",
-    "carb": "Carbohydrates",
-    "prot": "Protein",
-    "fat": "Fat",
-    "fiber": "Fiber",
-    "sugar": "Sugar",
-    "add_success": "Meal added successfully!",
-    "add_error": "Could not add meal!",
-    "empty_title_error": "Meal title cannot be empty!",
-    "empty_datetime_error": "Meal date cannot be empty!",
-    "login_error": "No session!",
-    "empty_field_error": "Please fill in all fields!",
-    "track_title": "Daily Summary",
-    "no_meal": "It seems you haven't added any meals for today...",
-    "unit": "unit",
-    "total_cal": "Total calories consumed today:",
-    "total": "Total: ",
-    "summary": "Summary",
-    "meals": "What I ate"
-  },
-  "create_program": {
-    "title": "Personal Program Coach",
-    "created_title": "Your Personal Program is Ready!",
-    "greeting": "Let's create your personalized nutrition program",
-    "age_title": "Age:",
-    "age_hint": "Age...",
-    "height_title": "Height:",
-    "height_hint": "Height...",
-    "gender_title": "Gender:",
-    "weight_title": "Weight:",
-    "weight_hint": "Weight...",
-    "target_weight_title": "Target Weight:",
-    "target_weight_hint": "Target Weight...",
-    "allergy_title": "Allergy Information:",
-    "allergy_hint": "If you have any allergies, please add them here...",
-    "main_target_title": "What is Your Main Goal?",
-    "main_target1": "I want to lose weight",
-    "main_target2": "I want to get in shape",
-    "main_target3": "I want to develop healthy habits",
-    "main_target4": "I want to gain weight",
-    "body_type_title": "Choose Your Body Type",
-    "body_type1": "Thin",
-    "body_type2": "Standard",
-    "body_type3": "Curvy",
-    "body_type4": "Obese",
-    "when_title": "When Was the Last Time You Were in Your Best Shape?",
-    "when1": "Right now",
-    "when2": "Less than 1 year ago",
-    "when3": "1-2 years ago",
-    "when4": "More than 3 years ago",
-    "when5": "Never...",
-    "activity_title": "How Often Do You Exercise?",
-    "activity1": "Every day",
-    "activity2": "Several times a week",
-    "activity3": "Several times a month",
-    "activity4": "Never...",
-    "diet_type_title": "Choose Your Diet Type",
-    "diet_type1": "General",
-    "diet_type2": "Vegetarian",
-    "diet_type3": "Vegan",
-    "diet_type4": "Ketogenic",
-    "diet_type5": "Mediterranean Diet",
-    "sweet_freq_title": "How Often Do You Eat Sweets?",
-    "sweet_freq1": "Rarely",
-    "sweet_freq2": "A few times a week",
-    "sweet_freq3": "Almost every day",
-    "water_freq_title": "How Often Do You Drink Water?",
-    "water_freq1": "Only tea or coffee",
-    "water_freq2": "0-6 glasses a day (0-1.5 liters)",
-    "water_freq3": "7-10 glasses a day (1.5-2.5 liters)",
-    "water_freq4": "More than 10 glasses a day (2.5+ liters)",
-    "empty_field_error": "Please fill in all fields!"
-  },
-  "program": {
-    "col1":"Breakfast",
-    "col2":"Morning Snack",
-    "col3":"Lunch",
-    "col4":"Afternoon Snack",
-    "col5":"Dinner",
-    "col6":"Evening Snack",
-    "exercise":"Exercise"
-  },
-  "search_meal":{
-    "main_title":"Healthy eating made easy!",
-    "analyze_manual_ai_hint":"Enter the food you want to make, get recipes...",
-    "analyze":"Get Recipes!"
-  },
-  "more": {
-    "title": "Settings",
-    "give_score": "Rate Our App",
-    "contact": "Contact Us",
-    "instagram": "Instagram",
-    "signout": "Sign Out",
-    "update": "Update",
-    "delete_acc": "Delete Account",
-    "confirm": "User Confirmation",
-    "confirm_text": "Are you sure you want to permanently delete your account?",
-    "confirm_button": "Confirm",
-    "cancel_button": "Cancel",
-    "name_upd": "Update Your Name"
-  },
+  "errors": {},
   "internet": {
     "title": "Oops...",
-    "desc": "It seems there is a problem with your internet connection. You can continue using our application after the connection is established!"
+    "desc": "It seems there's an issue with your internet connection. You can continue using our app once the connection is restored!"
   },
-  "analysis": {
-    "title":"Analysis",
-    "nutrigraph":"Nutrigraph",
-    "i_need":"Calories (kcal) I need to consume daily",
-    "i_got":"Calories (kcal) I consumed daily",
-    "show_analysis":"Show My Analysis",
-    "locked_title":"This Page is Locked!",
-    "locked":"To view your analysis graphs and get detailed AI-powered nutrition analysis, you need to unlock this page."
+  "text_field_label": {
+    "email": "Email",
+    "password": "Password"
+  },
+  "signin": {
+    "title": "Welcome to Spiroot!",
+    "other_login_button": "Create Business Account",
+    "button_label": "Let's get started!"
+  },
+  "navigation": {
+    "home": "Home",
+    "fortune": "Fortune",
+    "astrology": "Astrology",
+    "shops": "Shops",
+    "explore": "Explore",
+    "enlightenment": "Enlightenment",
+    "rest_ur_spirit": "Rest Your Spirit",
+    "luck": "Mystical Luck Path",
+    "top_rated_shops": "Top-Rated Shops",
+    "guide": "Your Spiritual Guide"
+  },
+  "home": {
+    "greeting": "Welcome",
+    "see_all": "see all",
+    "spiritual_advisor": {
+      "title": "Welcome. I've been waiting for you. What are you curious about?",
+      "ask_now": "ask a question now"
+    }
+  },
+  "fortune": {
+    "fortune_history": "My Fortune History",
+    "fortune_history_button": "my fortune history",
+    "coffee": "Coffee Reading",
+    "tarot": "Tarot Reading",
+    "palm": "Palm Reading",
+    "katina": "Katina Reading",
+    "face": "Face Reading",
+    "angel": "Angel Reading",
+    "dream": "Dream Interpretation",
+    "no_fortune_history": "You haven't had a fortune reading yet...",
+    "no_fortune_history_desc": "We've taken the place of the fortune teller auntie. Come and see what's in store for you!"
+  },
+  "profile": {
+    "profile_loading": {
+      "0": "Cosmic energies are converging, your data is being evaluated...",
+      "1": "The stars are aligning, your destiny is being analyzed...",
+      "2": "Universal forces are coming together, your profile is being created..."
     },
-  "onboarding":{
-    "signin":"Sign In",
-    "skip":"Skip",
-    "p1title":"Your First Step to a Healthy Life",
-    "p1desc":"We help you lead a healthy life with AI-powered nutrition tracking. We are here to help you reach your personal goals.",
-    "p2title":"Daily Nutrition Tracking",
-    "p2desc":"Easily log your daily meals and improve your eating habits with AI support.",
-    "p3title":"Personalized Nutrition Plans",
-    "p3desc":"Create personalized nutrition plans tailored to your goals and needs with AI support.",
-    "p4title":"Monthly Nutrition Tracking and Analysis",
-    "p4desc":"Observe your monthly nutrition summaries and improve your eating habits with AI analysis.",
-    "p5title":"Take the First Step Towards Your Healthy Life",
-    "p5desc":"Reaching your goals has never been easier. Sign up now and start our AI-powered nutrition tracking!"
+    "explanations": {
+      "birth_time": "Your birth time completes your astrological chart by determining your rising and moon signs.",
+      "birth_place": "Your birthplace increases the accuracy of your astrological interpretations by defining the exact sky positions.",
+      "gender": "Your gender energy shapes your astrological compatibility analyses and planetary interactions.",
+      "interests": "Your interests focus astrological insights on the important areas of your life."
+    },
+    "gender": {
+      "female": "Female",
+      "male": "Male",
+      "other": "Other"
+    },
+    "relationship_status": {
+      "single": "Single",
+      "in_relationship": "In a Relationship",
+      "engaged": "Engaged",
+      "married": "Married",
+      "divorced": "Divorced",
+      "widowed": "Widowed",
+      "complicated": "It's Complicated"
+    },
+    "interests": {
+      "money": "Money",
+      "business": "Business",
+      "friendship": "Friendship",
+      "love": "Love",
+      "family": "Family",
+      "career": "Career"
+    }
+  },
+  "settings": {
+    "account": {
+      "title": "Account",
+      "guest_user": "Guest User",
+      "free_account": "Free Account",
+      "upgrade": "Upgrade Subscription",
+      "delete": "Delete Account",
+      "delete_confirmation": {
+        "title": "Delete Account",
+        "message": "Your account will be permanently deleted. This action cannot be undone. Do you wish to continue?",
+        "cancel": "Cancel",
+        "confirm": "Delete Account"
+      }
+    },
+    "app": {
+      "title": "App",
+      "notifications": "Notification Settings",
+      "language": {
+        "title": "Language",
+        "current": "English"
+      }
+    },
+    "support": {
+      "title": "Support & Info",
+      "help_center": "Help Center"
+    },
+    "legal": {
+      "privacy_policy": "Privacy Policy",
+      "terms_of_use": "Terms of Use"
+    }
   },
   "astrology": {
+    "see_details": "view all details",
     "horoscope": {
       "dates": {
         "today": "Today",
         "week": "This Week",
         "month": "This Month"
       },
+      "for_dates": {
+        "today": "For Today",
+        "week": "For This Week",
+        "month": "For This Month"
+      },
       "essential": {
-        "today": "Daily energy and opportunities",
+        "today": "Daily energies and opportunities",
         "week": "Weekly flows and potentials",
         "month": "Monthly cycles and transformations",
-        "default": "Astrological effects"
+        "default": "Astrological influences"
       },
       "affirmation": {
         "today": "Every moment is filled with new opportunities",
         "week": "Each week brings new beginnings",
-        "month": "I'm achieving all my goals this month",
+        "month": "This month, I achieve all my goals",
         "default": "I am in harmony with the universe"
+      }
+    },
+    "zodiac": {
+      "aries": {
+        "name": "Aries",
+        "element": "Fire",
+        "quality": "Cardinal",
+        "ruler": "Mars",
+        "symbol": "♈️",
+        "dateRange": "March 21 - April 19",
+        "characteristics": "Leader, Energetic, Brave",
+        "color": "Red"
+      },
+      "taurus": {
+        "name": "Taurus",
+        "element": "Earth",
+        "quality": "Fixed",
+        "ruler": "Venus",
+        "symbol": "♉️",
+        "dateRange": "April 20 - May 20",
+        "characteristics": "Determined, Reliable, Patient",
+        "color": "Green"
+      },
+      "gemini": {
+        "name": "Gemini",
+        "element": "Air",
+        "quality": "Mutable",
+        "ruler": "Mercury",
+        "symbol": "♊",
+        "dateRange": "May 21 - June 20",
+        "characteristics": "Communicative, Curious, Adaptable",
+        "color": "Yellow"
+      },
+      "cancer": {
+        "name": "Cancer",
+        "element": "Water",
+        "quality": "Cardinal",
+        "ruler": "Moon",
+        "symbol": "♋",
+        "dateRange": "June 21 - July 22",
+        "characteristics": "Emotional, Protective, Intuitive",
+        "color": "Silver"
+      },
+      "leo": {
+        "name": "Leo",
+        "element": "Fire",
+        "quality": "Fixed",
+        "ruler": "Sun",
+        "symbol": "♌",
+        "dateRange": "July 23 - August 22",
+        "characteristics": "Creative, Generous, Proud",
+        "color": "Gold"
+      },
+      "virgo": {
+        "name": "Virgo",
+        "element": "Earth",
+        "quality": "Mutable",
+        "ruler": "Mercury",
+        "symbol": "♍",
+        "dateRange": "August 23 - September 22",
+        "characteristics": "Analytical, Practical, Perfectionist",
+        "color": "Brown"
+      },
+      "libra": {
+        "name": "Libra",
+        "element": "Air",
+        "quality": "Cardinal",
+        "ruler": "Venus",
+        "symbol": "♎",
+        "dateRange": "September 23 - October 22",
+        "characteristics": "Diplomatic, Fair, Sociable",
+        "color": "Pink"
+      },
+      "scorpio": {
+        "name": "Scorpio",
+        "element": "Water",
+        "quality": "Fixed",
+        "ruler": "Mars",
+        "symbol": "♏",
+        "dateRange": "October 23 - November 21",
+        "characteristics": "Passionate, Determined, Mysterious",
+        "color": "Maroon"
+      },
+      "sagittarius": {
+        "name": "Sagittarius",
+        "element": "Fire",
+        "quality": "Mutable",
+        "ruler": "Jupiter",
+        "symbol": "♐",
+        "dateRange": "November 22 - December 21",
+        "characteristics": "Adventurous, Optimistic, Free-spirited",
+        "color": "Purple"
+      },
+      "capricorn": {
+        "name": "Capricorn",
+        "element": "Earth",
+        "quality": "Cardinal",
+        "ruler": "Saturn",
+        "symbol": "♑",
+        "dateRange": "December 22 - January 19",
+        "characteristics": "Disciplined, Ambitious, Responsible",
+        "color": "Black"
+      },
+      "aquarius": {
+        "name": "Aquarius",
+        "element": "Air",
+        "quality": "Fixed",
+        "ruler": "Uranus",
+        "symbol": "♒",
+        "dateRange": "January 20 - February 18",
+        "characteristics": "Innovative, Independent, Visionary",
+        "color": "Blue"
+      },
+      "pisces": {
+        "name": "Pisces",
+        "element": "Water",
+        "quality": "Mutable",
+        "ruler": "Neptune",
+        "symbol": "♓",
+        "dateRange": "February 19 - March 20",
+        "characteristics": "Empathetic, Artistic, Dreamy",
+        "color": "Aqua"
       }
     }
   }

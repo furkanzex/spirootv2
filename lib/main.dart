@@ -17,6 +17,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,12 +63,14 @@ Future<void> main() async {
   runApp(
     EasyLocalization(
       supportedLocales: const [
-        Locale('en', 'US'),
         Locale('tr', 'TR'),
+        Locale('en', 'US'),
       ],
       path: 'assets/translations',
-      fallbackLocale: const Locale('en', 'US'),
-      child: const MyApp(),
+      fallbackLocale: const Locale('tr', 'TR'),
+      child: Phoenix(
+        child: const MyApp(),
+      ),
     ),
   );
 }

@@ -2,6 +2,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/auth/auth_controller.dart';
+import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
@@ -13,6 +14,97 @@ import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:spirootv2/core/widget/divider/divider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:spirootv2/profile/profile_page.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+
+// Dil değiştirme fonksiyonu
+void _changeLanguage(BuildContext context, String languageCode) async {
+  try {
+    Locale newLocale;
+    switch (languageCode) {
+      case 'tr':
+        newLocale = const Locale('tr', 'TR');
+        break;
+      case 'en':
+        newLocale = const Locale('en', 'US');
+        break;
+      default:
+        return;
+    }
+
+    // Dili değiştir ve hemen ardından uygulamayı yeniden başlat
+    await Future.wait([
+      context.setLocale(newLocale),
+      Future.delayed(const Duration(milliseconds: 100), () {
+        Phoenix.rebirth(context);
+      }),
+    ]);
+  } catch (e) {
+    // Hata durumunda snackbar göster
+    if (context.mounted) {
+      Get.snackbar(
+        'Hata',
+        'Dil değiştirilirken bir hata oluştu',
+        backgroundColor: MyColor.errorColor,
+        colorText: MyColor.white,
+      );
+    }
+    print('Dil değiştirme hatası: $e');
+  }
+}
+
+// Dil seçim modalı
+void _showLanguageSelectionModal(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: MyColor.darkBackgroundColor,
+    shape: const RoundedRectangleBorder(
+      borderRadius:
+          BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
+    ),
+    builder: (context) => Container(
+      padding: const EdgeInsets.all(MySize.defaultPadding),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            easy.tr('settings.app.language.title'),
+            style: MyStyle.s1.copyWith(
+              color: MyColor.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          ListTile(
+            title: Text(
+              'Türkçe',
+              style: MyStyle.s2.copyWith(color: MyColor.white),
+            ),
+            trailing: context.locale == const Locale('tr', 'TR')
+                ? const Icon(Icons.check, color: MyColor.white)
+                : null,
+            onTap: () {
+              _changeLanguage(context, 'tr');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: Text(
+              'English',
+              style: MyStyle.s2.copyWith(color: MyColor.white),
+            ),
+            trailing: context.locale == const Locale('en', 'US')
+                ? const Icon(Icons.check, color: MyColor.white)
+                : null,
+            onTap: () {
+              _changeLanguage(context, 'en');
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
 void showSettingsBottomSheet(BuildContext context) {
   final userController = Get.find<UserController>();
@@ -133,10 +225,10 @@ void showSettingsBottomSheet(BuildContext context) {
                       onTap: () {},
                     ),
                     _buildSettingsItem(
-                      icon: MingCute.translate_line,
-                      title: easy.tr("settings.app.language.title"),
-                      trailing: easy.tr("settings.app.language.current"),
-                      onTap: () {},
+                      icon: Icons.language,
+                      title: easy.tr('settings.app.language.title'),
+                      trailing: easy.tr('settings.app.language.current'),
+                      onTap: () => _showLanguageSelectionModal(context),
                     ),
                   ],
                 ),
