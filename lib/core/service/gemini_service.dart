@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:intl/intl.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/profile/user_model.dart';
@@ -23,10 +22,6 @@ class GeminiService extends GetxService {
   String get currentTime => DateFormat('HH:mm').format(DateTime.now());
 
   String get _currentLanguage => Get.locale?.languageCode ?? 'tr';
-
-  String _getPromptLanguage() {
-    return _currentLanguage == 'tr' ? 'Turkish' : 'English';
-  }
 
   @override
   void onInit() {
@@ -108,7 +103,6 @@ class GeminiService extends GetxService {
 
   // ASTROLOGY METHODS
   Future<String> generateHoroscope(String timeframe, UserModel user) async {
-    final language = _getPromptLanguage();
     try {
       final prompt = _createHoroscopePrompt(timeframe, user);
       final response = await _textModel.generateContent([Content.text(prompt)]);
@@ -539,7 +533,6 @@ Important: Write the response in $_currentLanguage
     try {
       final now = DateTime.now();
       final weekEnd = now.add(const Duration(days: 7));
-      final bool isTurkish = _currentLanguage == 'tr';
 
       final prompt = '''
       You are an experienced astrologer. Create a weekly natal chart interpretation based on the following information:

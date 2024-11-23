@@ -1,6 +1,3 @@
-import 'dart:math';
-import 'package:intl/intl.dart';
-
 class EphemerisService {
   // Sabit değerler
   static const double MEAN_TROPICAL_YEAR = 365.242190;
