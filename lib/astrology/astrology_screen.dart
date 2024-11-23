@@ -1165,7 +1165,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   },
                 ),
                 verticalGap(MySize.defaultPadding),
-                //haftalık natal chart yorumu gelecek
+                _buildWeeklyNatalReading(),
+
                 verticalGap(MySize.defaultPadding),
                 divider(),
                 verticalGap(MySize.defaultPadding),
@@ -2371,5 +2372,104 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       default:
         return sign;
     }
+  }
+
+  Widget _buildWeeklyNatalReading() {
+    return Obx(() {
+      if (!_astrologyController.isWeeklyNatalAvailable.value) {
+        return const SizedBox.shrink();
+      }
+
+      final reading = _astrologyController.weeklyNatalReading;
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: MySize.defaultPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: MyColor.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.auto_graph,
+                    color: MyColor.white,
+                  ),
+                ),
+                horizontalGap(MySize.defaultPadding),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Haftalık Natal Analizi",
+                        style: MyStyle.s2.copyWith(
+                          color: MyColor.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "Gezegensel hareketlerin hayatına etkileri",
+                        style: MyStyle.s3.copyWith(
+                          color: MyColor.textGreyColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            verticalGap(MySize.defaultPadding),
+            Text(
+              reading['overview'] ?? '',
+              style: MyStyle.s3.copyWith(
+                color: MyColor.white,
+                height: 1.5,
+              ),
+            ),
+            if (reading['aspects'] != null) ...[
+              verticalGap(MySize.defaultPadding),
+              Text(
+                "Önemli Açılar",
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              verticalGap(MySize.halfPadding),
+              Text(
+                reading['aspects'],
+                style: MyStyle.s3.copyWith(
+                  color: MyColor.white,
+                  height: 1.5,
+                ),
+              ),
+            ],
+            if (reading['advice'] != null) ...[
+              verticalGap(MySize.defaultPadding),
+              Text(
+                "Tavsiyeler",
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              verticalGap(MySize.halfPadding),
+              Text(
+                reading['advice'],
+                style: MyStyle.s3.copyWith(
+                  color: MyColor.white,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    });
   }
 }

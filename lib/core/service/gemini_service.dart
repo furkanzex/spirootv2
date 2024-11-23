@@ -513,4 +513,79 @@ class GeminiService extends GetxService {
     }
     ''';
   }
+
+  Future<String> generateWeeklyNatalReading(
+    DateTime birthDate,
+    String birthTime,
+    String birthPlace,
+    String zodiacSign,
+    String ascendant,
+    String moonSign,
+  ) async {
+    try {
+      final now = DateTime.now();
+      final weekEnd = now.add(const Duration(days: 7));
+      
+      final prompt = '''
+      Sen deneyimli bir astrologsun. Aşağıdaki bilgilere göre haftalık natal chart yorumu oluştur:
+      
+      Doğum Bilgileri:
+      - Tarih: ${DateFormat('dd.MM.yyyy').format(birthDate)}
+      - Saat: $birthTime
+      - Yer: $birthPlace
+      - Güneş Burcu: $zodiacSign
+      - Yükselen: $ascendant
+      - Ay Burcu: $moonSign
+      
+      Hafta: ${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(weekEnd)}
+      
+      Talimatlar:
+      1. Şu anki transit gezegenlerin natal chart pozisyonlarıyla ilişkisini analiz et
+      2. Odaklan:
+         - Transit ve natal gezegenler arasındaki önemli açılar
+         - Önemli ev aktivasyonları
+         - Kişisel gelişim fırsatları
+         - Zorluk veya gerilim alanları
+         - Özellikle retro gezegenlerin etkileri
+         - Dolunay/Yeniay etkileri
+      3. Yorum uzunluğu:
+         - Genel bakış: 400-600 karakter
+         - Açılar: 300-400 karakter
+         - Tavsiyeler: 200-300 karakter
+      4. Türkçe yaz
+      5. Kişisel ve natal charta özel olsun
+      6. Pratik ve uygulanabilir tavsiyeler ver
+      
+      Bu formatta JSON yanıt oluştur:
+      {
+        "weeklyNatalReading": {
+          "overview": "Haftalık genel analiz ve temalar",
+          "aspects": "Önemli gezegensel açılar ve anlamları",
+          "advice": "Pratik rehberlik ve öneriler"
+        }
+      }
+      ''';
+
+      final response = await _textModel.generateContent([Content.text(prompt)]);
+      String jsonStr = response.text ?? '';
+
+      jsonStr = _cleanJsonResponse(jsonStr);
+      return jsonStr;
+    } catch (e) {
+      print('Weekly natal reading generation error: $e');
+      return _createDefaultWeeklyNatalJson();
+    }
+  }
+
+  String _createDefaultWeeklyNatalJson() {
+    return '''
+    {
+      "weeklyNatalReading": {
+        "overview": "Bu hafta natal haritanızdaki önemli gezegensel hareketler, kişisel gelişiminiz için fırsatlar sunuyor. Doğum haritanızdaki yerleşimler, özellikle kariyer ve ilişkiler alanında olumlu gelişmelere işaret ediyor.",
+        "aspects": "Transit Jüpiter'in natal Güneşinizle yaptığı olumlu açı, kendini ifade etme ve yaratıcılık konularında destekleyici bir etki yaratıyor. Venüs-Mars kavuşumu, ilişkilerinizde yeni bir dönemin başlangıcına işaret ediyor.",
+        "advice": "Bu hafta özellikle kişisel projelerinize odaklanın ve içsel sesinizi dinleyin. İlişkilerinizde açık iletişimi tercih edin ve yeni fırsatlara karşı açık olun."
+      }
+    }
+    ''';
+  }
 }

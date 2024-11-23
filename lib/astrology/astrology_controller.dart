@@ -48,6 +48,9 @@ class AstrologyController extends GetxController {
   final RxMap<String, Map<String, dynamic>> upcomingRetrogrades =
       <String, Map<String, dynamic>>{}.obs;
 
+  final RxMap<String, dynamic> weeklyNatalReading = <String, dynamic>{}.obs;
+  final RxBool isWeeklyNatalAvailable = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -62,6 +65,7 @@ class AstrologyController extends GetxController {
         _initializeHoroscope(),
         _checkNumerologyAndRetrogrades(),
         _initializeWeeklyChart(),
+        _generateWeeklyNatalReading(),
       ]);
     } catch (e) {
       print('Initialize Astrology Page Error: $e');
@@ -415,36 +419,6 @@ class AstrologyController extends GetxController {
     } catch (e) {
       print('Firestore save error: $e');
       throw Exception('Yorum kaydedilemedi');
-    }
-  }
-
-  String _getDocumentId(String timeframe) {
-    final now = DateTime.now();
-    switch (timeframe) {
-      case "astrology.horoscope.dates.today":
-        return DateFormat('yyyy-MM-dd').format(now);
-      case "astrology.horoscope.dates.week":
-        int weekNumber =
-            ((now.difference(DateTime(now.year, 1, 1)).inDays) / 7).ceil();
-        return 'week-${now.year}-$weekNumber';
-      case "astrology.horoscope.dates.month":
-        return 'month-${now.year}-${now.month}';
-      default:
-        return DateFormat('yyyy-MM-dd').format(now);
-    }
-  }
-
-  DateTime _calculateExpiryDate(String timeframe) {
-    final now = DateTime.now();
-    switch (timeframe) {
-      case "astrology.horoscope.dates.today":
-        return DateTime(now.year, now.month, now.day, 23, 59, 59);
-      case "astrology.horoscope.dates.week":
-        return now.add(Duration(days: 7 - now.weekday));
-      case "astrology.horoscope.dates.month":
-        return DateTime(now.year, now.month + 1, 0, 23, 59, 59);
-      default:
-        return now.add(const Duration(days: 1));
     }
   }
 
@@ -860,7 +834,7 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Retro yorumlarını Firebase'e kaydeden metod
+  // Retro yorumlar��nı Firebase'e kaydeden metod
   Future<void> _saveRetroReadings(Map<String, dynamic> readings) async {
     try {
       final userId = Get.find<UserController>().userId.value;
@@ -923,6 +897,76 @@ class AstrologyController extends GetxController {
       isNumerologyAvailable.value = false;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> _generateWeeklyNatalReading() async {
+    try {
+      final user = Get.find<UserController>().currentUser.value;
+      if (user == null) return;
+
+      // Son yorumun tarihini kontrol et
+      final userId = Get.find<UserController>().userId.value;
+      final doc = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('natal_readings')
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .get();
+
+      bool needsNewReading = true;
+      if (doc.docs.isNotEmpty) {
+        final lastReadingDate =
+            (doc.docs.first.data()['createdAt'] as Timestamp).toDate();
+        final daysSinceLastReading =
+            DateTime.now().difference(lastReadingDate).inDays;
+        needsNewReading = daysSinceLastReading >= 7;
+      }
+
+      if (needsNewReading) {
+        // Gemini'den yeni yorum al
+        final response = await _geminiService.generateWeeklyNatalReading(
+          user.birthDate,
+          user.birthTime,
+          user.birthPlace,
+          user.zodiacSign,
+          user.ascendant,
+          user.moonSign,
+        );
+
+        final jsonResponse = json.decode(response);
+        weeklyNatalReading.value = jsonResponse['weeklyNatalReading'];
+
+        // Firebase'e kaydet
+        await _saveWeeklyNatalReading(jsonResponse['weeklyNatalReading']);
+      } else {
+        // Mevcut yorumu kullan
+        weeklyNatalReading.value = doc.docs.first.data()['reading'];
+      }
+
+      isWeeklyNatalAvailable.value = true;
+    } catch (e) {
+      print('Weekly natal reading generation error: $e');
+      isWeeklyNatalAvailable.value = false;
+    }
+  }
+
+  Future<void> _saveWeeklyNatalReading(Map<String, dynamic> reading) async {
+    try {
+      final userId = Get.find<UserController>().userId.value;
+
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('natal_readings')
+          .add({
+        'reading': reading,
+        'createdAt': DateTime.now(),
+        'expiryDate': DateTime.now().add(const Duration(days: 7)),
+      });
+    } catch (e) {
+      print('Weekly natal reading save error: $e');
     }
   }
 }
