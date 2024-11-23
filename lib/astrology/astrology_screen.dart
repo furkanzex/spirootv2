@@ -786,10 +786,25 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   }
 
   Widget _buildBiorhythmChart() {
+    // Doğum tarihinden bugüne kadar geçen gün sayısını hesapla
+    final birthDate =
+        _userController.currentUser.value?.birthDate ?? DateTime.now();
+    final today = DateTime.now();
+    final daysSinceBirth = today.difference(birthDate).inDays;
+
+    // Haftalık verileri hesapla
+    List<Map<String, double>> weeklyBiorhythm = List.generate(7, (index) {
+      final day = daysSinceBirth + index;
+      return {
+        'physical': sin(2 * pi * day / 23), // 23 günlük fiziksel döngü
+        'emotional': sin(2 * pi * day / 28), // 28 günlük duygusal döngü
+        'intellectual': sin(2 * pi * day / 33), // 33 günlük entelektüel döngü
+      };
+    });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Başlık ve Açıklama
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -801,7 +816,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               ),
             ),
             Text(
-              "7 Günlük",
+              "${DateFormat('dd MMM').format(today)} - ${DateFormat('dd MMM').format(today.add(const Duration(days: 6)))}",
               style: MyStyle.s3.copyWith(
                 color: MyColor.textGreyColor,
               ),
@@ -810,7 +825,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         ),
         verticalGap(MySize.defaultPadding),
 
-        // Grafik Container
         Container(
           height: 220,
           padding: const EdgeInsets.all(MySize.defaultPadding),
@@ -848,9 +862,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   sideTitles: SideTitles(
                     showTitles: true,
                     getTitlesWidget: (value, meta) {
-                      // Günleri göster
-                      final now = DateTime.now();
-                      final date = now.add(Duration(days: value.toInt()));
+                      final date = today.add(Duration(days: value.toInt()));
                       return Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
@@ -887,9 +899,10 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               lineBarsData: [
                 // Fiziksel (23 günlük döngü)
                 LineChartBarData(
-                  spots: List.generate(7, (index) {
-                    return FlSpot(index.toDouble(), sin(2 * pi * index / 23));
-                  }),
+                  spots: weeklyBiorhythm.asMap().entries.map((entry) {
+                    return FlSpot(
+                        entry.key.toDouble(), entry.value['physical']!);
+                  }).toList(),
                   isCurved: true,
                   color: MyColor.primaryLightColor,
                   dotData: FlDotData(
@@ -906,9 +919,10 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 ),
                 // Duygusal (28 günlük döngü)
                 LineChartBarData(
-                  spots: List.generate(7, (index) {
-                    return FlSpot(index.toDouble(), sin(2 * pi * index / 28));
-                  }),
+                  spots: weeklyBiorhythm.asMap().entries.map((entry) {
+                    return FlSpot(
+                        entry.key.toDouble(), entry.value['emotional']!);
+                  }).toList(),
                   isCurved: true,
                   color: MyColor.secondaryColor,
                   dotData: FlDotData(
@@ -925,9 +939,10 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 ),
                 // Entelektüel (33 günlük döngü)
                 LineChartBarData(
-                  spots: List.generate(7, (index) {
-                    return FlSpot(index.toDouble(), sin(2 * pi * index / 33));
-                  }),
+                  spots: weeklyBiorhythm.asMap().entries.map((entry) {
+                    return FlSpot(
+                        entry.key.toDouble(), entry.value['intellectual']!);
+                  }).toList(),
                   isCurved: true,
                   color: Colors.green,
                   dotData: FlDotData(
@@ -948,17 +963,17 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         ),
         verticalGap(MySize.defaultPadding),
 
-        // Grafik Açıklamaları
+        // Grafik açıklamaları
         Column(
           children: [
             _buildLegendItemDetailed(MyColor.primaryLightColor, "Fiziksel",
-                "23 günlük döngü - Enerji, gç ve dayanıklılık"),
+                "${(weeklyBiorhythm[0]['physical']! * 100).toInt()}% - 23 günlük döngü - Enerji, güç ve dayanıklılık"),
             verticalGap(8),
             _buildLegendItemDetailed(MyColor.secondaryColor, "Duygusal",
-                "28 günlük döngü - Duygu durumu ve hassasiyet"),
+                "${(weeklyBiorhythm[0]['emotional']! * 100).toInt()}% - 28 günlük döngü - Duygu durumu ve hassasiyet"),
             verticalGap(8),
             _buildLegendItemDetailed(Colors.green, "Entelektüel",
-                "33 günlük döngü - Zihinsel performans ve yaratıcılık"),
+                "${(weeklyBiorhythm[0]['intellectual']! * 100).toInt()}% - 33 günlük döngü - Zihinsel performans ve yaratıcılık"),
           ],
         ),
       ],
@@ -1202,7 +1217,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   Future<Map<String, dynamic>> _retryNatalChart() async {
     const maxAttempts = 3;
     const delayDuration = Duration(seconds: 2);
-    
+
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         return await NatalChartService.calculateNatalChart(
@@ -1217,7 +1232,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         await Future.delayed(delayDuration);
       }
     }
-    
+
     throw Exception('Natal chart hesaplanamadı');
   }
 
