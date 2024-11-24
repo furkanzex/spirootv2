@@ -1,308 +1,241 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:spirootv2/chat/chat_screen.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/explore/post_model.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:icons_plus/icons_plus.dart';
+import 'package:lottie/lottie.dart';
+import 'package:spirootv2/explore/explore_controller.dart';
 
 class ExploreScreen extends StatelessWidget {
-  const ExploreScreen({super.key});
+  ExploreScreen({super.key});
+
+  final ExploreController _exploreController = Get.put(ExploreController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyColor.transparent,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Arama çubuğu
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _SearchHeaderDelegate(),
-            ),
-            // Trend olan etiketler
-            SliverToBoxAdapter(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: MySize.defaultPadding,
-                  vertical: MySize.halfPadding,
-                ),
-                child: Row(
-                  children: [
-                    _buildTrendTag("spirituel", 1542),
-                    _buildTrendTag("meditasyon", 856),
-                    _buildTrendTag("astroloji", 743),
-                    _buildTrendTag("tarot", 621),
-                    _buildTrendTag("reiki", 432),
-                  ],
-                ),
-              ),
-            ),
-            // Post Listesi
-            SliverPadding(
-              padding: const EdgeInsets.all(MySize.defaultPadding),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildPostCard(_dummyPosts[index]),
-                  childCount: _dummyPosts.length,
-                ),
-              ),
-            ),
-          ],
+      backgroundColor: MyColor.darkBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          "Keşfet",
+          style: MyStyle.s1.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: MyColor.primaryColor,
-        child: const Icon(Icons.add, color: MyColor.white),
-      ),
-    );
-  }
+      body: Obx(() {
+        if (_exploreController.isSearching.value) {
+          return _buildSearchingView();
+        }
+        return _buildMainView();
+      }),
+      floatingActionButton: Obx(() {
+        // Eşleşme aranıyorsa FAB gösterme
+        if (_exploreController.isSearching.value) {
+          return const SizedBox();
+        }
 
-  Widget _buildTrendTag(String tag, int postCount) {
-    return Container(
-      margin: const EdgeInsets.only(right: MySize.defaultPadding),
-      padding: const EdgeInsets.symmetric(
-        horizontal: MySize.defaultPadding,
-        vertical: MySize.halfPadding,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            MyColor.primaryColor.withOpacity(0.8),
-            MyColor.primaryColor.withOpacity(0.6),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(MySize.halfRadius),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            "#$tag",
+        // Aktif eşleşme varsa sohbete devam et butonu göster
+        if (_exploreController.isMatched.value) {
+          return FloatingActionButton.extended(
+            onPressed: () => Get.to(() =>
+                ChatScreen(chatId: _exploreController.currentChatId.value)),
+            backgroundColor: MyColor.primaryColor,
+            label: Row(
+              children: [
+                const Icon(MingCute.chat_3_line, color: MyColor.white),
+                const SizedBox(width: 8),
+                Text(
+                  "Sohbete Devam Et",
+                  style: MyStyle.s2.copyWith(
+                    color: MyColor.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Eğer aktif eşleşme yoksa yeni eşleşme ara butonu göster
+        return FloatingActionButton.extended(
+          onPressed: () => _exploreController.startMatching(),
+          backgroundColor: MyColor.primaryColor,
+          icon: const Icon(MingCute.search_3_line, color: MyColor.white),
+          label: Text(
+            "Eşleşme Ara",
             style: MyStyle.s2.copyWith(
               color: MyColor.white,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            "${postCount.toString()} gönderi",
-            style: MyStyle.s3.copyWith(
-              color: MyColor.white.withOpacity(0.8),
-            ),
-          ),
-        ],
-      ),
+        );
+      }),
     );
   }
 
-  Widget _buildPostCard(Post post) {
-    String _formatDate(DateTime date) {
-      final difference = DateTime.now().difference(date);
-      if (difference.inDays == 0) {
-        return "Bugün";
-      } else if (difference.inDays == 1) {
-        return "Dün";
-      } else if (difference.inDays < 7) {
-        return "${difference.inDays} gün önce";
-      } else {
-        return "${date.day}.${date.month}.${date.year}";
-      }
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(MySize.halfRadius),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(MySize.halfRadius),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {},
-            child: Padding(
-              padding: const EdgeInsets.all(MySize.defaultPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Kullanıcı bilgileri
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: ExtendedNetworkImageProvider(
-                          post.userImage,
-                          cache: true,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              post.userName,
-                              style: MyStyle.s2.copyWith(
-                                color: MyColor.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              _formatDate(post.createdAt),
-                              style: MyStyle.s3.copyWith(
-                                color: MyColor.textGreyColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalGap(MySize.defaultPadding),
-                  // Post içeriği
-                  Text(
-                    post.content,
-                    style: MyStyle.s2.copyWith(
-                      color: MyColor.white,
-                      height: 1.5,
-                    ),
-                  ),
-                  // Etiketler
-                  if (post.tags.isNotEmpty) ...[
-                    verticalGap(MySize.defaultPadding),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: post.tags
-                          .map((tag) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: MyColor.primaryDarkColor,
-                                  borderRadius: BorderRadius.circular(
-                                      MySize.quarterRadius),
-                                ),
-                                child: Text(
-                                  "#$tag",
-                                  style: MyStyle.s2.copyWith(
-                                    color: MyColor.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ],
-                  verticalGap(MySize.defaultPadding),
-                  // Etkileşim butonları
-                  Row(
-                    children: [
-                      _buildInteractionButton(
-                        icon: post.isLiked
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: post.isLiked ? Colors.red : MyColor.white,
-                        count: post.likeCount,
-                      ),
-                      const SizedBox(width: 24),
-                      _buildInteractionButton(
-                        icon: Icons.chat_bubble_outline,
-                        count: post.commentCount,
-                      ),
-                    ],
-                  ),
-                ],
+  Widget _buildSearchingView() {
+    return Stack(
+      children: [
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 200,
+                width: 200,
+                child: Lottie.asset(
+                  'assets/lottie/searching.json',
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: MySize.defaultPadding),
+              Text(
+                "Kozmik eşin aranıyor...",
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: MySize.halfPadding),
+              Text(
+                "Burç uyumuna göre en uygun kişi bulunuyor",
+                style: MyStyle.s3.copyWith(
+                  color: MyColor.textGreyColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+        // İptal butonu
+        Positioned(
+          top: MySize.defaultPadding,
+          right: MySize.defaultPadding,
+          child: IconButton(
+            onPressed: () {
+              _exploreController.cancelSearch();
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: MyColor.white.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.close,
+                color: MyColor.white,
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
-}
 
-Widget _buildInteractionButton({
-  required IconData icon,
-  required int count,
-  Color color = MyColor.white,
-}) {
-  return Row(
-    children: [
-      Icon(icon, size: 20, color: color),
-      const SizedBox(width: 8),
-      Text(
-        count.toString(),
-        style: MyStyle.s3.copyWith(
-          color: MyColor.white,
+  Widget _buildMainView() {
+    return Column(
+      children: [
+        // Online kullanıcı sayısı
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: MySize.defaultPadding,
+            vertical: MySize.halfPadding,
+          ),
+          margin: const EdgeInsets.all(MySize.defaultPadding),
+          decoration: BoxDecoration(
+            color: MyColor.primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(MySize.halfRadius),
+            border: Border.all(
+              color: MyColor.primaryColor.withOpacity(0.2),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.green,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Yeni eşleşmeler için hazır",
+                style: MyStyle.s3.copyWith(
+                  color: MyColor.white,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    ],
-  );
-}
 
-class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: MyColor.transparent,
-      padding: const EdgeInsets.all(MySize.defaultPadding),
-      child: Container(
-        height: 44,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(MySize.halfRadius),
-        ),
-        child: TextField(
-          style: MyStyle.s2.copyWith(color: MyColor.white),
-          decoration: InputDecoration(
-            hintText: easy.tr("explore.search_hint"),
-            hintStyle: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-            prefixIcon: const Icon(Icons.search, color: MyColor.textGreyColor),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: MySize.defaultPadding,
-              vertical: 8,
+        // Ana içerik
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(MySize.defaultPadding),
+            child: Column(
+              children: [
+                // Eşleşme kartı
+                Container(
+                  padding: const EdgeInsets.all(MySize.defaultPadding),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        MyColor.primaryColor.withOpacity(0.2),
+                        MyColor.secondaryColor.withOpacity(0.2),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(MySize.defaultRadius),
+                  ),
+                  child: Column(
+                    children: [
+                      Lottie.asset(
+                        'assets/lottie/cosmic_match.json',
+                        height: 200,
+                      ),
+                      Text(
+                        "Kozmik Eşleşme",
+                        style: MyStyle.s1.copyWith(
+                          color: MyColor.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Burç uyumuna göre sana en uygun kişiyle eşleş ve sohbet et",
+                        textAlign: TextAlign.center,
+                        style: MyStyle.s2.copyWith(
+                          color: MyColor.white.withOpacity(0.8),
+                        ),
+                      ),
+                      const SizedBox(height: MySize.defaultPadding),
+                      Text(
+                        "Not: Sohbetler geçicidir ve kaydedilmez",
+                        textAlign: TextAlign.center,
+                        style: MyStyle.s3.copyWith(
+                          color: MyColor.textGreyColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-      ),
+      ],
     );
   }
-
-  @override
-  double get maxExtent => 76;
-
-  @override
-  double get minExtent => 76;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
-      false;
 }
-
-// Örnek veriler
-final List<Post> _dummyPosts = [
-  Post(
-    id: "1",
-    userId: "user1",
-    userName: "Ruhsal Rehber",
-    userImage: "https://apptoic.com/spiroot/images/guide1.png",
-    content:
-        "Bugün meditasyon seansımızda harika enerjiler aldık! Katılan herkese teşekkürler 🙏",
-    createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-    likeCount: 128,
-    commentCount: 23,
-    isLiked: true,
-    tags: ["meditasyon", "spirituel", "enerji"],
-  ),
-  // Diğer örnek postlar...
-];

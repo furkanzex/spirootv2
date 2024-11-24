@@ -16,7 +16,7 @@ class HomeController extends GetxController {
     const FortuneScreen(),
     AstrologyScreen(),
     const ShopsScreen(),
-    const ExploreScreen(),
+    ExploreScreen(),
   ];
 
   // Sayfa değiştirme fonksiyonu
