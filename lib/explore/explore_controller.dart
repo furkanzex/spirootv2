@@ -1,17 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
-import 'package:spirootv2/profile/user_controller.dart';
-import 'package:spirootv2/explore/models/chat_match.dart';
-import 'package:spirootv2/core/service/zodiac_compatibility_table.dart';
 import 'package:spirootv2/chat/chat_screen.dart';
-import 'package:spirootv2/profile/user_model.dart';
 
 class ExploreController extends GetxController {
-  final UserController _userController = Get.find<UserController>();
-
   // Aktif eşleşme durumu
   final RxBool isSearching = false.obs;
   final RxBool isMatched = false.obs;
@@ -36,7 +29,6 @@ class ExploreController extends GetxController {
       if (isMatched.value) return;
 
       isSearching.value = true;
-      final user = _userController.currentUser.value!;
 
       // Simüle edilmiş eşleşme için zamanlayıcı
       Timer(const Duration(seconds: 3), () {

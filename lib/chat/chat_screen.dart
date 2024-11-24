@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
