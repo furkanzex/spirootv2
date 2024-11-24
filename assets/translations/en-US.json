@@ -334,5 +334,12 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "days_ago": "{} days ago"
+  },
+  "spiritual_chat": {
+    "welcome_message": "Peace to your soul, light to your heart. How may I guide you today?",
+    "empty_state": {
+      "title": "Start chatting with your spiritual guide",
+      "subtitle": "Ask your questions for personalized advice and guidance"
+    }
   }
 }

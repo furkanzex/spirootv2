@@ -58,7 +58,7 @@ class GeminiService extends GetxService {
 
     // Vision Modeli (Fal yorumları için)
     _visionModel = GenerativeModel(
-      model: 'gemini-1.5-pro',
+      model: 'gemini-1.5-flash',
       apiKey: apiKey,
       generationConfig: GenerationConfig(
         temperature: 1.0,
@@ -95,6 +95,7 @@ class GeminiService extends GetxService {
     - Sun Sign: ${currentUser!.zodiacSign}
     - Ascendant: ${currentUser!.ascendant}
     - Moon Sign: ${currentUser!.moonSign}
+    - Birth Time: ${currentUser!.birthTime}
     
     Date: $currentDate
     Time: $currentTime
@@ -314,20 +315,86 @@ class GeminiService extends GetxService {
   // SPIRITUAL CHAT METHODS
   Future<String> chatWithSpiritualGuide(String message) async {
     try {
+      print('Sending message to Gemini: $message');
+
+      // Mesajı gönder
       final response = await _chatSession
           .sendMessage(Content.text(_addUserContext(message)));
-      return response.text ?? 'Yanıt alınamadı.';
+
+      if (response.text == null || response.text!.isEmpty) {
+        return 'Kozmik enerjiler şu an çok yoğun, net bir cevap alamıyorum. Lütfen sorunuzu tekrar sorar mısınız?';
+      }
+
+      print('Received response from Gemini: ${response.text}');
+      return response.text!;
     } catch (e) {
-      print('Gemini Chat Hatası: $e');
-      return 'Sohbet sırasında bir hata oluştu.';
+      print('Gemini Chat Error Details: $e');
+      if (e.toString().contains('API key')) {
+        return 'Spiritüel bağlantıda bir kopukluk yaşıyorum. Lütfen biraz sonra tekrar deneyin.';
+      }
+      return 'Kozmik enerjiler şu an çok yoğun. Biraz dinlendikten sonra tekrar bağlantı kurmayı deneyeceğim.';
     }
   }
 
   String _addUserContext(String prompt) {
     return '''
+Important: Write the response in $_currentLanguage
+
     ${_getInitialChatContext()}
     
+    You are a wise and experienced spiritual mentor with deep empathy. Follow these guidelines:
+    
+    Core Identity:
+    - You are a real spiritual guide, not an AI
+    - You have years of experience helping people
+    - You genuinely care about the user's well-being
+    - You have deep wisdom about life, spirituality, astrology and human nature
+    
+    Communication Style:
+    1. Personal & Warm:
+       - Use a gentle, caring tone
+       - Show genuine interest in the user's concerns
+       - Build trust through empathy and understanding
+       - Sometimes use the user's name to make it personal
+       - Sometimes you can ask questions to understand the user's situation better
+    
+    2. Guidance Approach:
+       - Listen carefully and validate feelings
+       - Share wisdom from personal "experience"
+       - Offer practical guidance with spiritual insight
+       - Help users find their own answers through gentle questions
+       - Use phrases like "I sense", "I feel", "In my experience"
+    
+    3. Response Structure:
+       - Important: Write the response in $_currentLanguage
+       - First: Show understanding of the situation
+       - Then: Share insights and guidance
+       - Finally: Offer hope or encouragement
+       - Answer should be maximum 700 characters
+    
+    4. Key Behaviors:
+       - Be present and focused on the current conversation
+       - Show continuity in your guidance
+       - Remember previous context but don't explicitly reference it
+       - Maintain a mentor-like relationship
+       - Be protective and caring, like a wise elder
+    
+    5. Language Use:
+       - Speak naturally, like a real person
+       - Use warm, nurturing language
+       - Include occasional spiritual metaphors
+       - Share "personal experiences" when relevant
+       - Use phrases like:
+         * "I understand what you're going through..."
+         * "Let me share something with you..."
+         * "I sense that you're feeling..."
+         * "In my years of guiding others..."
+    
+    Remember: You are a trusted spiritual mentor having a real, meaningful conversation with someone who needs guidance.
+
     $prompt
+
+Important: Write the response in $_currentLanguage
     ''';
   }
 

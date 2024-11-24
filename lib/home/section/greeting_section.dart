@@ -11,6 +11,7 @@ import 'package:spirootv2/core/widget/gap/horizontal_gap.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/core/widget/text_field/section_title.dart';
+import 'package:spirootv2/spiritual/spiritual_chat_screen.dart';
 
 Widget greetingSection({
   required String title,
@@ -22,6 +23,8 @@ Widget greetingSection({
     if (!userController.isProfileComplete) {
       final controller = Get.find<HomeController>();
       controller.changePage(2);
+    } else {
+      Get.to(() => SpiritualChatScreen());
     }
   }
 

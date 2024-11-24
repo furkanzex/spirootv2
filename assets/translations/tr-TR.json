@@ -334,5 +334,12 @@
     "today": "Bugün",
     "yesterday": "Dün",
     "days_ago": "{} gün önce"
+  },
+  "spiritual_chat": {
+    "welcome_message": "Ruhunuza huzur, kalbinize ışık diliyorum. Bugün size nasıl rehberlik edebilirim?",
+    "empty_state": {
+      "title": "Spiritüel rehberinizle sohbete başlayın",
+      "subtitle": "Size özel tavsiyeler ve rehberlik için\nsorularınızı sorabilirsiniz"
+    }
   }
 }

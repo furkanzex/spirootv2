@@ -4,8 +4,6 @@ import 'package:spirootv2/chat/chat_screen.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:lottie/lottie.dart';
 import 'package:spirootv2/explore/explore_controller.dart';
