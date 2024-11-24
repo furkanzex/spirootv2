@@ -1,40 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:icons_plus/icons_plus.dart';
+import 'package:share/share.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 
 class CompatibilityResultScreen extends StatelessWidget {
   final Map<String, dynamic> result;
+  final String firstZodiac;
+  final String secondZodiac;
 
-  const CompatibilityResultScreen({super.key, required this.result});
+  const CompatibilityResultScreen({
+    super.key,
+    required this.result,
+    required this.firstZodiac,
+    required this.secondZodiac,
+  });
 
   @override
   Widget build(BuildContext context) {
     // Yüzdeleri int'e çevir
     final overallPercentage = (result['overallPercentage'] as num).toInt();
-    final lovePercentage = (result['lovePercentage'] as num).toInt();
-    final sexPercentage = (result['sexPercentage'] as num).toInt();
-    final familyPercentage = (result['familyPercentage'] as num).toInt();
-    final friendshipPercentage =
-        (result['friendshipPercentage'] as num).toInt();
-    final businessPercentage = (result['businessPercentage'] as num).toInt();
+
+    // Seçilen türe göre yüzdeleri al
+    final isLoveType = result.containsKey('lovePercentage');
+
+    final Map<String, int> percentages = isLoveType
+        ? {
+            'Aşk': (result['lovePercentage'] as num).toInt(),
+            'Tutku': (result['sexPercentage'] as num).toInt(),
+            'Aile': (result['familyPercentage'] as num).toInt(),
+            'Güven': (result['trustPercentage'] as num).toInt(),
+          }
+        : {
+            'Arkadaşlık': (result['friendshipPercentage'] as num).toInt(),
+            'Güven': (result['trustPercentage'] as num).toInt(),
+            'İletişim': (result['communicationPercentage'] as num).toInt(),
+            'İş': (result['businessPercentage'] as num).toInt(),
+          };
 
     return Scaffold(
       backgroundColor: MyColor.darkBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        surfaceTintColor: MyColor.transparent,
+        backgroundColor: MyColor.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: MyColor.white),
           onPressed: () => Get.back(),
         ),
+        title: Text(
+          isLoveType ? "Aşk Uyumu" : "Arkadaşlık Uyumu",
+          style: MyStyle.s1.copyWith(color: MyColor.white),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.star_border, color: MyColor.white),
-            onPressed: () {},
+            onPressed: () {
+              Share.share(
+                'SPIROOT uygulamasından paylaşıldı.\n\n${result['overallDescription']}',
+                subject: isLoveType ? 'Aşk Uyumu' : 'Arkadaşlık Uyumu',
+              );
+            },
+            icon: const Icon(
+              MingCute.upload_line,
+              color: MyColor.white,
+            ),
+            padding: const EdgeInsets.all(12),
+            constraints: const BoxConstraints(
+              minWidth: 44,
+              minHeight: 44,
+            ),
+            tooltip: "Paylaş",
           ),
         ],
       ),
@@ -47,12 +85,12 @@ class CompatibilityResultScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildZodiacCircle(result['firstZodiac'] ?? ''),
+                  _buildZodiacCircle(firstZodiac),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     child: Icon(Icons.add, color: MyColor.white, size: 30),
                   ),
-                  _buildZodiacCircle(result['secondZodiac'] ?? ''),
+                  _buildZodiacCircle(secondZodiac),
                 ],
               ),
               verticalGap(MySize.defaultPadding),
@@ -75,7 +113,7 @@ class CompatibilityResultScreen extends StatelessWidget {
 
               // Başlık
               Text(
-                result['title'] ?? "The Perfect Sensitivity Twins",
+                result['title'] ?? "Kozmik Bağlantı",
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -118,16 +156,13 @@ class CompatibilityResultScreen extends StatelessWidget {
               verticalGap(MySize.doublePadding),
 
               // Detaylı uyum yüzdeleri
-              _buildCompatibilitySection("Love", lovePercentage),
-              _buildCompatibilitySection("Sex", sexPercentage),
-              _buildCompatibilitySection("Family", familyPercentage),
-              _buildCompatibilitySection("Friendship", friendshipPercentage),
-              _buildCompatibilitySection("Business", businessPercentage),
+              ...percentages.entries.map((entry) =>
+                  _buildCompatibilitySection(entry.key, entry.value)),
               verticalGap(MySize.doublePadding),
 
               // Overall açıklama
               Text(
-                "Overall",
+                "Genel Değerlendirme",
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -145,7 +180,7 @@ class CompatibilityResultScreen extends StatelessWidget {
 
               // Values açıklaması
               Text(
-                "Values",
+                "Ortak Değerler",
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -159,6 +194,27 @@ class CompatibilityResultScreen extends StatelessWidget {
                   height: 1.5,
                 ),
               ),
+              verticalGap(MySize.doublePadding),
+
+              // Aşk ya da arkadaşlık açıklaması
+              Text(
+                isLoveType ? "Aşk" : "Arkadaşlık",
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              verticalGap(MySize.defaultPadding),
+              Text(
+                isLoveType
+                    ? (result['loveDescription'] ?? "")
+                    : (result['friendshipDescription'] ?? ""),
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  height: 1.5,
+                ),
+              ),
+              verticalGap(MySize.defaultPadding),
             ],
           ),
         ),
@@ -175,7 +231,7 @@ class CompatibilityResultScreen extends StatelessWidget {
         color: MyColor.primaryColor.withOpacity(0.2),
       ),
       child: ExtendedImage.network(
-        'https://apptoic.com/spiroot/images/zodiac/$zodiac.png',
+        'https://apptoic.com/spiroot/images/$zodiac.png',
         fit: BoxFit.cover,
         cache: true,
       ),
@@ -244,5 +300,9 @@ class CompatibilityResultScreen extends StatelessWidget {
 
   Widget verticalGap(double height) {
     return SizedBox(height: height);
+  }
+
+  Widget horizontalGap(double width) {
+    return SizedBox(width: width);
   }
 }

@@ -10,7 +10,8 @@ import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 
 class CompatibilityScreen extends StatelessWidget {
-  CompatibilityScreen({super.key});
+  final String type;
+  CompatibilityScreen({super.key, required this.type});
 
   final AstrologyController _astrologyController =
       Get.find<AstrologyController>();
@@ -49,7 +50,7 @@ class CompatibilityScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          "Compatibility",
+          type == 'love' ? "Aşk Uyumu" : "Arkadaşlık Uyumu",
           style: MyStyle.s1.copyWith(
             color: MyColor.white,
             fontWeight: FontWeight.bold,
@@ -318,7 +319,7 @@ class CompatibilityScreen extends StatelessWidget {
                 ],
               ),
               child: ElevatedButton(
-                onPressed: () => _astrologyController.checkCompatibility(),
+                onPressed: () => _astrologyController.checkCompatibility(type),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6C5DD3),
                   minimumSize: const Size(double.infinity, 56),
@@ -328,7 +329,9 @@ class CompatibilityScreen extends StatelessWidget {
                   elevation: 0,
                 ),
                 child: Text(
-                  "CHECK COMPATIBILITY",
+                  type == 'love'
+                      ? "AŞK UYUMUNU KONTROL ET"
+                      : "ARKADAŞLIK UYUMUNU KONTROL ET",
                   style: MyStyle.s2.copyWith(
                     color: MyColor.white,
                     fontWeight: FontWeight.bold,

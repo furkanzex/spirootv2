@@ -1113,17 +1113,7 @@ class AstrologyController extends GetxController {
   }
 
   // Uyumluluk kontrolü için metod
-  Future<void> checkCompatibility() async {
-    /*if (!isSubscribed.value) {
-      Get.snackbar(
-        'Premium Özellik',
-        'Bu özelliği kullanmak için premium üye olmalısınız.',
-        backgroundColor: MyColor.primaryColor.withOpacity(0.1),
-        colorText: MyColor.white,
-      );
-      return;
-    }*/
-
+  Future<void> checkCompatibility(String type) async {
     try {
       isLoading.value = true;
 
@@ -1150,6 +1140,7 @@ class AstrologyController extends GetxController {
       final response = await _geminiService.generateCompatibilityReading(
         firstZodiac!,
         secondZodiac!,
+        type,
       );
 
       // Parse response
@@ -1159,7 +1150,11 @@ class AstrologyController extends GetxController {
       Get.back();
 
       // Show result screen
-      Get.to(() => CompatibilityResultScreen(result: result));
+      Get.to(() => CompatibilityResultScreen(
+            result: result,
+            firstZodiac: firstZodiac,
+            secondZodiac: secondZodiac,
+          ));
     } catch (e) {
       print('Compatibility check error: $e');
       Get.back(); // Close loading dialog

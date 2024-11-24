@@ -144,6 +144,8 @@ class GeminiService extends GetxService {
 
   String _createDefaultHoroscopeJson(UserModel user) {
     return '''
+    Important: Write the response in $_currentLanguage
+
     {
       "horoscope": {
         "zodiac": "${user.zodiacSign}",
@@ -180,6 +182,8 @@ class GeminiService extends GetxService {
 
   String _createHoroscopePrompt(String timeframe, UserModel user) {
     String basePrompt = '''
+    Important: Write the response in $_currentLanguage
+
     You are an experienced astrologer. Create a horoscope reading based on the following information:
     
     User Information:
@@ -329,6 +333,8 @@ class GeminiService extends GetxService {
 
   String _createFortunePrompt(String type) {
     String basePrompt = '''
+    Important: Write the response in $_currentLanguage
+
     You are an experienced fortune teller. Analyze the provided images in detail and interpret the ${type} reading.
     
     Personal Information:
@@ -398,6 +404,8 @@ class GeminiService extends GetxService {
       int lifePathNumber, UserModel user) async {
     try {
       final prompt = '''
+      Important: Write the response in $_currentLanguage
+
       You are an experienced numerologist. Create a weekly numerology reading based on the following information:
       
       User Information:
@@ -438,11 +446,15 @@ class GeminiService extends GetxService {
 
   String _createDefaultNumerologyJson(int lifePathNumber) {
     return '''
+    Important: Write the response in $_currentLanguage
+
     {
       "numerology": {
         "weeklyReading": "Bu hafta, $lifePathNumber numaralı Yaşam Yolu sayınızın enerjisi özellikle güçlü. Kendinizi daha net ifade edebilir ve hayattaki amacınızı daha iyi anlayabilirsiniz. İçsel sesinizi dinlemeye ve sezgilerinize güvenmeye devam edin. Önemli kararlar almadan önce sayıların size gösterdiği yolu takip edin."
       }
     }
+
+    Important: Write the response in $_currentLanguage
     ''';
   }
 
@@ -473,6 +485,8 @@ class GeminiService extends GetxService {
   ) async {
     try {
       final prompt = '''
+      Important: Write the response in $_currentLanguage
+
       You are an experienced astrologer. Create retrograde readings for the following period:
       
       Date Range: ${DateFormat('MMMM dd').format(startDate)} - ${DateFormat('MMMM dd, yyyy').format(endDate)}
@@ -513,12 +527,16 @@ Important: Write the response in $_currentLanguage
 
   String _createDefaultRetroJson() {
     return '''
+Important: Write the response in $_currentLanguage
+
     {
       "retrogrades": {
         "activePlanets": [],
         "readings": {}
       }
     }
+
+    Important: Write the response in $_currentLanguage
     ''';
   }
 
@@ -535,6 +553,8 @@ Important: Write the response in $_currentLanguage
       final weekEnd = now.add(const Duration(days: 7));
 
       final prompt = '''
+Important: Write the response in $_currentLanguage
+
       You are an experienced astrologer. Create a weekly natal chart interpretation based on the following information:
       
       Birth Information:
@@ -588,6 +608,8 @@ Important: Write the response in $_currentLanguage
 
   String _createDefaultWeeklyNatalJson() {
     return '''
+Important: Write the response in $_currentLanguage
+
     {
       "weeklyNatalReading": {
         "overview": "Bu hafta natal haritanızdaki önemli gezegensel hareketler, kişisel gelişiminiz için fırsatlar sunuyor. Doğum haritanızdaki yerleşimler, özellikle kariyer ve ilişkiler alanında olumlu gelişmelere işaret ediyor.",
@@ -601,39 +623,100 @@ Important: Write the response in $_currentLanguage
   }
 
   Future<String> generateCompatibilityReading(
-      String zodiac1, String zodiac2) async {
+    String zodiac1,
+    String zodiac2,
+    String type,
+  ) async {
     try {
       final prompt = '''
-      Generate a detailed zodiac compatibility reading for $zodiac1 and $zodiac2.
+      Important: Write the response in $_currentLanguage
+
+      Generate a detailed zodiac compatibility reading for $zodiac1 and $zodiac2, focusing specifically on their ${type == 'love' ? 'romantic' : 'friendship'} compatibility.
       Include:
-      - A catchy title describing their relationship
+      - A catchy title describing their ${type == 'love' ? 'romantic relationship' : 'friendship'}
       - Overall compatibility percentage
-      - Specific percentages for: Love, Sex, Family, Friendship, Business
+      - Specific percentages for: ${type == 'love' ? 'Love, Sex, Family, Trust' : 'Friendship, Trust, Communication, Business'}
       - A detailed description of their overall compatibility
-      - Analysis of their shared values and potential challenges
+      - Analysis of their shared values and potential challenges in ${type == 'love' ? 'romance' : 'friendship'}
       
       Format the response as a JSON with the following structure:
       {
+        "firstZodiac": "$zodiac1",
+        "secondZodiac": "$zodiac2",
+        "firstDate": "${_getZodiacDateRange(zodiac1)}",
+        "secondDate": "${_getZodiacDateRange(zodiac2)}",
         "title": "string",
         "overallPercentage": number,
-        "lovePercentage": number,
-        "sexPercentage": number,
-        "familyPercentage": number,
-        "friendshipPercentage": number,
-        "businessPercentage": number,
+        ${type == 'love' ? '"lovePercentage": number, "sexPercentage": number, "familyPercentage": number, "trustPercentage": number,' : '"friendshipPercentage": number, "trustPercentage": number, "communicationPercentage": number, "businessPercentage": number,'}
         "overallDescription": "string",
-        "valuesDescription": "string"
+        "valuesDescription": "string",
+        ${type == 'love' ? '"loveDescription": "string"' : '"friendshipDescription": "string"'}
       }
 
       Important: Write the response in $_currentLanguage
       ''';
 
-      final response = await generateContent(prompt);
-      return response;
+      final response = await _textModel.generateContent([Content.text(prompt)]);
+      String jsonStr = response.text ?? '';
+
+      // JSON formatını temizle
+      jsonStr = _cleanJsonResponse(jsonStr);
+
+      // JSON'ı doğrula
+      try {
+        json.decode(jsonStr);
+        return jsonStr;
+      } catch (e) {
+        print('JSON parse error: $e');
+        // Hata durumunda varsayılan JSON döndür
+        return _createDefaultCompatibilityJson(zodiac1, zodiac2);
+      }
     } catch (e) {
       print('Generate compatibility reading error: $e');
-      rethrow;
+      return _createDefaultCompatibilityJson(zodiac1, zodiac2);
     }
+  }
+
+  String _createDefaultCompatibilityJson(String zodiac1, String zodiac2) {
+    return '''
+    Important: Write the response in $_currentLanguage
+
+    {
+      "firstZodiac": "$zodiac1",
+      "secondZodiac": "$zodiac2",
+      "firstDate": "${_getZodiacDateRange(zodiac1)}",
+      "secondDate": "${_getZodiacDateRange(zodiac2)}",
+      "title": "Cosmic Connection",
+      "overallPercentage": 75,
+      "lovePercentage": 80,
+      "sexPercentage": 75,
+      "familyPercentage": 70,
+      "friendshipPercentage": 85,
+      "businessPercentage": 65,
+      "overallDescription": "Bu iki burç arasında doğal bir uyum ve anlayış var. Birbirlerinin güçlü yönlerini tamamlayarak güzel bir denge oluşturuyorlar.",
+      "valuesDescription": "Her iki burç da sadakat ve güvene önem veriyor. Ortak değerleri ve hedefleri onları birbirine bağlıyor."
+    }
+
+    Important: Write the response in $_currentLanguage
+    ''';
+  }
+
+  String _getZodiacDateRange(String zodiac) {
+    final Map<String, String> dateRanges = {
+      'aries': 'Mar 21 - Apr 19',
+      'taurus': 'Apr 20 - May 20',
+      'gemini': 'May 21 - Jun 20',
+      'cancer': 'Jun 21 - Jul 22',
+      'leo': 'Jul 23 - Aug 22',
+      'virgo': 'Aug 23 - Sep 22',
+      'libra': 'Sep 23 - Oct 22',
+      'scorpio': 'Oct 23 - Nov 21',
+      'sagittarius': 'Nov 22 - Dec 21',
+      'capricorn': 'Dec 22 - Jan 19',
+      'aquarius': 'Jan 20 - Feb 18',
+      'pisces': 'Feb 19 - Mar 20'
+    };
+    return dateRanges[zodiac] ?? '';
   }
 
   Future<String> generateContent(String prompt) async {

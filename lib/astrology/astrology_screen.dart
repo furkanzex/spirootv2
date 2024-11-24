@@ -1458,8 +1458,18 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                     children: [
                       Expanded(
                         child: _buildTestButton(
-                          "Test Et",
-                          () => Get.to(() => CompatibilityScreen()),
+                          "Aşk",
+                          () => Get.to(() => CompatibilityScreen(type: "love")),
+                          MingCute.heart_line,
+                        ),
+                      ),
+                      horizontalGap(MySize.defaultPadding),
+                      Expanded(
+                        child: _buildTestButton(
+                          "Arkadaşlık",
+                          () => Get.to(
+                              () => CompatibilityScreen(type: "friendship")),
+                          MingCute.group_line,
                         ),
                       ),
                     ],
@@ -1473,7 +1483,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     );
   }
 
-  Widget _buildTestButton(String text, VoidCallback onPressed) {
+  Widget _buildTestButton(String text, VoidCallback onPressed, IconData? icon) {
     return SizedBox(
       height: MySize.iconSizeMedium,
       child: TextButton(
@@ -1491,6 +1501,12 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if (icon != null)
+              Icon(
+                icon,
+                color: MyColor.white,
+              ),
+            if (icon != null) horizontalGap(MySize.halfPadding),
             Text(
               text,
               maxLines: 2,
