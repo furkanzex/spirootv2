@@ -16,7 +16,6 @@ class ExploreScreen extends StatelessWidget {
       backgroundColor: MyColor.transparent,
       body: SafeArea(
         child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
           slivers: [
             // Arama çubuğu
             SliverPersistentHeader(
@@ -27,7 +26,6 @@ class ExploreScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(
                   horizontal: MySize.defaultPadding,
                   vertical: MySize.halfPadding,

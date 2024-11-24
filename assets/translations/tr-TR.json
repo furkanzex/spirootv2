@@ -38,10 +38,14 @@
     "top_rated_shops": "Öne Çıkan Mekanlar",
     "guide": "Spiritüel Rehberin"
   },
-  "home": {
+  "home": { 
     "greeting": "Hoş Geldin",
     "greeting_subtitle": "Bugün senin için neler var, birlikte keşfedelim!",
     "see_all": "tümünü gör",
+    "spiritual_advisor": {
+      "title": "Hoşgeldin. Ben de seni bekliyordum. Neyi merak ediyorsun?",
+      "ask_now": "hemen sor"
+    },
     "astrology": {
       "message": "Evren sana bir mesaj gönderdi...\nAçmaya hazır mısın?",
       "start_journey": "Astroloji Yolculuğunu Hemen Başlat",

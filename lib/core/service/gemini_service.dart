@@ -599,4 +599,50 @@ Important: Write the response in $_currentLanguage
     Important: Write the response in $_currentLanguage
     ''';
   }
+
+  Future<String> generateCompatibilityReading(
+      String zodiac1, String zodiac2) async {
+    try {
+      final prompt = '''
+      Generate a detailed zodiac compatibility reading for $zodiac1 and $zodiac2.
+      Include:
+      - A catchy title describing their relationship
+      - Overall compatibility percentage
+      - Specific percentages for: Love, Sex, Family, Friendship, Business
+      - A detailed description of their overall compatibility
+      - Analysis of their shared values and potential challenges
+      
+      Format the response as a JSON with the following structure:
+      {
+        "title": "string",
+        "overallPercentage": number,
+        "lovePercentage": number,
+        "sexPercentage": number,
+        "familyPercentage": number,
+        "friendshipPercentage": number,
+        "businessPercentage": number,
+        "overallDescription": "string",
+        "valuesDescription": "string"
+      }
+
+      Important: Write the response in $_currentLanguage
+      ''';
+
+      final response = await generateContent(prompt);
+      return response;
+    } catch (e) {
+      print('Generate compatibility reading error: $e');
+      rethrow;
+    }
+  }
+
+  Future<String> generateContent(String prompt) async {
+    try {
+      final response = await _textModel.generateContent([Content.text(prompt)]);
+      return response.text ?? '';
+    } catch (e) {
+      print('Generate content error: $e');
+      rethrow;
+    }
+  }
 }

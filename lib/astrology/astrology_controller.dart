@@ -9,9 +9,11 @@ import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/service/ephemeris_service.dart';
+import 'package:spirootv2/astrology/compatibility_result_screen.dart';
 
 class AstrologyController extends GetxController {
   final RxDouble zodiacRotation = 0.0.obs;
@@ -53,6 +55,25 @@ class AstrologyController extends GetxController {
   final RxBool isWeeklyNatalAvailable = false.obs;
 
   final RxBool isSubscribed = false.obs;
+
+  // Controller'a eklenecek yeni değişkenler
+  final RxInt selectedFirstZodiac = 0.obs;
+  final RxInt selectedSecondZodiac = 0.obs;
+
+  final List<Map<String, String>> zodiacSigns = [
+    {'name': 'sagittarius', 'date': 'Nov 22 - Dec 21'},
+    {'name': 'capricorn', 'date': 'Dec 22 - Jan 19'},
+    {'name': 'aquarius', 'date': 'Jan 20 - Feb 18'},
+    {'name': 'pisces', 'date': 'Feb 19 - Mar 20'},
+    {'name': 'aries', 'date': 'Mar 21 - Apr 19'},
+    {'name': 'taurus', 'date': 'Apr 20 - May 20'},
+    {'name': 'gemini', 'date': 'May 21 - Jun 20'},
+    {'name': 'cancer', 'date': 'Jun 21 - Jul 22'},
+    {'name': 'leo', 'date': 'Jul 23 - Aug 22'},
+    {'name': 'virgo', 'date': 'Aug 23 - Sep 22'},
+    {'name': 'libra', 'date': 'Sep 23 - Oct 22'},
+    {'name': 'scorpio', 'date': 'Oct 23 - Nov 21'},
+  ];
 
   @override
   void onInit() {
@@ -912,21 +933,14 @@ class AstrologyController extends GetxController {
 
       // Son yorumun tarihini kontrol et
       final userId = Get.find<UserController>().userId.value;
-      final doc = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('natal_readings')
-          .orderBy('createdAt', descending: true)
-          .limit(1)
-          .get();
+      final doc = await _firestore.collection('users').doc(userId).get();
 
       bool needsNewReading = true;
-      if (doc.docs.isNotEmpty) {
-        final lastReadingDate =
-            (doc.docs.first.data()['createdAt'] as Timestamp).toDate();
-        final daysSinceLastReading =
-            DateTime.now().difference(lastReadingDate).inDays;
-        needsNewReading = daysSinceLastReading >= 7;
+      final natalData = doc.data()?['natal_readings'];
+
+      if (natalData != null && natalData['expiryDate'] != null) {
+        final expiryDate = (natalData['expiryDate'] as Timestamp).toDate();
+        needsNewReading = DateTime.now().isAfter(expiryDate);
       }
 
       if (needsNewReading) {
@@ -941,18 +955,26 @@ class AstrologyController extends GetxController {
         );
 
         final jsonResponse = json.decode(response);
-        weeklyNatalReading.value = jsonResponse['weeklyNatalReading'];
+        final readings = jsonResponse['weeklyNatalReading'];
 
         // Firebase'e kaydet
-        await _saveWeeklyNatalReading(jsonResponse['weeklyNatalReading']);
+        await _firestore.collection('users').doc(userId).update({
+          'natal_readings': {
+            'readings': readings,
+            'createdAt': DateTime.now(),
+            'expiryDate': DateTime.now().add(const Duration(days: 7)),
+          }
+        });
+
+        weeklyNatalReading.value = readings;
+        isWeeklyNatalAvailable.value = true;
       } else {
         // Mevcut yorumu kullan
-        weeklyNatalReading.value = doc.docs.first.data()['reading'];
+        weeklyNatalReading.value = natalData['readings'];
+        isWeeklyNatalAvailable.value = true;
       }
-
-      isWeeklyNatalAvailable.value = true;
     } catch (e) {
-      print('Weekly natal reading generation error: $e');
+      print('Generate weekly natal reading error: $e');
       isWeeklyNatalAvailable.value = false;
     }
   }
@@ -1078,6 +1100,77 @@ class AstrologyController extends GetxController {
       }
     } catch (e) {
       print('Refresh monthly readings error: $e');
+    }
+  }
+
+  // Burç seçimi için metodlar
+  void setFirstZodiac(int index) {
+    selectedFirstZodiac.value = index;
+  }
+
+  void setSecondZodiac(int index) {
+    selectedSecondZodiac.value = index;
+  }
+
+  // Uyumluluk kontrolü için metod
+  Future<void> checkCompatibility() async {
+    /*if (!isSubscribed.value) {
+      Get.snackbar(
+        'Premium Özellik',
+        'Bu özelliği kullanmak için premium üye olmalısınız.',
+        backgroundColor: MyColor.primaryColor.withOpacity(0.1),
+        colorText: MyColor.white,
+      );
+      return;
+    }*/
+
+    try {
+      isLoading.value = true;
+
+      // Get selected zodiac signs
+      final firstZodiac = zodiacSigns[selectedFirstZodiac.value]['name'];
+      final secondZodiac = zodiacSigns[selectedSecondZodiac.value]['name'];
+
+      // Show loading dialog
+      Get.dialog(
+        Center(
+          child: Container(
+            padding: const EdgeInsets.all(MySize.defaultPadding),
+            decoration: BoxDecoration(
+              color: MyColor.darkBackgroundColor,
+              borderRadius: BorderRadius.circular(MySize.defaultRadius),
+            ),
+            child: const CircularProgressIndicator(),
+          ),
+        ),
+        barrierDismissible: false,
+      );
+
+      // Generate compatibility reading using Gemini
+      final response = await _geminiService.generateCompatibilityReading(
+        firstZodiac!,
+        secondZodiac!,
+      );
+
+      // Parse response
+      final result = json.decode(response);
+
+      // Close loading dialog
+      Get.back();
+
+      // Show result screen
+      Get.to(() => CompatibilityResultScreen(result: result));
+    } catch (e) {
+      print('Compatibility check error: $e');
+      Get.back(); // Close loading dialog
+      Get.snackbar(
+        'Hata',
+        'Uyumluluk analizi yapılırken bir hata oluştu',
+        backgroundColor: MyColor.errorColor,
+        colorText: MyColor.white,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 }

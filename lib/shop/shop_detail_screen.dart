@@ -18,7 +18,6 @@ class ShopDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: MyColor.darkBackgroundColor,
       body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
         slivers: [
           // Görsel galerisi
           SliverAppBar(
