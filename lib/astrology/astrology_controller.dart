@@ -489,11 +489,6 @@ class AstrologyController extends GetxController {
   }
 
   Future<void> generateHoroscope() async {
-    if (!isInitialized.value) {
-      _handleError('Uygulama henüz başlatılmadı. Lütfen bekleyin.');
-      return;
-    }
-
     try {
       isLoading.value = true;
 
@@ -503,39 +498,37 @@ class AstrologyController extends GetxController {
       }
 
       // Gemini servisinden yorumu al
-      final response =
-          await _geminiService.generateHoroscope(selectedDay.value, user);
+      final response = await _geminiService.generateHoroscope(
+        selectedDay.value,
+        user,
+      );
 
       // JSON'ı parse et ve horoscope nesnesini oluştur
-      try {
-        final jsonResponse = json.decode(response);
-        final reading = jsonResponse['horoscope']['reading'];
+      final jsonResponse = json.decode(response);
+      final reading = jsonResponse['horoscope']['reading'];
 
-        final horoscope = DailyHoroscope(
-          date: DateTime.now().toString(),
-          horoscopeText: reading['overview'],
-          lovePercentage: reading['love']['percentage'] / 100,
-          careerPercentage: reading['career']['percentage'] / 100,
-          moneyPercentage: reading['money']['percentage'] / 100,
-          details: {
-            'love': reading['love'],
-            'career': reading['career'],
-            'money': reading['money'],
-            'lucky': reading['lucky'],
-          },
-        );
+      final horoscope = DailyHoroscope(
+        date: DateTime.now().toString(),
+        horoscopeText: reading['overview'],
+        lovePercentage: reading['love']['percentage'] / 100,
+        careerPercentage: reading['career']['percentage'] / 100,
+        moneyPercentage: reading['money']['percentage'] / 100,
+        details: {
+          'love': reading['love'],
+          'career': reading['career'],
+          'money': reading['money'],
+          'lucky': reading['lucky'],
+        },
+      );
 
-        // Firestore'a kaydet
-        await _saveHoroscopeToFirestore(horoscope);
+      // Firebase'e kaydet
+      await _saveHoroscopeToFirestore(horoscope);
 
-        selectedHoroscope.value = horoscope;
-        isHoroscopeAvailable.value = true;
-      } catch (e) {
-        print('JSON parse hatası: $e');
-        throw Exception('Yorum formatı geçersiz');
-      }
+      selectedHoroscope.value = horoscope;
+      isHoroscopeAvailable.value = true;
     } catch (e) {
       print('Horoscope generation error: $e');
+      isHoroscopeAvailable.value = false;
       _handleError('Yorum oluşturulurken bir hata oluştu');
     } finally {
       isLoading.value = false;
@@ -544,32 +537,22 @@ class AstrologyController extends GetxController {
 
   Future<void> _saveHoroscopeToFirestore(DailyHoroscope horoscope) async {
     try {
-      final userId = Get.find<UserController>().userId.value;
-      final user = Get.find<UserController>().currentUser.value!;
+      final userId = _userController.userId.value;
+      final user = _userController.currentUser.value!;
+      final now = DateTime.now();
 
-      String cleanTimeframe =
-          selectedDay.value.replaceAll("astrology.horoscope.dates.", "");
+      // Günün sonuna kadar geçerli olacak şekilde ayarla
+      final expiryDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
-      final userRef = _firestore.collection('users').doc(userId);
-
-      Map<String, dynamic> currentInterpretations =
-          (await userRef.get()).data()?['interpretations'] ?? {};
-
-      if (!currentInterpretations.containsKey(user.zodiacSign)) {
-        currentInterpretations[user.zodiacSign] = {};
-      }
-
-      currentInterpretations[user.zodiacSign][cleanTimeframe] = {
-        ...horoscope.toMap(),
-        'expiryDate': DateTime.now().add(const Duration(days: 1)),
-        'createdAt': DateTime.now(),
-      };
-
-      await userRef.update({
-        'interpretations': currentInterpretations,
+      await _firestore.collection('users').doc(userId).update({
+        'interpretations.${user.zodiacSign}.today': {
+          ...horoscope.toMap(),
+          'createdAt': now,
+          'expiryDate': expiryDate,
+        }
       });
     } catch (e) {
-      print('Firestore save error: $e');
+      print('Save horoscope error: $e');
       throw Exception('Yorum kaydedilemedi');
     }
   }
@@ -1144,147 +1127,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  Future<void> _saveWeeklyNatalReading(Map<String, dynamic> reading) async {
-    try {
-      final userId = Get.find<UserController>().userId.value;
-
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('natal_readings')
-          .add({
-        'reading': reading,
-        'createdAt': DateTime.now(),
-        'expiryDate': DateTime.now().add(const Duration(days: 7)),
-      });
-    } catch (e) {
-      print('Weekly natal reading save error: $e');
-    }
-  }
-
-  Future<void> _checkSubscription() async {
-    try {
-      final userController = Get.find<UserController>();
-      final userId = userController.userId.value;
-
-      // userId'nin geçerli olduğundan emin olun
-      if (userId.isEmpty) {
-        print('User ID is empty');
-        isSubscribed.value = false;
-        return;
-      }
-
-      final doc = await _firestore.collection('users').doc(userId).get();
-
-      if (!doc.exists) {
-        print('User document does not exist');
-        isSubscribed.value = false;
-        return;
-      }
-
-      isSubscribed.value = doc.data()?['isSubscribed'] ?? false;
-
-      // Generate readings based on subscription
-      if (isSubscribed.value) {
-        await _generateAllReadings();
-      } else {
-        await _generateDailyHoroscopeOnly();
-      }
-    } catch (e) {
-      print('Subscription check error: $e');
-      isSubscribed.value = false;
-    }
-  }
-
-  void _setupAutoRefresh() {
-    // Daily refresh at midnight
-    Timer.periodic(const Duration(hours: 1), (timer) {
-      final now = DateTime.now();
-      if (now.hour == 0 && now.minute == 0) {
-        _refreshDailyReadings();
-      }
-    });
-
-    // Weekly refresh
-    Timer.periodic(const Duration(days: 1), (timer) {
-      final now = DateTime.now();
-      if (now.weekday == DateTime.monday && now.hour == 0) {
-        _refreshWeeklyReadings();
-      }
-    });
-
-    // Monthly refresh
-    Timer.periodic(const Duration(days: 1), (timer) {
-      final now = DateTime.now();
-      if (now.day == 1 && now.hour == 0) {
-        _refreshMonthlyReadings();
-      }
-    });
-  }
-
-  Future<void> _generateAllReadings() async {
-    try {
-      // Günlük yorum
-      await generateHoroscope();
-
-      // Haftalık natal okuma
-      await _generateWeeklyNatalReading();
-
-      // Numeroloji okuması
-      await generateNumerologyReading();
-
-      // Retro yorumları
-      await _generateRetroReadings();
-    } catch (e) {
-      print('Generate all readings error: $e');
-    }
-  }
-
-  Future<void> _generateDailyHoroscopeOnly() async {
-    try {
-      await generateHoroscope();
-    } catch (e) {
-      print('Generate daily horoscope error: $e');
-    }
-  }
-
-  Future<void> _refreshDailyReadings() async {
-    try {
-      if (isSubscribed.value) {
-        // Günlük yorumu yenile
-        selectedDay.value = "astrology.horoscope.dates.today";
-        await generateHoroscope();
-      }
-    } catch (e) {
-      print('Refresh daily readings error: $e');
-    }
-  }
-
-  Future<void> _refreshWeeklyReadings() async {
-    try {
-      if (isSubscribed.value) {
-        // Haftalık yorumları yenile
-        await _generateWeeklyNatalReading();
-        await _generateRetroReadings();
-        await generateNumerologyReading();
-      }
-    } catch (e) {
-      print('Refresh weekly readings error: $e');
-    }
-  }
-
-  Future<void> _refreshMonthlyReadings() async {
-    try {
-      if (isSubscribed.value) {
-        // Aylık yorumları yenile
-        selectedDay.value = "astrology.horoscope.dates.month";
-        await generateHoroscope();
-      }
-    } catch (e) {
-      print('Refresh monthly readings error: $e');
-    }
-  }
-
   // Burç seçimi için metodlar
   void setFirstZodiac(int index) {
     selectedFirstZodiac.value = index;
@@ -1450,7 +1292,7 @@ class AstrologyController extends GetxController {
       await Future.wait([
         _loadContentWithExpiry('daily_horoscope', _loadDailyHoroscope),
         _loadContentWithExpiry('current_transits', _loadCurrentTransits),
-        _loadRetroReadings(), // Retro yorumlarını her durumda yükle
+        _loadRetroReadings(),
       ]);
     } catch (e) {
       print('Load basic astrology data error: $e');
@@ -1461,9 +1303,40 @@ class AstrologyController extends GetxController {
   Future<void> _loadDailyHoroscope() async {
     try {
       selectedDay.value = "astrology.horoscope.dates.today";
-      await checkHoroscope(selectedDay.value);
+      final userId = _userController.userId.value;
+      final doc = await _firestore.collection('users').doc(userId).get();
+
+      if (!doc.exists) return;
+
+      final interpretations = doc.data()?['interpretations'];
+      final zodiacSign = _userController.currentUser.value?.zodiacSign;
+
+      if (zodiacSign == null) return;
+
+      bool needsNewReading = true;
+
+      // Mevcut yorumu kontrol et
+      if (interpretations != null && 
+          interpretations[zodiacSign] != null && 
+          interpretations[zodiacSign]['today'] != null) {
+        final interpretation = interpretations[zodiacSign]['today'];
+        final expiryDate = (interpretation['expiryDate'] as Timestamp).toDate();
+
+        // Süresi geçmemişse mevcut yorumu kullan
+        if (expiryDate.isAfter(DateTime.now())) {
+          selectedHoroscope.value = DailyHoroscope.fromMap(interpretation);
+          isHoroscopeAvailable.value = true;
+          needsNewReading = false;
+        }
+      }
+
+      // Yeni yorum oluşturma ihtiyacı varsa
+      if (needsNewReading) {
+        await generateHoroscope();
+      }
     } catch (e) {
       print('Load daily horoscope error: $e');
+      isHoroscopeAvailable.value = false;
     }
   }
 
