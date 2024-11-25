@@ -81,70 +81,106 @@ class AstrologyController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    ever(_userController.userId, _onUserIdChanged);
     _initializeController();
+  }
+
+  void _onUserIdChanged(String userId) {
+    if (userId.isNotEmpty && !isInitialized.value) {
+      _initializeController();
+    }
   }
 
   Future<void> _initializeController() async {
     try {
+      isLoading.value = true;
+      
       // UserController'ın hazır olmasını bekle
-      await Get.find<UserController>().initialized;
+      await _userController.initialized;
+      
+      // Kullanıcı ID'sini kontrol et
+      if (_userController.userId.value.isEmpty) {
+        await _waitForUser();
+        return;
+      }
 
-      // Kullanıcı ID'sini dinle
-      ever(_userController.userId, (String userId) {
-        if (userId.isNotEmpty && !isInitialized.value) {
-          isInitialized.value = true;
-          _initializeAstrologyPage();
-        }
-      });
+      // Kullanıcı bilgilerini kontrol et
+      if (_userController.currentUser.value == null) {
+        await _userController.loadUser(_userController.userId.value);
+      }
 
-      // Eğer kullanıcı ID'si zaten varsa, hemen yükle
-      if (_userController.userId.value.isNotEmpty) {
+      if (_userController.currentUser.value != null) {
         isInitialized.value = true;
         await _initializeAstrologyPage();
       } else {
-        // Kullanıcı ID'si yoksa, bekleme moduna geç
-        await _waitForUser();
+        print('Kullanıcı bilgileri yüklenemedi');
+        isInitialized.value = false;
       }
     } catch (e) {
       print('Initialize controller error: $e');
-      _handleError('Uygulama başlatılırken bir hata oluştu');
+      isInitialized.value = false;
+    } finally {
+      isLoading.value = false;
     }
   }
 
   Future<void> _waitForUser() async {
     int attempts = 0;
-    const maxAttempts = 10;
-    const retryDelay = Duration(seconds: 2);
+    const maxAttempts = 5;
+    const retryDelay = Duration(seconds: 1);
 
-    while (attempts < maxAttempts && !isInitialized.value) {
+    while (attempts < maxAttempts) {
       try {
-        if (_userController.userId.value.isNotEmpty) {
+        if (_userController.currentUser.value != null) {
           isInitialized.value = true;
           await _initializeAstrologyPage();
           return;
         }
+        
+        // Kullanıcı bilgilerini yeniden yüklemeyi dene
+        if (_userController.userId.value.isNotEmpty) {
+          await _userController.loadUser(_userController.userId.value);
+          if (_userController.currentUser.value != null) {
+            isInitialized.value = true;
+            await _initializeAstrologyPage();
+            return;
+          }
+        }
+        
         await Future.delayed(retryDelay);
         attempts++;
       } catch (e) {
         print('Wait for user error: $e');
+        await Future.delayed(retryDelay);
+        attempts++;
       }
     }
 
     if (!isInitialized.value) {
-      _handleError(
-          'Kullanıcı bilgileri yüklenemedi. Lütfen uygulamayı yeniden başlatın.');
+      print('Kullanıcı bilgileri yüklenemedi: Maksimum deneme sayısına ulaşıldı');
     }
   }
 
   void _handleError(String message) {
-    Get.snackbar(
-      'Hata',
-      message,
-      backgroundColor: MyColor.errorColor,
-      colorText: MyColor.white,
-      duration: const Duration(seconds: 5),
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    try {
+      // Get.context'in null olup olmadığını kontrol et
+      if (Get.context != null && Get.isSnackbarOpen != true) {
+        Get.snackbar(
+          'Hata',
+          message,
+          backgroundColor: MyColor.errorColor,
+          colorText: MyColor.white,
+          duration: const Duration(seconds: 5),
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        // Context yoksa veya snackbar zaten açıksa sadece konsola yaz
+        print('Hata: $message');
+      }
+    } catch (e) {
+      print('Hata gösterme hatası: $e');
+      print('Orijinal hata mesajı: $message');
+    }
   }
 
   Future<void> _initializeAstrologyPage() async {
@@ -273,25 +309,47 @@ class AstrologyController extends GetxController {
   // Numeroloji yorumu oluşturma metodunu güncelle
   Future<void> generateNumerologyReading() async {
     try {
-      final user = Get.find<UserController>().currentUser.value;
-      if (user == null) throw Exception('Kullanıcı bilgisi bulunamadı');
+      if (!isInitialized.value) {
+        print('Uygulama henüz başlatılmadı');
+        await _initializeController();
+      }
 
-      final lifePathNumber = calculateLifePathNumber(user.birthDate);
-      final response =
-          await _geminiService.generateNumerologyReading(lifePathNumber, user);
+      isLoading.value = true;
+      
+      final user = _userController.currentUser.value;
+      if (user == null) {
+        print('Kullanıcı bilgileri yeniden yükleniyor...');
+        await _userController.loadUser(_userController.userId.value);
+        
+        if (_userController.currentUser.value == null) {
+          throw Exception('Kullanıcı bilgisi bulunamadı');
+        }
+      }
+
+      final lifePathNumber = calculateLifePathNumber(_userController.currentUser.value!.birthDate);
+      final response = await _geminiService.generateNumerologyReading(
+        lifePathNumber, 
+        _userController.currentUser.value!
+      );
 
       final jsonResponse = json.decode(response);
       numerologyReading.value = {
         'weeklyReading': jsonResponse['numerology']['weeklyReading']
       };
 
-      // Firebase'e kaydet
       await _saveNumerologyToFirestore(jsonResponse['numerology']);
-
       isNumerologyAvailable.value = true;
+
     } catch (e) {
       print('Numerology generation error: $e');
       isNumerologyAvailable.value = false;
+      
+      // Hata mesajını göster ama sadece context varsa
+      if (Get.context != null) {
+        _handleError('Numeroloji yorumu oluşturulurken bir hata oluştu');
+      }
+    } finally {
+      isLoading.value = false;
     }
   }
 
