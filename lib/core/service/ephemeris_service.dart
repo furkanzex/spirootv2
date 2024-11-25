@@ -37,23 +37,27 @@ class EphemerisService {
     String birthTime,
     String birthPlace,
   ) {
-    final now = DateTime.now();
-    final transits = <String, Map<String, dynamic>>{};
+    try {
+      final days = _daysSinceJ2000(DateTime.now());
 
-    PLANET_DAILY_MOTION.forEach((planet, dailyMotion) {
-      final position = _calculatePlanetPosition(planet, _daysSinceJ2000(now));
-      final aspects = _calculatePlanetaryAspects(position, PLANET_DAILY_MOTION);
+      // Gezegenlerin güncel konumlarını hesapla
+      final transits = <String, Map<String, dynamic>>{};
 
-      transits[planet] = {
-        'position': position,
-        'sign': getZodiacSign(position),
-        'degree': position % 30,
-        'aspects': aspects,
-        'isRetrograde': _isCurrentlyRetrograde(planet, now),
-      };
-    });
+      PLANET_DAILY_MOTION.forEach((planet, motion) {
+        final position = _calculatePlanetPosition(planet, days);
+        transits[planet] = {
+          'position': position,
+          'sign': getZodiacSign(position),
+          'isRetrograde': _isCurrentlyRetrograde(planet, DateTime.now()),
+        };
+      });
 
-    return transits;
+      return transits;
+    } catch (e) {
+      print('Calculate current transits error: $e');
+      // Hata durumunda boş map dön
+      return <String, Map<String, dynamic>>{};
+    }
   }
 
   // Burç hesaplama

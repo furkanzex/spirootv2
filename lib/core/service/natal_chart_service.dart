@@ -1,27 +1,32 @@
 import 'package:sweph/sweph.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class NatalChartService {
   static bool _isInitialized = false;
   static Future<void> _initializeSweph() async {
     if (!_isInitialized) {
       try {
-        await Sweph.init(epheAssets: [
-          'packages/sweph/assets/ephe/seas_18.se1',
-          'packages/sweph/assets/ephe/semo_18.se1',
-          'packages/sweph/assets/ephe/sepl_18.se1',
-        ]);
+        final tempDir = await getTemporaryDirectory();
+        final ephePath = '${tempDir.path}/ephe';
+
+        if (!await Directory(ephePath).exists()) {
+          await Directory(ephePath).create(recursive: true);
+        }
+
+        Sweph.swe_set_ephe_path(ephePath);
         _isInitialized = true;
       } catch (e) {
         print('Sweph initialization error: $e');
         _isInitialized = false;
+        rethrow;
       }
     }
   }
 
   static Future<String> getEphePath() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    return '${appDir.path}/ephe_files';
+    final tempDir = await getTemporaryDirectory();
+    return '${tempDir.path}/ephe';
   }
 
   static Future<Map<String, dynamic>> calculateNatalChart(
@@ -130,9 +135,8 @@ class NatalChartService {
 
   static double _calculateAscendant(
       double julianDay, Map<String, double> coordinates) {
-    // Yükselen hesaplaması için detaylı algoritma
     final houses = Sweph.swe_houses(
         julianDay, coordinates['latitude']!, coordinates['longitude']!, Hsys.P);
-    return houses.ascmc[0]; // Ascendant
+    return houses.ascmc[0];
   }
 }

@@ -78,10 +78,16 @@ class AstrologyController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _checkSubscription();
+
+    // Önce auto refresh'i kur
     _setupAutoRefresh();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeAstrologyPage();
+
+    // Widget ağacı oluştuktan sonra çalıştır
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Kısa bir gecikme ekle
+      await Future.delayed(const Duration(seconds: 2));
+      await _checkSubscription();
+      await _initializeAstrologyPage();
     });
   }
 
@@ -879,13 +885,11 @@ class AstrologyController extends GetxController {
 
   // Retrogradları kontrol etmek için yeni metodlar
   bool isRetrograde(String planet) {
-    // Gezegenlerin retro olma olasılıklarını kontrol et
-    if (!weeklyTransits.containsKey(planet)) return false;
-
+    // Gezegenlerin retro durumunu kontrol eder
     final position = weeklyTransits[planet]!;
     final retroProb =
         EphemerisService.calculateRetrogradeStatus(planet, position);
-    return retroProb > 0.5; // 0.5'ten büyükse retro kabul et
+    return retroProb > 0.5;
   }
 
   int get retrogradeCount {
@@ -999,8 +1003,24 @@ class AstrologyController extends GetxController {
 
   Future<void> _checkSubscription() async {
     try {
-      final userId = Get.find<UserController>().userId.value;
+      final userController = Get.find<UserController>();
+      final userId = userController.userId.value;
+
+      // userId'nin geçerli olduğundan emin olun
+      if (userId.isEmpty) {
+        print('User ID is empty');
+        isSubscribed.value = false;
+        return;
+      }
+
       final doc = await _firestore.collection('users').doc(userId).get();
+
+      if (!doc.exists) {
+        print('User document does not exist');
+        isSubscribed.value = false;
+        return;
+      }
+
       isSubscribed.value = doc.data()?['isSubscribed'] ?? false;
 
       // Generate readings based on subscription
@@ -1011,6 +1031,7 @@ class AstrologyController extends GetxController {
       }
     } catch (e) {
       print('Subscription check error: $e');
+      isSubscribed.value = false;
     }
   }
 

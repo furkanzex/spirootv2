@@ -27,6 +27,7 @@ class GeminiService extends GetxService {
   void onInit() {
     super.onInit();
     _initializeModels();
+    _startNewChatSession();
   }
 
   void _initializeModels() {
@@ -68,8 +69,6 @@ class GeminiService extends GetxService {
       ),
       safetySettings: _defaultSafetySettings,
     );
-
-    _startNewChatSession();
   }
 
   List<SafetySetting> get _defaultSafetySettings => [
@@ -80,9 +79,25 @@ class GeminiService extends GetxService {
       ];
 
   void _startNewChatSession() {
-    _chatSession = _chatModel.startChat(history: [
-      Content.text(_getInitialChatContext()),
-    ]);
+    try {
+      _chatSession = _chatModel.startChat(
+        history: [
+          Content.text('''
+          Important: Write the response in $_currentLanguage
+          
+          You are a spiritual guide and mentor. Your responses should be:
+          - Empathetic and understanding
+          - Written in $_currentLanguage
+          - Focused on providing guidance and support
+          - Natural and conversational in tone
+          
+          Important: Write the response in $_currentLanguage
+          '''),
+        ],
+      );
+    } catch (e) {
+      print('Chat session initialization error: $e');
+    }
   }
 
   String _getInitialChatContext() {

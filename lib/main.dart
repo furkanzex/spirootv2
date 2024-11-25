@@ -14,28 +14,28 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:spirootv2/profile/user_repository.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:sweph/sweph.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();
 
-  // Ephemeris dosyaları için uygulama dizinini al
-  final appDir = await getApplicationDocumentsDirectory();
-  final ephePath = '${appDir.path}/ephe_files';
+  // Sweph'i başlat
+  try {
+    await Sweph.init(epheAssets: [
+      'packages/sweph/assets/ephe/seas_18.se1',
+      'packages/sweph/assets/ephe/semo_18.se1',
+      'packages/sweph/assets/ephe/sepl_18.se1',
+    ]);
 
-  // Dizin yoksa oluştur
-  final epheDir = Directory(ephePath);
-  if (!await epheDir.exists()) {
-    await epheDir.create(recursive: true);
+    final tempDir = await getTemporaryDirectory();
+    final ephePath = '${tempDir.path}/ephe';
+    Sweph.swe_set_ephe_path(ephePath);
+  } catch (e) {
+    print('Sweph initialization error in main: $e');
   }
-
-  // Ephemeris dosyalarını kopyala
-  await _copyEphemerisFiles(ephePath);
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -73,30 +73,6 @@ Future<void> main() async {
       ),
     ),
   );
-}
-
-Future<void> _copyEphemerisFiles(String targetPath) async {
-  try {
-    final bundle = await rootBundle.loadString('AssetManifest.json');
-    final Map<String, dynamic> manifestMap = json.decode(bundle);
-
-    final epheFiles = manifestMap.keys
-        .where((String key) => key.startsWith('assets/ephe/'))
-        .toList();
-
-    for (final file in epheFiles) {
-      final filename = file.split('/').last;
-      final targetFile = File('$targetPath/$filename');
-
-      if (!await targetFile.exists()) {
-        final data = await rootBundle.load(file);
-        final bytes = data.buffer.asUint8List();
-        await targetFile.writeAsBytes(bytes);
-      }
-    }
-  } catch (e) {
-    print('Ephemeris dosyaları kopyalanırken hata: $e');
-  }
 }
 
 class MyApp extends StatefulWidget {

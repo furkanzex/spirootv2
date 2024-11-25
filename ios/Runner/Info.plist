@@ -62,5 +62,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- Dosya sistemi izinleri -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Astrolojik hesaplamalar için gerekli dosyaları saklamak için izin gerekiyor.</string>
+	<key>NSApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>
