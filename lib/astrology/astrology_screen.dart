@@ -1303,7 +1303,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 final planetData = entry.value;
                 final sign = planetData['sign'] as String? ?? '';
                 final degree = planetData['degree'] as double? ?? 0.0;
-                final aspects = planetData['aspects'] as Map<String, dynamic>? ?? {};
+                final aspects =
+                    planetData['aspects'] as Map<String, dynamic>? ?? {};
 
                 return TableRow(
                   children: [
@@ -1343,7 +1344,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                         alignment: WrapAlignment.center,
                         spacing: 4,
                         children: aspects.entries.map((aspect) {
-                          final aspectData = aspect.value as Map<String, dynamic>;
+                          final aspectData =
+                              aspect.value as Map<String, dynamic>;
                           return Text(
                             "${_getPlanetSymbol(aspect.key)}${_getAspectSymbol(aspectData['aspect'] as String)}",
                             style: MyStyle.s3.copyWith(

@@ -44,14 +44,15 @@ class EphemerisService {
       PLANET_DAILY_MOTION.forEach((planet, motion) {
         final position = _calculatePlanetPosition(planet, days);
         final sign = getZodiacSign(position);
-        
+
         transits[planet] = {
-          'degree': position,  // Derece bilgisi
-          'sign': sign,       // Burç bilgisi
+          'degree': position, // Derece bilgisi
+          'sign': sign, // Burç bilgisi
           'isRetrograde': _isCurrentlyRetrograde(planet, DateTime.now()),
-          'aspects': _calculatePlanetaryAspects(position, 
-            PLANET_DAILY_MOTION.map((k, v) => MapEntry(k, _calculatePlanetPosition(k, days)))
-          ),
+          'aspects': _calculatePlanetaryAspects(
+              position,
+              PLANET_DAILY_MOTION.map(
+                  (k, v) => MapEntry(k, _calculatePlanetPosition(k, days)))),
         };
       });
 
@@ -92,7 +93,7 @@ class EphemerisService {
     allPlanets.forEach((otherPlanet, otherPosition) {
       final orb = calculateOrb(position, otherPosition);
       final aspectType = _getAspectType(orb);
-      
+
       if (aspectType != null) {
         aspects[otherPlanet] = {
           'aspect': aspectType,
@@ -107,15 +108,16 @@ class EphemerisService {
   // Açı tipini belirle
   static String? _getAspectType(double orb) {
     const aspects = {
-      0: 'Conjunction',    // Kavuşum
-      60: 'Sextile',      // Altmışlık
-      90: 'Square',       // Kare
-      120: 'Trine',       // Üçgen
-      180: 'Opposition',  // Karşıt
+      0: 'Conjunction', // Kavuşum
+      60: 'Sextile', // Altmışlık
+      90: 'Square', // Kare
+      120: 'Trine', // Üçgen
+      180: 'Opposition', // Karşıt
     };
 
     for (var entry in aspects.entries) {
-      if ((orb - entry.key).abs() <= 8) { // 8 derecelik orb toleransı
+      if ((orb - entry.key).abs() <= 8) {
+        // 8 derecelik orb toleransı
         return entry.value;
       }
     }

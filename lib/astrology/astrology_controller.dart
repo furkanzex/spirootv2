@@ -110,15 +110,19 @@ class AstrologyController extends GetxController {
       }
 
       if (_userController.currentUser.value != null) {
+        // Abonelik durumunu kontrol et
+        await _checkSubscriptionStatus();
+
+        // Temel astroloji verilerini yükle
+        await _loadBasicAstrologyData();
+
+        // Premium içerikleri kontrol et ve yükle/sil
+        await _managePremiumContent();
+
         isInitialized.value = true;
-        await _initializeAstrologyPage();
-      } else {
-        print('Kullanıcı bilgileri yüklenemedi');
-        isInitialized.value = false;
       }
     } catch (e) {
       print('Initialize controller error: $e');
-      isInitialized.value = false;
     } finally {
       isLoading.value = false;
     }
@@ -264,25 +268,23 @@ class AstrologyController extends GetxController {
         final expiryDate = (retrogrades['expiryDate'] as Timestamp).toDate();
 
         if (expiryDate.isAfter(DateTime.now())) {
-          // Mevcut retroları getir
           retrogradeReadings.value = retrogrades['readings'];
           isRetroReadingsAvailable.value = true;
         } else {
-          // Süresi dolmuş, yeni retro yorumları oluştur
           await _generateAndSaveRetroReadings();
         }
       } else {
-        // Retro yorumları yok, yeni oluştur
         await _generateAndSaveRetroReadings();
       }
     } catch (e) {
       print('Check Existing Retrogrades Error: $e');
+      await _generateAndSaveRetroReadings();
     }
   }
 
   Future<void> _generateAndSaveRetroReadings() async {
     try {
-      final user = Get.find<UserController>().currentUser.value;
+      final user = _userController.currentUser.value;
       if (user == null) return;
 
       final now = DateTime.now();
@@ -304,49 +306,49 @@ class AstrologyController extends GetxController {
       isRetroReadingsAvailable.value = true;
     } catch (e) {
       print('Generate and Save Retro Readings Error: $e');
+      _useDefaultRetroReadings();
     }
   }
 
   // Numeroloji yorumu oluşturma metodunu güncelle
   Future<void> generateNumerologyReading() async {
-    try {
-      if (!isInitialized.value) {
-        print('Uygulama henüz başlatılmadı');
-        await _initializeController();
-      }
+    if (!isSubscribed.value) return;
 
+    try {
       isLoading.value = true;
 
       final user = _userController.currentUser.value;
       if (user == null) {
-        print('Kullanıcı bilgileri yeniden yükleniyor...');
-        await _userController.loadUser(_userController.userId.value);
-
-        if (_userController.currentUser.value == null) {
-          throw Exception('Kullanıcı bilgisi bulunamadı');
-        }
+        throw Exception('Kullanıcı bilgisi bulunamadı');
       }
 
-      final lifePathNumber =
-          calculateLifePathNumber(_userController.currentUser.value!.birthDate);
-      final response = await _geminiService.generateNumerologyReading(
-          lifePathNumber, _userController.currentUser.value!);
+      final lifePathNumber = calculateLifePathNumber(user.birthDate);
+      final response =
+          await _geminiService.generateNumerologyReading(lifePathNumber, user);
 
       final jsonResponse = json.decode(response);
-      numerologyReading.value = {
-        'weeklyReading': jsonResponse['numerology']['weeklyReading']
-      };
+      final reading = jsonResponse['numerology'];
 
-      await _saveNumerologyToFirestore(jsonResponse['numerology']);
+      // Firebase'e kaydet
+      await _firestore
+          .collection('users')
+          .doc(_userController.userId.value)
+          .update({
+        'numerology': {
+          'reading': reading,
+          'createdAt': DateTime.now(),
+          'expiryDate':
+              DateTime.now().add(const Duration(days: 7)), // 7 günlük süre
+        }
+      });
+
+      // Local state'i güncelle
+      numerologyReading.value = {'weeklyReading': reading['weeklyReading']};
       isNumerologyAvailable.value = true;
     } catch (e) {
       print('Numerology generation error: $e');
       isNumerologyAvailable.value = false;
-
-      // Hata mesajını göster ama sadece context varsa
-      if (Get.context != null) {
-        _handleError('Numeroloji yorumu oluşturulurken bir hata oluştu');
-      }
+      _handleError('Numeroloji yorumu oluşturulurken bir hata oluştu');
     } finally {
       isLoading.value = false;
     }
@@ -984,20 +986,64 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Retro yorumlarını Firebase'e kaydeden metod
+  // Retro yorumlarını Firebase'e kaydet
   Future<void> _saveRetroReadings(Map<String, dynamic> readings) async {
     try {
-      final userId = Get.find<UserController>().userId.value;
+      final userId = _userController.userId.value;
+      final now = DateTime.now();
 
       await _firestore.collection('users').doc(userId).update({
         'retrogrades': {
           'readings': readings,
-          'createdAt': DateTime.now(),
-          'expiryDate': DateTime.now().add(const Duration(days: 7)),
+          'createdAt': now,
+          'expiryDate': now.add(const Duration(days: 7)), // 7 günlük süre
+          'lastUpdated': now,
         }
       });
     } catch (e) {
-      print('Retrograde save error: $e');
+      print('Save retro readings error: $e');
+    }
+  }
+
+  // Varsayılan retro verilerini kullan
+  void _useDefaultRetroReadings() {
+    try {
+      final now = DateTime.now();
+      final defaultRetroData = {
+        'activePlanets': ['Mercury', 'Venus', 'Mars'],
+        'readings': {
+          'Mercury': {
+            'period':
+                '${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(now.add(const Duration(days: 21)))}',
+            'sign': 'gemini',
+            'impact':
+                'İletişim ve teknoloji alanlarında dikkatli olunması gereken bir dönem.',
+            'advice': 'Önemli kararlar almadan önce iki kez düşünün.',
+          },
+          'Venus': {
+            'period':
+                '${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(now.add(const Duration(days: 40)))}',
+            'sign': 'libra',
+            'impact':
+                'İlişkiler ve finansal konularda yeniden değerlendirme zamanı.',
+            'advice':
+                'Büyük harcamalar ve ilişki kararları için acele etmeyin.',
+          },
+          'Mars': {
+            'period':
+                '${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(now.add(const Duration(days: 30)))}',
+            'sign': 'aries',
+            'impact': 'Enerji seviyelerinde dalgalanmalar yaşanabilir.',
+            'advice':
+                'Agresif davranışlardan kaçının, enerjinizi yapıcı projelere yönlendirin.',
+          }
+        }
+      };
+
+      retrogradeReadings.value = defaultRetroData;
+      isRetroReadingsAvailable.value = true;
+    } catch (e) {
+      print('Use default retro readings error: $e');
     }
   }
 
@@ -1021,27 +1067,37 @@ class AstrologyController extends GetxController {
   Future<void> checkNumerologyReading() async {
     try {
       isLoading.value = true;
-      final userId = Get.find<UserController>().userId.value;
+      final userId = _userController.userId.value;
       final doc = await _firestore.collection('users').doc(userId).get();
 
-      if (doc.exists) {
-        final numerology = doc.data()?['numerology'];
-        if (numerology != null && numerology['expiryDate'] != null) {
-          final expiryDate = (numerology['expiryDate'] as Timestamp).toDate();
+      if (!doc.exists) {
+        isNumerologyAvailable.value = false;
+        return;
+      }
 
-          if (expiryDate.isAfter(DateTime.now())) {
-            numerologyReading.value = {
-              'weeklyReading': numerology['reading']['weeklyReading']
-            };
-            isNumerologyAvailable.value = true;
-          } else {
-            // Süresi dolmuş, yeni yorum oluştur
-            await generateNumerologyReading();
-          }
-        } else {
-          // Yorum yok, yeni yorum oluştur
-          await generateNumerologyReading();
+      final numerology = doc.data()?['numerology'];
+      bool needsNewReading = true;
+
+      if (numerology != null && numerology['expiryDate'] != null) {
+        final expiryDate = (numerology['expiryDate'] as Timestamp).toDate();
+
+        // Mevcut yorum varsa ve süresi geçmemişse kullan
+        if (expiryDate.isAfter(DateTime.now())) {
+          numerologyReading.value = {
+            'weeklyReading': numerology['reading']['weeklyReading']
+          };
+          isNumerologyAvailable.value = true;
+          needsNewReading = false;
         }
+      }
+
+      // Yeni yorum oluşturma kontrolü
+      if (needsNewReading && isSubscribed.value) {
+        await generateNumerologyReading();
+      } else if (!isSubscribed.value) {
+        // Abonelik yoksa numeroloji verilerini temizle
+        numerologyReading.clear();
+        isNumerologyAvailable.value = false;
       }
     } catch (e) {
       print('Check Numerology Reading Error: $e');
@@ -1053,53 +1109,37 @@ class AstrologyController extends GetxController {
 
   Future<void> _generateWeeklyNatalReading() async {
     try {
-      final user = Get.find<UserController>().currentUser.value;
-      if (user == null) return;
+      // Abonelik kontrolü - Abone değilse hiçbir işlem yapma
+      if (!isSubscribed.value) {
+        isWeeklyNatalAvailable.value = false;
+        weeklyNatalReading.clear();
+        return;
+      }
 
-      // Son yorumun tarihini kontrol et
-      final userId = Get.find<UserController>().userId.value;
+      final userId = _userController.userId.value;
       final doc = await _firestore.collection('users').doc(userId).get();
+      final natalData = doc.data()?['weekly_natal'];
 
       bool needsNewReading = true;
-      final natalData = doc.data()?['natal_readings'];
 
+      // Mevcut yorum ve son kullanma tarihi kontrolü
       if (natalData != null && natalData['expiryDate'] != null) {
         final expiryDate = (natalData['expiryDate'] as Timestamp).toDate();
-        needsNewReading = DateTime.now().isAfter(expiryDate);
+
+        // Süresi geçmemişse mevcut yorumu kullan
+        if (expiryDate.isAfter(DateTime.now())) {
+          weeklyNatalReading.value = natalData['reading'];
+          isWeeklyNatalAvailable.value = true;
+          needsNewReading = false;
+        }
       }
 
-      if (needsNewReading) {
-        // Gemini'den yeni yorum al
-        final response = await _geminiService.generateWeeklyNatalReading(
-          user.birthDate,
-          user.birthTime,
-          user.birthPlace,
-          user.zodiacSign,
-          user.ascendant,
-          user.moonSign,
-        );
-
-        final jsonResponse = json.decode(response);
-        final readings = jsonResponse['weeklyNatalReading'];
-
-        // Firebase'e kaydet
-        await _firestore.collection('users').doc(userId).update({
-          'natal_readings': {
-            'readings': readings,
-            'createdAt': DateTime.now(),
-            'expiryDate': DateTime.now().add(const Duration(days: 7)),
-          }
-        });
-
-        weeklyNatalReading.value = readings;
-        isWeeklyNatalAvailable.value = true;
-      } else {
-        // Mevcut yorumu kullan
-        weeklyNatalReading.value = natalData['readings'];
-        isWeeklyNatalAvailable.value = true;
+      // Yeni yorum oluşturma ihtiyacı varsa ve abonelik aktifse
+      if (needsNewReading && isSubscribed.value) {
+        await _generateWeeklyNatalReading();
       }
     } catch (e) {
-      print('Generate weekly natal reading error: $e');
+      print('Load weekly natal reading error: $e');
       isWeeklyNatalAvailable.value = false;
     }
   }
@@ -1350,6 +1390,280 @@ class AstrologyController extends GetxController {
         'isRetrograde': false,
         'aspects': {} // Hata durumunda boş map
       };
+    }
+  }
+
+  // Abonelik durumunu kontrol et
+  Future<void> _checkSubscriptionStatus() async {
+    try {
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(_userController.userId.value)
+          .get();
+
+      isSubscribed.value = userDoc.data()?['isSubscribed'] ?? false;
+    } catch (e) {
+      print('Subscription check error: $e');
+      isSubscribed.value = false;
+    }
+  }
+
+  // Premium içerikleri yönet
+  Future<void> _managePremiumContent() async {
+    try {
+      final userRef =
+          _firestore.collection('users').doc(_userController.userId.value);
+
+      if (!isSubscribed.value) {
+        // Premium içerikleri sil
+        await _deletePremiumContent(userRef);
+      } else {
+        // Premium içerikleri yükle (eğer yoksa)
+        await loadPremiumContent();
+      }
+    } catch (e) {
+      print('Premium content management error: $e');
+    }
+  }
+
+  // Premium içerikleri sil
+  Future<void> _deletePremiumContent(DocumentReference userRef) async {
+    try {
+      // Natal grafik yorumlarını sil
+      await userRef.collection('natalChartReadings').get().then((snapshot) {
+        for (var doc in snapshot.docs) {
+          doc.reference.delete();
+        }
+      });
+
+      // Diğer premium içerikleri sıfırla
+      weeklyNatalReading.clear();
+      isWeeklyNatalAvailable.value = false;
+    } catch (e) {
+      print('Delete premium content error: $e');
+    }
+  }
+
+  // Temel astroloji verilerini yükle
+  Future<void> _loadBasicAstrologyData() async {
+    try {
+      await Future.wait([
+        _loadContentWithExpiry('daily_horoscope', _loadDailyHoroscope),
+        _loadContentWithExpiry('current_transits', _loadCurrentTransits),
+        _loadRetroReadings(), // Retro yorumlarını her durumda yükle
+      ]);
+    } catch (e) {
+      print('Load basic astrology data error: $e');
+    }
+  }
+
+  // Günlük yorum yükleme
+  Future<void> _loadDailyHoroscope() async {
+    try {
+      selectedDay.value = "astrology.horoscope.dates.today";
+      await checkHoroscope(selectedDay.value);
+    } catch (e) {
+      print('Load daily horoscope error: $e');
+    }
+  }
+
+  // Transit verilerini yükle
+  Future<void> _loadCurrentTransits() async {
+    try {
+      final user = _userController.currentUser.value;
+      if (user == null) return;
+
+      final transits = EphemerisService.calculateCurrentTransits(
+        user.birthDate,
+        user.birthTime,
+        user.birthPlace,
+      );
+      currentTransits.value = transits;
+    } catch (e) {
+      print('Load current transits error: $e');
+    }
+  }
+
+  // Retro okumalarını yükle - 7 günlük kontrol ile
+  Future<void> _loadRetroReadings() async {
+    try {
+      final userId = _userController.userId.value;
+      final doc = await _firestore.collection('users').doc(userId).get();
+      final retrogrades = doc.data()?['retrogrades'];
+
+      bool needsNewReadings = true;
+
+      if (retrogrades != null && retrogrades['expiryDate'] != null) {
+        final expiryDate = (retrogrades['expiryDate'] as Timestamp).toDate();
+
+        // Mevcut yorumlar varsa ve süresi geçmemişse kullan
+        if (expiryDate.isAfter(DateTime.now())) {
+          retrogradeReadings.value = retrogrades['readings'];
+          isRetroReadingsAvailable.value = true;
+          needsNewReadings = false;
+        }
+      }
+
+      // Yorum yoksa veya süresi geçmişse yeni yorum oluştur
+      if (needsNewReadings) {
+        await _generateAndSaveRetroReadings();
+      }
+    } catch (e) {
+      print('Load retro readings error: $e');
+      // Hata durumunda varsayılan verileri kullan
+      _useDefaultRetroReadings();
+    }
+  }
+
+  // Premium içerikleri yükle
+  Future<void> loadPremiumContent() async {
+    if (!isSubscribed.value) return;
+
+    try {
+      await Future.wait([
+        _loadContentWithExpiry('daily_horoscope', _loadDailyHoroscope),
+        _loadContentWithExpiry('weekly_horoscope', _loadWeeklyHoroscope),
+        _loadContentWithExpiry('monthly_horoscope', _loadMonthlyHoroscope),
+        _loadContentWithExpiry('weekly_natal', _loadWeeklyNatalReading),
+        _loadContentWithExpiry('current_transits', _loadCurrentTransits),
+        _loadContentWithExpiry('retro_readings', _loadRetroReadings),
+        _loadContentWithExpiry('numerology', _loadNumerologyReading),
+      ]);
+    } catch (e) {
+      print('Load premium content error: $e');
+    }
+  }
+
+  // Haftalık yorum yükleme
+  Future<void> _loadWeeklyHoroscope() async {
+    try {
+      selectedDay.value = "astrology.horoscope.dates.week";
+      await checkHoroscope(selectedDay.value);
+    } catch (e) {
+      print('Load weekly horoscope error: $e');
+    }
+  }
+
+  // Aylık yorum yükleme
+  Future<void> _loadMonthlyHoroscope() async {
+    try {
+      selectedDay.value = "astrology.horoscope.dates.month";
+      await checkHoroscope(selectedDay.value);
+    } catch (e) {
+      print('Load monthly horoscope error: $e');
+    }
+  }
+
+  // Numeroloji okuması yükleme
+  Future<void> _loadNumerologyReading() async {
+    try {
+      await checkNumerologyReading();
+    } catch (e) {
+      print('Load numerology reading error: $e');
+    }
+  }
+
+  // Haftalık natal okuma yükleme
+  Future<void> _loadWeeklyNatalReading() async {
+    try {
+      // Abonelik kontrolü
+      if (!isSubscribed.value) {
+        isWeeklyNatalAvailable.value = false;
+        weeklyNatalReading.clear();
+        return;
+      }
+
+      final userId = _userController.userId.value;
+      final doc = await _firestore.collection('users').doc(userId).get();
+      final natalData = doc.data()?['weekly_natal'];
+
+      bool needsNewReading = true;
+
+      // Mevcut yorum ve son kullanma tarihi kontrolü
+      if (natalData != null && natalData['expiryDate'] != null) {
+        final expiryDate = (natalData['expiryDate'] as Timestamp).toDate();
+
+        // Süresi geçmemişse mevcut yorumu kullan
+        if (expiryDate.isAfter(DateTime.now())) {
+          weeklyNatalReading.value = natalData['reading'];
+          isWeeklyNatalAvailable.value = true;
+          needsNewReading = false;
+        }
+      }
+
+      // Yeni yorum oluşturma ihtiyacı varsa ve abonelik aktifse
+      if (needsNewReading && isSubscribed.value) {
+        await _generateWeeklyNatalReading();
+      }
+    } catch (e) {
+      print('Load weekly natal reading error: $e');
+      isWeeklyNatalAvailable.value = false;
+    }
+  }
+
+  // İçerik yükleme ve son kullanma tarihi kontrolü
+  Future<void> _loadContentWithExpiry(
+    String contentType,
+    Future<void> Function() loadFunction,
+  ) async {
+    try {
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(_userController.userId.value)
+          .get();
+
+      final contentData = userDoc.data()?[contentType];
+      bool needsRefresh = true;
+
+      if (contentData != null && contentData['expiryDate'] != null) {
+        final expiryDate = (contentData['expiryDate'] as Timestamp).toDate();
+        if (expiryDate.isAfter(DateTime.now())) {
+          needsRefresh = false;
+        }
+      }
+
+      if (needsRefresh) {
+        await loadFunction();
+        // Yeni son kullanma tarihi ayarla
+        await _updateExpiryDate(contentType);
+      }
+    } catch (e) {
+      print('Load content with expiry error for $contentType: $e');
+    }
+  }
+
+  // Son kullanma tarihini güncelle
+  Future<void> _updateExpiryDate(String contentType) async {
+    try {
+      final now = DateTime.now();
+      DateTime expiryDate;
+
+      // İçerik tipine göre son kullanma tarihi belirle
+      switch (contentType) {
+        case 'daily_horoscope':
+          expiryDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
+          break;
+        case 'weekly_horoscope':
+        case 'weekly_natal':
+        case 'retro_readings':
+          expiryDate = now.add(const Duration(days: 7));
+          break;
+        case 'monthly_horoscope':
+          expiryDate = DateTime(now.year, now.month + 1, 1)
+              .subtract(const Duration(seconds: 1));
+          break;
+        default:
+          expiryDate = now.add(const Duration(days: 1));
+      }
+
+      await _firestore
+          .collection('users')
+          .doc(_userController.userId.value)
+          .update({
+        '$contentType.expiryDate': Timestamp.fromDate(expiryDate),
+      });
+    } catch (e) {
+      print('Update expiry date error for $contentType: $e');
     }
   }
 }
