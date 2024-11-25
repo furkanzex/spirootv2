@@ -39,25 +39,26 @@ class EphemerisService {
   ) {
     try {
       final days = _daysSinceJ2000(DateTime.now());
-
-      // Gezegenlerin güncel konumlarını hesapla
       final transits = <String, Map<String, dynamic>>{};
 
       PLANET_DAILY_MOTION.forEach((planet, motion) {
         final position = _calculatePlanetPosition(planet, days);
+        final sign = getZodiacSign(position);
+        
         transits[planet] = {
-          'position': position,
-          'sign': getZodiacSign(position),
+          'degree': position,  // Derece bilgisi
+          'sign': sign,       // Burç bilgisi
           'isRetrograde': _isCurrentlyRetrograde(planet, DateTime.now()),
-          'aspects': {},
+          'aspects': _calculatePlanetaryAspects(position, 
+            PLANET_DAILY_MOTION.map((k, v) => MapEntry(k, _calculatePlanetPosition(k, days)))
+          ),
         };
       });
 
       return transits;
     } catch (e) {
       print('Calculate current transits error: $e');
-      // Hata durumunda boş map dön
-      return <String, Map<String, dynamic>>{};
+      return {};
     }
   }
 
@@ -81,42 +82,44 @@ class EphemerisService {
     return signs[signIndex % 12];
   }
 
-  // Açı hesaplama
-  static Map<String, List<Map<String, dynamic>>> _calculatePlanetaryAspects(
+  // Açı hesaplama metodunu güncelle
+  static Map<String, dynamic> _calculatePlanetaryAspects(
     double position,
     Map<String, double> allPlanets,
   ) {
-    final aspects = <String, List<Map<String, dynamic>>>{};
-
-    final majorAspects = {
-      'Conjunction': 0.0,
-      'Sextile': 60.0,
-      'Square': 90.0,
-      'Trine': 120.0,
-      'Opposition': 180.0,
-    };
+    final aspects = <String, dynamic>{};
 
     allPlanets.forEach((otherPlanet, otherPosition) {
-      final aspectList = <Map<String, dynamic>>[];
-
-      majorAspects.forEach((aspectName, aspectAngle) {
-        final orb = calculateOrb(position, otherPosition);
-        if (isAspectActive(orb, aspectAngle)) {
-          aspectList.add({
-            'aspect': aspectName,
-            'angle': aspectAngle,
-            'orb': orb,
-            'applying': isAspectApplying(position, otherPosition),
-          });
-        }
-      });
-
-      if (aspectList.isNotEmpty) {
-        aspects[otherPlanet] = aspectList;
+      final orb = calculateOrb(position, otherPosition);
+      final aspectType = _getAspectType(orb);
+      
+      if (aspectType != null) {
+        aspects[otherPlanet] = {
+          'aspect': aspectType,
+          'orb': orb,
+        };
       }
     });
 
     return aspects;
+  }
+
+  // Açı tipini belirle
+  static String? _getAspectType(double orb) {
+    const aspects = {
+      0: 'Conjunction',    // Kavuşum
+      60: 'Sextile',      // Altmışlık
+      90: 'Square',       // Kare
+      120: 'Trine',       // Üçgen
+      180: 'Opposition',  // Karşıt
+    };
+
+    for (var entry in aspects.entries) {
+      if ((orb - entry.key).abs() <= 8) { // 8 derecelik orb toleransı
+        return entry.value;
+      }
+    }
+    return null;
   }
 
   // Açı hesaplama yardımcı metodları

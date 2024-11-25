@@ -4,13 +4,11 @@ import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:lottie/lottie.dart';
 import 'package:spirootv2/home/home_controller.dart';
-import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_text.dart';
-import 'package:spirootv2/profile/profile_loading_screen.dart';
 import 'package:spirootv2/home/section/settings_modal_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
@@ -46,25 +44,10 @@ class _HomePageState extends State<HomePage> {
           SizedBox(
             height: MySize.iconSizeSmall,
             width: MySize.iconSizeSmall,
-            child: Obx(() {
-              final userController = Get.find<UserController>();
-              final isSubscribed =
-                  userController.currentUser.value?.isSubscribed ?? false;
-
-              return GestureDetector(
-                onTap: () {
-                  Get.to(
-                    () => ProfileLoadingScreen(
-                      onLoadComplete: () async {},
-                    ),
-                    fullscreenDialog: true,
-                  );
-                },
-                child: isSubscribed
-                    ? LottieBuilder.asset("assets/lottie/diamond.json")
-                    : LottieBuilder.asset("assets/lottie/gift_icon.json"),
-              );
-            }),
+            child: GestureDetector(
+              onTap: () {},
+              child: LottieBuilder.asset("assets/lottie/gift_icon.json"),
+            ),
           ),
           IconButton(
               onPressed: () {
