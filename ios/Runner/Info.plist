@@ -72,5 +72,9 @@
 	<string>Astrolojik hesaplamalar için gerekli dosyaları saklamak için izin gerekiyor.</string>
 	<key>NSApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 </dict>
 </plist>

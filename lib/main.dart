@@ -16,6 +16,7 @@ import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:sweph/sweph.dart';
+import 'dart:io';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,17 +25,46 @@ Future<void> main() async {
 
   // Sweph'i başlat
   try {
-    await Sweph.init(epheAssets: [
-      'packages/sweph/assets/ephe/seas_18.se1',
-      'packages/sweph/assets/ephe/semo_18.se1',
-      'packages/sweph/assets/ephe/sepl_18.se1',
-    ]);
-
+    // Önce geçici dizini al
     final tempDir = await getTemporaryDirectory();
     final ephePath = '${tempDir.path}/ephe';
+    
+    // Dizin yoksa oluştur
+    final epheDir = Directory(ephePath);
+    if (!await epheDir.exists()) {
+      await epheDir.create(recursive: true);
+    }
+
+    // Sweph'i başlat
+    await Sweph.init(
+      epheAssets: [
+        'packages/sweph/assets/ephe/seas_18.se1',
+        'packages/sweph/assets/ephe/semo_18.se1',
+        'packages/sweph/assets/ephe/sepl_18.se1',
+        'packages/sweph/assets/ephe/sefstars.txt',
+        'packages/sweph/assets/ephe/seleapsec.txt',
+      ],
+      epheFilesPath: ephePath, // Oluşturduğumuz dizini kullan
+    );
+
+    // Ephe yolunu ayarla
     Sweph.swe_set_ephe_path(ephePath);
   } catch (e) {
     print('Sweph initialization error in main: $e');
+    // Hata durumunda alternatif yol dene
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final altEphePath = '${appDir.path}/ephe';
+      
+      final altEpheDir = Directory(altEphePath);
+      if (!await altEpheDir.exists()) {
+        await altEpheDir.create(recursive: true);
+      }
+      
+      Sweph.swe_set_ephe_path(altEphePath);
+    } catch (e2) {
+      print('Alternative path also failed: $e2');
+    }
   }
 
   await Firebase.initializeApp(
