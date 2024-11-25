@@ -563,17 +563,14 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             isLatLngRequired: true,
             getPlaceDetailWithLatLng: (Prediction prediction) {
               if (mounted) {
-                _birthPlaceController.text = prediction.description ?? '';
-                _userController.birthPlaceController.text =
-                    prediction.description ?? '';
-                _userController.validatePlace(prediction.description ?? '');
-                _birthPlaceFocusNode.unfocus();
-
-                if (_userController.validatePlacePage()) {
-                  _pageController.nextPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
+                try {
+                  _birthPlaceController.text = prediction.description ?? '';
+                  _userController.birthPlaceController.text =
+                      prediction.description ?? '';
+                  _userController.validatePlace(prediction.description ?? '');
+                  _birthPlaceFocusNode.unfocus();
+                } catch (e) {
+                  _userController.handleLocationError(e.toString());
                 }
               }
             },

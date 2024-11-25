@@ -1302,8 +1302,9 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               ..._astrologyController.currentTransits.entries.map((entry) {
                 final planetData = entry.value;
                 final sign = planetData['sign'] as String;
-                final degree = planetData['degree'] as double;
-                final aspects = planetData['aspects'] as Map<String, dynamic>;
+                final degree = planetData['degree'] != null
+                    ? (planetData['degree'] as num).toDouble()
+                    : 0.0;
 
                 return TableRow(
                   children: [
@@ -1342,26 +1343,32 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       Wrap(
                         alignment: WrapAlignment.center,
                         spacing: 4,
-                        children: aspects.entries.map((aspect) {
-                          final aspectData = aspect.value;
-                          String aspectType = '';
+                        children: (planetData['aspects']
+                                    as Map<String, dynamic>?)
+                                ?.entries
+                                .map((aspect) {
+                              final aspectData = aspect.value;
+                              String aspectType = '';
 
-                          if (aspectData is List) {
-                            if (aspectData.isNotEmpty && aspectData[0] is Map) {
-                              aspectType =
-                                  aspectData[0]['aspect'] as String? ?? '';
-                            }
-                          } else if (aspectData is Map) {
-                            aspectType = aspectData['aspect'] as String? ?? '';
-                          }
+                              if (aspectData is List) {
+                                if (aspectData.isNotEmpty &&
+                                    aspectData[0] is Map) {
+                                  aspectType =
+                                      aspectData[0]['aspect'] as String? ?? '';
+                                }
+                              } else if (aspectData is Map) {
+                                aspectType =
+                                    aspectData['aspect'] as String? ?? '';
+                              }
 
-                          return Text(
-                            "${_getPlanetSymbol(aspect.key)}${_getAspectSymbol(aspectType)}",
-                            style: MyStyle.s3.copyWith(
-                              color: MyColor.textGreyColor,
-                            ),
-                          );
-                        }).toList(),
+                              return Text(
+                                "${_getPlanetSymbol(aspect.key)}${_getAspectSymbol(aspectType)}",
+                                style: MyStyle.s3.copyWith(
+                                  color: MyColor.textGreyColor,
+                                ),
+                              );
+                            }).toList() ??
+                            [], // aspects null ise boş liste döndür
                       ),
                     ),
                   ],

@@ -296,10 +296,15 @@ class UserController extends GetxController {
   }
 
   bool validatePlace(String place) {
-    print('Doğum yeri validasyonu: $place');
-    isPlaceValid.value = place.isNotEmpty;
-    birthPlaceController.text = place;
-    return isPlaceValid.value;
+    try {
+      print('Doğum yeri validasyonu: $place');
+      isPlaceValid.value = place.isNotEmpty;
+      birthPlaceController.text = place;
+      return isPlaceValid.value;
+    } catch (e) {
+      handleLocationError(e.toString());
+      return false;
+    }
   }
 
   bool validateGender(String gender) {
@@ -405,7 +410,7 @@ class UserController extends GetxController {
 
     Get.snackbar(
       'Hata',
-      error,
+      'Konum arama sırasında bir hata oluştu. Lütfen tekrar deneyin.',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: MyColor.errorColor,
       colorText: MyColor.white,

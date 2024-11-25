@@ -94,10 +94,10 @@ class AstrologyController extends GetxController {
   Future<void> _initializeController() async {
     try {
       isLoading.value = true;
-      
+
       // UserController'ın hazır olmasını bekle
       await _userController.initialized;
-      
+
       // Kullanıcı ID'sini kontrol et
       if (_userController.userId.value.isEmpty) {
         await _waitForUser();
@@ -136,7 +136,7 @@ class AstrologyController extends GetxController {
           await _initializeAstrologyPage();
           return;
         }
-        
+
         // Kullanıcı bilgilerini yeniden yüklemeyi dene
         if (_userController.userId.value.isNotEmpty) {
           await _userController.loadUser(_userController.userId.value);
@@ -146,7 +146,7 @@ class AstrologyController extends GetxController {
             return;
           }
         }
-        
+
         await Future.delayed(retryDelay);
         attempts++;
       } catch (e) {
@@ -157,7 +157,8 @@ class AstrologyController extends GetxController {
     }
 
     if (!isInitialized.value) {
-      print('Kullanıcı bilgileri yüklenemedi: Maksimum deneme sayısına ulaşıldı');
+      print(
+          'Kullanıcı bilgileri yüklenemedi: Maksimum deneme sayısına ulaşıldı');
     }
   }
 
@@ -315,22 +316,21 @@ class AstrologyController extends GetxController {
       }
 
       isLoading.value = true;
-      
+
       final user = _userController.currentUser.value;
       if (user == null) {
         print('Kullanıcı bilgileri yeniden yükleniyor...');
         await _userController.loadUser(_userController.userId.value);
-        
+
         if (_userController.currentUser.value == null) {
           throw Exception('Kullanıcı bilgisi bulunamadı');
         }
       }
 
-      final lifePathNumber = calculateLifePathNumber(_userController.currentUser.value!.birthDate);
+      final lifePathNumber =
+          calculateLifePathNumber(_userController.currentUser.value!.birthDate);
       final response = await _geminiService.generateNumerologyReading(
-        lifePathNumber, 
-        _userController.currentUser.value!
-      );
+          lifePathNumber, _userController.currentUser.value!);
 
       final jsonResponse = json.decode(response);
       numerologyReading.value = {
@@ -339,11 +339,10 @@ class AstrologyController extends GetxController {
 
       await _saveNumerologyToFirestore(jsonResponse['numerology']);
       isNumerologyAvailable.value = true;
-
     } catch (e) {
       print('Numerology generation error: $e');
       isNumerologyAvailable.value = false;
-      
+
       // Hata mesajını göster ama sadece context varsa
       if (Get.context != null) {
         _handleError('Numeroloji yorumu oluşturulurken bir hata oluştu');
@@ -423,7 +422,7 @@ class AstrologyController extends GetxController {
       final userId = Get.find<UserController>().userId.value;
       final Map<String, dynamic> transitData = {};
 
-      // Map'i güvenli bir şekilde dönüştür
+      // Map'i güvenli bir şekilde dönştür
       currentTransits.forEach((key, value) {
         transitData[key] = value;
       });
@@ -1004,11 +1003,14 @@ class AstrologyController extends GetxController {
 
   // Retrogradları kontrol etmek için yeni metodlar
   bool isRetrograde(String planet) {
-    // Gezegenlerin retro durumunu kontrol eder
-    final position = weeklyTransits[planet]!;
-    final retroProb =
-        EphemerisService.calculateRetrogradeStatus(planet, position);
-    return retroProb > 0.5;
+    try {
+      // Gezegenlerin retro durumunu kontrol eder
+      final position = weeklyTransits[planet]!;
+      return EphemerisService.calculateRetrogradeStatus(planet, position);
+    } catch (e) {
+      print('Retro durumu kontrol hatası: $e');
+      return false;
+    }
   }
 
   int get retrogradeCount {
@@ -1306,6 +1308,48 @@ class AstrologyController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // Gezegen pozisyonlarını hesaplayan metotta
+  Map<String, dynamic> calculatePlanetPosition(String planet) {
+    try {
+      double degree;
+      int sign;
+      bool isRetrograde;
+      Map<String, dynamic> aspects = {}; // Varsayılan boş map
+
+      switch (planet) {
+        case 'Sun':
+          degree = EphemerisService.calculateSunPosition();
+          break;
+        case 'Moon':
+          degree = EphemerisService.calculateMoonPosition();
+          break;
+        default:
+          degree = EphemerisService.calculatePlanetPosition(planet);
+      }
+
+      // Burç hesaplama (her burç 30 derece)
+      sign = (degree / 30).floor() % 12;
+
+      // Retro durumu kontrolü - bool değer döndüren metodu kullan
+      isRetrograde = EphemerisService.calculateRetrogradeStatus(planet, degree);
+
+      return {
+        'degree': degree,
+        'sign': sign,
+        'isRetrograde': isRetrograde,
+        'aspects': aspects // Aspects ekle
+      };
+    } catch (e) {
+      print('Gezegen pozisyonu hesaplama hatası: $e');
+      return {
+        'degree': 0.0,
+        'sign': 0,
+        'isRetrograde': false,
+        'aspects': {} // Hata durumunda boş map
+      };
     }
   }
 }

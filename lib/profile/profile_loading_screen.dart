@@ -50,25 +50,31 @@ class _ProfileLoadingScreenState extends State<ProfileLoadingScreen>
   }
 
   Future<void> _startLoadingSequence() async {
-    for (int i = 0; i < _loadingTexts.length; i++) {
-      await Future.delayed(const Duration(seconds: 2));
-      if (mounted) {
-        setState(() => _currentStep = i);
+    try {
+      for (int i = 0; i < _loadingTexts.length; i++) {
+        await Future.delayed(const Duration(seconds: 2));
+        if (mounted) {
+          setState(() => _currentStep = i);
+        }
       }
-    }
 
-    if (_currentStep == _loadingTexts.length - 1) {
-      await Future.delayed(const Duration(seconds: 2));
-    }
+      if (_currentStep == _loadingTexts.length - 1) {
+        await Future.delayed(const Duration(seconds: 2));
+      }
 
-    await widget.onLoadComplete();
+      await widget.onLoadComplete();
 
-    if (mounted) {
-      Get.delete<AstrologyController>();
-
-      Get.put(AstrologyController());
-
-      Get.offAll(() => const HomePage());
+      if (mounted) {
+        Get.offAll(() => const HomePage());
+      }
+    } catch (e) {
+      print('Loading sequence hatası: $e');
+      Get.snackbar(
+        'Hata',
+        'Profil yüklenirken bir hata oluştu',
+        backgroundColor: MyColor.errorColor,
+        colorText: MyColor.white,
+      );
     }
   }
 

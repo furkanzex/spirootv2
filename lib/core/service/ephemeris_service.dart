@@ -49,6 +49,7 @@ class EphemerisService {
           'position': position,
           'sign': getZodiacSign(position),
           'isRetrograde': _isCurrentlyRetrograde(planet, DateTime.now()),
+          'aspects': {},
         };
       });
 
@@ -265,25 +266,75 @@ class EphemerisService {
   }
 
   // Retro durumunu hesapla
-  static double calculateRetrogradeStatus(String planet, double position) {
-    // Şu anki tarihi al
-    final now = DateTime.now();
+  // Eski metodu kaldır ve sadece bu metodu kullan
+  static bool calculateRetrogradeStatus(String planet, double position) {
+    try {
+      // Şu anki tarihi al
+      final now = DateTime.now();
 
-    // Gezegenin retro durumunu kontrol et
-    if (_isCurrentlyRetrograde(planet, now)) {
-      return 1.0; // Retro
-    }
-
-    // Yaklaşan retro durumunu kontrol et
-    final retroPeriods = getRetroSchedule(planet, now.year);
-    for (var period in retroPeriods) {
-      final start = period['start'] as DateTime;
-      if (start.isAfter(now) && start.difference(now).inDays <= 7) {
-        // Retro başlangıcına 7 gün veya daha az kaldıysa
-        return 0.8; // Yaklaşan retro
+      // Gezegenin retro durumunu kontrol et
+      if (_isCurrentlyRetrograde(planet, now)) {
+        return true;
       }
-    }
 
-    return 0.0; // Retro değil
+      // Yaklaşan retro durumunu kontrol et
+      final retroPeriods = getRetroSchedule(planet, now.year);
+      for (var period in retroPeriods) {
+        final start = period['start'] as DateTime;
+        if (start.isAfter(now) && start.difference(now).inDays <= 7) {
+          return true; // Yaklaşan retro
+        }
+      }
+
+      return false; // Retro değil
+    } catch (e) {
+      print('Retro durumu hesaplama hatası: $e');
+      return false;
+    }
+  }
+
+  // Gezegen pozisyonlarını hesaplayan metodlar
+  static double calculateSunPosition() {
+    try {
+      // Basit bir hesaplama örneği - gerçek hesaplama için sweph kütüphanesi kullanılmalı
+      final now = DateTime.now();
+      return (now.day + now.hour / 24) * 360 / 30;
+    } catch (e) {
+      print('Güneş pozisyonu hesaplama hatası: $e');
+      return 0.0;
+    }
+  }
+
+  static double calculateMoonPosition() {
+    try {
+      // Basit bir hesaplama örneği - gerçek hesaplama için sweph kütüphanesi kullanılmalı
+      final now = DateTime.now();
+      return (now.day + now.hour / 24) * 360 / 28;
+    } catch (e) {
+      print('Ay pozisyonu hesaplama hatası: $e');
+      return 0.0;
+    }
+  }
+
+  static double calculatePlanetPosition(String planet) {
+    try {
+      switch (planet) {
+        case 'Mercury':
+          return 120.0;
+        case 'Venus':
+          return 180.0;
+        case 'Mars':
+          return 240.0;
+        case 'Jupiter':
+          return 300.0;
+        case 'Saturn':
+          return 60.0;
+        default:
+          return 0.0;
+      }
+    } catch (e) {
+      print('Gezegen pozisyonu hesaplama hatası: $e');
+      return 0.0;
+    }
   }
 }
