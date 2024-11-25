@@ -14,11 +14,75 @@ class SpiritualChatController extends GetxController {
   final RxList<SpiritualChatMessage> messages = <SpiritualChatMessage>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isThinking = false.obs;
+  final RxBool isInitialized = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    _loadMessages();
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
+    try {
+      // UserController'ın hazır olmasını bekle
+      await Get.find<UserController>().initialized;
+
+      // Kullanıcı ID'sini dinle
+      ever(_userController.userId, (String userId) {
+        if (userId.isNotEmpty && !isInitialized.value) {
+          isInitialized.value = true;
+          _loadMessages();
+        }
+      });
+
+      // Eğer kullanıcı ID'si zaten varsa, hemen yükle
+      if (_userController.userId.value.isNotEmpty) {
+        isInitialized.value = true;
+        await _loadMessages();
+      } else {
+        // Kullanıcı ID'si yoksa, bekleme moduna geç
+        await _waitForUser();
+      }
+    } catch (e) {
+      print('Initialize controller error: $e');
+      _handleError('Uygulama başlatılırken bir hata oluştu');
+    }
+  }
+
+  Future<void> _waitForUser() async {
+    int attempts = 0;
+    const maxAttempts = 10; // Deneme sayısını artırdık
+    const retryDelay = Duration(seconds: 2);
+
+    while (attempts < maxAttempts && !isInitialized.value) {
+      try {
+        if (_userController.userId.value.isNotEmpty) {
+          isInitialized.value = true;
+          await _loadMessages();
+          return;
+        }
+        await Future.delayed(retryDelay);
+        attempts++;
+      } catch (e) {
+        print('Wait for user error: $e');
+      }
+    }
+
+    if (!isInitialized.value) {
+      _handleError(
+          'Kullanıcı bilgileri yüklenemedi. Lütfen uygulamayı yeniden başlatın.');
+    }
+  }
+
+  void _handleError(String message) {
+    Get.snackbar(
+      'Hata',
+      message,
+      backgroundColor: MyColor.errorColor,
+      colorText: MyColor.white,
+      duration: const Duration(seconds: 5),
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   Future<void> _loadMessages() async {
@@ -27,7 +91,8 @@ class SpiritualChatController extends GetxController {
       final userId = _userController.userId.value;
 
       if (userId.isEmpty) {
-        print('User ID is empty');
+        // Kullanıcı ID'si boşsa, kullanıcının yüklenmesini bekle
+        await _waitForUser();
         return;
       }
 
@@ -42,18 +107,16 @@ class SpiritualChatController extends GetxController {
         );
         messages.add(welcomeMessage);
         await _saveMessage(welcomeMessage);
-        return;
+      } else {
+        final List<dynamic> messagesList = chatDoc.data()?['messages'] ?? [];
+        messages.value = messagesList
+            .map((messageData) => SpiritualChatMessage(
+                  text: messageData['text'] ?? '',
+                  isMe: messageData['isMe'] ?? false,
+                  timestamp: (messageData['timestamp'] as Timestamp).toDate(),
+                ))
+            .toList();
       }
-
-      final List<dynamic> messagesList = chatDoc.data()?['messages'] ?? [];
-
-      messages.value = messagesList
-          .map((messageData) => SpiritualChatMessage(
-                text: messageData['text'] ?? '',
-                isMe: messageData['isMe'] ?? false,
-                timestamp: (messageData['timestamp'] as Timestamp).toDate(),
-              ))
-          .toList();
     } catch (e) {
       print('Load messages error: $e');
       Get.snackbar(
@@ -68,12 +131,17 @@ class SpiritualChatController extends GetxController {
   }
 
   Future<void> sendMessage(String text) async {
+    if (!isInitialized.value) {
+      _handleError('Uygulama henüz başlatılmadı. Lütfen bekleyin.');
+      return;
+    }
+
     if (text.trim().isEmpty) return;
 
     try {
       final userId = _userController.userId.value;
       if (userId.isEmpty) {
-        print('User ID is empty');
+        _handleError('Kullanıcı oturumu bulunamadı');
         return;
       }
 
@@ -115,24 +183,7 @@ class SpiritualChatController extends GetxController {
       await _saveMessage(aiMessage);
     } catch (e) {
       print('Send message error: $e');
-      isThinking.value = false; // Hata durumunda düşünmeyi bitir
-
-      final errorMessage = SpiritualChatMessage(
-        text:
-            "Üzgünüm, şu anda yanıt veremiyorum. Lütfen daha sonra tekrar deneyin.",
-        isMe: false,
-        timestamp: DateTime.now(),
-      );
-
-      messages.insert(0, errorMessage);
-      await _saveMessage(errorMessage);
-
-      Get.snackbar(
-        'Hata',
-        'Mesaj gönderilirken bir hata oluştu',
-        backgroundColor: MyColor.errorColor,
-        colorText: MyColor.white,
-      );
+      _handleError('Mesaj gönderilirken bir hata oluştu');
     }
   }
 

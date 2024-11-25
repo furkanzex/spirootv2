@@ -75,23 +75,84 @@ class AstrologyController extends GetxController {
     {'name': 'scorpio', 'date': 'Oct 23 - Nov 21'},
   ];
 
+  final RxBool isInitialized = false.obs;
+  final UserController _userController = Get.find<UserController>();
+
   @override
   void onInit() {
     super.onInit();
+    _initializeController();
+  }
 
-    // Önce auto refresh'i kur
-    _setupAutoRefresh();
+  Future<void> _initializeController() async {
+    try {
+      // UserController'ın hazır olmasını bekle
+      await Get.find<UserController>().initialized;
 
-    // Widget ağacı oluştuktan sonra çalıştır
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Kısa bir gecikme ekle
-      await Future.delayed(const Duration(seconds: 2));
-      await _checkSubscription();
-      await _initializeAstrologyPage();
-    });
+      // Kullanıcı ID'sini dinle
+      ever(_userController.userId, (String userId) {
+        if (userId.isNotEmpty && !isInitialized.value) {
+          isInitialized.value = true;
+          _initializeAstrologyPage();
+        }
+      });
+
+      // Eğer kullanıcı ID'si zaten varsa, hemen yükle
+      if (_userController.userId.value.isNotEmpty) {
+        isInitialized.value = true;
+        await _initializeAstrologyPage();
+      } else {
+        // Kullanıcı ID'si yoksa, bekleme moduna geç
+        await _waitForUser();
+      }
+    } catch (e) {
+      print('Initialize controller error: $e');
+      _handleError('Uygulama başlatılırken bir hata oluştu');
+    }
+  }
+
+  Future<void> _waitForUser() async {
+    int attempts = 0;
+    const maxAttempts = 10;
+    const retryDelay = Duration(seconds: 2);
+
+    while (attempts < maxAttempts && !isInitialized.value) {
+      try {
+        if (_userController.userId.value.isNotEmpty) {
+          isInitialized.value = true;
+          await _initializeAstrologyPage();
+          return;
+        }
+        await Future.delayed(retryDelay);
+        attempts++;
+      } catch (e) {
+        print('Wait for user error: $e');
+      }
+    }
+
+    if (!isInitialized.value) {
+      _handleError(
+          'Kullanıcı bilgileri yüklenemedi. Lütfen uygulamayı yeniden başlatın.');
+    }
+  }
+
+  void _handleError(String message) {
+    Get.snackbar(
+      'Hata',
+      message,
+      backgroundColor: MyColor.errorColor,
+      colorText: MyColor.white,
+      duration: const Duration(seconds: 5),
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   Future<void> _initializeAstrologyPage() async {
+    if (!isInitialized.value) {
+      await _waitForUser();
+      return;
+    }
+
     try {
       await Future.wait([
         _initializeHoroscope(),
@@ -101,6 +162,7 @@ class AstrologyController extends GetxController {
       ]);
     } catch (e) {
       print('Initialize Astrology Page Error: $e');
+      _handleError('Astroloji sayfası yüklenirken bir hata oluştu');
     }
   }
 
@@ -368,10 +430,15 @@ class AstrologyController extends GetxController {
   }
 
   Future<void> generateHoroscope() async {
+    if (!isInitialized.value) {
+      _handleError('Uygulama henüz başlatılmadı. Lütfen bekleyin.');
+      return;
+    }
+
     try {
       isLoading.value = true;
 
-      final user = Get.find<UserController>().currentUser.value;
+      final user = _userController.currentUser.value;
       if (user == null) {
         throw Exception('Kullanıcı bilgisi bulunamadı');
       }
@@ -410,15 +477,9 @@ class AstrologyController extends GetxController {
       }
     } catch (e) {
       print('Horoscope generation error: $e');
-      Get.snackbar(
-        'Hata',
-        'Kozmik mesaj oluşturulurken bir hata oluştu',
-        backgroundColor: MyColor.errorColor,
-        colorText: MyColor.white,
-      );
+      _handleError('Yorum oluşturulurken bir hata oluştu');
     } finally {
       isLoading.value = false;
-      update();
     }
   }
 
