@@ -8,6 +8,7 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/profile/user_controller.dart';
+import 'package:spirootv2/core/widget/popup/premium_popup.dart';
 
 class CompatibilityScreen extends StatelessWidget {
   final String type;
@@ -319,7 +320,18 @@ class CompatibilityScreen extends StatelessWidget {
                 ],
               ),
               child: ElevatedButton(
-                onPressed: () => _astrologyController.checkCompatibility(type),
+                onPressed: () {
+                  if (_astrologyController.isSubscribed.value) {
+                    _astrologyController.checkCompatibility(type);
+                  } else {
+                    Get.dialog(
+                      PremiumPopup(
+                        onSingleUse: () =>
+                            _astrologyController.checkCompatibility(type),
+                      ),
+                    );
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6C5DD3),
                   minimumSize: const Size(double.infinity, 56),

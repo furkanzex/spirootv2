@@ -11,6 +11,7 @@ import 'package:spirootv2/core/constant/my_image.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/widget/gap/horizontal_gap.dart';
+import 'package:spirootv2/core/widget/popup/premium_popup.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:spirootv2/astrology/love_career_money.dart';
 import 'package:spirootv2/core/widget/divider/divider.dart';
@@ -743,11 +744,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () async {
-                        if (_astrologyController.isLoading.value) return;
-
-                        await _astrologyController.generateHoroscope();
-                      },
+                      onPressed: () => _showCosmicMessage(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: MyColor.primaryColor,
                         foregroundColor: MyColor.white,
@@ -1806,7 +1803,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   horizontalGap(MySize.defaultPadding),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => _showNumerologyDetails(),
+                      onTap: () => _showNumerologyContent(),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -1851,6 +1848,23 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         ),
       ],
     );
+  }
+
+  void _showCosmicMessage() {
+    if (_astrologyController.isSubscribed.value) {
+      // Mevcut kozmik mesaj gösterme fonksiyonu
+      _showCosmicMessageContent();
+    } else {
+      Get.dialog(
+        PremiumPopup(
+          onSingleUse: () => _showCosmicMessageContent(),
+        ),
+      );
+    }
+  }
+
+  void _showNumerologyContent() {
+    _showNumerologyDetails();
   }
 
   void _showNumerologyDetails() {
@@ -2567,5 +2581,11 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
   String _getLocalizedZodiacName(String sign) {
     return easy.tr("astrology.zodiac.$sign.name");
+  }
+
+  // Kozmik mesaj içeriğini gösterme fonksiyonu
+  void _showCosmicMessageContent() async {
+    if (_astrologyController.isLoading.value) return;
+    await _astrologyController.generateHoroscope();
   }
 }
