@@ -7,7 +7,6 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/home/homepage.dart';
-import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
 class ProfileLoadingScreen extends StatefulWidget {

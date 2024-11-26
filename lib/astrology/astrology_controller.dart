@@ -471,10 +471,12 @@ class AstrologyController extends GetxController {
           } else {
             isHoroscopeAvailable.value = false;
             // Süresi geçmiş yorumu otomatik oluştur
-            await generateHoroscope();
+            await generateHoroscope(cleanTimeframe);
           }
         } else {
           isHoroscopeAvailable.value = false;
+          // Yorum yoksa yeni yorum oluştur
+          await generateHoroscope(cleanTimeframe);
         }
       } else {
         isHoroscopeAvailable.value = false;
@@ -488,7 +490,7 @@ class AstrologyController extends GetxController {
     }
   }
 
-  Future<void> generateHoroscope() async {
+  Future<void> generateHoroscope([String? timeframe]) async {
     try {
       isLoading.value = true;
 
@@ -497,14 +499,90 @@ class AstrologyController extends GetxController {
         throw Exception('Kullanıcı bilgisi bulunamadı');
       }
 
+      // Timeframe parametresi verilmemişse selectedDay'den al
+      final currentTimeframe = timeframe ??
+          selectedDay.value.replaceAll("astrology.horoscope.dates.", "");
+
+      // Premium kontrolü - Günlük yorum değilse ve premium değilse oluşturma
+      if (currentTimeframe != "today" && !isSubscribed.value) {
+        isHoroscopeAvailable.value = false;
+        return;
+      }
+
+      // Tarih aralığını belirle
+      final now = DateTime.now();
+      String dateRange;
+      switch (currentTimeframe) {
+        case "today":
+          dateRange = DateFormat('dd MMMM yyyy').format(now);
+          break;
+        case "week":
+          final weekEnd = now.add(const Duration(days: 7));
+          dateRange =
+              "${DateFormat('dd MMMM').format(now)} - ${DateFormat('dd MMMM yyyy').format(weekEnd)}";
+          break;
+        case "month":
+          dateRange = DateFormat('MMMM yyyy').format(now);
+          break;
+        default:
+          dateRange = DateFormat('dd MMMM yyyy').format(now);
+      }
+
+      // Zaman dilimine göre özel prompt oluştur
+      String customPrompt;
+      switch (currentTimeframe) {
+        case "today":
+          customPrompt = '''
+          $dateRange tarihi için günlük burç yorumu oluştur.
+          Bugünün gezegen konumlarını ve açılarını dikkate al.
+          Yorum kısa ve öz olmalı, günlük aktiviteler için tavsiyeler içermeli.
+          ''';
+          break;
+        case "week":
+          customPrompt = '''
+          $dateRange tarihleri arası için haftalık burç yorumu oluştur.
+          Bu haftaki önemli gezegen hareketlerini ve Ay fazlarını dikkate al.
+          Yorum daha detaylı olmalı, haftanın önemli günlerini belirtmeli.
+          Hafta boyunca dikkat edilmesi gereken konuları vurgula.
+          ''';
+          break;
+        case "month":
+          customPrompt = '''
+          $dateRange ayı için aylık burç yorumu oluştur.
+          Bu aydaki tüm önemli astrolojik olayları dikkate al.
+          Retrogradları, Yeni Ay ve Dolunay etkilerini, önemli gezegen geçişlerini içermeli.
+          Ay boyunca yaşanacak değişimleri ve fırsatları detaylı açıkla.
+          Uzun vadeli planlar için tavsiyelerde bulun.
+          ''';
+          break;
+        default:
+          customPrompt = "$dateRange tarihi için günlük burç yorumu oluştur.";
+      }
+
       // Gemini servisinden yorumu al
       final response = await _geminiService.generateHoroscope(
         selectedDay.value,
         user,
+        customPrompt,
       );
 
-      // JSON'ı parse et ve horoscope nesnesini oluştur
-      final jsonResponse = json.decode(response);
+      // JSON yanıtını temizle ve parse et
+      String cleanJson = response.trim();
+      if (!cleanJson.startsWith('{')) {
+        final startIndex = cleanJson.indexOf('{');
+        if (startIndex != -1) {
+          cleanJson = cleanJson.substring(startIndex);
+        }
+      }
+      if (!cleanJson.endsWith('}')) {
+        final endIndex = cleanJson.lastIndexOf('}') + 1;
+        if (endIndex > 0) {
+          cleanJson = cleanJson.substring(0, endIndex);
+        }
+      }
+
+      // JSON'ı parse et
+      final jsonResponse = json.decode(cleanJson);
       final reading = jsonResponse['horoscope']['reading'];
 
       final horoscope = DailyHoroscope(
@@ -522,10 +600,15 @@ class AstrologyController extends GetxController {
       );
 
       // Firebase'e kaydet
-      await _saveHoroscopeToFirestore(horoscope);
+      await _saveHoroscopeToFirestore(horoscope, currentTimeframe);
 
       selectedHoroscope.value = horoscope;
       isHoroscopeAvailable.value = true;
+
+      // Natal Chart yorumu kontrolü ve oluşturma
+      if (isSubscribed.value && currentTimeframe != "today") {
+        await _generateAndSaveNatalReading(currentTimeframe);
+      }
     } catch (e) {
       print('Horoscope generation error: $e');
       isHoroscopeAvailable.value = false;
@@ -535,17 +618,33 @@ class AstrologyController extends GetxController {
     }
   }
 
-  Future<void> _saveHoroscopeToFirestore(DailyHoroscope horoscope) async {
+  Future<void> _saveHoroscopeToFirestore(
+      DailyHoroscope horoscope, String timeframe) async {
     try {
       final userId = _userController.userId.value;
       final user = _userController.currentUser.value!;
       final now = DateTime.now();
 
-      // Günün sonuna kadar geçerli olacak şekilde ayarla
-      final expiryDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
+      // Zaman dilimine göre son kullanma tarihini ayarla
+      DateTime expiryDate;
+      switch (timeframe) {
+        case "today":
+          expiryDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
+          break;
+        case "week":
+          expiryDate = now.add(const Duration(days: 7));
+          break;
+        case "month":
+          expiryDate = DateTime(now.year, now.month + 1, 1)
+              .subtract(const Duration(seconds: 1));
+          break;
+        default:
+          expiryDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
+      }
 
+      // Firebase'e kaydet
       await _firestore.collection('users').doc(userId).update({
-        'interpretations.${user.zodiacSign}.today': {
+        'interpretations.${user.zodiacSign}.$timeframe': {
           ...horoscope.toMap(),
           'createdAt': now,
           'expiryDate': expiryDate,
@@ -1049,6 +1148,13 @@ class AstrologyController extends GetxController {
   // Numeroloji kontrolü için public metod
   Future<void> checkNumerologyReading() async {
     try {
+      // Premium kontrolü - Premium değilse işlem yapma
+      if (!isSubscribed.value) {
+        isNumerologyAvailable.value = false;
+        numerologyReading.clear();
+        return;
+      }
+
       isLoading.value = true;
       final userId = _userController.userId.value;
       final doc = await _firestore.collection('users').doc(userId).get();
@@ -1077,10 +1183,6 @@ class AstrologyController extends GetxController {
       // Yeni yorum oluşturma kontrolü
       if (needsNewReading && isSubscribed.value) {
         await generateNumerologyReading();
-      } else if (!isSubscribed.value) {
-        // Abonelik yoksa numeroloji verilerini temizle
-        numerologyReading.clear();
-        isNumerologyAvailable.value = false;
       }
     } catch (e) {
       print('Check Numerology Reading Error: $e');
@@ -1271,6 +1373,15 @@ class AstrologyController extends GetxController {
   // Premium içerikleri sil
   Future<void> _deletePremiumContent(DocumentReference userRef) async {
     try {
+      final user = _userController.currentUser.value;
+      if (user == null) return;
+
+      // Haftalık ve aylık yorumları sil
+      await userRef.update({
+        'interpretations.${user.zodiacSign}.week': FieldValue.delete(),
+        'interpretations.${user.zodiacSign}.month': FieldValue.delete(),
+      });
+
       // Natal grafik yorumlarını sil
       await userRef.collection('natalChartReadings').get().then((snapshot) {
         for (var doc in snapshot.docs) {
@@ -1278,9 +1389,20 @@ class AstrologyController extends GetxController {
         }
       });
 
-      // Diğer premium içerikleri sıfırla
+      // Numeroloji yorumlarını sil
+      await userRef.update({
+        'numerology': FieldValue.delete(),
+      });
+
+      // Local state'i temizle
       weeklyNatalReading.clear();
       isWeeklyNatalAvailable.value = false;
+      numerologyReading.clear();
+      isNumerologyAvailable.value = false;
+
+      // Horoscope state'ini güncelle
+      selectedDay.value = "astrology.horoscope.dates.today";
+      await checkHoroscope(selectedDay.value);
     } catch (e) {
       print('Delete premium content error: $e');
     }
@@ -1316,8 +1438,8 @@ class AstrologyController extends GetxController {
       bool needsNewReading = true;
 
       // Mevcut yorumu kontrol et
-      if (interpretations != null && 
-          interpretations[zodiacSign] != null && 
+      if (interpretations != null &&
+          interpretations[zodiacSign] != null &&
           interpretations[zodiacSign]['today'] != null) {
         final interpretation = interpretations[zodiacSign]['today'];
         final expiryDate = (interpretation['expiryDate'] as Timestamp).toDate();
@@ -1393,17 +1515,21 @@ class AstrologyController extends GetxController {
     if (!isSubscribed.value) return;
 
     try {
+      isLoading.value = true;
+
+      // Tüm içerikleri kontrol et ve gerekirse yenilerini oluştur
       await Future.wait([
-        _loadContentWithExpiry('daily_horoscope', _loadDailyHoroscope),
-        _loadContentWithExpiry('weekly_horoscope', _loadWeeklyHoroscope),
-        _loadContentWithExpiry('monthly_horoscope', _loadMonthlyHoroscope),
-        _loadContentWithExpiry('weekly_natal', _loadWeeklyNatalReading),
-        _loadContentWithExpiry('current_transits', _loadCurrentTransits),
-        _loadContentWithExpiry('retro_readings', _loadRetroReadings),
-        _loadContentWithExpiry('numerology', _loadNumerologyReading),
+        _loadDailyHoroscope(),
+        _loadWeeklyHoroscope(),
+        _loadMonthlyHoroscope(),
+        _loadWeeklyNatalReading(),
+        _loadNumerologyReading(),
+        _loadRetroReadings(),
       ]);
     } catch (e) {
       print('Load premium content error: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -1412,6 +1538,11 @@ class AstrologyController extends GetxController {
     try {
       selectedDay.value = "astrology.horoscope.dates.week";
       await checkHoroscope(selectedDay.value);
+
+      // Yorum yoksa veya süresi geçmişse yeni yorum oluştur
+      if (!isHoroscopeAvailable.value) {
+        await generateHoroscope();
+      }
     } catch (e) {
       print('Load weekly horoscope error: $e');
     }
@@ -1422,6 +1553,11 @@ class AstrologyController extends GetxController {
     try {
       selectedDay.value = "astrology.horoscope.dates.month";
       await checkHoroscope(selectedDay.value);
+
+      // Yorum yoksa veya süresi geçmişse yeni yorum oluştur
+      if (!isHoroscopeAvailable.value) {
+        await generateHoroscope();
+      }
     } catch (e) {
       print('Load monthly horoscope error: $e');
     }
@@ -1431,32 +1567,27 @@ class AstrologyController extends GetxController {
   Future<void> _loadNumerologyReading() async {
     try {
       await checkNumerologyReading();
+
+      // Yorum yoksa veya süresi geçmişse yeni yorum oluştur
+      if (!isNumerologyAvailable.value) {
+        await generateNumerologyReading();
+      }
     } catch (e) {
       print('Load numerology reading error: $e');
     }
   }
 
-  // Haftalık natal okuma yükleme
   Future<void> _loadWeeklyNatalReading() async {
     try {
-      // Abonelik kontrolü
-      if (!isSubscribed.value) {
-        isWeeklyNatalAvailable.value = false;
-        weeklyNatalReading.clear();
-        return;
-      }
-
       final userId = _userController.userId.value;
       final doc = await _firestore.collection('users').doc(userId).get();
       final natalData = doc.data()?['weekly_natal'];
 
       bool needsNewReading = true;
 
-      // Mevcut yorum ve son kullanma tarihi kontrolü
       if (natalData != null && natalData['expiryDate'] != null) {
         final expiryDate = (natalData['expiryDate'] as Timestamp).toDate();
 
-        // Süresi geçmemişse mevcut yorumu kullan
         if (expiryDate.isAfter(DateTime.now())) {
           weeklyNatalReading.value = natalData['reading'];
           isWeeklyNatalAvailable.value = true;
@@ -1464,8 +1595,8 @@ class AstrologyController extends GetxController {
         }
       }
 
-      // Yeni yorum oluşturma ihtiyacı varsa ve abonelik aktifse
-      if (needsNewReading && isSubscribed.value) {
+      // Yeni yorum oluşturma ihtiyacı varsa
+      if (needsNewReading) {
         await _generateWeeklyNatalReading();
       }
     } catch (e) {
@@ -1537,6 +1668,40 @@ class AstrologyController extends GetxController {
       });
     } catch (e) {
       print('Update expiry date error for $contentType: $e');
+    }
+  }
+
+  // Natal Chart yorumu oluştur ve kaydet
+  Future<void> _generateAndSaveNatalReading(String timeframe) async {
+    try {
+      final user = _userController.currentUser.value!;
+      final natalReading = await _geminiService.generateWeeklyNatalReading(
+        user.birthDate,
+        user.birthTime,
+        user.birthPlace,
+        user.zodiacSign,
+        user.ascendant,
+        user.moonSign,
+      );
+
+      final jsonResponse = json.decode(natalReading);
+      weeklyNatalReading.value = jsonResponse['weeklyNatalReading'];
+      isWeeklyNatalAvailable.value = true;
+
+      // Firebase'e kaydet
+      await _firestore
+          .collection('users')
+          .doc(_userController.userId.value)
+          .update({
+        'weekly_natal': {
+          'reading': jsonResponse['weeklyNatalReading'],
+          'createdAt': DateTime.now(),
+          'expiryDate': DateTime.now().add(const Duration(days: 7)),
+        }
+      });
+    } catch (e) {
+      print('Generate natal reading error: $e');
+      isWeeklyNatalAvailable.value = false;
     }
   }
 }

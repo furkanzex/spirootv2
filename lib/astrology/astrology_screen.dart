@@ -1855,101 +1855,33 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       // Mevcut kozmik mesaj gösterme fonksiyonu
       _showCosmicMessageContent();
     } else {
-      Get.dialog(
-        PremiumPopup(
-          onSingleUse: () => _showCosmicMessageContent(),
-        ),
-      );
+      // Seçilen zaman dilimine göre premium kontrolü yap
+      if (_astrologyController.selectedDay.value !=
+          "astrology.horoscope.dates.today") {
+        // Haftalık ve aylık yorumlar için premium popup göster
+        Get.dialog(
+          PremiumPopup(
+            onSingleUse: () => _showCosmicMessageContent(),
+          ),
+        );
+      } else {
+        // Günlük yorum için direkt göster
+        _showCosmicMessageContent();
+      }
     }
   }
 
-  void _showNumerologyContent() {
-    _showNumerologyDetails();
-  }
+  void _showCosmicMessageContent() async {
+    if (_astrologyController.isLoading.value) return;
 
-  void _showNumerologyDetails() {
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(MySize.doublePadding),
-        decoration: const BoxDecoration(
-          color: MyColor.darkBackgroundColor,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(MySize.defaultRadius),
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Haftalık Numeroloji Yorumunuz",
-                style: MyStyle.s1.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              verticalGap(MySize.defaultPadding),
-              Obx(() {
-                if (_astrologyController.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: MyColor.primaryColor,
-                    ),
-                  );
-                }
+    // Seçilen zaman dilimine göre horoscope kontrolü yap
+    final timeframe = _astrologyController.selectedDay.value;
+    await _astrologyController.checkHoroscope(timeframe);
 
-                if (!_astrologyController.isNumerologyAvailable.value) {
-                  return Center(
-                    child: Text(
-                      "Numeroloji yorumu henüz oluşturulmadı.",
-                      style: MyStyle.s2.copyWith(
-                        color: MyColor.white,
-                      ),
-                    ),
-                  );
-                }
-
-                return _buildNumerologyContent();
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    // Eğer numeroloji yorumu yoksa, oluştur
-    if (!_astrologyController.isNumerologyAvailable.value &&
-        !_astrologyController.isLoading.value) {
-      _astrologyController.checkNumerologyReading();
+    // Eğer yorum yoksa veya süresi geçmişse yeni yorum oluştur
+    if (!_astrologyController.isHoroscopeAvailable.value) {
+      await _astrologyController.generateHoroscope();
     }
-  }
-
-  Widget _buildNumerologyContent() {
-    final reading = _astrologyController.numerologyReading;
-
-    if (reading.isEmpty) {
-      return Center(
-        child: Text(
-          "Numeroloji yorumu bulunamadı.",
-          style: MyStyle.s2.copyWith(
-            color: MyColor.white,
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          reading['weeklyReading'] ?? '',
-          style: MyStyle.s2.copyWith(
-            color: MyColor.white,
-            height: 1.5,
-          ),
-        ),
-      ],
-    );
   }
 
   Widget _buildLoadingWidget() {
@@ -2583,9 +2515,105 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     return easy.tr("astrology.zodiac.$sign.name");
   }
 
-  // Kozmik mesaj içeriğini gösterme fonksiyonu
-  void _showCosmicMessageContent() async {
-    if (_astrologyController.isLoading.value) return;
-    await _astrologyController.generateHoroscope();
+  // Numeroloji içeriğini gösterme fonksiyonu
+  void _showNumerologyContent() {
+    if (_astrologyController.isSubscribed.value) {
+      // Premium kullanıcı için direkt göster
+      _showNumerologyDetails();
+    } else {
+      // Premium olmayan kullanıcı için popup göster
+      Get.dialog(
+        PremiumPopup(
+          onSingleUse: () => _showNumerologyDetails(),
+        ),
+      );
+    }
+  }
+
+  // Numeroloji detaylarını gösteren bottom sheet
+  void _showNumerologyDetails() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(MySize.doublePadding),
+        decoration: const BoxDecoration(
+          color: MyColor.darkBackgroundColor,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(MySize.defaultRadius),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Haftalık Numeroloji Yorumunuz",
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              verticalGap(MySize.defaultPadding),
+              Obx(() {
+                if (_astrologyController.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: MyColor.primaryColor,
+                    ),
+                  );
+                }
+
+                if (!_astrologyController.isNumerologyAvailable.value) {
+                  return Center(
+                    child: Text(
+                      "Numeroloji yorumu henüz oluşturulmadı.",
+                      style: MyStyle.s2.copyWith(
+                        color: MyColor.white,
+                      ),
+                    ),
+                  );
+                }
+
+                return _buildNumerologyContent();
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Eğer numeroloji yorumu yoksa, oluştur
+    if (!_astrologyController.isNumerologyAvailable.value &&
+        !_astrologyController.isLoading.value) {
+      _astrologyController.checkNumerologyReading();
+    }
+  }
+
+  // Numeroloji içeriğini oluşturan widget
+  Widget _buildNumerologyContent() {
+    final reading = _astrologyController.numerologyReading;
+
+    if (reading.isEmpty) {
+      return Center(
+        child: Text(
+          "Numeroloji yorumu bulunamadı.",
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          reading['weeklyReading'] ?? '',
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            height: 1.5,
+          ),
+        ),
+      ],
+    );
   }
 }

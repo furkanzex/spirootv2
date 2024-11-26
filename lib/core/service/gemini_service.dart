@@ -118,40 +118,61 @@ class GeminiService extends GetxService {
   }
 
   // ASTROLOGY METHODS
-  Future<String> generateHoroscope(String timeframe, UserModel user) async {
+  Future<String> generateHoroscope(String timeframe, UserModel user,
+      [String? customPrompt]) async {
     try {
-      final prompt = _createHoroscopePrompt(timeframe, user);
+      final prompt = '''
+      Important: Write the response in $_currentLanguage
+
+      You are an experienced astrologer. Create a horoscope reading based on the following information:
+      
+      User Information:
+      - Sun Sign: ${user.zodiacSign}
+      - Ascendant: ${user.ascendant}
+      - Moon Sign: ${user.moonSign}
+      - Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
+      - Birth Time: ${user.birthTime}
+      
+      Timeframe: ${_getTimeframeText(timeframe)}
+      
+      ${customPrompt ?? "Create a detailed horoscope reading"}
+      
+      Response Format:
+      {
+        "horoscope": {
+          "zodiac": "${user.zodiacSign}",
+          "timeframe": "${timeframe.replaceAll("astrology.horoscope.dates.", "")}",
+          "reading": {
+            "overview": "Main horoscope text",
+            "love": {
+              "prediction": "Love life prediction",
+              "advice": "Love advice",
+              "percentage": numeric_value
+            },
+            "career": {
+              "prediction": "Career prediction",
+              "advice": "Career advice",
+              "percentage": numeric_value
+            },
+            "money": {
+              "prediction": "Financial prediction",
+              "advice": "Financial advice",
+              "percentage": numeric_value
+            },
+            "lucky": {
+              "numbers": [lucky_numbers],
+              "colors": ["lucky_colors"],
+              "days": ["lucky_days"]
+            }
+          }
+        }
+      }
+
+      Important: Write the response in $_currentLanguage
+      ''';
+
       final response = await _textModel.generateContent([Content.text(prompt)]);
-
-      // Yanıtı JSON formatına dönüştür
-      String jsonStr = response.text ?? '';
-
-      // JSON formatını doğrula ve temizle
-      jsonStr = jsonStr.trim();
-      if (!jsonStr.startsWith('{')) {
-        // Eğer JSON direkt başlamıyorsa, ilk { karakterinden itibaren al
-        final startIndex = jsonStr.indexOf('{');
-        if (startIndex != -1) {
-          jsonStr = jsonStr.substring(startIndex);
-        }
-      }
-      if (!jsonStr.endsWith('}')) {
-        // Eğer JSON direkt bitmiyorsa, son } karakterine kadar al
-        final endIndex = jsonStr.lastIndexOf('}') + 1;
-        if (endIndex != 0) {
-          jsonStr = jsonStr.substring(0, endIndex);
-        }
-      }
-
-      // JSON formatını kontrol et
-      try {
-        json.decode(jsonStr); // Test için parse et
-        return jsonStr;
-      } catch (e) {
-        print('JSON format hatası: $e');
-        // Hata durumunda varsayılan bir JSON döndür
-        return _createDefaultHoroscopeJson(user);
-      }
+      return response.text ?? _createDefaultHoroscopeJson(user);
     } catch (e) {
       print('Gemini horoscope error: $e');
       return _createDefaultHoroscopeJson(user);
