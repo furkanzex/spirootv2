@@ -35,7 +35,7 @@ Widget loveCareerMoney() {
                   ),
                   child: LinearProgressIndicator(
                     value: astrologyController.currentHoroscope.lovePercentage,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: Colors.white.withOpacity(0.1),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       MyColor.primaryLightColor,
                     ),
@@ -76,7 +76,7 @@ Widget loveCareerMoney() {
                   child: LinearProgressIndicator(
                     value:
                         astrologyController.currentHoroscope.careerPercentage,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: Colors.white.withOpacity(0.1),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       MyColor.primaryLightColor,
                     ),
@@ -116,7 +116,7 @@ Widget loveCareerMoney() {
                   ),
                   child: LinearProgressIndicator(
                     value: astrologyController.currentHoroscope.moneyPercentage,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: Colors.white.withOpacity(0.1),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       MyColor.primaryLightColor,
                     ),

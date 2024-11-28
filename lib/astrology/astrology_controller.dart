@@ -199,7 +199,7 @@ class AstrologyController extends GetxController {
         _initializeHoroscope(),
         _checkNumerologyAndRetrogrades(),
         _initializeWeeklyChart(),
-        _generateWeeklyNatalReading(),
+        checkWeeklyNatalReading(),
       ]);
     } catch (e) {
       print('Initialize Astrology Page Error: $e');
@@ -1192,9 +1192,11 @@ class AstrologyController extends GetxController {
     }
   }
 
-  Future<void> _generateWeeklyNatalReading() async {
+  Future<void> checkWeeklyNatalReading() async {
     try {
-      // Abonelik kontrolü - Abone değilse hiçbir işlem yapma
+      isLoading.value = true;
+
+      // Premium kontrolü
       if (!isSubscribed.value) {
         isWeeklyNatalAvailable.value = false;
         weeklyNatalReading.clear();
@@ -1219,13 +1221,36 @@ class AstrologyController extends GetxController {
         }
       }
 
-      // Yeni yorum oluşturma ihtiyacı varsa ve abonelik aktifse
-      if (needsNewReading && isSubscribed.value) {
-        await _generateWeeklyNatalReading();
+      // Yeni yorum oluşturma ihtiyacı varsa
+      if (needsNewReading) {
+        final user = _userController.currentUser.value!;
+        final natalReading = await _geminiService.generateWeeklyNatalReading(
+          user.birthDate,
+          user.birthTime,
+          user.birthPlace,
+          user.zodiacSign,
+          user.ascendant,
+          user.moonSign,
+        );
+
+        final jsonResponse = json.decode(natalReading);
+        weeklyNatalReading.value = jsonResponse['weeklyNatalReading'];
+        isWeeklyNatalAvailable.value = true;
+
+        // Firebase'e kaydet
+        await _firestore.collection('users').doc(userId).update({
+          'weekly_natal': {
+            'reading': jsonResponse['weeklyNatalReading'],
+            'createdAt': DateTime.now(),
+            'expiryDate': DateTime.now().add(const Duration(days: 7)),
+          }
+        });
       }
     } catch (e) {
-      print('Load weekly natal reading error: $e');
+      print('Weekly natal reading error: $e');
       isWeeklyNatalAvailable.value = false;
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -1597,7 +1622,7 @@ class AstrologyController extends GetxController {
 
       // Yeni yorum oluşturma ihtiyacı varsa
       if (needsNewReading) {
-        await _generateWeeklyNatalReading();
+        await checkWeeklyNatalReading();
       }
     } catch (e) {
       print('Load weekly natal reading error: $e');

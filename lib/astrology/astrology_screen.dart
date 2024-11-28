@@ -92,7 +92,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       backgroundColor: MyColor.transparent,
       body: SafeArea(
         child: Obx(() {
-          // UserController'dan profil tamamlanma durumunu kontrol et
           if (_userController.currentUser.value == null ||
               !_userController.currentUser.value!.isProfileComplete) {
             return _buildProfileIncomplete();
@@ -228,12 +227,10 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   }
 
   Widget _buildAstrologyContent() {
-    // Burç detaylarını al
     final zodiacSign = _userController.currentUser.value!.zodiacSign;
     final moonSign = _userController.currentUser.value!.moonSign;
     final ascendant = _userController.currentUser.value!.ascendant;
 
-    // Burç detaylarını getir
     final zodiacDetails =
         _astrologyController.getZodiacDetailsByName(zodiacSign);
     final moonDetails = _astrologyController.getZodiacDetailsByName(moonSign);
@@ -245,7 +242,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profil Bilgileri
           Center(
             child: Column(
               children: [
@@ -357,7 +353,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
           _buildCharacteristics(zodiacDetails['characteristics'] ?? ''),
 
-          // Zaman Seçici
           verticalGap(MySize.defaultPadding),
           divider(),
           Row(
@@ -381,19 +376,14 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             ],
           ),
 
-          // Love, Career, Money Bars
           verticalGap(MySize.doublePadding),
           loveCareerMoney(),
-
-          // Günlük Yorum
           verticalGap(MySize.doublePadding),
           _buildHoroscopeText(),
           verticalGap(MySize.doublePadding),
           _buildCompatibilityTestCard(),
           verticalGap(MySize.doublePadding),
           _buildBiorhythmChart(),
-          /*verticalGap(MySize.doublePadding),
-          _buildMoonCalendar(),*/
           verticalGap(MySize.doublePadding),
           _buildNatalChart(),
           verticalGap(MySize.doublePadding),
@@ -778,19 +768,17 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   }
 
   Widget _buildBiorhythmChart() {
-    // Doğum tarihinden bugüne kadar geçen gün sayısını hesapla
     final birthDate =
         _userController.currentUser.value?.birthDate ?? DateTime.now();
     final today = DateTime.now();
     final daysSinceBirth = today.difference(birthDate).inDays;
 
-    // Haftalık verileri hesapla
     List<Map<String, double>> weeklyBiorhythm = List.generate(7, (index) {
       final day = daysSinceBirth + index;
       return {
-        'physical': sin(2 * pi * day / 23), // 23 günlük fiziksel döngü
-        'emotional': sin(2 * pi * day / 28), // 28 günlük duygusal döngü
-        'intellectual': sin(2 * pi * day / 33), // 33 günlük entelektüel döngü
+        'physical': sin(2 * pi * day / 23),
+        'emotional': sin(2 * pi * day / 28),
+        'intellectual': sin(2 * pi * day / 33),
       };
     });
 
@@ -1824,14 +1812,14 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                                   Text(
                                     easy.tr("astrology.see_details"),
                                     style: MyStyle.s3.copyWith(
-                                      color: MyColor.primaryLightColor,
+                                      color: MyColor.textGreyColor,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Icon(
                                     MyIcon.forward,
                                     size: MySize.iconSizeTiny,
-                                    color: MyColor.primaryLightColor,
+                                    color: MyColor.textGreyColor,
                                   ),
                                 ],
                               ),
@@ -1939,26 +1927,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     );
   }
 
-  // Burç hesaplama yardımcı metodu
-  String _getZodiacSignForDegree(double degree) {
-    final signIndex = (degree / 30).floor();
-    final signs = [
-      'aries',
-      'taurus',
-      'gemini',
-      'cancer',
-      'leo',
-      'virgo',
-      'libra',
-      'scorpio',
-      'sagittarius',
-      'capricorn',
-      'aquarius',
-      'pisces'
-    ];
-    return signs[signIndex % 12];
-  }
-
   // Gezegen sembollerini döndüren metod
   String _getPlanetSymbol(String planet) {
     final symbols = {
@@ -2032,29 +2000,9 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       case 'plüton':
         return 'Pluto';
       default:
-        // Bilinmeyen bir gezegen gelirse, ilk harfi büyük yapıp döndür
         return planet.substring(0, 1).toUpperCase() +
             planet.substring(1).toLowerCase();
     }
-  }
-
-  // Burç emojilerini ekle
-  String _getZodiacEmoji(String sign) {
-    final emojis = {
-      'aries': '🐏',
-      'taurus': '🐂',
-      'gemini': '👥',
-      'cancer': '🦀',
-      'leo': '🦁',
-      'virgo': '👩',
-      'libra': '⚖️',
-      'scorpio': '🦂',
-      'sagittarius': '🏹',
-      'capricorn': '🐐',
-      'aquarius': '🌊',
-      'pisces': '🐟',
-    };
-    return emojis[sign] ?? '';
   }
 
   // Açı sembollerini döndüren metod
@@ -2414,10 +2362,81 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
   Widget _buildWeeklyNatalReading() {
     return Obx(() {
+      // Premium kontrolü ekle
+      if (!_astrologyController.isSubscribed.value) {
+        return Container(
+          padding: const EdgeInsets.all(MySize.defaultPadding),
+          decoration: BoxDecoration(
+            color: MyColor.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(MySize.halfRadius),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Get.dialog(
+                PremiumPopup(
+                  onSingleUse: () {
+                    Get.back();
+                    _astrologyController.checkWeeklyNatalReading();
+                  },
+                ),
+              ),
+              borderRadius: BorderRadius.circular(MySize.halfRadius),
+              child: Padding(
+                padding: const EdgeInsets.all(MySize.halfPadding),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(MySize.halfPadding),
+                          decoration: BoxDecoration(
+                            color: MyColor.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.auto_graph,
+                            color: MyColor.white,
+                          ),
+                        ),
+                        horizontalGap(MySize.defaultPadding),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Haftalık Natal Analizi",
+                                style: MyStyle.s2.copyWith(
+                                  color: MyColor.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "Gezegensel hareketlerin hayatına etkileri",
+                                style: MyStyle.s3.copyWith(
+                                  color: MyColor.textGreyColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.lock_outline,
+                          color: MyColor.white,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
       if (!_astrologyController.isWeeklyNatalAvailable.value) {
         return const SizedBox.shrink();
       }
-
       final reading = _astrologyController.weeklyNatalReading;
 
       return Padding(
