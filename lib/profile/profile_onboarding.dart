@@ -606,9 +606,8 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                     onTap: () {
                       _birthPlaceController.text = prediction.description!;
                       _userController.validatePlace(prediction.description!);
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _birthPlaceFocusNode.unfocus(); // Tahmin menüsünü kapat
-                      });
+                      _birthPlaceFocusNode.unfocus();
+                      ;
                       if (_userController.validatePlacePage()) {
                         _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
