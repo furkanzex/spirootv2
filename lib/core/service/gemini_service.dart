@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/profile/user_model.dart';
 import 'dart:convert';
+import 'dart:math';
 
 class GeminiService extends GetxService {
   static const String apiKey = "AIzaSyBxt1593xpDLULlo7KJE4gTjMvPb3JXVCg";
@@ -718,5 +719,93 @@ Important: Write the response in $_currentLanguage
       print('Generate content error: $e');
       rethrow;
     }
+  }
+
+  Future<String> generateBiorhythmReading(
+      DateTime birthDate, String userName) async {
+    try {
+      final now = DateTime.now();
+      final daysSinceBirth = now.difference(birthDate).inDays;
+
+      final physical = sin(2 * pi * daysSinceBirth / 23);
+      final emotional = sin(2 * pi * daysSinceBirth / 28);
+      final intellectual = sin(2 * pi * daysSinceBirth / 33);
+      final intuitive = sin(2 * pi * daysSinceBirth / 38);
+
+      final prompt = '''
+Important: Write the response in $_currentLanguage
+
+      Create a biorhythm interpretation for $userName based on the following cycles:
+      
+      Physical Cycle: ${(physical * 100).toStringAsFixed(1)}%
+      Emotional Cycle: ${(emotional * 100).toStringAsFixed(1)}%
+      Intellectual Cycle: ${(intellectual * 100).toStringAsFixed(1)}%
+      Intuitive Cycle: ${(intuitive * 100).toStringAsFixed(1)}%
+      
+      Create a JSON response with this format:
+      {
+        "biorhythmReading": {
+          "overview": "General interpretation of current biorhythm state",
+          "physical": {
+            "status": "Current physical cycle interpretation",
+            "advice": "Physical well-being advice"
+          },
+          "emotional": {
+            "status": "Current emotional cycle interpretation",
+            "advice": "Emotional well-being advice"
+          },
+          "intellectual": {
+            "status": "Current intellectual cycle interpretation",
+            "advice": "Mental activity advice"
+          },
+          "intuitive": {
+            "status": "Current intuitive cycle interpretation",
+            "advice": "Intuition and awareness advice"
+          }
+        }
+      }
+
+Important: Write the response in $_currentLanguage
+      ''';
+
+      final response = await _textModel.generateContent([Content.text(prompt)]);
+      String jsonStr = response.text ?? '';
+
+      jsonStr = _cleanJsonResponse(jsonStr);
+      return jsonStr;
+    } catch (e) {
+      print('Generate biorhythm reading error: $e');
+      return _createDefaultBiorhythmJson();
+    }
+  }
+
+  String _createDefaultBiorhythmJson() {
+    return '''
+Important: Write the response in $_currentLanguage
+
+    {
+      "biorhythmReading": {
+        "overview": "Biyoritminiz genel olarak dengeli bir dönemde. Fiziksel ve duygusal enerjileriniz uyum içinde çalışıyor.",
+        "physical": {
+          "status": "Fiziksel enerjiniz yükseliş döneminde. Vücudunuz daha dinç ve güçlü hissediyor.",
+          "advice": "Bu enerjiyi spor ve fiziksel aktivitelerle değerlendirin."
+        },
+        "emotional": {
+          "status": "Duygusal döngünüz stabil bir seviyede seyrediyor.",
+          "advice": "Dengeli duygusal durumunuzu korumak için meditasyon yapabilirsiniz."
+        },
+        "intellectual": {
+          "status": "Zihinsel kapasiteniz yüksek bir noktada.",
+          "advice": "Yeni projeler başlatmak için ideal bir zaman."
+        },
+        "intuitive": {
+          "status": "Sezgisel yetenekleriniz güçlü bir dönemde.",
+          "advice": "İçgüdülerinizi dinleyin ve önemli kararlar için kullanın."
+        }
+      }
+    }
+
+Important: Write the response in $_currentLanguage
+    ''';
   }
 }

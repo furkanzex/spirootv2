@@ -783,201 +783,204 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       };
     });
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              easy.tr("Biyoritim Tablosu"),
-              style: MyStyle.s2.copyWith(
-                color: MyColor.white,
-                fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: _showBiorhythmContent,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                easy.tr("Biyoritim Tablosu"),
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            Column(
-              children: [
-                Text(
-                  "${DateFormat('dd MMM').format(today)} - ${DateFormat('dd MMM').format(today.add(const Duration(days: 6)))}",
-                  style: MyStyle.s3.copyWith(
-                    color: MyColor.textGreyColor,
+              Column(
+                children: [
+                  Text(
+                    "${DateFormat('dd MMM').format(today)} - ${DateFormat('dd MMM').format(today.add(const Duration(days: 6)))}",
+                    style: MyStyle.s3.copyWith(
+                      color: MyColor.textGreyColor,
+                    ),
                   ),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      easy.tr("astrology.see_details"),
-                      style: MyStyle.s3.copyWith(
-                        color: MyColor.primaryPurpleColor,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Text(
+                        easy.tr("astrology.see_details"),
+                        style: MyStyle.s3.copyWith(
+                          color: MyColor.primaryPurpleColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Icon(
-                      MyIcon.forward,
-                      size: MySize.iconSizeTiny,
-                      color: MyColor.primaryPurpleColor,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-        verticalGap(MySize.defaultPadding),
-
-        Container(
-          height: 220,
-          padding: const EdgeInsets.all(MySize.defaultPadding),
-          decoration: BoxDecoration(
-            color: MyColor.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(MySize.halfRadius),
-          ),
-          child: LineChart(
-            LineChartData(
-              gridData: FlGridData(
-                show: true,
-                drawVerticalLine: true,
-                horizontalInterval: 0.5,
-                verticalInterval: 1,
-                getDrawingHorizontalLine: (value) {
-                  return FlLine(
-                    color: MyColor.white.withOpacity(0.05),
-                    strokeWidth: 1,
-                  );
-                },
-                getDrawingVerticalLine: (value) {
-                  return FlLine(
-                    color: MyColor.white.withOpacity(0.05),
-                    strokeWidth: 1,
-                  );
-                },
+                      Icon(
+                        MyIcon.forward,
+                        size: MySize.iconSizeTiny,
+                        color: MyColor.primaryPurpleColor,
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              titlesData: FlTitlesData(
-                show: true,
-                topTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      final date = today.add(Duration(days: value.toInt()));
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          '${date.day}/${date.month}',
+            ],
+          ),
+          verticalGap(MySize.defaultPadding),
+
+          Container(
+            height: 220,
+            padding: const EdgeInsets.all(MySize.defaultPadding),
+            decoration: BoxDecoration(
+              color: MyColor.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(MySize.halfRadius),
+            ),
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: true,
+                  horizontalInterval: 0.5,
+                  verticalInterval: 1,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: MyColor.white.withOpacity(0.05),
+                      strokeWidth: 1,
+                    );
+                  },
+                  getDrawingVerticalLine: (value) {
+                    return FlLine(
+                      color: MyColor.white.withOpacity(0.05),
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  topTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        final date = today.add(Duration(days: value.toInt()));
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            '${date.day}/${date.month}',
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.textGreyColor,
+                            ),
+                          ),
+                        );
+                      },
+                      interval: 1,
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 0.5,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          '${(value * 100).toInt()}%',
                           style: MyStyle.s3.copyWith(
                             color: MyColor.textGreyColor,
                           ),
-                        ),
-                      );
-                    },
-                    interval: 1,
+                        );
+                      },
+                    ),
                   ),
                 ),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 0.5,
-                    getTitlesWidget: (value, meta) {
-                      return Text(
-                        '${(value * 100).toInt()}%',
-                        style: MyStyle.s3.copyWith(
-                          color: MyColor.textGreyColor,
-                        ),
-                      );
-                    },
+                borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: 6,
+                minY: -1,
+                maxY: 1,
+                lineBarsData: [
+                  // Fiziksel (23 günlük döngü)
+                  LineChartBarData(
+                    spots: weeklyBiorhythm.asMap().entries.map((entry) {
+                      return FlSpot(
+                          entry.key.toDouble(), entry.value['physical']!);
+                    }).toList(),
+                    isCurved: true,
+                    color: MyColor.primaryLightColor,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 3,
+                          color: MyColor.primaryLightColor,
+                          strokeWidth: 1,
+                          strokeColor: MyColor.white,
+                        );
+                      },
+                    ),
                   ),
-                ),
+                  // Duygusal (28 günlük döngü)
+                  LineChartBarData(
+                    spots: weeklyBiorhythm.asMap().entries.map((entry) {
+                      return FlSpot(
+                          entry.key.toDouble(), entry.value['emotional']!);
+                    }).toList(),
+                    isCurved: true,
+                    color: MyColor.secondaryColor,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 3,
+                          color: MyColor.secondaryColor,
+                          strokeWidth: 1,
+                          strokeColor: MyColor.white,
+                        );
+                      },
+                    ),
+                  ),
+                  // Entelektüel (33 günlük döngü)
+                  LineChartBarData(
+                    spots: weeklyBiorhythm.asMap().entries.map((entry) {
+                      return FlSpot(
+                          entry.key.toDouble(), entry.value['intellectual']!);
+                    }).toList(),
+                    isCurved: true,
+                    color: Colors.green,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 3,
+                          color: Colors.green,
+                          strokeWidth: 1,
+                          strokeColor: MyColor.white,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-              borderData: FlBorderData(show: false),
-              minX: 0,
-              maxX: 6,
-              minY: -1,
-              maxY: 1,
-              lineBarsData: [
-                // Fiziksel (23 günlük döngü)
-                LineChartBarData(
-                  spots: weeklyBiorhythm.asMap().entries.map((entry) {
-                    return FlSpot(
-                        entry.key.toDouble(), entry.value['physical']!);
-                  }).toList(),
-                  isCurved: true,
-                  color: MyColor.primaryLightColor,
-                  dotData: FlDotData(
-                    show: true,
-                    getDotPainter: (spot, percent, barData, index) {
-                      return FlDotCirclePainter(
-                        radius: 3,
-                        color: MyColor.primaryLightColor,
-                        strokeWidth: 1,
-                        strokeColor: MyColor.white,
-                      );
-                    },
-                  ),
-                ),
-                // Duygusal (28 günlük döngü)
-                LineChartBarData(
-                  spots: weeklyBiorhythm.asMap().entries.map((entry) {
-                    return FlSpot(
-                        entry.key.toDouble(), entry.value['emotional']!);
-                  }).toList(),
-                  isCurved: true,
-                  color: MyColor.secondaryColor,
-                  dotData: FlDotData(
-                    show: true,
-                    getDotPainter: (spot, percent, barData, index) {
-                      return FlDotCirclePainter(
-                        radius: 3,
-                        color: MyColor.secondaryColor,
-                        strokeWidth: 1,
-                        strokeColor: MyColor.white,
-                      );
-                    },
-                  ),
-                ),
-                // Entelektüel (33 günlük döngü)
-                LineChartBarData(
-                  spots: weeklyBiorhythm.asMap().entries.map((entry) {
-                    return FlSpot(
-                        entry.key.toDouble(), entry.value['intellectual']!);
-                  }).toList(),
-                  isCurved: true,
-                  color: Colors.green,
-                  dotData: FlDotData(
-                    show: true,
-                    getDotPainter: (spot, percent, barData, index) {
-                      return FlDotCirclePainter(
-                        radius: 3,
-                        color: Colors.green,
-                        strokeWidth: 1,
-                        strokeColor: MyColor.white,
-                      );
-                    },
-                  ),
-                ),
-              ],
             ),
           ),
-        ),
-        verticalGap(MySize.defaultPadding),
+          verticalGap(MySize.defaultPadding),
 
-        // Grafik açıklamaları
-        Column(
-          children: [
-            _buildLegendItemDetailed(MyColor.primaryLightColor, "Fiziksel",
-                "${(weeklyBiorhythm[0]['physical']! * 100).toInt()}% - 23 günlük döngü - Enerji, güç ve dayanıklılık"),
-            verticalGap(8),
-            _buildLegendItemDetailed(MyColor.secondaryColor, "Duygusal",
-                "${(weeklyBiorhythm[0]['emotional']! * 100).toInt()}% - 28 günlük döngü - Duygu durumu ve hassasiyet"),
-            verticalGap(8),
-            _buildLegendItemDetailed(Colors.green, "Entelektüel",
-                "${(weeklyBiorhythm[0]['intellectual']! * 100).toInt()}% - 33 günlük döngü - Zihinsel performans ve yaratıcılık"),
-          ],
-        ),
-      ],
+          // Grafik açıklamaları
+          Column(
+            children: [
+              _buildLegendItemDetailed(MyColor.primaryLightColor, "Fiziksel",
+                  "${(weeklyBiorhythm[0]['physical']! * 100).toInt()}% - 23 günlük döngü - Enerji, güç ve dayanıklılık"),
+              verticalGap(8),
+              _buildLegendItemDetailed(MyColor.secondaryColor, "Duygusal",
+                  "${(weeklyBiorhythm[0]['emotional']! * 100).toInt()}% - 28 günlük döngü - Duygu durumu ve hassasiyet"),
+              verticalGap(8),
+              _buildLegendItemDetailed(Colors.green, "Entelektüel",
+                  "${(weeklyBiorhythm[0]['intellectual']! * 100).toInt()}% - 33 günlük döngü - Zihinsel performans ve yaratıcılık"),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1012,6 +1015,144 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  void _showBiorhythmContent() {
+    if (_astrologyController.isSubscribed.value) {
+      // Premium kullanıcı için direkt göster
+      _showBiorhythmDetails();
+    } else {
+      // Premium olmayan kullanıcı için popup göster
+      Get.dialog(
+        PremiumPopup(
+          onSingleUse: () => _showBiorhythmDetails(),
+        ),
+      );
+    }
+  }
+
+  void _showBiorhythmDetails() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(MySize.doublePadding),
+        decoration: const BoxDecoration(
+          color: MyColor.darkBackgroundColor,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(MySize.defaultRadius),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Günlük Biyoritim Analizi",
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              verticalGap(MySize.defaultPadding),
+              Obx(() {
+                if (_astrologyController.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: MyColor.primaryColor,
+                    ),
+                  );
+                }
+
+                if (!_astrologyController.isBiorhythmAvailable.value) {
+                  return Center(
+                    child: Text(
+                      "Biyoritim yorumu henüz oluşturulmadı.",
+                      style: MyStyle.s2.copyWith(
+                        color: MyColor.white,
+                      ),
+                    ),
+                  );
+                }
+
+                return _buildBiorhythmContent();
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Eğer biyoritim yorumu yoksa, oluştur
+    if (!_astrologyController.isBiorhythmAvailable.value &&
+        !_astrologyController.isLoading.value) {
+      _astrologyController.checkBiorhythmReading();
+    }
+  }
+
+  Widget _buildBiorhythmContent() {
+    final reading = _astrologyController.biorhythmReading;
+
+    if (reading.isEmpty) {
+      return Center(
+        child: Text(
+          "Biyoritim yorumu bulunamadı.",
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          reading['overview'] ?? '',
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            height: 1.5,
+          ),
+        ),
+        verticalGap(MySize.defaultPadding),
+        _buildBiorhythmSection("Fiziksel", reading['physical']),
+        _buildBiorhythmSection("Duygusal", reading['emotional']),
+        _buildBiorhythmSection("Zihinsel", reading['intellectual']),
+        _buildBiorhythmSection("Sezgisel", reading['intuitive']),
+      ],
+    );
+  }
+
+  Widget _buildBiorhythmSection(String title, Map<String, dynamic>? data) {
+    if (data == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        verticalGap(MySize.halfPadding),
+        Text(
+          data['status'] ?? '',
+          style: MyStyle.s3.copyWith(
+            color: MyColor.white,
+            height: 1.5,
+          ),
+        ),
+        verticalGap(MySize.quarterPadding),
+        Text(
+          data['advice'] ?? '',
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+            height: 1.5,
+          ),
+        ),
+        verticalGap(MySize.defaultPadding),
       ],
     );
   }

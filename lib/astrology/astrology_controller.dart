@@ -79,6 +79,10 @@ class AstrologyController extends GetxController {
   final RxBool isInitialized = false.obs;
   final UserController _userController = Get.find<UserController>();
 
+  // Biyoritim için yeni değişkenler ekleyelim
+  final RxMap<String, dynamic> biorhythmReading = <String, dynamic>{}.obs;
+  final RxBool isBiorhythmAvailable = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -119,6 +123,11 @@ class AstrologyController extends GetxController {
 
         // Premium içerikleri kontrol et ve yükle/sil
         await _managePremiumContent();
+
+        // Biyoritim yorumunu kontrol et
+        if (isSubscribed.value) {
+          await checkBiorhythmReading();
+        }
 
         isInitialized.value = true;
       }
@@ -1736,6 +1745,67 @@ class AstrologyController extends GetxController {
     } catch (e) {
       print('Sidereal zaman hesaplama hatası: $e');
       return 0.0;
+    }
+  }
+
+  // Biyoritim yorumu kontrolü
+  Future<void> checkBiorhythmReading() async {
+    try {
+      final userId = _userController.userId.value;
+      final doc = await _firestore.collection('users').doc(userId).get();
+      final biorhythmData = doc.data()?['biorhythm_reading'];
+
+      bool needsNewReading = true;
+
+      if (biorhythmData != null && biorhythmData['expiryDate'] != null) {
+        final expiryDate = (biorhythmData['expiryDate'] as Timestamp).toDate();
+
+        if (expiryDate.isAfter(DateTime.now())) {
+          biorhythmReading.value = biorhythmData['reading'];
+          isBiorhythmAvailable.value = true;
+          needsNewReading = false;
+        }
+      }
+
+      if (needsNewReading) {
+        await generateBiorhythmReading();
+      }
+    } catch (e) {
+      print('Check biorhythm reading error: $e');
+      isBiorhythmAvailable.value = false;
+    }
+  }
+
+  // Biyoritim yorumu oluşturma
+  Future<void> generateBiorhythmReading() async {
+    try {
+      isLoading.value = true;
+      final user = _userController.currentUser.value!;
+      final reading = await _geminiService.generateBiorhythmReading(
+        user.birthDate,
+        user.name,
+      );
+
+      final jsonResponse = json.decode(reading);
+      biorhythmReading.value = jsonResponse['biorhythmReading'];
+      isBiorhythmAvailable.value = true;
+
+      // Firebase'e kaydet
+      await _firestore
+          .collection('users')
+          .doc(_userController.userId.value)
+          .update({
+        'biorhythm_reading': {
+          'reading': jsonResponse['biorhythmReading'],
+          'createdAt': DateTime.now(),
+          'expiryDate': DateTime.now().add(const Duration(days: 1)),
+        }
+      });
+    } catch (e) {
+      print('Generate biorhythm reading error: $e');
+      isBiorhythmAvailable.value = false;
+    } finally {
+      isLoading.value = false;
     }
   }
 }
