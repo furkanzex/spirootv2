@@ -217,117 +217,6 @@ class GeminiService extends GetxService {
     ''';
   }
 
-  String _createHoroscopePrompt(String timeframe, UserModel user) {
-    String basePrompt = '''
-    Important: Write the response in $_currentLanguage
-
-    You are an experienced astrologer. Create a horoscope reading based on the following information:
-    
-    User Information:
-    - Sun Sign: ${user.zodiacSign}
-    - Ascendant: ${user.ascendant}
-    - Moon Sign: ${user.moonSign}
-    - Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
-    - Birth Time: ${user.birthTime}
-    
-    Timeframe: ${_getTimeframeText(timeframe)}
-    
-    Response Format:
-    {
-      "horoscope": {
-        "zodiac": "${user.zodiacSign}",
-        "timeframe": "${timeframe.replaceAll("astrology.horoscope.dates.", "")}",
-        "reading": {
-          "overview": "Main horoscope text",
-          "love": {
-            "prediction": "Love life prediction",
-            "advice": "Love advice",
-            "percentage": numeric_value
-          },
-          "career": {
-            "prediction": "Career prediction",
-            "advice": "Career advice",
-            "percentage": numeric_value
-          },
-          "money": {
-            "prediction": "Financial prediction",
-            "advice": "Financial advice",
-            "percentage": numeric_value
-          },
-          "lucky": {
-            "numbers": [lucky_numbers],
-            "colors": ["lucky_colors"],
-            "days": ["lucky_days"] (only in week timeframe)
-          }
-        }
-      }
-    }
-
-    Important: Write the response in $_currentLanguage
-    ''';
-
-    // Zaman dilimine göre özel talimatlar ekle
-    switch (timeframe) {
-      case "astrology.horoscope.dates.today":
-        return '''
-        $basePrompt
-        
-        Special Instructions for Daily Horoscope:
-        1. Overview should be max 600 characters
-        2. Focus on:
-           - Specific planetary aspects for today
-           - Immediate opportunities and challenges
-           - Hour-by-hour guidance if relevant
-           - Most influential planet of the day
-        3. Keep predictions specific and actionable
-        4. Include mood forecast and best times for activities
-        ''';
-
-      case "astrology.horoscope.dates.week":
-        return '''
-        $basePrompt
-        
-        Special Instructions for Weekly Horoscope:
-        1. Overview should be max 1500 characters
-        2. Focus on:
-           - Major planetary movements this week
-           - Key dates for opportunities
-           - Weekly energy flow and patterns
-           - Important lunar phases
-           - Significant planetary aspects
-        3. Break down predictions by different life areas
-        4. Include specific guidance for each major day
-
-        ''';
-
-      case "astrology.horoscope.dates.month":
-        return '''
-        $basePrompt
-        
-        Special Instructions for Monthly Horoscope:
-        1. Provide detailed and comprehensive analysis
-        2. Focus on:
-           - Major astrological events
-           - Lunar cycles and their impact
-           - Long-term trends and opportunities
-           - Planetary retrogrades if any
-           - Important conjunctions and aspects
-           - Monthly themes and lessons
-        3. Include:
-           - Week-by-week breakdown
-           - Key dates for important decisions
-           - Areas of growth and challenge
-           - Relationship dynamics
-           - Career and financial trends
-           - Personal development opportunities
-        
-        ''';
-
-      default:
-        return basePrompt;
-    }
-  }
-
   // FORTUNE TELLING METHODS
   Future<String> generateFortuneReading(
       List<String> imageUrls, String type) async {
@@ -344,7 +233,6 @@ class GeminiService extends GetxService {
   }
 
   Future<List<Content>> _prepareImageContents(List<String> imageUrls) async {
-    // TODO: Implement image loading and conversion
     return [];
   }
 
@@ -438,7 +326,7 @@ Important: Write the response in $_currentLanguage
     String basePrompt = '''
     Important: Write the response in $_currentLanguage
 
-    You are an experienced fortune teller. Analyze the provided images in detail and interpret the ${type} reading.
+    You are an experienced fortune teller. Analyze the provided images in detail and interpret the $type reading.
     
     Personal Information:
     ${_getInitialChatContext()}
@@ -492,7 +380,7 @@ Important: Write the response in $_currentLanguage
         final weekEnd = now.add(const Duration(days: 7));
         return '''this week (${DateFormat('MMMM dd').format(now)} - ${DateFormat('MMMM dd, yyyy').format(weekEnd)})''';
       case "astrology.horoscope.dates.month":
-        return '''${DateFormat('MMMM yyyy').format(DateTime.now())}''';
+        return DateFormat('MMMM yyyy').format(DateTime.now());
       default:
         return "today";
     }

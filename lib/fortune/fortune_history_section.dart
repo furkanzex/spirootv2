@@ -63,83 +63,81 @@ Genel olarak fincanın çok olumlu mesajlar veriyor. Önündeki dönem, uzun zam
         text: "🔮 ${easy.tr("fortune.fortune_history")}",
       ),
       verticalGap(MySize.defaultPadding),
-      ...historyItems
-          .map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: MySize.defaultPadding),
-                child: GestureDetector(
-                  onTap: () => _showFortuneDetail(context, item),
+      ...historyItems.map((item) => Padding(
+            padding: const EdgeInsets.only(bottom: MySize.defaultPadding),
+            child: GestureDetector(
+              onTap: () => _showFortuneDetail(context, item),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(MySize.halfRadius),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(MySize.halfRadius),
                   child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(MySize.halfRadius),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(MySize.halfRadius),
-                      child: Container(
-                        padding: const EdgeInsets.all(MySize.defaultPadding),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: MySize.iconSizeMedium,
-                              height: MySize.iconSizeMedium,
-                              decoration: BoxDecoration(
-                                color: MyColor.primaryColor.withOpacity(0.1),
-                                borderRadius:
-                                    BorderRadius.circular(MySize.quarterRadius),
-                              ),
-                              child: ExtendedImage.network(
-                                item.image,
-                                cache: true,
-                                fit: BoxFit.contain,
-                                width: MySize.iconSizeSmall,
-                                height: MySize.iconSizeSmall,
-                              ),
-                            ),
-                            horizontalGap(MySize.threeQuartersPadding),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.all(MySize.defaultPadding),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: MySize.iconSizeMedium,
+                          height: MySize.iconSizeMedium,
+                          decoration: BoxDecoration(
+                            color: MyColor.primaryColor.withOpacity(0.1),
+                            borderRadius:
+                                BorderRadius.circular(MySize.quarterRadius),
+                          ),
+                          child: ExtendedImage.network(
+                            item.image,
+                            cache: true,
+                            fit: BoxFit.contain,
+                            width: MySize.iconSizeSmall,
+                            height: MySize.iconSizeSmall,
+                          ),
+                        ),
+                        horizontalGap(MySize.threeQuartersPadding),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        item.type,
-                                        style: MyStyle.s2.copyWith(
-                                          color: MyColor.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        _formatDate(item.date),
-                                        style: MyStyle.s3.copyWith(
-                                          color: MyColor.textGreyColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  horizontalGap(MySize.halfPadding),
                                   Text(
-                                    item.content,
+                                    item.type,
+                                    style: MyStyle.s2.copyWith(
+                                      color: MyColor.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatDate(item.date),
                                     style: MyStyle.s3.copyWith(
                                       color: MyColor.textGreyColor,
                                     ),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                              horizontalGap(MySize.halfPadding),
+                              Text(
+                                item.content,
+                                style: MyStyle.s3.copyWith(
+                                  color: MyColor.textGreyColor,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
-              ))
-          .toList(),
+              ),
+            ),
+          )),
     ],
   );
 }

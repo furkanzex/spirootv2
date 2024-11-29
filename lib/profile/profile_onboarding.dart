@@ -741,7 +741,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
         return Column(
           children: [
             InkWell(
-              overlayColor: MaterialStateProperty.all(MyColor.transparent),
+              overlayColor: WidgetStateProperty.all(MyColor.transparent),
               onTap: () {
                 try {
                   controller.validateGender(gender);

@@ -996,122 +996,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     );
   }
 
-  Widget _buildMoonCalendar() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Ay Takvimi
-        Text(
-          easy.tr("Ay Takvimi"),
-          style: MyStyle.s2.copyWith(
-            color: MyColor.white,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        verticalGap(MySize.defaultPadding),
-        Container(
-          padding: const EdgeInsets.all(MySize.defaultPadding),
-          decoration: BoxDecoration(
-            color: MyColor.white.withOpacity(0.0),
-            borderRadius: BorderRadius.circular(MySize.halfRadius),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Büyük Ay Görseli ve Bilgiler
-              Row(
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: MyColor.white.withOpacity(0.9),
-                    ),
-                  ),
-                  const SizedBox(width: MySize.defaultPadding),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Waxing Gibbous",
-                          style: MyStyle.s2.copyWith(
-                            color: MyColor.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          "in taurus ♉️ (5°63')",
-                          style: MyStyle.s3.copyWith(
-                            color: MyColor.textGreyColor,
-                          ),
-                        ),
-                        Text(
-                          "Illumination 99%",
-                          style: MyStyle.s3.copyWith(
-                            color: MyColor.textGreyColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              verticalGap(MySize.defaultPadding),
-
-              // Ay Fazları
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildMoonPhase("Nov 1", "🌑"),
-                  _buildMoonPhase("Nov 9", "🌓"),
-                  _buildMoonPhase("Nov 15", "🌕"),
-                  _buildMoonPhase("Nov 22", "🌗"),
-                ],
-              ),
-
-              verticalGap(MySize.defaultPadding),
-              Text(
-                "Moon in Taurus",
-                style: MyStyle.s2.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              verticalGap(8),
-              Text(
-                "Today brings much emotional security. You find comfort in that which you can control. You may struggle to express your affections to loved ones and come off as possessive or clingy.",
-                style: MyStyle.s3.copyWith(
-                  color: MyColor.white,
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMoonPhase(String date, String emoji) {
-    return Column(
-      children: [
-        Text(
-          emoji,
-          style: const TextStyle(fontSize: 24),
-        ),
-        verticalGap(4),
-        Text(
-          date,
-          style: MyStyle.s3.copyWith(
-            color: MyColor.textGreyColor,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildNatalChart() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1494,65 +1378,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 color: MyColor.white,
                 fontWeight: FontWeight.w500,
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildZodiacCard(
-    String sign,
-    String date, {
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 120,
-        margin: const EdgeInsets.only(right: MySize.defaultPadding),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? MyColor.primaryColor.withOpacity(0.2)
-              : MyColor.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(MySize.defaultRadius),
-          border: isSelected ? Border.all(color: MyColor.primaryColor) : null,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ExtendedImage.network(
-              'https://apptoic.com/spiroot/images/$sign.png',
-              width: 60,
-              height: 60,
-              cache: true,
-              loadStateChanged: (state) {
-                switch (state.extendedImageLoadState) {
-                  case LoadState.loading:
-                    return const Center(child: CircularProgressIndicator());
-                  case LoadState.completed:
-                    return state.completedWidget;
-                  case LoadState.failed:
-                    return const Center(child: Icon(Icons.error));
-                }
-              },
-            ),
-            verticalGap(MySize.halfPadding),
-            Text(
-              _getLocalizedZodiacName(sign),
-              style: MyStyle.s2.copyWith(
-                color: MyColor.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            verticalGap(4),
-            Text(
-              date,
-              style: MyStyle.s3.copyWith(
-                color: MyColor.textGreyColor,
-              ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -2532,10 +2357,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         ),
       );
     });
-  }
-
-  String _getLocalizedZodiacName(String sign) {
-    return easy.tr("astrology.zodiac.$sign.name");
   }
 
   // Numeroloji içeriğini gösterme fonksiyonu

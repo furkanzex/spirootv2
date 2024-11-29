@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 class EphemerisService {
   // Sabit değerler
   static const double MEAN_TROPICAL_YEAR = 365.242190;
@@ -38,11 +40,11 @@ class EphemerisService {
     String birthPlace,
   ) {
     try {
-      final days = _daysSinceJ2000(DateTime.now());
+      final days = daysSinceJ2000(DateTime.now());
       final transits = <String, Map<String, dynamic>>{};
 
       PLANET_DAILY_MOTION.forEach((planet, motion) {
-        final position = _calculatePlanetPosition(planet, days);
+        final position = calculatePlanetPosition(planet, days);
         final sign = getZodiacSign(position);
 
         transits[planet] = {
@@ -52,7 +54,7 @@ class EphemerisService {
           'aspects': _calculatePlanetaryAspects(
               position,
               PLANET_DAILY_MOTION.map(
-                  (k, v) => MapEntry(k, _calculatePlanetPosition(k, days)))),
+                  (k, v) => MapEntry(k, calculatePlanetPosition(k, days)))),
         };
       });
 
@@ -159,32 +161,96 @@ class EphemerisService {
 
   // Retro takvimi
   static List<Map<String, DateTime>> getRetroSchedule(String planet, int year) {
-    // 2024 yılı için örnek retro tarihleri
-    final schedules = {
-      'Mercury': [
-        {'start': DateTime(2024, 4, 21), 'end': DateTime(2024, 5, 14)},
-        {'start': DateTime(2024, 8, 23), 'end': DateTime(2024, 9, 15)},
-        {'start': DateTime(2024, 12, 13), 'end': DateTime(2025, 1, 1)},
-      ],
-      'Venus': [
-        {'start': DateTime(2024, 7, 22), 'end': DateTime(2024, 9, 3)},
-      ],
-      'Mars': [
-        {'start': DateTime(2024, 12, 6), 'end': DateTime(2025, 2, 23)},
-      ],
-      // Diğer gezegenler için de benzer şekilde eklenebilir
+    // Yıla göre retro takvimlerini tutan map
+    final yearlySchedules = {
+      2024: {
+        'Mercury': [
+          {'start': DateTime(2024, 4, 21), 'end': DateTime(2024, 5, 14)},
+          {'start': DateTime(2024, 8, 23), 'end': DateTime(2024, 9, 15)},
+          {'start': DateTime(2024, 12, 13), 'end': DateTime(2025, 1, 1)},
+        ],
+        'Venus': [
+          {'start': DateTime(2024, 7, 22), 'end': DateTime(2024, 9, 3)},
+        ],
+        'Mars': [
+          {'start': DateTime(2024, 12, 6), 'end': DateTime(2025, 2, 23)},
+        ],
+        'Jupiter': [
+          {'start': DateTime(2024, 8, 29), 'end': DateTime(2024, 12, 31)},
+        ],
+        'Saturn': [
+          {'start': DateTime(2024, 6, 29), 'end': DateTime(2024, 11, 15)},
+        ],
+        'Uranus': [
+          {'start': DateTime(2024, 8, 31), 'end': DateTime(2025, 1, 27)},
+        ],
+        'Neptune': [
+          {'start': DateTime(2024, 6, 30), 'end': DateTime(2024, 12, 6)},
+        ],
+        'Pluto': [
+          {'start': DateTime(2024, 5, 2), 'end': DateTime(2024, 10, 11)},
+        ],
+      },
+      2025: {
+        'Mercury': [
+          {'start': DateTime(2025, 1, 1), 'end': DateTime(2025, 1, 23)},
+          {'start': DateTime(2025, 4, 21), 'end': DateTime(2025, 5, 15)},
+          {'start': DateTime(2025, 8, 28), 'end': DateTime(2025, 9, 20)},
+          {'start': DateTime(2025, 12, 19), 'end': DateTime(2026, 1, 8)},
+        ],
+        'Venus': [], // 2025'te Venüs retrosu yok
+        'Mars': [
+          {'start': DateTime(2025, 2, 23), 'end': DateTime(2025, 4, 14)},
+        ],
+        'Jupiter': [
+          {'start': DateTime(2025, 1, 1), 'end': DateTime(2025, 4, 13)},
+          {'start': DateTime(2025, 9, 3), 'end': DateTime(2026, 1, 4)},
+        ],
+        'Saturn': [
+          {'start': DateTime(2025, 7, 3), 'end': DateTime(2025, 11, 19)},
+        ],
+        'Uranus': [
+          {'start': DateTime(2025, 1, 27), 'end': DateTime(2025, 6, 27)},
+          {'start': DateTime(2025, 9, 1), 'end': DateTime(2026, 1, 28)},
+        ],
+        'Neptune': [
+          {'start': DateTime(2025, 7, 3), 'end': DateTime(2025, 12, 9)},
+        ],
+        'Pluto': [
+          {'start': DateTime(2025, 5, 6), 'end': DateTime(2025, 10, 14)},
+        ],
+      },
+      // Diğer yıllar için retro takvimleri...
     };
 
-    return (schedules[planet] ?? []).cast<Map<String, DateTime>>();
+    try {
+      // İstenen yıl için retro takvimi var mı kontrol et
+      if (yearlySchedules.containsKey(year)) {
+        return (yearlySchedules[year]?[planet] ?? [])
+            .cast<Map<String, DateTime>>();
+      }
+
+      // Yıl bulunamadıysa, en yakın yılın takvimini kullan
+      final nearestYear = yearlySchedules.keys
+          .reduce((a, b) => (a - year).abs() < (b - year).abs() ? a : b);
+
+      print(
+          '$year yılı için retro takvimi bulunamadı, $nearestYear yılı kullanılıyor');
+      return (yearlySchedules[nearestYear]?[planet] ?? [])
+          .cast<Map<String, DateTime>>();
+    } catch (e) {
+      print('Retro takvimi hesaplama hatası: $e');
+      return [];
+    }
   }
 
   // Yardımcı metodlar
-  static double _daysSinceJ2000(DateTime date) {
-    final julian = _dateToJulian(date);
+  static double daysSinceJ2000(DateTime date) {
+    final julian = dateToJulian(date);
     return julian - J2000;
   }
 
-  static double _dateToJulian(DateTime date) {
+  static double dateToJulian(DateTime date) {
     final year = date.year;
     final month = date.month;
     final day = date.day;
@@ -204,7 +270,7 @@ class EphemerisService {
     return jd;
   }
 
-  static double _calculatePlanetPosition(String planet, double days) {
+  static double calculatePlanetPosition(String planet, double days) {
     double meanMotion = PLANET_DAILY_MOTION[planet]! * days;
     return meanMotion % 360;
   }
@@ -260,7 +326,7 @@ class EphemerisService {
             'endDate': end,
             'duration': end.difference(start).inDays,
             'sign': getZodiacSign(
-                _calculatePlanetPosition(planet, _daysSinceJ2000(start))),
+                calculatePlanetPosition(planet, daysSinceJ2000(start))),
           };
           break;
         }
@@ -301,9 +367,9 @@ class EphemerisService {
   // Gezegen pozisyonlarını hesaplayan metodlar
   static double calculateSunPosition() {
     try {
-      // Basit bir hesaplama örneği - gerçek hesaplama için sweph kütüphanesi kullanılmalı
       final now = DateTime.now();
-      return (now.day + now.hour / 24) * 360 / 30;
+      final days = daysSinceJ2000(now);
+      return calculatePlanetPosition('Sun', days);
     } catch (e) {
       print('Güneş pozisyonu hesaplama hatası: $e');
       return 0.0;
@@ -312,16 +378,16 @@ class EphemerisService {
 
   static double calculateMoonPosition() {
     try {
-      // Basit bir hesaplama örneği - gerçek hesaplama için sweph kütüphanesi kullanılmalı
       final now = DateTime.now();
-      return (now.day + now.hour / 24) * 360 / 28;
+      final days = daysSinceJ2000(now);
+      return calculatePlanetPosition('Moon', days);
     } catch (e) {
       print('Ay pozisyonu hesaplama hatası: $e');
       return 0.0;
     }
   }
 
-  static double calculatePlanetPosition(String planet) {
+  static double calculateSimplePlanetPosition(String planet) {
     try {
       switch (planet) {
         case 'Mercury':

@@ -14,6 +14,7 @@ import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/service/ephemeris_service.dart';
 import 'package:spirootv2/astrology/compatibility_result_screen.dart';
+import 'package:spirootv2/core/extension/string_extension.dart';
 
 class AstrologyController extends GetxController {
   final RxDouble zodiacRotation = 0.0.obs;
@@ -96,7 +97,7 @@ class AstrologyController extends GetxController {
       isLoading.value = true;
 
       // UserController'ın hazır olmasını bekle
-      await _userController.initialized;
+      _userController.initialized;
 
       // Kullanıcı ID'sini kontrol et
       if (_userController.userId.value.isEmpty) {
@@ -402,7 +403,9 @@ class AstrologyController extends GetxController {
 
       // Firebase'e kaydet
       await _saveWeeklyChart();
-    } catch (e) {}
+    } catch (e) {
+      print('Weekly chart initialization error: $e');
+    }
   }
 
   Future<void> _saveWeeklyChart() async {
@@ -911,51 +914,89 @@ class AstrologyController extends GetxController {
   }
 
   String getMoonSign(DateTime birthDateTime) {
-    // Basit bir hesaplama için şimdilik güneş burcundan 2 burç sonrasını döndürelim
-    // Gerçek hesaplama için astronomi kütüphanesi kullanılmalı
-    final sunSign = getZodiacSign(birthDateTime);
-    final zodiacSigns = [
-      'aries',
-      'taurus',
-      'gemini',
-      'cancer',
-      'leo',
-      'virgo',
-      'libra',
-      'scorpio',
-      'sagittarius',
-      'capricorn',
-      'aquarius',
-      'pisces'
-    ];
+    try {
+      // Doğum saatini de dahil et
+      final utcBirthTime = DateTime(
+        birthDateTime.year,
+        birthDateTime.month,
+        birthDateTime.day,
+        birthDateTime.hour,
+        birthDateTime.minute,
+      ).toUtc();
 
-    final currentIndex = zodiacSigns.indexOf(sunSign.toLowerCase());
-    final moonIndex = (currentIndex + 2) % 12;
-    return zodiacSigns[moonIndex];
+      final daysSinceJ2000 = EphemerisService.daysSinceJ2000(utcBirthTime);
+
+      // Ay'ın günlük hareketi yaklaşık 13.2 derece
+      final hoursSinceMidnight =
+          birthDateTime.hour + (birthDateTime.minute / 60);
+      final dailyMotion = EphemerisService.PLANET_DAILY_MOTION['Moon']!;
+      final hourlyMotion = dailyMotion / 24;
+
+      final moonPosition =
+          EphemerisService.calculatePlanetPosition('Moon', daysSinceJ2000) +
+              (hourlyMotion * hoursSinceMidnight);
+
+      return EphemerisService.getZodiacSign(moonPosition);
+    } catch (e) {
+      print('Ay burcu hesaplama hatası: $e');
+      return getZodiacSign(birthDateTime);
+    }
   }
 
   String getAscendant(DateTime birthDateTime, String birthPlace) {
-    // Basit bir hesaplama için şimdilik güneş burcundan 3 burç sonrasını döndürelim
-    // Gerçek hesaplama için doğum yeri koordinatları ve astronomi kütüphanesi kullanılmalı
-    final sunSign = getZodiacSign(birthDateTime);
-    final zodiacSigns = [
-      'aries',
-      'taurus',
-      'gemini',
-      'cancer',
-      'leo',
-      'virgo',
-      'libra',
-      'scorpio',
-      'sagittarius',
-      'capricorn',
-      'aquarius',
-      'pisces'
-    ];
+    try {
+      final coordinates = _getCoordinatesFromPlace(birthPlace);
+      if (coordinates == null) {
+        throw Exception('Doğum yeri koordinatları bulunamadı');
+      }
 
-    final currentIndex = zodiacSigns.indexOf(sunSign.toLowerCase());
-    final ascendantIndex = (currentIndex + 3) % 12;
-    return zodiacSigns[ascendantIndex];
+      // Doğum saatini UTC'ye çevir
+      final utcBirthTime = DateTime(
+        birthDateTime.year,
+        birthDateTime.month,
+        birthDateTime.day,
+        birthDateTime.hour,
+        birthDateTime.minute,
+      ).toUtc();
+
+      // RAMC (Right Ascension of Midheaven) hesapla
+      final lst =
+          _calculateSiderealTime(utcBirthTime, coordinates['longitude']!);
+      final ramc = lst * 0.997269566; // Sidereal/Solar ratio
+
+      // Yükselen derecesini hesapla
+      final ascendantDegree =
+          _calculateAscendantDegree(ramc, coordinates['latitude']!);
+
+      return EphemerisService.getZodiacSign(ascendantDegree);
+    } catch (e) {
+      print('Yükselen burç hesaplama hatası: $e');
+      return getZodiacSign(birthDateTime);
+    }
+  }
+
+  double _calculateAscendantDegree(double siderealTime, double latitude) {
+    try {
+      // Yükselen burç formülü
+      final tanA = -cos(siderealTime * pi / 180) /
+          (sin(latitude * pi / 180) * tan(23.4367 * pi / 180) +
+              sin(siderealTime * pi / 180) * cos(latitude * pi / 180));
+
+      var ascendant = atan(tanA) * 180 / pi;
+
+      // Kadranı düzelt
+      if (cos(siderealTime * pi / 180) > 0) {
+        ascendant += 180;
+      }
+      if (ascendant < 0) {
+        ascendant += 360;
+      }
+
+      return ascendant % 360;
+    } catch (e) {
+      print('Yükselen derece hesaplama hatası: $e');
+      return 0.0;
+    }
   }
 
   Map<String, dynamic> getZodiacDetailsByName(String zodiacName) {
@@ -1249,28 +1290,40 @@ class AstrologyController extends GetxController {
       bool isRetrograde;
       Map<String, dynamic> aspects = {};
 
+      // Şu anki tarihi al
+      final now = DateTime.now();
+      final daysSinceJ2000 = EphemerisService.daysSinceJ2000(now);
+
       switch (planet) {
         case 'Sun':
           degree = EphemerisService.calculateSunPosition();
+          isRetrograde = false; // Güneş asla retro olmaz
           break;
         case 'Moon':
           degree = EphemerisService.calculateMoonPosition();
+          isRetrograde = false; // Ay asla retro olmaz
           break;
         default:
-          degree = EphemerisService.calculatePlanetPosition(planet);
+          degree = EphemerisService.calculateSimplePlanetPosition(planet);
+          // Retro durumunu kontrol et
+          final retroPeriods =
+              EphemerisService.getRetroSchedule(planet, now.year);
+          isRetrograde = retroPeriods.any((period) {
+            final start = period['start'] as DateTime;
+            final end = period['end'] as DateTime;
+            return now.isAfter(start) && now.isBefore(end);
+          });
       }
 
       // Burç hesaplama (her burç 30 derece)
       sign = (degree / 30).floor() % 12;
 
-      // Retro durumu kontrolü - bool değer döndüren metodu kullan
-      isRetrograde = EphemerisService.calculateRetrogradeStatus(planet, degree);
-
       return {
         'degree': degree,
         'sign': sign,
         'isRetrograde': isRetrograde,
-        'aspects': aspects // Aspects ekle
+        'aspects': aspects,
+        'hasRetro': isRetrograde // Widget kontrolü için ek alan
       };
     } catch (e) {
       print('Gezegen pozisyonu hesaplama hatası: $e');
@@ -1278,7 +1331,8 @@ class AstrologyController extends GetxController {
         'degree': 0.0,
         'sign': 0,
         'isRetrograde': false,
-        'aspects': {} // Hata durumunda boş map
+        'aspects': {},
+        'hasRetro': false
       };
     }
   }
@@ -1630,6 +1684,58 @@ class AstrologyController extends GetxController {
     } catch (e) {
       print('Generate natal reading error: $e');
       isWeeklyNatalAvailable.value = false;
+    }
+  }
+
+  Map<String, double>? _getCoordinatesFromPlace(String birthPlace) {
+    try {
+      // Türkiye'deki büyük şehirler için koordinatlar
+      final coordinates = {
+        'İstanbul': {'latitude': 41.0082, 'longitude': 28.9784},
+        'Ankara': {'latitude': 39.9334, 'longitude': 32.8597},
+        'İzmir': {'latitude': 38.4237, 'longitude': 27.1428},
+        'Bursa': {'latitude': 40.1885, 'longitude': 29.0610},
+        'Antalya': {'latitude': 36.8969, 'longitude': 30.7133},
+        'Adana': {'latitude': 37.0000, 'longitude': 35.3213},
+        'Gaziantep': {'latitude': 37.0662, 'longitude': 37.3833},
+        'Konya': {'latitude': 37.8714, 'longitude': 32.4846},
+        'Mersin': {'latitude': 36.8121, 'longitude': 34.6339},
+        'Diyarbakır': {'latitude': 37.9144, 'longitude': 40.2306},
+      };
+
+      final place = birthPlace.split(',')[0].trim().toLowerCase();
+      final cityCoords = coordinates[place.toTitleCase()];
+
+      if (cityCoords != null) {
+        return {
+          'latitude': cityCoords['latitude']!,
+          'longitude': cityCoords['longitude']!,
+        };
+      }
+
+      // Varsayılan olarak İstanbul koordinatlarını döndür
+      return {'latitude': 41.0082, 'longitude': 28.9784};
+    } catch (e) {
+      print('Koordinat çevirme hatası: $e');
+      return null;
+    }
+  }
+
+  double _calculateSiderealTime(DateTime utcTime, double longitude) {
+    try {
+      final daysSinceJ2000 = EphemerisService.daysSinceJ2000(utcTime);
+
+      final gst = (100.46061837 +
+              (36000.770053608 * daysSinceJ2000 / 36525.0) +
+              (0.000387933 * pow(daysSinceJ2000 / 36525.0, 2)) -
+              (pow(daysSinceJ2000 / 36525.0, 3) / 38710000.0)) %
+          360;
+
+      final lst = (gst + longitude) % 360;
+      return lst;
+    } catch (e) {
+      print('Sidereal zaman hesaplama hatası: $e');
+      return 0.0;
     }
   }
 }

@@ -25,7 +25,7 @@ class SpiritualChatController extends GetxController {
   Future<void> _initializeController() async {
     try {
       // UserController'ın hazır olmasını bekle
-      await Get.find<UserController>().initialized;
+      Get.find<UserController>().initialized;
 
       // Kullanıcı ID'sini dinle
       ever(_userController.userId, (String userId) {

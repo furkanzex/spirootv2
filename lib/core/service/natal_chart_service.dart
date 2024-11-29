@@ -50,27 +50,20 @@ class NatalChartService {
 
       // Gezegen konumlarını hesapla
       final planets = {
-        'Sun': await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_SUN),
-        'Moon': await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_MOON),
-        'Mercury':
-            await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_MERCURY),
-        'Venus':
-            await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_VENUS),
-        'Mars': await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_MARS),
-        'Jupiter':
-            await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_JUPITER),
-        'Saturn':
-            await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_SATURN),
-        'Uranus':
-            await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_URANUS),
-        'Neptune':
-            await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_NEPTUNE),
-        'Pluto':
-            await _calculatePlanetPosition(julianDay, HeavenlyBody.SE_PLUTO),
+        'Sun': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_SUN),
+        'Moon': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_MOON),
+        'Mercury': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_MERCURY),
+        'Venus': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_VENUS),
+        'Mars': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_MARS),
+        'Jupiter': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_JUPITER),
+        'Saturn': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_SATURN),
+        'Uranus': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_URANUS),
+        'Neptune': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_NEPTUNE),
+        'Pluto': _calculatePlanetPosition(julianDay, HeavenlyBody.SE_PLUTO),
       };
 
       // Yükselen ve ev hesaplamaları
-      final ascendant = await _calculateAscendant(julianDay, coordinates);
+      final ascendant = _calculateAscendant(julianDay, coordinates);
 
       return {
         'planets': planets,
