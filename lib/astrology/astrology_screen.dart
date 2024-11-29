@@ -512,7 +512,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   },
                   icon: const Icon(
                     MingCute.upload_line,
-                    color: MyColor.primaryLightColor,
+                    color: MyColor.primaryPurpleColor,
                   ),
                   padding: const EdgeInsets.all(12),
                   constraints: const BoxConstraints(
