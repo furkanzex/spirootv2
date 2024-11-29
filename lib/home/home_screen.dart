@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   name: userController.userName,
                 ),
                 verticalGap(MySize.doublePadding),
-                astrologySection(),
+                AstrologySection(),
                 verticalGap(MySize.doublePadding),
                 fortuneSection(isMainPageWidget: true),
                 verticalGap(MySize.doublePadding),
