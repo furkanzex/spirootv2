@@ -796,11 +796,31 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Text(
-              "${DateFormat('dd MMM').format(today)} - ${DateFormat('dd MMM').format(today.add(const Duration(days: 6)))}",
-              style: MyStyle.s3.copyWith(
-                color: MyColor.textGreyColor,
-              ),
+            Column(
+              children: [
+                Text(
+                  "${DateFormat('dd MMM').format(today)} - ${DateFormat('dd MMM').format(today.add(const Duration(days: 6)))}",
+                  style: MyStyle.s3.copyWith(
+                    color: MyColor.textGreyColor,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      easy.tr("astrology.see_details"),
+                      style: MyStyle.s3.copyWith(
+                        color: MyColor.primaryPurpleColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Icon(
+                      MyIcon.forward,
+                      size: MySize.iconSizeTiny,
+                      color: MyColor.primaryPurpleColor,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -1641,14 +1661,14 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                                   Text(
                                     easy.tr("astrology.see_details"),
                                     style: MyStyle.s3.copyWith(
-                                      color: MyColor.textGreyColor,
+                                      color: MyColor.primaryPurpleColor,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Icon(
                                     MyIcon.forward,
                                     size: MySize.iconSizeTiny,
-                                    color: MyColor.textGreyColor,
+                                    color: MyColor.primaryPurpleColor,
                                   ),
                                 ],
                               ),
