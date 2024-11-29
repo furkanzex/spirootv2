@@ -42,8 +42,8 @@ class _HomePageState extends State<HomePage> {
         centerTitle: false,
         actions: [
           SizedBox(
-            height: MySize.iconSizeSmall,
-            width: MySize.iconSizeSmall,
+            height: MySize.iconSizeSmallMedium,
+            width: MySize.iconSizeSmallMedium,
             child: GestureDetector(
               onTap: () {},
               child: LottieBuilder.asset("assets/lottie/gift_icon.json"),
@@ -56,6 +56,7 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(
                 MingCute.angel_line,
                 color: MyColor.white,
+                size: MySize.iconSizeSmaller,
               ))
         ],
       ),
@@ -66,8 +67,9 @@ class _HomePageState extends State<HomePage> {
           onTap: controller.changePage,
           backgroundColor: MyColor.transparent,
           selectedItemColor: MyColor.white,
-          unselectedItemColor: MyColor.primaryColor,
+          unselectedItemColor: MyColor.primaryPurpleColor.withOpacity(0.25),
           elevation: 0,
+          iconSize: MySize.iconSizeSmaller,
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(

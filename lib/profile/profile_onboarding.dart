@@ -607,7 +607,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                       _birthPlaceController.text = prediction.description!;
                       _userController.validatePlace(prediction.description!);
                       _birthPlaceFocusNode.unfocus();
-                      ;
+
                       if (_userController.validatePlacePage()) {
                         _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),

@@ -34,7 +34,7 @@ Widget greetingSection({
         text: "🪬 ${easy.tr("navigation.guide")}",
         trailingLabel: easy.tr("home.spiritual_advisor.ask_now"),
         icon: MyIcon.forward,
-        color: MyColor.primaryLightColor,
+        color: MyColor.primaryPurpleColor,
         onTap: onTap,
       ),
       verticalGap(MySize.defaultPadding),

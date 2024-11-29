@@ -314,7 +314,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       width: 100,
                       height: 100,
                       child: CircleAvatar(
-                        backgroundColor: MyColor.white.withOpacity(0.1),
+                        backgroundColor: MyColor.white.withOpacity(0.05),
                         backgroundImage: ExtendedNetworkImageProvider(
                           "https://apptoic.com/spiroot/images/$zodiacSign.png",
                           cache: true,
@@ -429,9 +429,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           minimumSize: const Size(44, 44),
           padding:
               const EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
-          backgroundColor: isSelected
-              ? MyColor.primaryColor.withOpacity(0.2)
-              : Colors.transparent,
+          backgroundColor:
+              isSelected ? MyColor.white.withOpacity(0.05) : Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MySize.quarterRadius),
           ),
@@ -439,7 +438,9 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         child: Text(
           displayText,
           style: MyStyle.s2.copyWith(
-            color: isSelected ? MyColor.white : MyColor.primaryLightColor,
+            color: isSelected
+                ? MyColor.white
+                : MyColor.primaryPurpleColor.withOpacity(0.25),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -809,7 +810,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           height: 220,
           padding: const EdgeInsets.all(MySize.defaultPadding),
           decoration: BoxDecoration(
-            color: MyColor.white.withOpacity(0.1),
+            color: MyColor.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(MySize.halfRadius),
           ),
           child: LineChart(
@@ -821,13 +822,13 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 verticalInterval: 1,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
-                    color: MyColor.white.withOpacity(0.1),
+                    color: MyColor.white.withOpacity(0.05),
                     strokeWidth: 1,
                   );
                 },
                 getDrawingVerticalLine: (value) {
                   return FlLine(
-                    color: MyColor.white.withOpacity(0.1),
+                    color: MyColor.white.withOpacity(0.05),
                     strokeWidth: 1,
                   );
                 },
@@ -1126,7 +1127,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         Container(
           padding: const EdgeInsets.all(MySize.defaultPadding),
           decoration: BoxDecoration(
-            color: MyColor.white.withOpacity(0.1),
+            color: MyColor.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(MySize.halfRadius),
           ),
           child: Obx(() {
@@ -1153,7 +1154,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                                   color: MyColor.primaryLightColor,
                                   strokeWidth: 3,
                                   backgroundColor:
-                                      MyColor.white.withOpacity(0.1),
+                                      MyColor.white.withOpacity(0.05),
                                 ),
                               ),
                               verticalGap(MySize.defaultPadding),
@@ -1242,7 +1243,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 vertical: MySize.quarterPadding,
               ),
               decoration: BoxDecoration(
-                color: MyColor.primaryLightColor.withOpacity(0.1),
+                color: MyColor.primaryLightColor,
                 borderRadius: BorderRadius.circular(MySize.quarterRadius),
               ),
               child: Text(
@@ -1267,7 +1268,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           child: Table(
             border: TableBorder(
               horizontalInside: BorderSide(
-                color: MyColor.white.withOpacity(0.1),
+                color: MyColor.white.withOpacity(0.05),
                 width: 1,
               ),
             ),
@@ -1275,7 +1276,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               // Tablo Başlığı
               TableRow(
                 decoration: BoxDecoration(
-                  color: MyColor.primaryLightColor.withOpacity(0.1),
+                  color: MyColor.primaryLightColor,
                 ),
                 children: [
                   _buildTableHeader("Gezegen"),
@@ -1292,6 +1293,9 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                     planetData['aspects'] as Map<String, dynamic>? ?? {};
 
                 return TableRow(
+                  decoration: BoxDecoration(
+                    color: MyColor.transparent,
+                  ),
                   children: [
                     // Gezegen
                     _buildTableCell(
@@ -1342,7 +1346,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                     ),
                   ],
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),
@@ -1382,7 +1386,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       height: 150,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: MyColor.white.withOpacity(0.1),
+        color: MyColor.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(MySize.halfRadius),
       ),
       child: ClipRRect(
@@ -1511,7 +1515,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? MyColor.primaryColor.withOpacity(0.2)
-              : MyColor.white.withOpacity(0.1),
+              : MyColor.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(MySize.defaultRadius),
           border: isSelected ? Border.all(color: MyColor.primaryColor) : null,
         ),
@@ -1568,7 +1572,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         color: MyColor.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(MySize.defaultRadius),
         border: Border.all(
-          color: MyColor.white.withOpacity(0.1),
+          color: MyColor.white.withOpacity(0.05),
           width: 1,
         ),
       ),
@@ -1727,7 +1731,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         Container(
           padding: const EdgeInsets.all(MySize.defaultPadding),
           decoration: BoxDecoration(
-            color: MyColor.white.withOpacity(0.1),
+            color: MyColor.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(MySize.halfRadius),
           ),
           child: Column(
@@ -1885,7 +1889,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               child: CircularProgressIndicator(
                 color: MyColor.primaryLightColor,
                 strokeWidth: 3,
-                backgroundColor: MyColor.white.withOpacity(0.1),
+                backgroundColor: MyColor.white.withOpacity(0.05),
               ),
             ),
             verticalGap(MySize.defaultPadding),
@@ -2049,7 +2053,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           return Container(
             margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
             decoration: BoxDecoration(
-              color: MyColor.white.withOpacity(0.1),
+              color: MyColor.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(MySize.halfRadius),
             ),
             child: Material(
@@ -2167,7 +2171,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -2255,7 +2259,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 Container(
                   padding: const EdgeInsets.all(MySize.defaultPadding),
                   decoration: BoxDecoration(
-                    color: MyColor.white.withOpacity(0.1),
+                    color: MyColor.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(MySize.halfRadius),
                     border: Border.all(
                       color: MyColor.primaryLightColor.withOpacity(0.1),
@@ -2367,7 +2371,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         return Container(
           padding: const EdgeInsets.all(MySize.defaultPadding),
           decoration: BoxDecoration(
-            color: MyColor.white.withOpacity(0.1),
+            color: MyColor.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(MySize.halfRadius),
           ),
           child: Material(
@@ -2391,7 +2395,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                         Container(
                           padding: const EdgeInsets.all(MySize.halfPadding),
                           decoration: BoxDecoration(
-                            color: MyColor.white.withOpacity(0.1),
+                            color: MyColor.white.withOpacity(0.05),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
@@ -2449,7 +2453,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: MyColor.white.withOpacity(0.1),
+                    color: MyColor.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(

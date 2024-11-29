@@ -149,7 +149,7 @@ Widget topShopsSection() {
           text: "⭐️ ${easy.tr("navigation.top_rated_shops")}",
           trailingLabel: easy.tr("home.see_all"),
           icon: MyIcon.forward,
-          color: MyColor.primaryLightColor,
+          color: MyColor.primaryPurpleColor,
           onTap: () {
             final controller = Get.find<HomeController>();
             controller.changePage(3);

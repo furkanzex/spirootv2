@@ -23,7 +23,7 @@ Widget astrologySection() {
         text: "🪐 ${easy.tr("navigation.astrology")}",
         trailingLabel: easy.tr("home.see_all"),
         icon: MyIcon.forward,
-        color: MyColor.primaryLightColor,
+        color: MyColor.primaryPurpleColor,
         onTap: () {
           final controller = Get.find<HomeController>();
           controller.changePage(2);

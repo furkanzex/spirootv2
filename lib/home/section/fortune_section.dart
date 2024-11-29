@@ -81,7 +81,7 @@ Widget fortuneSection({bool isMainPageWidget = false}) {
               }
             : null,
         icon: isMainPageWidget ? MyIcon.forward : null,
-        color: isMainPageWidget ? MyColor.primaryLightColor : null,
+        color: isMainPageWidget ? MyColor.primaryPurpleColor : null,
       ),
       if (!isMainPageWidget) verticalGap(MySize.defaultPadding),
       if (!isMainPageWidget)

@@ -5,6 +5,7 @@ class MyColor {
   static const Color primaryColor = Color(0xFF461493);
   static const Color primaryLightColor = Color.fromRGBO(98, 28, 202, 1);
   static const Color primaryDarkColor = Color(0xFF2A0B57);
+  static const Color primaryPurpleColor = Color(0xFFC6A1FF);
 
   static const Color secondaryColor = Color(0xFFFFD700);
 

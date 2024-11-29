@@ -26,6 +26,8 @@ class MySize {
 
   static const double iconSizeTiny = 20.0;
   static const double iconSizeSmall = 32.0;
+  static const double iconSizeSmaller = 28.0;
+  static const double iconSizeSmallMedium = 38.0;
   static const double iconSizeMedium = 48.0;
   static const double iconSizeBig = 64.0;
 

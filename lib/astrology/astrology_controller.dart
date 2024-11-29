@@ -310,7 +310,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Numeroloji yorumu oluşturma metodunu güncelle
   Future<void> generateNumerologyReading() async {
     if (!isSubscribed.value) return;
 
@@ -351,19 +350,6 @@ class AstrologyController extends GetxController {
       _handleError('Numeroloji yorumu oluşturulurken bir hata oluştu');
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  Future<void> _saveNumerologyToFirestore(
-      Map<String, dynamic> numerology) async {
-    try {
-      final userId = Get.find<UserController>().userId.value;
-
-      await _firestore.collection('users').doc(userId).update({
-        'numerology': numerology,
-      });
-    } catch (e) {
-      print('Numerology save error: $e');
     }
   }
 
@@ -987,12 +973,10 @@ class AstrologyController extends GetxController {
     };
   }
 
-  // Sadece sembol almak için yardımcı metod
   String getZodiacSymbolByName(String zodiacName) {
     return getZodiacDetailsByName(zodiacName)['symbol'] ?? '';
   }
 
-  // Yaşam Yolu Sayısını hesapla
   int calculateLifePathNumber(DateTime birthDate) {
     String dateStr = DateFormat('ddMMyyyy').format(birthDate);
     int sum = 0;
@@ -1014,61 +998,6 @@ class AstrologyController extends GetxController {
     return sum;
   }
 
-  // Retrogradları kontrol eden metod
-  Future<void> _checkRetrogrades() async {
-    try {
-      final userId = Get.find<UserController>().userId.value;
-      final doc = await _firestore.collection('users').doc(userId).get();
-
-      if (doc.exists) {
-        final retrogrades = doc.data()?['retrogrades'];
-        if (retrogrades != null && retrogrades['expiryDate'] != null) {
-          final expiryDate = (retrogrades['expiryDate'] as Timestamp).toDate();
-
-          if (expiryDate.isAfter(DateTime.now())) {
-            retrogradeReadings.value = retrogrades['readings'];
-            isRetroReadingsAvailable.value = true;
-          } else {
-            await _generateRetroReadings();
-          }
-        } else {
-          await _generateRetroReadings();
-        }
-      }
-    } catch (e) {
-      print('Retrograde check error: $e');
-    }
-  }
-
-  // Retro yorumlarını oluşturan metod
-  Future<void> _generateRetroReadings() async {
-    try {
-      final user = Get.find<UserController>().currentUser.value;
-      if (user == null) return;
-
-      final now = DateTime.now();
-      final weekEnd = now.add(const Duration(days: 7));
-
-      // Gemini'den retro yorumlarını al
-      final response = await _geminiService.generateRetroReadings(
-        now,
-        weekEnd,
-        user.zodiacSign,
-      );
-
-      final jsonResponse = json.decode(response);
-      retrogradeReadings.value = jsonResponse['retrogrades'];
-
-      // Firebase'e kaydet
-      await _saveRetroReadings(jsonResponse['retrogrades']);
-
-      isRetroReadingsAvailable.value = true;
-    } catch (e) {
-      print('Retrograde generation error: $e');
-    }
-  }
-
-  // Retro yorumlarını Firebase'e kaydet
   Future<void> _saveRetroReadings(Map<String, dynamic> readings) async {
     try {
       final userId = _userController.userId.value;
@@ -1087,7 +1016,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Varsayılan retro verilerini kullan
   void _useDefaultRetroReadings() {
     try {
       final now = DateTime.now();
@@ -1129,10 +1057,8 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Retrogradları kontrol etmek için yeni metodlar
   bool isRetrograde(String planet) {
     try {
-      // Gezegenlerin retro durumunu kontrol eder
       final position = weeklyTransits[planet]!;
       return EphemerisService.calculateRetrogradeStatus(planet, position);
     } catch (e) {
@@ -1145,10 +1071,8 @@ class AstrologyController extends GetxController {
     return weeklyTransits.keys.where((planet) => isRetrograde(planet)).length;
   }
 
-  // Numeroloji kontrolü için public metod
   Future<void> checkNumerologyReading() async {
     try {
-      // Premium kontrolü - Premium değilse işlem yapma
       if (!isSubscribed.value) {
         isNumerologyAvailable.value = false;
         numerologyReading.clear();
@@ -1254,7 +1178,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Burç seçimi için metodlar
   void setFirstZodiac(int index) {
     selectedFirstZodiac.value = index;
   }
@@ -1263,7 +1186,6 @@ class AstrologyController extends GetxController {
     selectedSecondZodiac.value = index;
   }
 
-  // Uyumluluk kontrolü için metod
   Future<void> checkCompatibility(String type) async {
     try {
       isLoading.value = true;
@@ -1320,13 +1242,12 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Gezegen pozisyonlarını hesaplayan metotta
   Map<String, dynamic> calculatePlanetPosition(String planet) {
     try {
       double degree;
       int sign;
       bool isRetrograde;
-      Map<String, dynamic> aspects = {}; // Varsayılan boş map
+      Map<String, dynamic> aspects = {};
 
       switch (planet) {
         case 'Sun':
@@ -1362,7 +1283,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Abonelik durumunu kontrol et
   Future<void> _checkSubscriptionStatus() async {
     try {
       final userDoc = await _firestore
@@ -1377,7 +1297,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Premium içerikleri yönet
   Future<void> _managePremiumContent() async {
     try {
       final userRef =
@@ -1395,7 +1314,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Premium içerikleri sil
   Future<void> _deletePremiumContent(DocumentReference userRef) async {
     try {
       final user = _userController.currentUser.value;
@@ -1433,7 +1351,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Temel astroloji verilerini yükle
   Future<void> _loadBasicAstrologyData() async {
     try {
       await Future.wait([
@@ -1446,7 +1363,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Günlük yorum yükleme
   Future<void> _loadDailyHoroscope() async {
     try {
       selectedDay.value = "astrology.horoscope.dates.today";
@@ -1487,7 +1403,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Transit verilerini yükle
   Future<void> _loadCurrentTransits() async {
     try {
       final user = _userController.currentUser.value;
@@ -1504,7 +1419,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Retro okumalarını yükle - 7 günlük kontrol ile
   Future<void> _loadRetroReadings() async {
     try {
       final userId = _userController.userId.value;
@@ -1516,7 +1430,6 @@ class AstrologyController extends GetxController {
       if (retrogrades != null && retrogrades['expiryDate'] != null) {
         final expiryDate = (retrogrades['expiryDate'] as Timestamp).toDate();
 
-        // Mevcut yorumlar varsa ve süresi geçmemişse kullan
         if (expiryDate.isAfter(DateTime.now())) {
           retrogradeReadings.value = retrogrades['readings'];
           isRetroReadingsAvailable.value = true;
@@ -1524,25 +1437,21 @@ class AstrologyController extends GetxController {
         }
       }
 
-      // Yorum yoksa veya süresi geçmişse yeni yorum oluştur
       if (needsNewReadings) {
         await _generateAndSaveRetroReadings();
       }
     } catch (e) {
       print('Load retro readings error: $e');
-      // Hata durumunda varsayılan verileri kullan
       _useDefaultRetroReadings();
     }
   }
 
-  // Premium içerikleri yükle
   Future<void> loadPremiumContent() async {
     if (!isSubscribed.value) return;
 
     try {
       isLoading.value = true;
 
-      // Tüm içerikleri kontrol et ve gerekirse yenilerini oluştur
       await Future.wait([
         _loadDailyHoroscope(),
         _loadWeeklyHoroscope(),
@@ -1558,7 +1467,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Haftalık yorum yükleme
   Future<void> _loadWeeklyHoroscope() async {
     try {
       selectedDay.value = "astrology.horoscope.dates.week";
@@ -1566,14 +1474,13 @@ class AstrologyController extends GetxController {
 
       // Yorum yoksa veya süresi geçmişse yeni yorum oluştur
       if (!isHoroscopeAvailable.value) {
-        await generateHoroscope();
+        await generateHoroscope('weekly');
       }
     } catch (e) {
       print('Load weekly horoscope error: $e');
     }
   }
 
-  // Aylık yorum yükleme
   Future<void> _loadMonthlyHoroscope() async {
     try {
       selectedDay.value = "astrology.horoscope.dates.month";
@@ -1581,14 +1488,13 @@ class AstrologyController extends GetxController {
 
       // Yorum yoksa veya süresi geçmişse yeni yorum oluştur
       if (!isHoroscopeAvailable.value) {
-        await generateHoroscope();
+        await generateHoroscope('monthly');
       }
     } catch (e) {
       print('Load monthly horoscope error: $e');
     }
   }
 
-  // Numeroloji okuması yükleme
   Future<void> _loadNumerologyReading() async {
     try {
       await checkNumerologyReading();
@@ -1630,7 +1536,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // İçerik yükleme ve son kullanma tarihi kontrolü
   Future<void> _loadContentWithExpiry(
     String contentType,
     Future<void> Function() loadFunction,
@@ -1661,7 +1566,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Son kullanma tarihini güncelle
   Future<void> _updateExpiryDate(String contentType) async {
     try {
       final now = DateTime.now();
@@ -1696,7 +1600,6 @@ class AstrologyController extends GetxController {
     }
   }
 
-  // Natal Chart yorumu oluştur ve kaydet
   Future<void> _generateAndSaveNatalReading(String timeframe) async {
     try {
       final user = _userController.currentUser.value!;
