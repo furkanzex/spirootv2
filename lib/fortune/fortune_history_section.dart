@@ -14,6 +14,14 @@ import 'package:spirootv2/core/widget/gap/horizontal_gap.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/core/widget/text_field/section_title.dart';
 
+String getInterpretationText(Map<String, dynamic> data) {
+  if (data['type'] == 'tarot') {
+    final interpretation = data['interpretation'] as Map<String, dynamic>;
+    return '${interpretation['past']}\n\n${interpretation['present']}\n\n${interpretation['future']}';
+  }
+  return data['interpretation'] ?? '';
+}
+
 Widget fortuneHistorySection(BuildContext context) {
   String formatDate(DateTime? date) {
     if (date == null) return 'Tarih bilgisi yok'.tr();
@@ -61,6 +69,8 @@ Widget fortuneHistorySection(BuildContext context) {
                 date = (data['timestamp'] as Timestamp).toDate();
               }
 
+              final interpretationText = getInterpretationText(data);
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: MySize.defaultPadding),
                 child: GestureDetector(
@@ -71,7 +81,7 @@ Widget fortuneHistorySection(BuildContext context) {
                             'https://apptoic.com/spiroot/images/${data['type']}.png',
                         type: data['type'],
                         date: formatDate(date),
-                        content: data['interpretation'],
+                        content: interpretationText,
                       )),
                   child: Container(
                     decoration: BoxDecoration(
@@ -195,7 +205,7 @@ Widget fortuneHistorySection(BuildContext context) {
                                   ),
                                   horizontalGap(MySize.halfPadding),
                                   Text(
-                                    data['interpretation'],
+                                    interpretationText,
                                     style: MyStyle.s3.copyWith(
                                       color: MyColor.textGreyColor,
                                     ),
