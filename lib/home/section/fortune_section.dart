@@ -14,6 +14,7 @@ import 'package:spirootv2/core/widget/text_field/section_title.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
+import 'package:spirootv2/fortune/tarot/tarot_screen.dart';
 import 'package:spirootv2/home/home_controller.dart';
 
 Widget fortuneSection(
@@ -32,7 +33,12 @@ Widget fortuneSection(
       title: "Tarot Falı",
       color: MyColor.primaryLightColor,
       onTap: () {
-        // Tarot falı sayfasına git
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const TarotScreen(),
+          ),
+        );
       },
     ),
     FortuneCard(

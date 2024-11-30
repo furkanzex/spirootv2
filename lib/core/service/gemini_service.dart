@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:intl/intl.dart';
+import 'package:spirootv2/fortune/tarot/tarot_card_model.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/profile/user_model.dart';
 import 'dart:convert';
@@ -834,5 +835,26 @@ Important: Write the response in $_currentLanguage
     final content = [Content.text(prompt)];
     final response = await model.generateContent(content);
     return response.text;
+  }
+
+  Future<String> interpretTarot(List<TarotCard> cards) async {
+    try {
+      final prompt =
+          '''Bir tarot falcısı olarak yanıt ver. Seçilen kartları detaylı bir şekilde yorumla:
+      
+      Seçilen Kartlar:
+      ${cards.map((card) => "- ${card.name} (${card.meaning})").join("\n")}
+      
+      Kartların birbiriyle olan ilişkisini ve kişinin geleceğine dair öngörülerini detaylı bir şekilde açıkla.
+      Yorumu mistik bir dille ve emoji'lerle süsle.
+      Yanıtı $_currentLanguage dilinde ver.
+      ''';
+
+      final content = [Content.text(prompt)];
+      final response = await _textModel.generateContent(content);
+      return response.text ?? '';
+    } catch (e) {
+      throw Exception('Tarot yorumlanırken bir hata oluştu: $e');
+    }
   }
 }

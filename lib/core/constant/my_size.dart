@@ -34,6 +34,8 @@ class MySize {
   static const double gridSize = 54.0;
   static const double cardHeight = 150.0;
   static const double cardWidth = 275.0;
+  static const double tarotCardHeight = 200.0;
+  static const double tarotCardWidth = 150.0;
 
   static const double welcomeImageSize = 240.0;
   static const double natalChartSize = 230.0;
