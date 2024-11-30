@@ -69,21 +69,27 @@ Widget fortuneHistorySection(BuildContext context) {
                 date = (data['timestamp'] as Timestamp).toDate();
               }
 
-              final interpretationText = getInterpretationText(data);
+              final content = data['type'] == 'tarot'
+                  ? (data['interpretation'] as Map<String, dynamic>?)
+                  : data['interpretation'];
+
+              DateTime? revealAt;
+              if (data['revealAt'] != null) {
+                revealAt = (data['revealAt'] as Timestamp).toDate();
+              }
+
+              final historyItem = FortuneHistoryItem(
+                image: 'https://apptoic.com/spiroot/images/${data['type']}.png',
+                type: data['type'],
+                date: formatDate(date),
+                content: content,
+                revealAt: revealAt,
+              );
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: MySize.defaultPadding),
                 child: GestureDetector(
-                  onTap: () => _showFortuneDetail(
-                      context,
-                      FortuneHistoryItem(
-                        image:
-                            'https://apptoic.com/spiroot/images/${data['type']}.png',
-                        type: data['type'],
-                        date: formatDate(date),
-                        content: interpretationText,
-                        revealAt: (data['revealAt'] as Timestamp?)?.toDate(),
-                      )),
+                  onTap: () => _showFortuneDetail(context, historyItem),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
@@ -333,11 +339,11 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
     );
   }
 
-  final revealAt = (data['revealAt'] as Timestamp?)?.toDate();
-  if (revealAt == null) return const SizedBox();
+  final revealAt = data['revealAt'] != null
+      ? (data['revealAt'] as Timestamp).toDate()
+      : null;
 
-  if (DateTime.now().isBefore(revealAt)) {
-    final remaining = revealAt.difference(DateTime.now());
+  if (revealAt != null && DateTime.now().isBefore(revealAt)) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -360,7 +366,7 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
         ),
         verticalGap(4),
         Text(
-          'Kalan Süre: ${_formatDuration(remaining)}',
+          'Kalan Süre: ${_formatDuration(revealAt.difference(DateTime.now()))}',
           style: MyStyle.s3.copyWith(
             color: MyColor.textGreyColor,
           ),
@@ -369,8 +375,11 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
     );
   }
 
+  final interpretation = data['interpretation'] as Map<String, dynamic>?;
+  if (interpretation == null) return const SizedBox();
+
   return Text(
-    getInterpretationText(data),
+    '${interpretation['past']}\n${interpretation['present']}\n${interpretation['future']}',
     style: MyStyle.s3.copyWith(
       color: MyColor.textGreyColor,
     ),
