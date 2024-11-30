@@ -7,10 +7,13 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
+import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/tarot/tarot_card_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
 
 class TarotScreen extends StatefulWidget {
   const TarotScreen({super.key});
@@ -21,25 +24,18 @@ class TarotScreen extends StatefulWidget {
 
 class _TarotScreenState extends State<TarotScreen>
     with TickerProviderStateMixin {
-  late List<TarotCard> _deck;
+  List<TarotCard>? _deck;
   final List<TarotCard?> _selectedCards = List.filled(3, null);
   late AnimationController _fanAnimationController;
   late Animation<double> _fanAnimation;
   bool _isInterpreting = false;
   Timer? _interpretationTimer;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _deck = List.generate(
-        21,
-        (index) => TarotCard(
-              id: index.toString(),
-              name: 'Kart ${index + 1}',
-              image: 'https://apptoic.com/spiroot/tarot/${index + 1}',
-              meaning: 'Anlam ${index + 1}',
-            ));
-
+    _loadTarotCards();
     _fanAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -48,7 +44,34 @@ class _TarotScreenState extends State<TarotScreen>
       parent: _fanAnimationController,
       curve: Curves.easeOutBack,
     );
-    _fanAnimationController.forward();
+  }
+
+  Future<void> _loadTarotCards() async {
+    try {
+      final String jsonString =
+          await rootBundle.loadString('assets/json/tarot.json');
+      final List<dynamic> jsonList = json.decode(jsonString);
+      setState(() {
+        _deck = jsonList
+            .map((json) => TarotCard.fromJson(json as Map<String, dynamic>))
+            .toList();
+        _isLoading = false;
+      });
+      _fanAnimationController.forward();
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Kartlar yüklenirken bir hata oluştu: $e'),
+            backgroundColor: Colors.red.withOpacity(0.8),
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -84,15 +107,14 @@ class _TarotScreenState extends State<TarotScreen>
       });
     }
 
-    // Random bekleme süresi (1-15 dakika)
+    // Random bekleme süresi (1-10 dakika)
     final random = Random();
-    final waitTime = Duration(minutes: random.nextInt(14) + 1);
+    final waitTime = Duration(minutes: random.nextInt(9) + 1);
 
     try {
       final geminiService = GeminiService();
-      final interpretation = await geminiService.interpretTarot(
-        _selectedCards.whereType<TarotCard>().toList(),
-      );
+      final interpretation = await geminiService
+          .interpretTarotCards(_selectedCards.whereType<TarotCard>().toList());
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -110,7 +132,7 @@ class _TarotScreenState extends State<TarotScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Tarot yorumunuz ${waitTime.inMinutes} dakika içinde hazır olacak'
+              'Tarot yorumunuz ortalama ${waitTime.inMinutes} dakika içinde hazır olacak'
                   .tr(),
             ),
             backgroundColor: MyColor.primaryLightColor.withOpacity(0.8),
@@ -144,13 +166,17 @@ class _TarotScreenState extends State<TarotScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading || _deck == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final screenWidth = MediaQuery.of(context).size.width;
     final cardWidth = MySize.tarotCardWidth;
     final cardHeight = MySize.tarotCardHeight;
 
     // Seçilmemiş kartları filtrele
     final availableCards =
-        _deck.where((card) => !_selectedCards.contains(card)).toList();
+        _deck!.where((card) => !_selectedCards.contains(card)).toList();
 
     return ScaffoldGradientBackground(
       gradient: LinearGradient(
@@ -226,7 +252,7 @@ class _TarotScreenState extends State<TarotScreen>
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        verticalGap(MySize.defaultPadding),
                         DragTarget<TarotCard>(
                           onWillAccept: (card) =>
                               _selectedCards[index] == null &&
@@ -359,22 +385,23 @@ class _TarotScreenState extends State<TarotScreen>
     TarotCard card, {
     required double width,
     required double height,
-    bool isInDeck = false,
   }) {
+    // Her kart için benzersiz bir tag oluştur
+    final heroTag =
+        '${card.number}_${card.name}_${DateTime.now().microsecondsSinceEpoch}';
+
     return Hero(
-      tag: 'card_${card.id}',
+      tag: heroTag,
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(MySize.quarterRadius),
           image: DecorationImage(
-            image: NetworkImage(
-              card.isRevealed
-                  ? card.image
-                  : 'https://apptoic.com/spiroot/images/tarot_back1.png',
-            ),
-            fit: BoxFit.cover,
+            image: card.isRevealed
+                ? AssetImage(card.image)
+                : const AssetImage('assets/images/tarot_back1.png'),
+            fit: card.isRevealed ? BoxFit.contain : BoxFit.cover,
           ),
         ),
       ),

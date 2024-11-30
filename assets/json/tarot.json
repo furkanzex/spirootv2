@@ -32,13 +32,13 @@
         "Behaving inappropriately"
       ]
     },
-    "Archetype": "The Divine Madman",
-    "Hebrew Alphabet": "Aleph/Ox/1",
-    "Numerology": "0 (off the scale; pure potential)",
-    "Elemental": "Air",
-    "Mythical/Spiritual":
+    "arche_type": "The Divine Madman",
+    "hebrew_alphabet": "Aleph/Ox/1",
+    "numerology": "0 (off the scale; pure potential)",
+    "elemental": "Air",
+    "mythical_spiritual":
         "Adam before the fall. Christ as a wandering holy madman. Deity wrapped in human flesh. The Holy Spirit.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What would I do if I felt free to take a leap?",
       "How willing am I to be vulnerable and open?",
       "How might past experiences help in this new situation?"
@@ -73,13 +73,13 @@
         "Taking shortcuts"
       ]
     },
-    "Archetype": "The Ego/The Self",
-    "Hebrew Alphabet": "Beth/House/2",
-    "Numerology": "1 (origins, unity, seeds)",
-    "Elemental": "The Sun/Mercury",
-    "Mythical/Spiritual":
+    "arche_type": "The Ego/The Self",
+    "hebrew_alphabet": "Beth/House/2",
+    "numerology": "1 (origins, unity, seeds)",
+    "elemental": "The Sun/Mercury",
+    "mythical_spiritual":
         "Thoth, the Egyptian god of wisdom, known to the Greeks as Hermes and to the Romans as Mercury. Christ working miracles. Brahma, the Creator.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What am I empowered to do?",
       "How might my abilities come into play?",
       "To what extent am I making the most of my talents?"
@@ -116,13 +116,13 @@
         "Refusing to become involved, even when involvement is appropriate"
       ]
     },
-    "Archetype": "The Virgin/The Maiden",
-    "Hebrew Alphabet": "Gimel/Camel/3",
-    "Numerology": "2 (division, debate, duality)",
-    "Elemental": "The Moon",
-    "Mythical/Spiritual":
+    "arche_type": "The Virgin/The Maiden",
+    "hebrew_alphabet": "Gimel/Camel/3",
+    "numerology": "2 (division, debate, duality)",
+    "elemental": "The Moon",
+    "mythical_spiritual":
         "The feminine aspect of divinity, particularity when expressed through virginity, as with the Virgin Mary or Isis.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What might a rebel against tradition do?",
       "What isn't being said or revealed?",
       "What could be achieved by observing and reflecting?"
@@ -160,13 +160,13 @@
         "Being overcome by addictive behavior"
       ]
     },
-    "Archetype": "The Mother",
-    "Hebrew Alphabet": "Daleth/Door/4",
-    "Numerology": "3 (expression, productivity, output)",
-    "Elemental": "Venus",
-    "Mythical/Spiritual":
+    "arche_type": "The Mother",
+    "hebrew_alphabet": "Daleth/Door/4",
+    "numerology": "3 (expression, productivity, output)",
+    "elemental": "Venus",
+    "mythical_spiritual":
         "Gaia, Mother Earth, Ishtar, DemeterÑmature, reproductive female divinity in every form. Also Aphrodite and Turan. ",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What would a concerned and capable mother do?",
       "What can I do that would emphasize growth?",
       "How can I celebrate my own sensuality and sexuality?"
@@ -201,13 +201,13 @@
         "Using overt force to achieve your goals and maintain order"
       ]
     },
-    "Archetype": "The Father",
-    "Hebrew Alphabet": "He[as]/Window/5, or in some decks, Tzaddi/Fish hook/90",
-    "Numerology": "4 (stability, equality, persistence)",
-    "Elemental": "Mars/Aries",
-    "Mythical/Spiritual":
+    "arche_type": "The Father",
+    "hebrew_alphabet": "He[as]/Window/5, or in some decks, Tzaddi/Fish hook/90",
+    "numerology": "4 (stability, equality, persistence)",
+    "elemental": "Mars/Aries",
+    "mythical_spiritual":
         "Masculine gods, including the Hebrew God, the Christian God, Allah, and Zeus. Patriarchs (Abraham) and lawgivers (Moses). Vishnu, the Preserver.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How does the issue of control or regulation impact this situation?",
       "What would a compassionate but strict father do?",
       "What needs more control?"
@@ -244,13 +244,13 @@
         "Restricting access to spiritual truths or the gods"
       ]
     },
-    "Archetype": "The Guardian/The Church/Faith",
-    "Hebrew Alphabet": "Vau/Nail or Spike/6",
-    "Numerology": "5 (instability, resistance, confrontation, evolution)",
-    "Elemental": "Taurus/Earth",
-    "Mythical/Spiritual":
+    "arche_type": "The Guardian/The Church/Faith",
+    "hebrew_alphabet": "Vau/Nail or Spike/6",
+    "numerology": "5 (instability, resistance, confrontation, evolution)",
+    "elemental": "Taurus/Earth",
+    "mythical_spiritual":
         "The Christ, the Apostle Peter, Buddha, Mohammed. Popes, priests, and intercessors of every faith and tradition",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What role might tradition or religion play in this situation?",
       "Who authored the rules? Who enforces them? Why?",
       "How might an experienced guide impact this situation?"
@@ -285,13 +285,13 @@
         "Ill-informed decisions"
       ]
     },
-    "Archetype": "The Lover/Sexual Awakening",
-    "Hebrew Alphabet": "Zain/Sword/7",
-    "Numerology": "6 (cooperation, collaboration, interaction)",
-    "Elemental": "Gemini",
-    "Mythical/Spiritual":
+    "arche_type": "The Lover/Sexual Awakening",
+    "hebrew_alphabet": "Zain/Sword/7",
+    "numerology": "6 (cooperation, collaboration, interaction)",
+    "elemental": "Gemini",
+    "mythical_spiritual":
         "Obviously, Adam and Eve, who are depicted in RWS-influenced decks. Also Venus and Cupid, Aphrodite and Eros.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What guides my choices?",
       "What is my heart leading me to do?",
       "How might this decision transform me as a person?"
@@ -325,13 +325,13 @@
         "Failing to rein in impulsive behavior"
       ]
     },
-    "Archetype": "The Victorious Hero",
-    "Hebrew Alphabet": "Cheth/Fence/8",
-    "Numerology": "7 (imagination, inner work, psychology)",
-    "Elemental": "Cancer",
-    "Mythical/Spiritual":
+    "arche_type": "The Victorious Hero",
+    "hebrew_alphabet": "Cheth/Fence/8",
+    "numerology": "7 (imagination, inner work, psychology)",
+    "elemental": "Cancer",
+    "mythical_spiritual":
         "Odysseus. Jason. The search for the Holy Grail. Christ's triumphal entry into Jerusalem.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "To what extent have I arrived? What will my next challenge be?",
       "How can I use past achievements to their best advantage?",
       "What would the criteria for real and meaningful success be?"
@@ -369,13 +369,13 @@
         "Failing to take a stand when necessary"
       ]
     },
-    "Archetype": "The Law",
-    "Hebrew Alphabet": "Lamed/Outstretched Arms/30 or Theth/Snake/9",
-    "Numerology": "8 (movement, work) or 11 = 1 + 1 = 2 (debate, duality)",
-    "Elemental": "Libra or Leo",
-    "Mythical/Spiritual":
+    "arche_type": "The Law",
+    "hebrew_alphabet": "Lamed/Outstretched Arms/30 or Theth/Snake/9",
+    "numerology": "8 (movement, work) or 11 = 1 + 1 = 2 (debate, duality)",
+    "elemental": "Libra or Leo",
+    "mythical_spiritual":
         "Themis or Justitia. Ma'at. Solomon dividing a baby. The Sword of Damocles. The giving of the Ten Commandments.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "To what extent is your life (or work) balanced?",
       "How can you achieve greater objectivity?",
       "What course of action would be fair to everyone concerned?"
@@ -409,13 +409,13 @@
         "Hiding your skills and talents out of fear of unworthiness"
       ]
     },
-    "Archetype": "The Holy Man",
-    "Hebrew Alphabet": "Yod/Hand/10",
-    "Numerology": "9 (fullness, readiness, ripeness)",
-    "Elemental": "Virgo",
-    "Mythical/Spiritual":
+    "arche_type": "The Holy Man",
+    "hebrew_alphabet": "Yod/Hand/10",
+    "numerology": "9 (fullness, readiness, ripeness)",
+    "elemental": "Virgo",
+    "mythical_spiritual":
         "The Christ, while fasting 40 days in the wilderness. Chronos, the god of time. Father Time. Hermes.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What would happen if I simply withdrew and took no action?",
       "How can I get some perspective on the situation?",
       "Who has walked this path before me? How can I enlist his or her help?"
@@ -448,14 +448,14 @@
         "Fighting the natural course of events"
       ]
     },
-    "Archetype": "The Fates/Destiny",
-    "Hebrew Alphabet": "Koph/Palm/20",
-    "Numerology":
+    "arche_type": "The Fates/Destiny",
+    "hebrew_alphabet": "Koph/Palm/20",
+    "numerology":
         "10 (finality, completion) and 10 = 1 + 0 = 1 (seed, opportunity)",
-    "Elemental": "Jupiter",
-    "Mythical/Spiritual":
+    "elemental": "Jupiter",
+    "mythical_spiritual":
         "The God in the Machine. Deus ex Machina. Clotho, Lachesis, and Atropos. Fortuna.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How does this challenge fit into a larger pattern?",
       "What role does luck play in my circumstances?",
       "What can I control? How should I know when to relinquish control?"
@@ -490,14 +490,14 @@
         "Playing favorites"
       ]
     },
-    "Archetype": "The Id",
-    "Hebrew Alphabet": "Theth/Snake/9 or Lamed/Outstretched Arms/30",
-    "Numerology":
+    "arche_type": "The Id",
+    "hebrew_alphabet": "Theth/Snake/9 or Lamed/Outstretched Arms/30",
+    "numerology":
         "11 = 1 + 1 = 2 (debate, duality) or 8 (movement, outer work)",
-    "Elemental": "Leo or Libra",
-    "Mythical/Spiritual":
+    "elemental": "Leo or Libra",
+    "mythical_spiritual":
         "Samson. Hercules. Daniel in the lion's den. The sinless Christ.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I enhance my self-discipline?",
       "What behaviors tempt me? How can I resist?",
       "What instincts do I continue to struggle with today?"
@@ -537,13 +537,13 @@
         "Profiting at the expense of others"
       ]
     },
-    "Archetype": "The Traitor",
-    "Hebrew Alphabet": "Mem/Water/40",
-    "Numerology": "12 = 1 + 2 = 3 (expression, productivity, output)",
-    "Elemental": "Water",
-    "Mythical/Spiritual":
+    "arche_type": "The Traitor",
+    "hebrew_alphabet": "Mem/Water/40",
+    "numerology": "12 = 1 + 2 = 3 (expression, productivity, output)",
+    "elemental": "Water",
+    "mythical_spiritual":
         "The Crucified Christ. Isaac as a sacrifice. Prometheus bound. Jonah and the whale. Lazarus. Any hanged or sacrificed god. Judas.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I radically alter my perspective?",
       "How might being stuck actually be a blessing in disguise?",
       "How can I help myself see the glass as half full?"
@@ -577,13 +577,13 @@
         "Failing to take good care of yourself"
       ]
     },
-    "Archetype": "Death",
-    "Hebrew Alphabet": "Nun/Fish/50",
-    "Numerology": "13 = 1 + 3 = 4 (stability, persistence)",
-    "Elemental": "Scorpio",
-    "Mythical/Spiritual":
+    "arche_type": "Death",
+    "hebrew_alphabet": "Nun/Fish/50",
+    "numerology": "13 = 1 + 3 = 4 (stability, persistence)",
+    "elemental": "Scorpio",
+    "mythical_spiritual":
         "Christ in the tomb. Hades. Hypnos. Thanatos. Stories of journeys into the underworld.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What needs to end?",
       "How might an ending actually be a blessing in this situation?",
       "What's next?"
@@ -625,13 +625,13 @@
         "Breaking alliances"
       ]
     },
-    "Archetype": "The Mediator",
-    "Hebrew Alphabet": "Samekh/Foundation/60",
-    "Numerology": "14 = 1 + 4 = 5 (catalyst, instability, confrontation)",
-    "Elemental": "Sagittarius",
-    "Mythical/Spiritual":
+    "arche_type": "The Mediator",
+    "hebrew_alphabet": "Samekh/Foundation/60",
+    "numerology": "14 = 1 + 4 = 5 (catalyst, instability, confrontation)",
+    "elemental": "Sagittarius",
+    "mythical_spiritual":
         "The angel seen here may be the goddess Iris. By extension, priests, priesthoods, or the transfigured Christ.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I avoid extremes?",
       "What does everyone involved have in common?",
       "How might combining familiar things help me create something new?"
@@ -667,13 +667,13 @@
         "Attributing your own dark impulses to outside forces or other people"
       ]
     },
-    "Archetype": "The Shadow, The Other",
-    "Hebrew Alphabet": "Ayin/Eye/70",
-    "Numerology": "15 = 1 + 5 = 6 (adjustment, collaboration)",
-    "Elemental": "Capricorn",
-    "Mythical/Spiritual":
+    "arche_type": "The Shadow, The Other",
+    "hebrew_alphabet": "Ayin/Eye/70",
+    "numerology": "15 = 1 + 5 = 6 (adjustment, collaboration)",
+    "elemental": "Capricorn",
+    "mythical_spiritual":
         "The Biblical Satan, certainly. Fallen angels, including Lucifer. Bacchus and Pan. Tempters and serpents of every stripe.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What enslaves me? How can I set myself free?",
       "How can I re-evaluate the importance I assign to material things?",
       "To what extent do my cravings define me?"
@@ -715,13 +715,13 @@
         "Maliciously engaging in destructive behavior"
       ]
     },
-    "Archetype": "The Shattered Ego",
-    "Hebrew Alphabet": "Pe[as]/Open Mouth/80",
-    "Numerology": "16 = 1 + 6 = 7 (psychology, imagination, inner work)",
-    "Elemental": "Mars",
-    "Mythical/Spiritual":
+    "arche_type": "The Shattered Ego",
+    "hebrew_alphabet": "Pe[as]/Open Mouth/80",
+    "numerology": "16 = 1 + 6 = 7 (psychology, imagination, inner work)",
+    "elemental": "Mars",
+    "mythical_spiritual":
         "The Tower of Babel. The destruction of Sodom and Gomorrah. Shiva's destructive dance. The lightning of Zeus and Thor.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How might the current situation dramatically alter my perspective?",
       "How might this loss open the door for new growth?",
       "What attitudes need to be struck down before I proceed?"
@@ -764,13 +764,13 @@
         "Spreading pessimism and stinginess of spirit"
       ]
     },
-    "Archetype": "The Heavenly Guide",
-    "Hebrew Alphabet": "Tzaddi/Fishhook/90 or, in some decks, He[as]/Window/5",
-    "Numerology": "17 = 1 + 7 = 8 (action, movement, swiftness)",
-    "Elemental": "Aquarius",
-    "Mythical/Spiritual":
+    "arche_type": "The Heavenly Guide",
+    "hebrew_alphabet": "Tzaddi/Fishhook/90 or, in some decks, He[as]/Window/5",
+    "numerology": "17 = 1 + 7 = 8 (action, movement, swiftness)",
+    "elemental": "Aquarius",
+    "mythical_spiritual":
         "The star that guided the Magi. Aphrodite. Venus. The Pleiades. Moses bringing forth water from the rock.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What would my higher power direct me to do?",
       "How can I be less self-conscious and guarded?",
       "How can I better attune myself to the abundance of life's blessings?"
@@ -804,13 +804,13 @@
         "Failing to appreciate life's mysteries"
       ]
     },
-    "Archetype": "The Holy Feminine/The Crone",
-    "Hebrew Alphabet": "Koph/Back of the Head/100",
-    "Numerology": "18 = 1 + 8 = 9 (fullness, readiness, ripeness)",
-    "Elemental": "Pisces",
-    "Mythical/Spiritual":
+    "arche_type": "The Holy Feminine/The Crone",
+    "hebrew_alphabet": "Koph/Back of the Head/100",
+    "numerology": "18 = 1 + 8 = 9 (fullness, readiness, ripeness)",
+    "elemental": "Pisces",
+    "mythical_spiritual":
         "Kali, the dark-skinned divine mother associated with time, the eternal night, and the female principle. Hecate, goddess of night and darkness, who, like Anubis, assists others in their travels to the underworld. ",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I face my fears and move forward?",
       "What helpers can serve me as guides through my personal darkness?",
       "How can I deal with the unknown in healthy ways?"
@@ -843,14 +843,14 @@
         "Overstating your abilities or misrepresenting your achievements"
       ]
     },
-    "Archetype": "The Holy Masculine",
-    "Hebrew Alphabet": "Resh/Head/200",
-    "Numerology":
+    "arche_type": "The Holy Masculine",
+    "hebrew_alphabet": "Resh/Head/200",
+    "numerology":
         "19 = 1 + 9 = 10 (completion, exhaustion) 1 + 0 = 1 (starting point, opportunity)",
-    "Elemental": "The Sun",
-    "Mythical/Spiritual":
+    "elemental": "The Sun",
+    "mythical_spiritual":
         "God the Father. Sun gods, including Ra, Apollo, and Helios. The moment of baptism. Claiming a new faith as your own.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I take best advantage of the attention coming my way?",
       "What are my highest spiritual goals?",
       "How can I avoid being bedazzled by the energy swirling around me?"
@@ -891,13 +891,13 @@
         "Rejecting an opportunity to reinvent yourself"
       ]
     },
-    "Archetype": "Resurrection",
-    "Hebrew Alphabet": "Sin/Tooth/300",
-    "Numerology": "20 = 2 + 0 = 2 (division, duality)",
-    "Elemental": "Fire",
-    "Mythical/Spiritual":
+    "arche_type": "Resurrection",
+    "hebrew_alphabet": "Sin/Tooth/300",
+    "numerology": "20 = 2 + 0 = 2 (division, duality)",
+    "elemental": "Fire",
+    "mythical_spiritual":
         "The resurrected Christ. The Last Judgment of Revelation. The phoenix, which rises to new life from its own ashes.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What is the main thing I need to realize about myself?",
       "In what way might the universe be trying to get my attention?",
       "If I were to reinvent myself, what would I become?"
@@ -937,13 +937,13 @@
         "Failing to see the divine reflected in those around you"
       ]
     },
-    "Archetype": "Enlightenment",
-    "Hebrew Alphabet": "Tau/Cross/400",
-    "Numerology": "21 = 2 + 1 = 3 (expression, result)",
-    "Elemental": "Saturn",
-    "Mythical/Spiritual":
+    "arche_type": "Enlightenment",
+    "hebrew_alphabet": "Tau/Cross/400",
+    "numerology": "21 = 2 + 1 = 3 (expression, result)",
+    "elemental": "Saturn",
+    "mythical_spiritual":
         "The ascended Christ. The Buddha attaining enlightenment. The alpha and the omega. The completion of the alchemist's great work.",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "For me, what would having it all mean?",
       "How aware am I of my own connectedness to the world around me?",
       "What keeps me from having it all right now, today?"
@@ -979,10 +979,10 @@
         "Indulging in hysteria or obsession"
       ]
     },
-    "Numerology": "1 (The Origin: the starting point, the seed, opportunity)",
+    "numerology": "1 (The Origin: the starting point, the seed, opportunity)",
     "Astrology": "Cancer, Scorpio, Pisces",
     "Affirmation": "\"I listen to the counsel of my heart.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What am I feeling right now?",
       "How would I go about opening myself to spiritual guidance?",
       "What motivates me the most - pleasure or pain? Why?"
@@ -1019,10 +1019,10 @@
         "Deceiving yourself about your true orientation"
       ]
     },
-    "Numerology": "2 (The Other: duality, division, debate)",
+    "numerology": "2 (The Other: duality, division, debate)",
     "Astrology": "Venus in Cancer",
     "Affirmation": "\"I am attuned to what my heart truly desires.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I make sure that what I'm feeling is mutual?\",\"When was the last time I felt \"in love\" with someone or something?",
       "What do you need in order to feel emotionally stable?"
     ]
@@ -1053,10 +1053,10 @@
         "Partying to a dangerous or unhealthy extent"
       ]
     },
-    "Numerology": "3 (The Result: expression, productivity, output)",
+    "numerology": "3 (The Result: expression, productivity, output)",
     "Astrology": "Mercury in Cancer",
     "Affirmation": "\"I allow my actions to reflect my true emotions.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What's worth celebrating in my life?",
       "How can I demonstrate my feelings in appropriate ways?",
       "What can I do to show my partner how I really feel?"
@@ -1096,10 +1096,10 @@
         "Feeling everything should stay \"just like it is\""
       ]
     },
-    "Numerology": "4 (The Status Quo: stability, equality, persistence)",
+    "numerology": "4 (The Status Quo: stability, equality, persistence)",
     "Astrology": "Moon in Cancer",
     "Affirmation": "\"I appreciate what I've been given.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I use this \"downtime\" to my best advantage?",
       "How can I show my partner that I don't take him or her for granted?",
       "To what extent is my mood blinding me to new opportunities?"
@@ -1143,10 +1143,10 @@
         "Allowing fear of failure to limit your efforts"
       ]
     },
-    "Numerology": "5 (The Catalyst: instability, resistance, confrontation)",
+    "numerology": "5 (The Catalyst: instability, resistance, confrontation)",
     "Astrology": "Mars in Scorpio",
     "Affirmation": "\"I learn from my losses and move on.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How do I tend to deal with loss?",
       "What life lesson might I be learning now?",
       "How can I shift my attention from the past to the future?"
@@ -1180,11 +1180,11 @@
         "Refusing to share a burden"
       ]
     },
-    "Numerology": "6 (The Adjustment: cooperation, collaboration, interaction)",
+    "numerology": "6 (The Adjustment: cooperation, collaboration, interaction)",
     "Astrology": "Sun in Scorpio",
     "Affirmation":
         "\"I freely give myself to others, expecting nothing in return.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What gifts do I possess? How freely do I give them?",
       "How can I practice unconditional giving?",
       "How would things change if I became a more charitable person?"
@@ -1217,10 +1217,10 @@
         "Being controlled by fear"
       ]
     },
-    "Numerology": "7 (The Motive: imagination, inner work, psychology)",
+    "numerology": "7 (The Motive: imagination, inner work, psychology)",
     "Astrology": "Venus in Scorpio",
     "Affirmation": "\"I use inner vision as a tool for growth.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What do you want most? What do you fear most? How are these related?",
       "How is your imagination working for you? Against you?",
       "How might a clearer personal vision help you choose a single cup from the many available?"
@@ -1264,10 +1264,10 @@
         "Threatening to quit as a strategy to get your way"
       ]
     },
-    "Numerology": "8 (The Action: movement, outer work, swiftness)",
+    "numerology": "8 (The Action: movement, outer work, swiftness)",
     "Astrology": "Saturn in Pisces",
     "Affirmation": "\"I am always open to opportunities for growth.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What do I need to leave behind once and for all?",
       "If I left in search of \"more,\" what would I be looking for, exactly?",
       "How might a retreat enhance my perspective?"
@@ -1300,10 +1300,10 @@
         "Never being satisfied, no matter how much you have"
       ]
     },
-    "Numerology": "9 (The Completion: fullness, readiness, ripeness)",
+    "numerology": "9 (The Completion: fullness, readiness, ripeness)",
     "Astrology": "Jupiter in Pisces",
     "Affirmation": "\"I have everything I need to be happy.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What is true happiness?",
       "If I could have anything, what would I have?",
       "What is my attitude toward luxury? Do I deserve it?"
@@ -1335,10 +1335,10 @@
         "Envying the achievements and happiness of others"
       ]
     },
-    "Numerology": "10 (The End: finality, completion, exhaustion)",
+    "numerology": "10 (The End: finality, completion, exhaustion)",
     "Astrology": "Mars in Pisces",
     "Affirmation": "\"I take time to appreciate what I've been given.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "Who gets to define what \"joy\" consists of?",
       "What course of action is available when you feel overwhelmed?",
       "How might vows or promises play a role in achieving a greater level of joy in your life?"
@@ -1378,9 +1378,9 @@
         "Pretending to more romantic or spiritual experience than you possess"
       ]
     },
-    "Elemental": "Earth of Water.",
+    "elemental": "Earth of Water.",
     "Affirmation": "\"I am ready to embrace love and Spirit.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How worried are you that others will see you as foolish or inexperienced?",
       "To what extent can you be honest about your lack of experience in love and faith?",
       "How can you maintain enthusiasm over time?"
@@ -1413,9 +1413,9 @@
         "Hiding or ignoring intuitive insights"
       ]
     },
-    "Elemental": "Air of Water.",
+    "elemental": "Air of Water.",
     "Affirmation": "\"I translate my passions into actions.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How prone to emotional extremes are you?",
       "What's the difference in driving passion and blind zeal?",
       "How can you inspire others without inciting a riot?"
@@ -1453,10 +1453,10 @@
         "Wallowing in emotionalism, sentiment, or self-pity"
       ]
     },
-    "Elemental": "Water of Water.",
+    "elemental": "Water of Water.",
     "Affirmation":
         "\"I choose to be enabled, not disabled, by my strong emotions.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How do I handle strong emotions?",
       "To what extent am I a victim of my own feelings?",
       "How can I move from reflection to action?"
@@ -1488,9 +1488,9 @@
         "Using emotional or spiritual leverage to exercise unhealthy control over others"
       ]
     },
-    "Elemental": "Fire of Water.",
+    "elemental": "Fire of Water.",
     "Affirmation": "\"I strive to be stable and fair-minded.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What wise person could be consulted for good advice?",
       "How can I make sure I'm being as objective and fair as possible?",
       "To what extent am I capable of keeping a \"stiff upper lip?\""
@@ -1526,10 +1526,10 @@
         "Making decisions without thinking through consequences"
       ]
     },
-    "Numerology": "1 (The Origin: the starting point, the seed, opportunity)",
+    "numerology": "1 (The Origin: the starting point, the seed, opportunity)",
     "Astrology": "Libra, Aquarius, Gemini",
     "Affirmation": "\"I take the time to think things through.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "If I made my decision purely based on reason and logic, what would my decision be?",
       "What do I think about my own problem-solving ability?",
       "Who can supply me with the pure and simple facts?"
@@ -1563,10 +1563,10 @@
         "Preventing others from getting the information they need to make good decisions"
       ]
     },
-    "Numerology": "2 (The Other: duality, division, debate)",
+    "numerology": "2 (The Other: duality, division, debate)",
     "Astrology": "Moon in Libra",
     "Affirmation": "\"I strive to see all sides of every issue.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What information do I need to get past this impasse?",
       "How can I get past being defensive and see the facts?",
       "What viewpoints, other than my own, play a role in this situation?"
@@ -1605,10 +1605,10 @@
         "Wearing your heart on your sleeve while carrying a chip on your shoulder"
       ]
     },
-    "Numerology": "3 (The Result: expression, productivity, output)",
+    "numerology": "3 (The Result: expression, productivity, output)",
     "Astrology": "Saturn in Libra",
     "Affirmation": "\"I learn from failures and setbacks.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I get past my depression?",
       "To what extent are my emotions a matter of choice?",
       "How can I learn from the mistakes of the past?"
@@ -1640,10 +1640,10 @@
         "Allowing chaos and whimsy to dominate your thoughts"
       ]
     },
-    "Numerology": "4 (The Status Quo: stability, equality, persistence)",
+    "numerology": "4 (The Status Quo: stability, equality, persistence)",
     "Astrology": "Jupiter in Libra",
     "Affirmation": "\"I think before taking action.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How long has it been since you deliberately took a \"time out?\"",
       "How difficult is it for you to meditate?",
       "What would happen if you simply refused to make a decision today?"
@@ -1685,11 +1685,11 @@
         "Gloating over victory"
       ]
     },
-    "Numerology": "5 (The Catalyst: instability, resistance, confrontation)",
+    "numerology": "5 (The Catalyst: instability, resistance, confrontation)",
     "Astrology": "Venus in Aquarius",
     "Affirmation":
         "\"Even as I care for myself, I am mindful of the needs of others.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How do I behave when I win? What does that say about me?",
       "How can I do what's necessary without making others feel defeated?",
       "What's the difference between selfish action and acting in my own best interest?"
@@ -1724,10 +1724,10 @@
         "Believing the whole world should be like your small corner of it"
       ]
     },
-    "Numerology": "6 (The Adjustment: cooperation, collaboration, interaction)",
+    "numerology": "6 (The Adjustment: cooperation, collaboration, interaction)",
     "Astrology": "Mercury in Aquarius",
     "Affirmation": "\"I keep an open mind.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What assumptions govern my thinking?",
       "How willing am I to lend aid to others? To request it when I need it?",
       "How prepared am I to deal with change? With unexpected outcomes?"
@@ -1760,10 +1760,10 @@
         "Failing to examine your own motives and prejudices"
       ]
     },
-    "Numerology": "7 (The Motive: imagination, inner work, psychology)",
+    "numerology": "7 (The Motive: imagination, inner work, psychology)",
     "Astrology": "Moon in Aquarius",
     "Affirmation": "\"I hold myself to the highest ethical standards.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What assumptions am I making?",
       "How well-defined is my sense of ethics?",
       "How should I respond when I know others are breaking the rules?"
@@ -1801,10 +1801,10 @@
         "Failing to look for a way out"
       ]
     },
-    "Numerology": "8 (The Action: movement, outer work, swiftness)",
+    "numerology": "8 (The Action: movement, outer work, swiftness)",
     "Astrology": "Jupiter in Gemini",
     "Affirmation": "\"I know my own limits.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "Who's empowered to cut through the red tape?",
       "What, exactly, are the obstacles? What resources, exactly, are needed to move them?",
       "To what extent is your powerlessness a matter of attitude?"
@@ -1840,10 +1840,10 @@
         "Debating irreversible decisions"
       ]
     },
-    "Numerology": "9 (The Completion: fullness, readiness, ripeness)",
+    "numerology": "9 (The Completion: fullness, readiness, ripeness)",
     "Astrology": "Mars in Gemini",
     "Affirmation": "\"I do not worry about what I cannot control.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What role does worry play in your current situation?",
       "To what other ends might you devote the energy you're giving to anxiety?",
       "How can you know when it's time to stop thinking and start acting?"
@@ -1879,11 +1879,11 @@
         "Deeply unhealthy thoughts"
       ]
     },
-    "Numerology": "10 (The End: finality, completion, exhaustion)",
+    "numerology": "10 (The End: finality, completion, exhaustion)",
     "Astrology": "Sun in Gemini",
     "Affirmation":
         "\"When my limits are exceeded, I take action on my own behalf.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What are the signs that the time for debate is over?",
       "How can you tell when interest has given way to obsession?",
       "When your own limits are reached, where can you turn for aid?"
@@ -1918,9 +1918,9 @@
         "Rejecting the wise counsel of experienced teachers"
       ]
     },
-    "Elemental": "Earth of Air.",
+    "elemental": "Earth of Air.",
     "Affirmation": "\"I am ready to make good decisions.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How comfortable are you with revealing your own ignorance?",
       "What are the marks of a good student?",
       "To what extent are you open to new information?"
@@ -1960,9 +1960,9 @@
         "Distorting evidence"
       ]
     },
-    "Elemental": "Air of Air.",
+    "elemental": "Air of Air.",
     "Affirmation": "\"I temper my insights with tact.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What do I really need to know?",
       "To what extent have I investigated the facts behind my situation?",
       "How can I share what I know without alienating others?"
@@ -2000,9 +2000,9 @@
         "Failing to use the talent you've been given"
       ]
     },
-    "Elemental": "Water of Air.",
+    "elemental": "Water of Air.",
     "Affirmation": "\"I make the truth easier to hear.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What do I have a knack for? How might my special gift prove useful now?",
       "To what extent am I capable of saying what needs to be said?",
       "What is the best possible way to say what I want to say?"
@@ -2037,9 +2037,9 @@
         "Wishing in vain you could take back what's been said"
       ]
     },
-    "Elemental": "Fire of Air.",
+    "elemental": "Fire of Air.",
     "Affirmation": "\"My word is my bond.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What would your decision be if you had to render a binding verdict right now?",
       "How comfortable are you saying exactly what you mean? How often do you temper what you have to say for fear of offending others?",
       "If you were to ask others, \"What's my area of expertise?\" what would they say?"
@@ -2076,10 +2076,10 @@
         "Failing to take a stand"
       ]
     },
-    "Numerology": "1 (The Origin: the starting point, the seed, opportunity)",
+    "numerology": "1 (The Origin: the starting point, the seed, opportunity)",
     "Astrology": "Aries, Leo, Sagittarius",
     "Affirmation": "\"I jump at the opportunity to pursue my heart's desire.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What do I really want, more than anything else?",
       "What happens if I let this opportunity pass me by?",
       "How clearly have I defined my directions, values, and goals?"
@@ -2113,10 +2113,10 @@
         "Disregarding the input of others"
       ]
     },
-    "Numerology": "2 (The Other: division, debate, duality)",
+    "numerology": "2 (The Other: division, debate, duality)",
     "Astrology": "Mars in Aries",
     "Affirmation": "\"With my goals in mind, I make confident choices.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "In a conflict, how do you decide who wins?",
       "What values govern your decision-making process?",
       "What choice will you make if you make no choice at all?"
@@ -2151,10 +2151,10 @@
         "Failing to finish what you start"
       ]
     },
-    "Numerology": "3 (The Result: expression, productivity, output)",
+    "numerology": "3 (The Result: expression, productivity, output)",
     "Astrology": "Sun in Aries",
     "Affirmation": "\"I take the steps necessary to put my plans in action.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can you make a habit of breaking your habits?",
       "How can you be a decisive leader in this circumstance?",
       "What's your action plan for the next week, month, year, or decade?"
@@ -2193,10 +2193,10 @@
         "Refusing to do your part"
       ]
     },
-    "Numerology": "4 (The Status Quo: stability, equality, persistence)",
+    "numerology": "4 (The Status Quo: stability, equality, persistence)",
     "Astrology": "Venus in Aries",
     "Affirmation": "\"My contributions are worthy of celebration.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "To what extent am I doing my part?",
       "What kind of recognition would be most meaningful?",
       "How might a celebration now impact community morale?"
@@ -2234,10 +2234,10 @@
         "Disrupting progress with an endless stream of pointless objections"
       ]
     },
-    "Numerology": "5 (The Catalyst: instability, resistance, confrontation)",
+    "numerology": "5 (The Catalyst: instability, resistance, confrontation)",
     "Astrology": "Saturn in Leo",
     "Affirmation": "\"I can express dissent in constructive ways.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "To what extent is your current issue worth fighting for?",
       "What alternatives are there to outright conflict?",
       "What happens in a \"fair fight?\" How can you keep this fight fair?"
@@ -2274,10 +2274,10 @@
         "Envying the achievements of others"
       ]
     },
-    "Numerology": "6 (The Adjustment: cooperation, collaboration, interaction)",
+    "numerology": "6 (The Adjustment: cooperation, collaboration, interaction)",
     "Astrology": "Jupiter in Leo",
     "Affirmation": "\"I value sincere praise.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What kind of recognition do I crave? Why?",
       "How freely do I praise the achievements of others?",
       "What happens when the parade is over?"
@@ -2311,10 +2311,10 @@
         "Refusing to stand up for yourself and your beliefs"
       ]
     },
-    "Numerology": "7 (The Motive: imagination, inner work, psychology)",
+    "numerology": "7 (The Motive: imagination, inner work, psychology)",
     "Astrology": "Mars in Leo",
     "Affirmation": "\"I am willing to take a stand for what I believe in.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "When do you feel most threatened? When do you get defensive?",
       "How capable are you of defending yourself?",
       "What kinds of beliefs are worth defending?"
@@ -2350,10 +2350,10 @@
         "Refusing to re-evaluate a schedule or program, even when it's clearly no longer appropriate"
       ]
     },
-    "Numerology": "8 (The Action: movement, outer work, swiftness)",
+    "numerology": "8 (The Action: movement, outer work, swiftness)",
     "Astrology": "Mercury in Sagittarius",
     "Affirmation": "\"I adapt quickly to change.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How quickly to you adapt to change?",
       "What would your response be to overwhelming, sudden change?",
       "What changes are on your horizon? How well have you prepared for them?"
@@ -2390,10 +2390,10 @@
         "Beating a dead horse"
       ]
     },
-    "Numerology": "9 (The Completion: fullness, readiness, ripeness)",
+    "numerology": "9 (The Completion: fullness, readiness, ripeness)",
     "Astrology": "Moon in Sagittarius",
     "Affirmation": "\"When the going gets tough, I stay the course.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How do you cope when things get really tough?",
       "When you get low, what encourages you to go on?",
       "At what point should you be able to let this situation go?"
@@ -2426,10 +2426,10 @@
         "Over-extending yourself on a regular basis"
       ]
     },
-    "Numerology": "10 (The End: finality, completion, exhaustion)",
+    "numerology": "10 (The End: finality, completion, exhaustion)",
     "Astrology": "Saturn in Sagittarius",
     "Affirmation": "\"I respect my own limits.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How will you know when you reach the end of your rope?",
       "How easily do you say no to new projects and requests?",
       "What projects could you delegate...or eliminate?"
@@ -2467,9 +2467,9 @@
         "Being so eager to \"do it yourself\" that you hinder your own progress"
       ]
     },
-    "Elemental": "Earth of Fire.",
+    "elemental": "Earth of Fire.",
     "Affirmation": "\"I can do this.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How easily do you admit your own inexperience?",
       "How can you be a better student or employee?",
       "What qualities would make a total beginner's voyage of discovery easier?"
@@ -2503,9 +2503,9 @@
         "Beginning many projects without finishing any"
       ]
     },
-    "Elemental": "Air of Fire.",
+    "elemental": "Air of Fire.",
     "Affirmation": "\"I can lead the way to success.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "To what extent have you defined your ultimate goal?",
       "What's the fastest way to get the job done? Is this necessarily the best way?",
       "How long has it been since you looked back to see if others really are following your lead?"
@@ -2536,9 +2536,9 @@
         "Disrupting group activities as a means of feeding your own ego"
       ]
     },
-    "Elemental": "Water of Fire.",
+    "elemental": "Water of Fire.",
     "Affirmation": "\"I use my influence to promote unity.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How attentive am I?",
       "How can I draw people's attention to what we have in common?",
       "To what extent am I able to convince people to do what I want them to do?"
@@ -2569,10 +2569,10 @@
         "Lording it over others"
       ]
     },
-    "Elemental": "Fire of Fire",
+    "elemental": "Fire of Fire",
     "Affirmation":
         "\"I use my authority and experience to get things done faster.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How confident a leader am I?",
       "How can I project more confidence?",
       "How can I offer my expertise in ways that inspire others to follow me?"
@@ -2606,10 +2606,10 @@
         "Taking what you want without concern for the needs of others"
       ]
     },
-    "Numerology": "1 (The Origin: the starting point, the seed, opportunity)",
+    "numerology": "1 (The Origin: the starting point, the seed, opportunity)",
     "Astrology": "Capricorn, Taurus, Virgo",
     "Affirmation": "\"I am open to and thankful for my blessings.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "If I made my decision based solely on practical concerns, what would my decision be?",
       "What resources are available to me?",
       "What will be the physical and financial impact of my decisions?"
@@ -2644,10 +2644,10 @@
         "Engaging in behavior with no regard for how your body or bankbook will be impacted"
       ]
     },
-    "Numerology": "2 (The Other: duality, division, debate)",
+    "numerology": "2 (The Other: duality, division, debate)",
     "Astrology": "Jupiter in Capricorn",
     "Affirmation": "\"Before taking action, I consider costs.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What values govern my decisions?",
       "How willing am I to sacrifice a little pleasure now in order to have more pleasure later on?",
       "Given my current situation, which course of action will give me more of what I really need?"
@@ -2683,10 +2683,10 @@
         "Failing to abide by a clearly-outlined agreement with yourself or others"
       ]
     },
-    "Numerology": "3 (The Result: expression, productivity, output)",
+    "numerology": "3 (The Result: expression, productivity, output)",
     "Astrology": "Mars in Capricorn",
     "Affirmation": "\"My work produces results.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can I get more done?",
       "What's expected of me? How large a role do I play in controlling those expectations?",
       "What's been agreed to? How well has that agreement been followed?"
@@ -2719,10 +2719,10 @@
         "Failing to be a good manager of the blessings you've been given"
       ]
     },
-    "Numerology": "4 (The Status Quo: stability, equality, persistence)",
+    "numerology": "4 (The Status Quo: stability, equality, persistence)",
     "Astrology": "Sun in Capricorn",
     "Affirmation": "\"I use my resources wisely.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What factors determine how conservative or generous you are?",
       "What kinds of things must be preserved at all costs?",
       "When is greediness or stinginess a good trait to have? When might generosity work against you?"
@@ -2758,10 +2758,10 @@
         "Wallowing in misery"
       ]
     },
-    "Numerology": "5 (The Catalyst: instability, resistance, confrontation)",
+    "numerology": "5 (The Catalyst: instability, resistance, confrontation)",
     "Astrology": "Mercury in Taurus",
     "Affirmation": "\"I have faith that what I need will appear.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What critical resources do I lack?",
       "What people or groups would come to my aid if I asked?",
       "How might an impoverished spirit be impacting my physical or financial condition?"
@@ -2797,11 +2797,11 @@
         "Ignoring obligations and commitments"
       ]
     },
-    "Numerology": "6 (The Adjustment: cooperation, collaboration, interaction)",
+    "numerology": "6 (The Adjustment: cooperation, collaboration, interaction)",
     "Astrology": "Moon in Taurus",
     "Affirmation":
         "\"Knowing I will receive more, I share my resources freely.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How do I feel about charity? About giving it? About receiving it?",
       "How can I know if I'm treating others fairly?",
       "What could I give that no one else can?"
@@ -2836,10 +2836,10 @@
         "Refusing to take part in a project, then whining about the quality of the outcome"
       ]
     },
-    "Numerology": "7 (The Motive: imagination, inner work, psychology)",
+    "numerology": "7 (The Motive: imagination, inner work, psychology)",
     "Astrology": "Saturn in Taurus",
     "Affirmation": "\"To stay on target, I measure my progress.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "To what extent have I fulfilled my own expectations?",
       "What are the terms of success?",
       "How can I be happier with the progress I've made?"
@@ -2877,11 +2877,11 @@
         "Rejecting opportunities to learn more about your craft"
       ]
     },
-    "Numerology": "8 (The Action: movement, outer work, swiftness)",
+    "numerology": "8 (The Action: movement, outer work, swiftness)",
     "Astrology": "Sun in Virgo",
     "Affirmation":
         "\"I give myself wholeheartedly to the task of the moment.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How long has it been since you were \"lost in your work?\"",
       "How can you improve your level of dedication and focus?",
       "What work do you do best? What about that work appeals to you?"
@@ -2914,10 +2914,10 @@
         "Always craving more"
       ]
     },
-    "Numerology": "9 (The Completion: fullness, readiness, ripeness)",
+    "numerology": "9 (The Completion: fullness, readiness, ripeness)",
     "Astrology": "Venus in Virgo",
     "Affirmation": "\"I know enough to be confident in my decisions.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "If you could not have what you want, how would you make do?",
       "Could you make a complex task easier by breaking it down into smaller steps?",
       "How patient are you during the learning process? With yourself? With others?"
@@ -2951,10 +2951,10 @@
         "Always asking, \"What's in it for me?\""
       ]
     },
-    "Numerology": "10 (The End: finality, completion, exhaustion)",
+    "numerology": "10 (The End: finality, completion, exhaustion)",
     "Astrology": "Mercury in Virgo",
     "Affirmation": "\"I keep physical and financial matters in perspective.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How much stuff do I really need?",
       "How do I feel about wealth and abundance? How do I define these terms?",
       "How might shedding some possessions open room for growth?"
@@ -2994,9 +2994,9 @@
         "Using wealth or beauty as an excuse for not having to learn and grow"
       ]
     },
-    "Elemental": "Earth of Earth.",
+    "elemental": "Earth of Earth.",
     "Affirmation": "\"I am physically and financially responsible.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can you get more financial or sexual experience without risking your livelihood or health?",
       "How might hands-on learning play a role in your situation?",
       "What's the most practical choice you could make?"
@@ -3034,9 +3034,9 @@
         "Copying another's work and claiming it as your own"
       ]
     },
-    "Elemental": "Air of Earth.",
+    "elemental": "Air of Earth.",
     "Affirmation": "\"I temper my actions with cautious optimism.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "What's the difference between caution and fear?",
       "How can I evaluate the practicality of my own ideas and methods?",
       "How realistic are my goals?"
@@ -3075,9 +3075,9 @@
         "Allowing a feeling of entitlement to distort your gratitude for what you're given"
       ]
     },
-    "Elemental": "Water of Earth.",
+    "elemental": "Water of Earth.",
     "Affirmation": "\"I relish the best this world has to offer.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How do I define luxury?",
       "To what extent am I capable of reveling in sensual pleasure?",
       "What would I have to give up in order to \"have it all?\""
@@ -3112,9 +3112,9 @@
         "Bossing others around, especially when you're not empowered to do so"
       ]
     },
-    "Elemental": "Fire of Earth.",
+    "elemental": "Fire of Earth.",
     "Affirmation": "\"I embody confidence and fairness.\"",
-    "Questions to Ask": [
+    "questions_to_ask": [
       "How can you handle expenses with greater confidence and maturity?",
       "How dependable are you? How dependable would others say you are?",
       "To what extent is a conservative viewpoint valuable? At what point does it become more of a burden than a blessing?"
