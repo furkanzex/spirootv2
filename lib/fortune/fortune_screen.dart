@@ -3,7 +3,6 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/fortune/fortune_history_section.dart';
 import 'package:spirootv2/home/section/fortune_section.dart';
-import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

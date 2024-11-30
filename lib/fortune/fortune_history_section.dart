@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
@@ -55,7 +56,6 @@ Widget fortuneHistorySection(BuildContext context) {
               final fortune = snapshot.data!.docs[index];
               final data = fortune.data() as Map<String, dynamic>;
 
-              // Timestamp kontrolü
               DateTime? date;
               if (data['timestamp'] != null) {
                 date = (data['timestamp'] as Timestamp).toDate();
@@ -117,11 +117,79 @@ Widget fortuneHistorySection(BuildContext context) {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      Text(
-                                        formatDate(date),
-                                        style: MyStyle.s3.copyWith(
-                                          color: MyColor.textGreyColor,
-                                        ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            formatDate(date),
+                                            style: MyStyle.s3.copyWith(
+                                              color: MyColor.textGreyColor,
+                                            ),
+                                          ),
+                                          horizontalGap(MySize.halfPadding),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              bool? confirm =
+                                                  await showDialog<bool>(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  backgroundColor: MyColor
+                                                      .darkBackgroundColor,
+                                                  title: Text(
+                                                    'Yorumu Sil',
+                                                    style: MyStyle.s1.copyWith(
+                                                        color: MyColor.white),
+                                                  ),
+                                                  content: Text(
+                                                    'Bu yorumu silmek istediğinizden emin misiniz?',
+                                                    style: MyStyle.s2.copyWith(
+                                                        color: MyColor.white),
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context, false),
+                                                      child: Text(
+                                                        'İptal',
+                                                        style: MyStyle.s2.copyWith(
+                                                            color: MyColor
+                                                                .primaryLightColor),
+                                                      ),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context, true),
+                                                      child: Text(
+                                                        'Sil',
+                                                        style: MyStyle.s2
+                                                            .copyWith(
+                                                                color:
+                                                                    Colors.red),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+
+                                              if (confirm == true) {
+                                                await FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(FirebaseAuth.instance
+                                                        .currentUser?.uid)
+                                                    .collection('fortunes')
+                                                    .doc(fortune.id)
+                                                    .delete();
+                                              }
+                                            },
+                                            child: Icon(
+                                              MingCute.delete_2_line,
+                                              color: MyColor.primaryPurpleColor,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
