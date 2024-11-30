@@ -878,9 +878,9 @@ Important: Write the response in $_currentLanguage
       ${selectedCards[2].meaning}
 
       Please provide three separate interpretations:
-      1. First, interpret the past card with mystical language
-      2. Then, interpret the present card with mystical language
-      3. Finally, interpret the future card with mystical language and make precise predictions
+      1. First, interpret the past card with mystical language, sprinkle emojis into the interpretation
+      2. Then, interpret the present card with mystical language, sprinkle emojis into the interpretation
+      3. Finally, interpret the future card with mystical language and make precise predictions, sprinkle emojis into the interpretation
 
       Each interpretation should be max 1000 characters long. Separate each interpretation with "###".
       Important: Write the response in $_currentLanguage

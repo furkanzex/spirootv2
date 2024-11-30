@@ -6,6 +6,7 @@ import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
+import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/tarot/tarot_card_model.dart';
@@ -291,6 +292,19 @@ class _TarotScreenState extends State<TarotScreen>
                             );
                           },
                         ),
+                        verticalGap(MySize.halfPadding),
+                        if (_selectedCards[index]?.isRevealed == true) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            _selectedCards[index]!.name,
+                            textAlign: TextAlign.center,
+                            style: MyStyle.s3.copyWith(
+                              color:
+                                  MyColor.primaryPurpleColor.withOpacity(0.5),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
                       ],
                     );
                   }),
