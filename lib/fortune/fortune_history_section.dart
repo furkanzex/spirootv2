@@ -1,144 +1,154 @@
 import 'dart:ui';
+
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/widget/gap/horizontal_gap.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
-import 'package:extended_image/extended_image.dart';
-import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/core/widget/text_field/section_title.dart';
 
-class FortuneHistoryItem {
-  final String type;
-  final String image;
-  final String content;
-  final DateTime date;
-
-  FortuneHistoryItem({
-    required this.type,
-    required this.image,
-    required this.content,
-    required this.date,
-  });
-}
-
 Widget fortuneHistorySection(BuildContext context) {
-  final List<FortuneHistoryItem> historyItems = [
-    FortuneHistoryItem(
-      type: "Kahve Falı",
-      image: "https://apptoic.com/spiroot/images/coffee.png",
-      content:
-          """Fincanında gördüğüm şekiller yakın zamanda güzel bir haber alacağını gösteriyor. İş hayatında yükselişe geçeceğin bir dönem seni bekliyor. Uzun zamandır beklediğin fırsat kapını çalacak.
+  String formatDate(DateTime? date) {
+    if (date == null) return 'Tarih bilgisi yok'.tr();
+    return DateFormat('dd MMMM yyyy, HH:mm').format(date);
+  }
 
-Fincanının sağ tarafında beliren yol işareti, yakın zamanda bir seyahate çıkacağını gösteriyor. Bu seyahat hem iş hem de özel hayatın için önemli gelişmelere vesile olacak.
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .collection('fortunes')
+        .orderBy('timestamp', descending: true)
+        .snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
-Fincanının dibinde görünen şekiller, maddi açıdan rahat bir döneme gireceğini işaret ediyor. Beklemediğin bir yerden para gelebilir.
+      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        return Center(
+          child: Text(
+            'Henüz fal geçmişiniz bulunmuyor'.tr(),
+            style: const TextStyle(color: MyColor.white),
+          ),
+        );
+      }
 
-Telvenin üst kısmında oluşan kalp şekli, duygusal hayatında güzel gelişmeler yaşanacağının habercisi. Bekarsan yeni bir aşk, evliysen eşinle olan ilişkinde taze bir heyecan seni bekliyor.
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          sectionTitle(
+            text: "🔮 ${easy.tr("fortune.fortune_history")}",
+          ),
+          verticalGap(MySize.defaultPadding),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              final fortune = snapshot.data!.docs[index];
+              final data = fortune.data() as Map<String, dynamic>;
 
-Genel olarak fincanın çok olumlu mesajlar veriyor. Önündeki dönem, uzun zamandır beklediğin fırsatların gerçekleşeceği bir dönem olacak.""",
-      date: DateTime.now().subtract(const Duration(hours: 2)),
-    ),
-    FortuneHistoryItem(
-      type: "Tarot Falı",
-      image: "https://apptoic.com/spiroot/images/tarot.png",
-      content:
-          "Çıkan kartlar önündeki engellerin kalkacağını gösteriyor. Aşk hayatında yeni bir başlangıç yapabilirsin. Maddi konularda rahatlamaya başlayacaksın.",
-      date: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    FortuneHistoryItem(
-      type: "El Falı",
-      image: "https://apptoic.com/spiroot/images/palm.png",
-      content:
-          "El çizgilerin uzun bir ömür süreceğini gösteriyor. Kariyerinde önemli başarılar elde edeceksin. Yakın gelecekte seyahat görünüyor.",
-      date: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-  ];
+              // Timestamp kontrolü
+              DateTime? date;
+              if (data['timestamp'] != null) {
+                date = (data['timestamp'] as Timestamp).toDate();
+              }
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      sectionTitle(
-        text: "🔮 ${easy.tr("fortune.fortune_history")}",
-      ),
-      verticalGap(MySize.defaultPadding),
-      ...historyItems.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: MySize.defaultPadding),
-            child: GestureDetector(
-              onTap: () => _showFortuneDetail(context, item),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(MySize.halfRadius),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(MySize.halfRadius),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: MySize.defaultPadding),
+                child: GestureDetector(
+                  onTap: () => _showFortuneDetail(
+                      context,
+                      FortuneHistoryItem(
+                        image:
+                            'https://apptoic.com/spiroot/images/${data['type']}.png',
+                        type: data['type'],
+                        date: formatDate(date),
+                        content: data['interpretation'],
+                      )),
                   child: Container(
-                    padding: const EdgeInsets.all(MySize.defaultPadding),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: MySize.iconSizeMedium,
-                          height: MySize.iconSizeMedium,
-                          decoration: BoxDecoration(
-                            color: MyColor.primaryColor.withOpacity(0.1),
-                            borderRadius:
-                                BorderRadius.circular(MySize.quarterRadius),
-                          ),
-                          child: ExtendedImage.network(
-                            item.image,
-                            cache: true,
-                            fit: BoxFit.contain,
-                            width: MySize.iconSizeSmall,
-                            height: MySize.iconSizeSmall,
-                          ),
-                        ),
-                        horizontalGap(MySize.threeQuartersPadding),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(MySize.halfRadius),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(MySize.halfRadius),
+                      child: Container(
+                        padding: const EdgeInsets.all(MySize.defaultPadding),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: MySize.iconSizeMedium,
+                              height: MySize.iconSizeMedium,
+                              decoration: BoxDecoration(
+                                color: MyColor.primaryColor.withOpacity(0.1),
+                                borderRadius:
+                                    BorderRadius.circular(MySize.quarterRadius),
+                              ),
+                              child: ExtendedImage.network(
+                                'https://apptoic.com/spiroot/images/${data['type']}.png',
+                                cache: true,
+                                fit: BoxFit.contain,
+                                width: MySize.iconSizeSmall,
+                                height: MySize.iconSizeSmall,
+                              ),
+                            ),
+                            horizontalGap(MySize.threeQuartersPadding),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    item.type,
-                                    style: MyStyle.s2.copyWith(
-                                      color: MyColor.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        easy.tr("fortune.${data['type']}"),
+                                        style: MyStyle.s2.copyWith(
+                                          color: MyColor.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        formatDate(date),
+                                        style: MyStyle.s3.copyWith(
+                                          color: MyColor.textGreyColor,
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                  horizontalGap(MySize.halfPadding),
                                   Text(
-                                    _formatDate(item.date),
+                                    data['interpretation'],
                                     style: MyStyle.s3.copyWith(
                                       color: MyColor.textGreyColor,
                                     ),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
-                              horizontalGap(MySize.halfPadding),
-                              Text(
-                                item.content,
-                                style: MyStyle.s3.copyWith(
-                                  color: MyColor.textGreyColor,
-                                ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          )),
-    ],
+              );
+            },
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -177,15 +187,9 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: MyColor.primaryColor.withOpacity(0.1),
-                          borderRadius:
-                              BorderRadius.circular(MySize.quarterRadius),
-                        ),
+                      SizedBox(
+                        width: MySize.iconSizeMedium,
+                        height: MySize.iconSizeMedium,
                         child: ExtendedImage.network(
                           item.image,
                           cache: true,
@@ -194,7 +198,7 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        item.type,
+                        easy.tr("fortune.${item.type}"),
                         style: MyStyle.s1.copyWith(
                           color: MyColor.white,
                           fontWeight: FontWeight.bold,
@@ -203,7 +207,7 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
                     ],
                   ),
                   Text(
-                    _formatDate(item.date),
+                    item.date,
                     style: MyStyle.s3.copyWith(
                       color: MyColor.textGreyColor,
                     ),
@@ -236,18 +240,16 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
   );
 }
 
-String _formatDate(DateTime date) {
-  final now = DateTime.now();
-  final difference = now.difference(date);
+class FortuneHistoryItem {
+  final String type;
+  final String image;
+  final String content;
+  final String date;
 
-  if (difference.inHours < 24) {
-    if (difference.inHours < 1) {
-      return "${difference.inMinutes} dakika önce";
-    }
-    return "${difference.inHours} saat önce";
-  } else if (difference.inDays < 7) {
-    return "${difference.inDays} gün önce";
-  } else {
-    return "${date.day}.${date.month}.${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
-  }
+  FortuneHistoryItem({
+    required this.type,
+    required this.image,
+    required this.content,
+    required this.date,
+  });
 }

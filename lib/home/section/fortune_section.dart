@@ -5,6 +5,7 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:spirootv2/fortune/dream_interpretation_screen.dart';
 import 'package:spirootv2/fortune/fortune_card_model.dart';
 import 'package:spirootv2/fortune/fortune_card.dart';
 import 'package:spirootv2/core/widget/gap/horizontal_gap.dart';
@@ -15,7 +16,8 @@ import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/home/home_controller.dart';
 
-Widget fortuneSection({bool isMainPageWidget = false}) {
+Widget fortuneSection(
+    {bool isMainPageWidget = false, required BuildContext context}) {
   final List<FortuneCard> fortuneCards = [
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/coffee.png",
@@ -129,7 +131,12 @@ Widget fortuneSection({bool isMainPageWidget = false}) {
       verticalGap(MySize.sixQuartersPadding),
       GestureDetector(
         onTap: () {
-          // Rüya yorumu sayfasına git
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const DreamInterpretationScreen(),
+            ),
+          );
         },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(MySize.halfRadius),

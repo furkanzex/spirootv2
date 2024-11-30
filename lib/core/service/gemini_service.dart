@@ -808,4 +808,31 @@ Important: Write the response in $_currentLanguage
 Important: Write the response in $_currentLanguage
     ''';
   }
+
+  Future<String?> interpretDream(String dream) async {
+    final generationConfig = GenerationConfig(
+      maxOutputTokens: 4000,
+      temperature: 2,
+      topP: 0.9,
+      topK: 10,
+    );
+    final safetySettings = [
+      SafetySetting(HarmCategory.harassment, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.sexuallyExplicit, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.none),
+    ];
+    final model = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: apiKey,
+      safetySettings: safetySettings,
+      generationConfig: generationConfig,
+    );
+
+    final prompt =
+        "'$dream' here, interpret the dream in $_currentLanguage like a professional dream interpreter with a mystical language and sprinkle emojis into the interpretation. Make precise predictions about the future. The dream interpretation should consist of a minimum of 3 paragraphs, the first paragraphs should analyze the dream and the last paragraph should give a general summary of the dream. interpret the dream in $_currentLanguage";
+    final content = [Content.text(prompt)];
+    final response = await model.generateContent(content);
+    return response.text;
+  }
 }
