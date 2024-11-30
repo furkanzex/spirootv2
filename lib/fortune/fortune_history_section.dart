@@ -82,6 +82,7 @@ Widget fortuneHistorySection(BuildContext context) {
                         type: data['type'],
                         date: formatDate(date),
                         content: interpretationText,
+                        revealAt: (data['revealAt'] as Timestamp?)?.toDate(),
                       )),
                   child: Container(
                     decoration: BoxDecoration(
@@ -204,14 +205,7 @@ Widget fortuneHistorySection(BuildContext context) {
                                     ],
                                   ),
                                   horizontalGap(MySize.halfPadding),
-                                  Text(
-                                    interpretationText,
-                                    style: MyStyle.s3.copyWith(
-                                      color: MyColor.textGreyColor,
-                                    ),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                  _buildInterpretationText(data),
                                 ],
                               ),
                             ),
@@ -247,7 +241,6 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
         ),
         child: Column(
           children: [
-            // Kapat çubuğu
             Container(
               width: 40,
               height: 4,
@@ -257,60 +250,54 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
                 borderRadius: BorderRadius.circular(MySize.halfRadius),
               ),
             ),
-            // Başlık ve tarih
             Padding(
               padding: const EdgeInsets.all(MySize.defaultPadding),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: MySize.iconSizeMedium,
-                        height: MySize.iconSizeMedium,
-                        child: ExtendedImage.network(
-                          item.image,
-                          cache: true,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        easy.tr("fortune.${item.type}"),
-                        style: MyStyle.s1.copyWith(
-                          color: MyColor.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  Container(
+                    width: MySize.iconSizeMedium,
+                    height: MySize.iconSizeMedium,
+                    padding: const EdgeInsets.all(MySize.quarterPadding),
+                    decoration: BoxDecoration(
+                      color: MyColor.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                    ),
+                    child: ExtendedImage.network(
+                      item.image,
+                      cache: true,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                  Text(
-                    item.date,
-                    style: MyStyle.s3.copyWith(
-                      color: MyColor.textGreyColor,
+                  horizontalGap(MySize.defaultPadding),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          easy.tr("fortune.${item.type}"),
+                          style: MyStyle.s1.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          item.date,
+                          style: MyStyle.s3.copyWith(
+                            color: MyColor.textGreyColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            Container(
-              height: 1,
-              color: MyColor.white.withOpacity(0.1),
-            ),
             Expanded(
               child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.all(MySize.defaultPadding),
-                child: Text(
-                  item.content,
-                  style: MyStyle.s2.copyWith(
-                    color: MyColor.white.withOpacity(0.9),
-                    height: 1.6,
-                  ),
-                ),
+                child: _buildDetailContent(item),
               ),
             ),
-            verticalGap(MySize.doublePadding),
           ],
         ),
       ),
@@ -319,15 +306,174 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
 }
 
 class FortuneHistoryItem {
-  final String type;
   final String image;
-  final String content;
+  final String type;
   final String date;
+  final dynamic content;
+  final DateTime? revealAt;
 
   FortuneHistoryItem({
-    required this.type,
     required this.image,
-    required this.content,
+    required this.type,
     required this.date,
+    required this.content,
+    this.revealAt,
   });
+}
+
+Widget _buildInterpretationText(Map<String, dynamic> data) {
+  if (data['type'] != 'tarot') {
+    return Text(
+      data['interpretation'] ?? '',
+      style: MyStyle.s3.copyWith(
+        color: MyColor.textGreyColor,
+      ),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  final revealAt = (data['revealAt'] as Timestamp?)?.toDate();
+  if (revealAt == null) return const SizedBox();
+
+  if (DateTime.now().isBefore(revealAt)) {
+    final remaining = revealAt.difference(DateTime.now());
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              MingCute.time_line,
+              color: MyColor.primaryPurpleColor,
+              size: 16,
+            ),
+            horizontalGap(4),
+            Text(
+              'Falınız Bakılıyor',
+              style: MyStyle.s3.copyWith(
+                color: MyColor.primaryPurpleColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        verticalGap(4),
+        Text(
+          'Kalan Süre: ${_formatDuration(remaining)}',
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  return Text(
+    getInterpretationText(data),
+    style: MyStyle.s3.copyWith(
+      color: MyColor.textGreyColor,
+    ),
+    maxLines: 3,
+    overflow: TextOverflow.ellipsis,
+  );
+}
+
+String _formatDuration(Duration duration) {
+  if (duration.inHours > 0) {
+    return '${duration.inHours} saat ${duration.inMinutes.remainder(60)} dakika';
+  } else if (duration.inMinutes > 0) {
+    return '${duration.inMinutes} dakika';
+  } else {
+    return '${duration.inSeconds} saniye';
+  }
+}
+
+Widget _buildDetailContent(FortuneHistoryItem item) {
+  if (item.type != 'tarot') {
+    return Text(
+      item.content.toString(),
+      style: MyStyle.s2.copyWith(color: MyColor.white),
+    );
+  }
+
+  if (item.revealAt != null && DateTime.now().isBefore(item.revealAt!)) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(MySize.defaultPadding),
+          decoration: BoxDecoration(
+            color: MyColor.primaryPurpleColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(MySize.halfRadius),
+          ),
+          child: Column(
+            children: [
+              const Icon(
+                MingCute.time_line,
+                color: MyColor.primaryPurpleColor,
+                size: 48,
+              ),
+              verticalGap(MySize.defaultPadding),
+              Text(
+                'Falınız Hazırlanıyor',
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.primaryPurpleColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              verticalGap(MySize.halfPadding),
+              Text(
+                'Kalan Süre: ${_formatDuration(item.revealAt!.difference(DateTime.now()))}',
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              verticalGap(MySize.defaultPadding),
+              Text(
+                'Falınız ${DateFormat('HH:mm').format(item.revealAt!)} saatinde hazır olacak',
+                style: MyStyle.s3.copyWith(
+                  color: MyColor.textGreyColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  final interpretations = item.content as Map<String, dynamic>;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildInterpretationSection('Geçmiş', interpretations['past']),
+      verticalGap(MySize.defaultPadding),
+      _buildInterpretationSection('Şimdi', interpretations['present']),
+      verticalGap(MySize.defaultPadding),
+      _buildInterpretationSection('Gelecek', interpretations['future']),
+    ],
+  );
+}
+
+Widget _buildInterpretationSection(String title, String content) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        style: MyStyle.s1.copyWith(
+          color: MyColor.primaryPurpleColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      verticalGap(MySize.halfPadding),
+      Text(
+        content,
+        style: MyStyle.s2.copyWith(color: MyColor.white),
+      ),
+    ],
+  );
 }
