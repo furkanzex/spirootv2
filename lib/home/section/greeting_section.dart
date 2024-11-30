@@ -66,6 +66,10 @@ Widget greetingSection({
                           MyColor.thirdColor,
                         ],
                       ),
+                      border: Border.all(
+                        width: 0.5,
+                        color: MyColor.primaryPurpleColor.withOpacity(0.5),
+                      ),
                     ),
                     child: Image.asset("assets/images/logo.png"),
                   ),
@@ -93,6 +97,11 @@ Widget greetingSection({
                                 MyColor.primaryLightColor,
                                 MyColor.thirdColor,
                               ],
+                            ),
+                            border: Border.all(
+                              width: 0.5,
+                              color:
+                                  MyColor.primaryPurpleColor.withOpacity(0.5),
                             ),
                           ),
                           child: Text(
