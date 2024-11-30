@@ -36,7 +36,7 @@ class _TarotScreenState extends State<TarotScreen>
         (index) => TarotCard(
               id: index.toString(),
               name: 'Kart ${index + 1}',
-              image: 'https://apptoic.com/spiroot/tarot/card_${index + 1}.jpg',
+              image: 'https://apptoic.com/spiroot/tarot/${index + 1}',
               meaning: 'Anlam ${index + 1}',
             ));
 
