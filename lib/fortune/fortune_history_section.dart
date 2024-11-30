@@ -228,7 +228,7 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
     builder: (context) => BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.75,
+        height: MediaQuery.of(context).size.height * 0.9,
         decoration: BoxDecoration(
           color: MyColor.darkBackgroundColor,
           borderRadius: const BorderRadius.vertical(
