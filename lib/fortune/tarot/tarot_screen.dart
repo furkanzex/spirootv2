@@ -171,13 +171,8 @@ class _TarotScreenState extends State<TarotScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
-    final screenWidth = MediaQuery.of(context).size.width;
     final cardWidth = MySize.tarotCardWidth;
     final cardHeight = MySize.tarotCardHeight;
-
-    // Seçilmemiş kartları filtrele
-    final availableCards =
-        _deck!.where((card) => !_selectedCards.contains(card)).toList();
 
     return ScaffoldGradientBackground(
       gradient: LinearGradient(
@@ -313,49 +308,8 @@ class _TarotScreenState extends State<TarotScreen>
             ),
             if (_selectedCards.any((card) => card == null))
               Expanded(
-                flex: 2,
-                child: AnimatedBuilder(
-                  animation: _fanAnimation,
-                  builder: (context, child) {
-                    return Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: List.generate(availableCards.length, (index) {
-                        final card = availableCards[index];
-
-                        // Kartları yelpaze şeklinde dağıt
-                        final spreadWidth = screenWidth * 0.8;
-                        final cardSpacing = spreadWidth / availableCards.length;
-                        final xOffset =
-                            (index - availableCards.length / 2) * cardSpacing;
-                        final angle =
-                            (index - availableCards.length / 2) * 0.05;
-
-                        return Positioned(
-                          bottom: 40,
-                          left: (screenWidth / 2) + xOffset - (cardWidth / 2),
-                          child: Transform.rotate(
-                            angle: angle * _fanAnimation.value,
-                            child: Draggable<TarotCard>(
-                              data: card,
-                              feedback: Transform.scale(
-                                scale: 1.05,
-                                child: _buildCard(card,
-                                    width: cardWidth, height: cardHeight),
-                              ),
-                              childWhenDragging: Opacity(
-                                opacity: 0.3,
-                                child: _buildCard(card,
-                                    width: cardWidth, height: cardHeight),
-                              ),
-                              child: _buildCard(card,
-                                  width: cardWidth, height: cardHeight),
-                            ),
-                          ),
-                        );
-                      }),
-                    );
-                  },
-                ),
+                flex: 3,
+                child: _buildTarotFan(),
               ),
             if (_selectedCards.every((card) => card != null))
               Padding(
@@ -419,6 +373,57 @@ class _TarotScreenState extends State<TarotScreen>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTarotFan() {
+    if (_isLoading || _deck == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = MySize.tarotCardWidth;
+    final cardHeight = MySize.tarotCardHeight;
+    final centerX = screenWidth / 2;
+    final centerY = MediaQuery.of(context).size.height * 0.6;
+    final radius = screenWidth * 0.8;
+    const totalCards = 20; // Sabit 20 kart
+    final arcAngle = pi / 2.5; // Yelpaze açısı
+
+    return Stack(
+      children: List.generate(totalCards, (index) {
+        final progress = index / (totalCards - 1);
+        final angle = -arcAngle / 2 + arcAngle * progress;
+
+        // Kartın pozisyonunu hesapla
+        final x = centerX + radius * cos(angle - pi / 2);
+        final y = centerY + radius * sin(angle - pi / 2);
+
+        final rotationAngle = angle;
+
+        // _deck dizisini döngüsel olarak kullan
+        final cardIndex = index % _deck!.length;
+
+        return Positioned(
+          left: x - cardWidth / 2,
+          top: y - cardHeight / 2,
+          child: Transform.rotate(
+            angle: rotationAngle,
+            child: Draggable<TarotCard>(
+              data: _deck![cardIndex],
+              feedback: _buildCard(_deck![cardIndex],
+                  width: cardWidth, height: cardHeight),
+              childWhenDragging: Opacity(
+                opacity: 0.2,
+                child: _buildCard(_deck![cardIndex],
+                    width: cardWidth, height: cardHeight),
+              ),
+              child: _buildCard(_deck![cardIndex],
+                  width: cardWidth, height: cardHeight),
+            ),
+          ),
+        );
+      }),
     );
   }
 }
