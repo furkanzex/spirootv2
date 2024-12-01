@@ -79,7 +79,7 @@ class AstrologySection extends StatelessWidget {
       "https://apptoic.com/spiroot/images/astrology.png",
       cache: true,
       fit: BoxFit.cover,
-      color: Colors.black.withOpacity(0.5),
+      color: Colors.black.withOpacity(0.7),
       colorBlendMode: BlendMode.darken,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {

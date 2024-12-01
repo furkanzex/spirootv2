@@ -861,9 +861,17 @@ Important: Write the response in $_currentLanguage
     );
 
     try {
+      final user = Get.find<UserController>().currentUser.value;
+      final relationshipStatus = user?.relationshipStatus ?? 'Belirtilmemiş';
+      final interests = user?.interests.join(', ') ?? 'Belirtilmemiş';
+
       final prompt = '''
 Important: Write the response in $_currentLanguage
       Pretend you are a professional tarot reader and interpret these three cards in $_currentLanguage language:
+
+      USER INFORMATION:
+      Relationship Status: $relationshipStatus
+      Areas of Interest: $interests
 
       PAST CARD: ${selectedCards[0].name}
       ${selectedCards[0].keywords.join(', ')}
@@ -877,7 +885,7 @@ Important: Write the response in $_currentLanguage
       ${selectedCards[2].keywords.join(', ')}
       ${selectedCards[2].meaning}
 
-      Please provide three separate interpretations:
+      Please provide three separate interpretations considering the user's relationship status and interests:
       - First, interpret the past card with mystical language, sprinkle emojis into the interpretation
       - Then, interpret the present card with mystical language, sprinkle emojis into the interpretation
       - Finally, interpret the future card with mystical language and make precise predictions, sprinkle emojis into the interpretation
@@ -932,9 +940,17 @@ Important: Write the response in $_currentLanguage
     );
 
     try {
+      final user = Get.find<UserController>().currentUser.value;
+      final relationshipStatus = user?.relationshipStatus ?? 'Belirtilmemiş';
+      final interests = user?.interests.join(', ') ?? 'Belirtilmemiş';
+
       final prompt = '''
 Important: Write the response in $_currentLanguage
       Pretend you are a professional Katina card reader and interpret these three cards in $_currentLanguage language:
+
+      USER INFORMATION:
+      Relationship Status: $relationshipStatus
+      Areas of Interest: $interests
 
       PAST CARD: ${selectedCards[0].name}
       ${selectedCards[0].keywords.join(', ')}
@@ -948,12 +964,14 @@ Important: Write the response in $_currentLanguage
       ${selectedCards[2].keywords.join(', ')}
       ${selectedCards[2].meaning}
 
-      Please provide three separate interpretations:
+      Please provide three separate interpretations considering the user's relationship status and interests:
       - First, interpret the past card with mystical language, sprinkle emojis into the interpretation
       - Then, interpret the present card with mystical language, sprinkle emojis into the interpretation
       - Finally, interpret the future card with mystical language and make precise predictions, sprinkle emojis into the interpretation
 
-      Each interpretation should be max 1500 characters long. Separate each interpretation with "###".
+      Interpretation should be about love.
+      Each interpretation should be max 1500 characters long. 
+      Separate each interpretation with "###".
       Important: Write the response in $_currentLanguage
       ''';
 
@@ -983,9 +1001,9 @@ Important: Write the response in $_currentLanguage
       List<TarotCard> selectedCards) async {
     final generationConfig = GenerationConfig(
       maxOutputTokens: 4000,
-      temperature: 2,
-      topP: 0.9,
-      topK: 10,
+      temperature: 1.8, // Daha yaratıcı yanıtlar için sıcaklığı artırdım
+      topP: 0.95,
+      topK: 15,
     );
 
     final safetySettings = [
@@ -1003,9 +1021,17 @@ Important: Write the response in $_currentLanguage
     );
 
     try {
+      final user = Get.find<UserController>().currentUser.value;
+      final relationshipStatus = user?.relationshipStatus ?? 'Belirtilmemiş';
+      final interests = user?.interests.join(', ') ?? 'Belirtilmemiş';
+
       final prompt = '''
 Important: Write the response in $_currentLanguage
       Pretend you are a professional Angel card reader and interpret these three cards in $_currentLanguage language:
+
+      USER INFORMATION:
+      Relationship Status: $relationshipStatus
+      Areas of Interest: $interests
 
       PAST CARD: ${selectedCards[0].name}
       ${selectedCards[0].keywords.join(', ')}
@@ -1019,12 +1045,19 @@ Important: Write the response in $_currentLanguage
       ${selectedCards[2].keywords.join(', ')}
       ${selectedCards[2].meaning}
 
-      Please provide three separate interpretations with angelic guidance:
-      - First, interpret the past card with mystical and angelic language, sprinkle emojis into the interpretation
-      - Then, interpret the present card with mystical and angelic language, sprinkle emojis into the interpretation
-      - Finally, interpret the future card with mystical and angelic language and make precise predictions, sprinkle emojis into the interpretation
+      Please provide three separate interpretations with divine angelic guidance considering the user's relationship status and interests:
+      - First, interpret the past card with gentle and loving angelic language. Focus on healing messages from guardian angels about past experiences. Include angel numbers and their meanings. Use angel-related emojis (👼,✨,💫,🕊️,🙏).
+      
+      - Then, interpret the present card with uplifting angelic wisdom. Share guidance about current situation from Archangels. Include crystal and color recommendations for spiritual support. Use angel-related emojis.
+      
+      - Finally, interpret the future card with hopeful angelic predictions. Provide specific angel affirmations and prayers for manifesting positive outcomes. Include dates or timeframes when guided. Use angel-related emojis.
 
-      Each interpretation should be max 1500 characters long. Separate each interpretation with "###".
+      Each interpretation should:
+      - Offer practical spiritual advice
+      - End with an angelic blessing
+      - Be max 1500 characters long
+      
+      Separate each interpretation with "###".
       Important: Write the response in $_currentLanguage
       ''';
 

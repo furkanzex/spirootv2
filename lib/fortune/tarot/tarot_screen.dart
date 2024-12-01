@@ -12,7 +12,7 @@ import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/tarot/tarot_card_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:flutter/services.dart';
 import 'dart:convert';
 
@@ -192,7 +192,38 @@ class _TarotScreenState extends State<TarotScreen>
   @override
   Widget build(BuildContext context) {
     if (_isLoading || _deck == null) {
-      return const Center(child: CircularProgressIndicator());
+      return ScaffoldGradientBackground(
+        gradient: LinearGradient(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+          colors: [
+            MyColor.darkBackgroundColor,
+            MyColor.primaryColor,
+          ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                width: 60,
+                height: 60,
+                child: CircularProgressIndicator(
+                  color: MyColor.primaryLightColor,
+                  strokeWidth: 3,
+                ),
+              ),
+              verticalGap(MySize.defaultPadding),
+              Text(
+                easy.tr("astrology.loading"),
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     final cardWidth = MySize.tarotCardWidth;
