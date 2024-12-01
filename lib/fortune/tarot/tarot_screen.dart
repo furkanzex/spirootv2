@@ -37,7 +37,6 @@ class _TarotScreenState extends State<TarotScreen>
   List<TarotCard>? _deck;
   final List<TarotCard?> _selectedCards = List.filled(3, null);
   late AnimationController _fanAnimationController;
-  late Animation<double> _fanAnimation;
   bool _isInterpreting = false;
   Timer? _interpretationTimer;
   bool _isLoading = true;
@@ -49,10 +48,6 @@ class _TarotScreenState extends State<TarotScreen>
     _fanAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
-    );
-    _fanAnimation = CurvedAnimation(
-      parent: _fanAnimationController,
-      curve: Curves.easeOutBack,
     );
   }
 
