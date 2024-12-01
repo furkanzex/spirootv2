@@ -1301,7 +1301,7 @@ class AstrologyController extends GetxController {
 
       // Şu anki tarihi al
       final now = DateTime.now();
-      final daysSinceJ2000 = EphemerisService.daysSinceJ2000(now);
+      EphemerisService.daysSinceJ2000(now);
 
       switch (planet) {
         case 'Sun':

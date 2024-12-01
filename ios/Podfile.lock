@@ -1169,19 +1169,12 @@ PODS:
   - Firebase/Firestore (11.4.0):
     - Firebase/CoreOnly
     - FirebaseFirestore (~> 11.4.0)
-  - Firebase/Storage (11.4.0):
-    - Firebase/CoreOnly
-    - FirebaseStorage (~> 11.4.0)
   - firebase_auth (5.3.1):
     - Firebase/Auth (= 11.4.0)
     - firebase_core
     - Flutter
   - firebase_core (3.8.0):
     - Firebase/CoreOnly (= 11.4.0)
-    - Flutter
-  - firebase_storage (12.3.6):
-    - Firebase/Storage (= 11.4.0)
-    - firebase_core
     - Flutter
   - FirebaseAppCheckInterop (11.5.0)
   - FirebaseAuth (11.4.0):
@@ -1223,13 +1216,6 @@ PODS:
     - leveldb-library (~> 1.22)
     - nanopb (~> 3.30910.0)
   - FirebaseSharedSwift (11.5.0)
-  - FirebaseStorage (11.4.0):
-    - FirebaseAppCheckInterop (~> 11.0)
-    - FirebaseAuthInterop (~> 11.0)
-    - FirebaseCore (~> 11.4)
-    - FirebaseCoreExtension (~> 11.4)
-    - GoogleUtilities/Environment (~> 8.0)
-    - GTMSessionFetcher/Core (< 5.0, >= 3.4)
   - Flutter (1.0.0)
   - fluttertoast (0.0.2):
     - Flutter
@@ -1407,7 +1393,6 @@ DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
-  - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
@@ -1436,7 +1421,6 @@ SPEC REPOS:
     - FirebaseFirestore
     - FirebaseFirestoreInternal
     - FirebaseSharedSwift
-    - FirebaseStorage
     - GoogleSignIn
     - GoogleUtilities
     - "gRPC-C++"
@@ -1459,8 +1443,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
-  firebase_storage:
-    :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
     :path: Flutter
   fluttertoast:
@@ -1494,7 +1476,6 @@ SPEC CHECKSUMS:
   Firebase: cf1b19f21410b029b6786a54e9764a0cacad3c99
   firebase_auth: 49ccdaf618938d4d81d2d914dfcc5fb7eac45b43
   firebase_core: 9efc3ecf689cdbc90f13f4dc58108c83ea46b266
-  firebase_storage: 942caaa628c22c941bff8af058347cc5c38a70bf
   FirebaseAppCheckInterop: d265d9f4484e7ec1c591086408840fdd383d1213
   FirebaseAuth: c359af98bd703cbf4293eec107a40de08ede6ce6
   FirebaseAuthInterop: 1219bee9b23e6ebe84c256a0d95adab53d11c331
@@ -1504,7 +1485,6 @@ SPEC CHECKSUMS:
   FirebaseFirestore: 2ccdf893fd7e175aa8ec58faa06338b346d27db8
   FirebaseFirestoreInternal: 004452c4669d5df8869c9f8f7a24ee0009852d5b
   FirebaseSharedSwift: 302ac5967857ad7e7388b15382d705b8c8d892aa
-  FirebaseStorage: 1bf8f80ac3bb02c72844b7350e95e10be7113ef0
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
   google_sign_in_ios: 07375bfbf2620bc93a602c0e27160d6afc6ead38
