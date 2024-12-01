@@ -17,7 +17,16 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 
 class TarotScreen extends StatefulWidget {
-  const TarotScreen({super.key});
+  final String fortuneType; // 'tarot', 'katina', 'angel'
+  final String title;
+  final String cardBackImage;
+
+  const TarotScreen({
+    super.key,
+    required this.fortuneType,
+    required this.title,
+    required this.cardBackImage,
+  });
 
   @override
   State<TarotScreen> createState() => _TarotScreenState();
@@ -108,21 +117,36 @@ class _TarotScreenState extends State<TarotScreen>
       });
     }
 
-    // Random bekleme süresi (1-10 dakika)
     final random = Random();
     final waitTime = Duration(minutes: random.nextInt(9) + 1);
 
     try {
       final geminiService = GeminiService();
-      final interpretation = await geminiService
-          .interpretTarotCards(_selectedCards.whereType<TarotCard>().toList());
+      Map<String, dynamic> interpretation;
+
+      switch (widget.fortuneType) {
+        case 'tarot':
+          interpretation = await geminiService.interpretTarotCards(
+              _selectedCards.whereType<TarotCard>().toList());
+          break;
+        case 'katina':
+          interpretation = await geminiService.interpretKatinaCards(
+              _selectedCards.whereType<TarotCard>().toList());
+          break;
+        case 'angel':
+          interpretation = await geminiService.interpretAngelCards(
+              _selectedCards.whereType<TarotCard>().toList());
+          break;
+        default:
+          throw Exception('Geçersiz fal tipi');
+      }
 
       await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .collection('fortunes')
           .add({
-        'type': 'tarot',
+        'type': widget.fortuneType,
         'cards': _selectedCards.map((card) => card!.name).toList(),
         'interpretation': interpretation,
         'timestamp': FieldValue.serverTimestamp(),
@@ -133,7 +157,7 @@ class _TarotScreenState extends State<TarotScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Tarot yorumunuz ortalama ${waitTime.inMinutes} dakika içinde hazır olacak'
+              'Falınız ortalama ${waitTime.inMinutes} dakika içinde hazır olacak'
                   .tr(),
             ),
             backgroundColor: MyColor.primaryLightColor.withOpacity(0.8),
@@ -186,7 +210,7 @@ class _TarotScreenState extends State<TarotScreen>
       appBar: AppBar(
         backgroundColor: MyColor.transparent,
         title: Text(
-          'Tarot Falı'.tr(),
+          widget.title,
           style: const TextStyle(
             color: MyColor.white,
             fontSize: 24,
@@ -368,7 +392,7 @@ class _TarotScreenState extends State<TarotScreen>
           image: DecorationImage(
             image: card.isRevealed
                 ? AssetImage(card.image)
-                : const AssetImage('assets/images/tarot_back1.png'),
+                : AssetImage(widget.cardBackImage),
             fit: card.isRevealed ? BoxFit.contain : BoxFit.cover,
           ),
         ),

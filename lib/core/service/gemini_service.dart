@@ -878,9 +878,9 @@ Important: Write the response in $_currentLanguage
       ${selectedCards[2].meaning}
 
       Please provide three separate interpretations:
-      Past: First, interpret the past card with mystical language, sprinkle emojis into the interpretation
-      Now: Then, interpret the present card with mystical language, sprinkle emojis into the interpretation
-      Future: Finally, interpret the future card with mystical language and make precise predictions, sprinkle emojis into the interpretation
+      - First, interpret the past card with mystical language, sprinkle emojis into the interpretation
+      - Then, interpret the present card with mystical language, sprinkle emojis into the interpretation
+      - Finally, interpret the future card with mystical language and make precise predictions, sprinkle emojis into the interpretation
 
       Each interpretation should be max 1500 characters long. Separate each interpretation with "###".
       Important: Write the response in $_currentLanguage
@@ -905,6 +905,148 @@ Important: Write the response in $_currentLanguage
       };
     } catch (e) {
       throw Exception('Tarot yorumu oluşturulurken bir hata oluştu: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> interpretKatinaCards(
+      List<TarotCard> selectedCards) async {
+    final generationConfig = GenerationConfig(
+      maxOutputTokens: 4000,
+      temperature: 2,
+      topP: 0.9,
+      topK: 10,
+    );
+
+    final safetySettings = [
+      SafetySetting(HarmCategory.harassment, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.sexuallyExplicit, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.none),
+    ];
+
+    final model = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: apiKey,
+      safetySettings: safetySettings,
+      generationConfig: generationConfig,
+    );
+
+    try {
+      final prompt = '''
+Important: Write the response in $_currentLanguage
+      Pretend you are a professional Katina card reader and interpret these three cards in $_currentLanguage language:
+
+      PAST CARD: ${selectedCards[0].name}
+      ${selectedCards[0].keywords.join(', ')}
+      ${selectedCards[0].meaning}
+
+      PRESENT CARD: ${selectedCards[1].name}
+      ${selectedCards[1].keywords.join(', ')}
+      ${selectedCards[1].meaning}
+
+      FUTURE CARD: ${selectedCards[2].name}
+      ${selectedCards[2].keywords.join(', ')}
+      ${selectedCards[2].meaning}
+
+      Please provide three separate interpretations:
+      - First, interpret the past card with mystical language, sprinkle emojis into the interpretation
+      - Then, interpret the present card with mystical language, sprinkle emojis into the interpretation
+      - Finally, interpret the future card with mystical language and make precise predictions, sprinkle emojis into the interpretation
+
+      Each interpretation should be max 1500 characters long. Separate each interpretation with "###".
+      Important: Write the response in $_currentLanguage
+      ''';
+
+      final content = Content.text(prompt);
+      final response = await model.generateContent([content]);
+
+      if (response.text == null || response.text!.isEmpty) {
+        throw Exception('Yorum oluşturulamadı');
+      }
+
+      final interpretations = response.text!.split('###');
+      if (interpretations.length != 3) {
+        throw Exception('Yorumlar doğru formatta alınamadı');
+      }
+
+      return {
+        'past': interpretations[0].trim(),
+        'present': interpretations[1].trim(),
+        'future': interpretations[2].trim(),
+      };
+    } catch (e) {
+      throw Exception('Katina yorumu oluşturulurken bir hata oluştu: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> interpretAngelCards(
+      List<TarotCard> selectedCards) async {
+    final generationConfig = GenerationConfig(
+      maxOutputTokens: 4000,
+      temperature: 2,
+      topP: 0.9,
+      topK: 10,
+    );
+
+    final safetySettings = [
+      SafetySetting(HarmCategory.harassment, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.sexuallyExplicit, HarmBlockThreshold.none),
+      SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.none),
+    ];
+
+    final model = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: apiKey,
+      safetySettings: safetySettings,
+      generationConfig: generationConfig,
+    );
+
+    try {
+      final prompt = '''
+Important: Write the response in $_currentLanguage
+      Pretend you are a professional Angel card reader and interpret these three cards in $_currentLanguage language:
+
+      PAST CARD: ${selectedCards[0].name}
+      ${selectedCards[0].keywords.join(', ')}
+      ${selectedCards[0].meaning}
+
+      PRESENT CARD: ${selectedCards[1].name}
+      ${selectedCards[1].keywords.join(', ')}
+      ${selectedCards[1].meaning}
+
+      FUTURE CARD: ${selectedCards[2].name}
+      ${selectedCards[2].keywords.join(', ')}
+      ${selectedCards[2].meaning}
+
+      Please provide three separate interpretations with angelic guidance:
+      - First, interpret the past card with mystical and angelic language, sprinkle emojis into the interpretation
+      - Then, interpret the present card with mystical and angelic language, sprinkle emojis into the interpretation
+      - Finally, interpret the future card with mystical and angelic language and make precise predictions, sprinkle emojis into the interpretation
+
+      Each interpretation should be max 1500 characters long. Separate each interpretation with "###".
+      Important: Write the response in $_currentLanguage
+      ''';
+
+      final content = Content.text(prompt);
+      final response = await model.generateContent([content]);
+
+      if (response.text == null || response.text!.isEmpty) {
+        throw Exception('Yorum oluşturulamadı');
+      }
+
+      final interpretations = response.text!.split('###');
+      if (interpretations.length != 3) {
+        throw Exception('Yorumlar doğru formatta alınamadı');
+      }
+
+      return {
+        'past': interpretations[0].trim(),
+        'present': interpretations[1].trim(),
+        'future': interpretations[2].trim(),
+      };
+    } catch (e) {
+      throw Exception('Melek kartı yorumu oluşturulurken bir hata oluştu: $e');
     }
   }
 }

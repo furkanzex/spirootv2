@@ -19,7 +19,11 @@ String getInterpretationText(Map<String, dynamic> data) {
     final interpretation = data['interpretation'] as Map<String, dynamic>;
     return '${interpretation['past']}\n\n${interpretation['present']}\n\n${interpretation['future']}';
   }
-  return data['interpretation'] ?? '';
+  if (data['interpretation'] is Map<String, dynamic>) {
+    final interpretation = data['interpretation'] as Map<String, dynamic>;
+    return interpretation.values.join('\n\n');
+  }
+  return data['interpretation']?.toString() ?? '';
 }
 
 Widget fortuneHistorySection(BuildContext context) {
@@ -328,17 +332,6 @@ class FortuneHistoryItem {
 }
 
 Widget _buildInterpretationText(Map<String, dynamic> data) {
-  if (data['type'] != 'tarot') {
-    return Text(
-      data['interpretation'] ?? '',
-      style: MyStyle.s3.copyWith(
-        color: MyColor.textGreyColor,
-      ),
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
   final revealAt = data['revealAt'] != null
       ? (data['revealAt'] as Timestamp).toDate()
       : null;
@@ -375,17 +368,34 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
     );
   }
 
-  final interpretation = data['interpretation'] as Map<String, dynamic>?;
+  final interpretation = data['interpretation'];
   if (interpretation == null) return const SizedBox();
 
-  return Text(
-    '${interpretation['past']}\n${interpretation['present']}\n${interpretation['future']}',
-    style: MyStyle.s3.copyWith(
-      color: MyColor.textGreyColor,
-    ),
-    maxLines: 3,
-    overflow: TextOverflow.ellipsis,
-  );
+  // Eğer yorum bir Map ise
+  if (interpretation is Map<String, dynamic>) {
+    return Text(
+      '${interpretation['past'] ?? ''}\n${interpretation['present'] ?? ''}\n${interpretation['future'] ?? ''}',
+      style: MyStyle.s3.copyWith(
+        color: MyColor.textGreyColor,
+      ),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  // Eğer yorum bir String ise
+  if (interpretation is String) {
+    return Text(
+      interpretation,
+      style: MyStyle.s3.copyWith(
+        color: MyColor.textGreyColor,
+      ),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  return const SizedBox();
 }
 
 String _formatDuration(Duration duration) {
@@ -399,13 +409,6 @@ String _formatDuration(Duration duration) {
 }
 
 Widget _buildDetailContent(FortuneHistoryItem item) {
-  if (item.type != 'tarot') {
-    return Text(
-      item.content.toString(),
-      style: MyStyle.s2.copyWith(color: MyColor.white),
-    );
-  }
-
   if (item.revealAt != null && DateTime.now().isBefore(item.revealAt!)) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -454,17 +457,30 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
     );
   }
 
-  final interpretations = item.content as Map<String, dynamic>;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _buildInterpretationSection('Geçmiş', interpretations['past']),
-      verticalGap(MySize.defaultPadding),
-      _buildInterpretationSection('Şimdi', interpretations['present']),
-      verticalGap(MySize.defaultPadding),
-      _buildInterpretationSection('Gelecek', interpretations['future']),
-    ],
-  );
+  // Eğer içerik bir Map ise
+  if (item.content is Map<String, dynamic>) {
+    final interpretations = item.content as Map<String, dynamic>;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInterpretationSection('Geçmiş', interpretations['past'] ?? ''),
+        verticalGap(MySize.defaultPadding),
+        _buildInterpretationSection('Şimdi', interpretations['present'] ?? ''),
+        verticalGap(MySize.defaultPadding),
+        _buildInterpretationSection('Gelecek', interpretations['future'] ?? ''),
+      ],
+    );
+  }
+
+  // Eğer içerik bir String ise
+  if (item.content is String) {
+    return Text(
+      item.content as String,
+      style: MyStyle.s2.copyWith(color: MyColor.white),
+    );
+  }
+
+  return const SizedBox();
 }
 
 Widget _buildInterpretationSection(String title, String content) {

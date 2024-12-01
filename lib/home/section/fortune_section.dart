@@ -33,12 +33,7 @@ Widget fortuneSection(
       title: "Tarot Falı",
       color: MyColor.primaryLightColor,
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const TarotScreen(),
-          ),
-        );
+        _navigateToFortune(context, 'tarot');
       },
     ),
     FortuneCard(
@@ -54,7 +49,7 @@ Widget fortuneSection(
       title: "Katina Falı",
       color: MyColor.primaryLightColor,
       onTap: () {
-        // Katina falı sayfasına git
+        _navigateToFortune(context, 'katina');
       },
     ),
     FortuneCard(
@@ -70,7 +65,7 @@ Widget fortuneSection(
       title: "Melek Falı",
       color: MyColor.primaryLightColor,
       onTap: () {
-        // Melek falı sayfasına git
+        _navigateToFortune(context, 'angel');
       },
     ),
   ];
@@ -206,5 +201,23 @@ Widget fortuneSection(
         ),
       ),
     ],
+  );
+}
+
+void _navigateToFortune(BuildContext context, String type) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => TarotScreen(
+        fortuneType: type,
+        title: type == 'tarot'
+            ? 'Tarot Falı'
+            : type == 'katina'
+                ? 'Katina Falı'
+                : 'Melek Falı',
+        cardBackImage:
+            'assets/images/${type == 'tarot' ? 'tarot' : type == 'katina' ? 'katina' : 'angel'}.png',
+      ),
+    ),
   );
 }
