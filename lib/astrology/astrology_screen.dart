@@ -2015,7 +2015,9 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         );
       }
 
-      if (!_astrologyController.hasRetrogrades.value) {
+      // activeRetrogrades listesini kontrol et
+      if (!_astrologyController.hasRetrogrades.value ||
+          _astrologyController.activeRetrogrades.isEmpty) {
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -2048,14 +2050,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   }
 
   Widget _buildRetroCard(Map<String, dynamic> retro) {
-    final period = retro['period'] as String? ?? '';
-    final dates = period.split(' - ');
-    final startDate = dates.isNotEmpty ? dates[0] : '';
-    final endDate = dates.length > 1 ? dates[1] : '';
-
-    // Kalan süreyi hesapla
-    final remainingTime = _getRemainingDays(endDate);
-
     return Container(
       margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
       decoration: BoxDecoration(
@@ -2065,7 +2059,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _showRetroDetails(retro['planet'], retro),
+          onTap: () => _showRetroDetails(retro),
           borderRadius: BorderRadius.circular(MySize.halfRadius),
           child: Padding(
             padding: const EdgeInsets.all(MySize.defaultPadding),
@@ -2075,7 +2069,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(30),
                   child: ExtendedImage.network(
-                    "https://apptoic.com/spiroot/images/${_getPlanetImageName(retro['planet'] ?? '')}.png",
+                    "https://apptoic.com/spiroot/images/${_getPlanetImageName(retro['planet'])}.png",
                     width: 60,
                     height: 60,
                     fit: BoxFit.cover,
@@ -2086,24 +2080,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                           width: 60,
                           height: 60,
                           color: MyColor.primaryLightColor.withOpacity(0.1),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
-                          ),
-                        );
-                      }
-                      if (state.extendedImageLoadState == LoadState.failed) {
-                        print('Görsel yükleme hatası: ${state.lastException}');
-                        return Container(
-                          width: 60,
-                          height: 60,
-                          color: MyColor.primaryLightColor.withOpacity(0.1),
-                          child: Icon(
-                            Icons.error_outline,
-                            color: MyColor.white,
-                            size: 24,
-                          ),
+                          child:
+                              const CircularProgressIndicator(strokeWidth: 2),
                         );
                       }
                       return null;
@@ -2112,7 +2090,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 ),
                 horizontalGap(MySize.defaultPadding),
 
-                // Gezegen bilgileri
+                // Gezegen detayları
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2120,7 +2098,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       Row(
                         children: [
                           Text(
-                            _getPlanetName(retro['planet'] ?? ''),
+                            _getPlanetName(retro['planet']),
                             style: MyStyle.s2.copyWith(
                               color: MyColor.white,
                               fontWeight: FontWeight.w500,
@@ -2128,41 +2106,36 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                           ),
                           horizontalGap(MySize.halfPadding),
                           Text(
-                            _getZodiacSymbol(retro['sign'] ?? ''),
-                            style: MyStyle.s2.copyWith(
-                              color: MyColor.white,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              " ${_getZodiacName(retro['sign'] ?? '')} burcunda",
-                              style: MyStyle.s3.copyWith(
-                                color: MyColor.white,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            "${retro['degree']}° ${_getZodiacSymbol(retro['sign'])}",
+                            style: MyStyle.s2.copyWith(color: MyColor.white),
                           ),
                         ],
                       ),
                       verticalGap(MySize.quarterPadding),
                       Text(
-                        "$startDate → $endDate",
-                        style: MyStyle.s3.copyWith(
-                          color: MyColor.textGreyColor,
-                        ),
+                        "${retro['startDate']} → ${retro['endDate']}",
+                        style:
+                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                       ),
-                      verticalGap(MySize.quarterPadding),
-                      Text(
-                        remainingTime, // Dinamik geri sayım metni
-                        style: MyStyle.s3.copyWith(
-                          color: remainingTime.contains("saat")
-                              ? MyColor.primaryLightColor
-                              : MyColor.textGreyColor,
-                          fontWeight: remainingTime.contains("saat")
-                              ? FontWeight.w500
-                              : FontWeight.normal,
+                      if (retro['natalAspects']?.isNotEmpty == true) ...[
+                        verticalGap(MySize.quarterPadding),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.auto_graph,
+                              color: MyColor.primaryLightColor,
+                              size: 14,
+                            ),
+                            horizontalGap(4),
+                            Text(
+                              "Natal açılar: ${(retro['natalAspects'] as List).length}",
+                              style: MyStyle.s3.copyWith(
+                                color: MyColor.primaryLightColor,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -2174,7 +2147,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     );
   }
 
-  void _showRetroDetails(String planet, Map<String, dynamic> reading) {
+  void _showRetroDetails(Map<String, dynamic> retro) {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(MySize.doublePadding),
@@ -2191,48 +2164,16 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               // Gezegen başlığı
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: ExtendedImage.network(
-                      "https://apptoic.com/spiroot/images/${_getPlanetImageName(planet)}.png",
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      cache: true,
-                      loadStateChanged: (state) {
-                        if (state.extendedImageLoadState == LoadState.loading) {
-                          return Container(
-                            width: 40,
-                            height: 40,
-                            color: MyColor.primaryLightColor.withOpacity(0.1),
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            ),
-                          );
-                        }
-                        if (state.extendedImageLoadState == LoadState.failed) {
-                          print(
-                              'Görsel yükleme hatası: ${state.lastException}');
-                          return Container(
-                            width: 40,
-                            height: 40,
-                            color: MyColor.primaryLightColor.withOpacity(0.1),
-                            child: Icon(
-                              Icons.error_outline,
-                              color: MyColor.white,
-                              size: 24,
-                            ),
-                          );
-                        }
-                        return null;
-                      },
-                    ),
+                  ExtendedImage.network(
+                    "https://apptoic.com/spiroot/images/${_getPlanetImageName(retro['planet'])}.png",
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                    cache: true,
                   ),
                   horizontalGap(MySize.defaultPadding),
                   Text(
-                    "${_getPlanetName(planet)} Retrosu",
+                    "${_getPlanetName(retro['planet'])} Retrosu",
                     style: MyStyle.s1.copyWith(
                       color: MyColor.white,
                       fontWeight: FontWeight.bold,
@@ -2242,9 +2183,41 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               ),
               verticalGap(MySize.defaultPadding),
 
-              // Retro detayları
+              // Konum bilgisi
+              Container(
+                padding: const EdgeInsets.all(MySize.defaultPadding),
+                decoration: BoxDecoration(
+                  color: MyColor.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(MySize.halfRadius),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "${retro['sign']} ${retro['degree']}°",
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                    ),
+                    Text(
+                      "${retro['startDate']} → ${retro['endDate']}",
+                      style:
+                          MyStyle.s2.copyWith(color: MyColor.primaryLightColor),
+                    ),
+                  ],
+                ),
+              ),
+              verticalGap(MySize.defaultPadding),
+
+              // Etki ve tavsiyeler
               Text(
-                reading['impact'] ?? '',
+                "Etkileri",
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              verticalGap(MySize.halfPadding),
+              Text(
+                retro['impact'],
                 style: MyStyle.s2.copyWith(
                   color: MyColor.white,
                   height: 1.5,
@@ -2252,39 +2225,60 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               ),
               verticalGap(MySize.defaultPadding),
 
-              // Tavsiye
-              if (reading['advice'] != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(MySize.defaultPadding),
-                  decoration: BoxDecoration(
-                    color: MyColor.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(MySize.halfRadius),
-                    border: Border.all(
-                      color: MyColor.primaryLightColor.withOpacity(0.1),
-                    ),
+              // Natal açılar
+              if (retro['natalAspects']?.isNotEmpty == true) ...[
+                Text(
+                  "Natal Açılar",
+                  style: MyStyle.s2.copyWith(
+                    color: MyColor.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Tavsiyeler",
-                        style: MyStyle.s2.copyWith(
-                          color: MyColor.primaryLightColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      verticalGap(MySize.halfPadding),
-                      Text(
-                        reading['advice'],
+                ),
+                verticalGap(MySize.halfPadding),
+                ...(retro['natalAspects'] as List).map((aspect) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        "${aspect['natalPlanet']} ${_getAspectSymbol(aspect['aspect'])} (${aspect['orb']}°)\n${aspect['interpretation']}",
                         style: MyStyle.s3.copyWith(
                           color: MyColor.white,
                           height: 1.5,
                         ),
                       ),
-                    ],
+                    )),
+                verticalGap(MySize.defaultPadding),
+              ],
+
+              // Tavsiyeler
+              Container(
+                padding: const EdgeInsets.all(MySize.defaultPadding),
+                decoration: BoxDecoration(
+                  color: MyColor.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  border: Border.all(
+                    color: MyColor.primaryLightColor.withOpacity(0.2),
                   ),
                 ),
-              ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Tavsiyeler",
+                      style: MyStyle.s2.copyWith(
+                        color: MyColor.primaryLightColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    verticalGap(MySize.halfPadding),
+                    Text(
+                      retro['advice'],
+                      style: MyStyle.s3.copyWith(
+                        color: MyColor.white,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -2327,38 +2321,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       default:
         // Eğer bilinmeyen bir gezegen gelirse, küçük harfe çevirip döndür
         return planet.toLowerCase();
-    }
-  }
-
-  String _getZodiacName(String sign) {
-    // Burç isimlerini Türkçe'ye çevir
-    switch (sign.toLowerCase()) {
-      case 'aries':
-        return 'Koç';
-      case 'taurus':
-        return 'Boğa';
-      case 'gemini':
-        return 'İkizler';
-      case 'cancer':
-        return 'Yengeç';
-      case 'leo':
-        return 'Aslan';
-      case 'virgo':
-        return 'Başak';
-      case 'libra':
-        return 'Terazi';
-      case 'scorpio':
-        return 'Akrep';
-      case 'sagittarius':
-        return 'Yay';
-      case 'capricorn':
-        return 'Oğlak';
-      case 'aquarius':
-        return 'Kova';
-      case 'pisces':
-        return 'Balık';
-      default:
-        return sign;
     }
   }
 

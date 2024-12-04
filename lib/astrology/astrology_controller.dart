@@ -276,24 +276,35 @@ class AstrologyController extends GetxController {
     }
   }
 
-  Future<void> _checkExistingRetrogrades(Map<String, dynamic> userData) async {
+  Future<void> _checkExistingRetrogrades(Map<String, dynamic> data) async {
     try {
-      final retrogrades = userData['retrogrades'];
-      if (retrogrades != null && retrogrades['expiryDate'] != null) {
-        final expiryDate = (retrogrades['expiryDate'] as Timestamp).toDate();
+      // Kullanıcının dökümanından retrogrades verilerini al
+      if (data.containsKey('retrogrades') &&
+          data['retrogrades'] != null &&
+          data['retrogrades']['readings'] != null) {
+        final retroData = data['retrogrades'];
+        final readings = retroData['readings'] as Map<String, dynamic>;
 
+        // Süre kontrolü
+        final expiryDate = (retroData['expiryDate'] as Timestamp).toDate();
         if (expiryDate.isAfter(DateTime.now())) {
-          retrogradeReadings.value = retrogrades['readings'];
-          isRetroReadingsAvailable.value = true;
+          hasRetrogrades.value = readings['hasRetrogrades'] ?? false;
+          if (readings['retrogrades'] != null) {
+            activeRetrogrades.clear();
+            activeRetrogrades.addAll(
+                List<Map<String, dynamic>>.from(readings['retrogrades']));
+          }
         } else {
-          await _generateAndSaveRetroReadings();
+          hasRetrogrades.value = false;
+          activeRetrogrades.clear();
         }
       } else {
-        await _generateAndSaveRetroReadings();
+        hasRetrogrades.value = false;
+        activeRetrogrades.clear();
       }
     } catch (e) {
-      print('Check Existing Retrogrades Error: $e');
-      await _generateAndSaveRetroReadings();
+      print('Retrogrades kontrol hatası: $e');
+      hasRetrogrades.value = false;
     }
   }
 
@@ -314,14 +325,40 @@ class AstrologyController extends GetxController {
         currentTransits: currentTransits.value,
       );
 
-      // Firebase'e kaydet
-      await _saveRetroReadings(response);
+      // Yanıtı kontrol et ve state'i güncelle
+      if (response['retrogrades'] != null && response['retrogrades'] is List) {
+        final retroList =
+            List<Map<String, dynamic>>.from(response['retrogrades']);
 
-      // State'i güncelle
-      _updateRetroState(response);
+        if (retroList.isNotEmpty) {
+          // Retro var
+          hasRetrogrades.value = true;
+          activeRetrogrades.value = retroList;
+
+          // Firebase'e kaydet
+          await _saveRetroReadings({
+            'hasRetrogrades': true,
+            'retrogrades': retroList,
+          });
+        } else {
+          // Retro yok
+          hasRetrogrades.value = false;
+          activeRetrogrades.clear();
+
+          // Firebase'e boş kaydet
+          await _saveRetroReadings({
+            'hasRetrogrades': false,
+            'retrogrades': [],
+          });
+        }
+      }
+
+      print(
+          'Retro state güncellendi - hasRetrogrades: ${hasRetrogrades.value}, activeRetrogrades: ${activeRetrogrades.length}');
     } catch (e) {
       print('Generate and Save Retro Readings Error: $e');
-      _useDefaultRetroReadings();
+      hasRetrogrades.value = false;
+      activeRetrogrades.clear();
     }
   }
 
@@ -1058,58 +1095,20 @@ class AstrologyController extends GetxController {
       final userId = _userController.userId.value;
       final now = DateTime.now();
 
-      await _firestore.collection('users').doc(userId).update({
+      // Firebase'e direkt olarak readings objesini kaydet
+      await _firestore.collection('users').doc(userId).set({
         'retrogrades': {
           'readings': readings,
           'createdAt': now,
           'expiryDate': now.add(const Duration(days: 7)),
           'lastUpdated': now,
         }
-      });
+      }, SetOptions(merge: true));
+
+      print('Retro verileri Firebase\'e kaydedildi: $readings');
     } catch (e) {
       print('Retro kayıt hatası: $e');
       _handleError('Retro kayıt hatası: $e');
-    }
-  }
-
-  void _useDefaultRetroReadings() {
-    try {
-      final now = DateTime.now();
-      final defaultRetroData = {
-        'activePlanets': ['Mercury', 'Venus', 'Mars'],
-        'readings': {
-          'Mercury': {
-            'period':
-                '${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(now.add(const Duration(days: 21)))}',
-            'sign': 'gemini',
-            'impact':
-                'İletişim ve teknoloji alanlarında dikkatli olunması gereken bir dönem.',
-            'advice': 'Önemli kararlar almadan önce iki kez düşünün.',
-          },
-          'Venus': {
-            'period':
-                '${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(now.add(const Duration(days: 40)))}',
-            'sign': 'libra',
-            'impact':
-                'İlişkiler ve finansal konularda yeniden değerlendirme zamanı.',
-            'advice':
-                'Büyük harcamalar ve ilişki kararları için acele etmeyin.',
-          },
-          'Mars': {
-            'period':
-                '${DateFormat('dd MMM').format(now)} - ${DateFormat('dd MMM').format(now.add(const Duration(days: 30)))}',
-            'sign': 'aries',
-            'impact': 'Enerji seviyelerinde dalgalanmalar yaşanabilir.',
-            'advice':
-                'Agresif davranışlardan kaçının, enerjinizi yapıcı projelere yönlendirin.',
-          }
-        }
-      };
-
-      retrogradeReadings.value = defaultRetroData;
-      isRetroReadingsAvailable.value = true;
-    } catch (e) {
-      print('Use default retro readings error: $e');
     }
   }
 
@@ -1201,7 +1200,7 @@ class AstrologyController extends GetxController {
         }
       }
 
-      // Yeni yorum oluşturma ihtiyac�� varsa
+      // Yeni yorum oluşturma ihtiyac varsa
       if (needsNewReading) {
         final user = _userController.currentUser.value!;
         final natalReading = await _geminiService.generateWeeklyNatalReading(
@@ -1511,7 +1510,6 @@ class AstrologyController extends GetxController {
       }
     } catch (e) {
       print('Load retro readings error: $e');
-      _useDefaultRetroReadings();
     }
   }
 
@@ -1829,12 +1827,24 @@ class AstrologyController extends GetxController {
       final retroData = doc.data()?['retrogrades'];
       final now = DateTime.now();
 
-      if (retroData != null && retroData['expiryDate'] != null) {
-        final expiryDate = (retroData['expiryDate'] as Timestamp).toDate();
+      // Debug için veriyi yazdır
+      print('Firebase\'den gelen retro verisi: $retroData');
 
-        if (expiryDate.isAfter(now)) {
-          // Cache geçerli, mevcut verileri kullan
-          _updateRetroState(retroData['readings']);
+      if (retroData != null && retroData['readings'] != null) {
+        final readings = retroData['readings'] as Map<String, dynamic>;
+
+        // Debug için readings verisini yazdır
+        print('Readings verisi: $readings');
+
+        if (readings['hasRetrogrades'] != null) {
+          hasRetrogrades.value = readings['hasRetrogrades'];
+          if (readings['retrogrades'] != null) {
+            activeRetrogrades.clear();
+            activeRetrogrades.addAll(
+                List<Map<String, dynamic>>.from(readings['retrogrades']));
+          }
+          print(
+              'Cache\'den retro durumu güncellendi - hasRetrogrades: ${hasRetrogrades.value}');
           return;
         }
       }
@@ -1849,29 +1859,47 @@ class AstrologyController extends GetxController {
         currentTransits: currentTransits.value,
       );
 
-      if (response['hasRetrogrades'] == true) {
-        await _saveRetroReadings(response);
-        _updateRetroState(response);
-      } else {
-        hasRetrogrades.value = false;
-        activeRetrogrades.clear();
-        // Retro olmadığını Firebase'e kaydet
-        await _saveRetroReadings({'hasRetrogrades': false, 'retrogrades': []});
-      }
+      // Debug için response verisini yazdır
+      print('Gemini\'den gelen yanıt: $response');
+
+      // Firebase'e kaydet ve state'i güncelle
+      await _saveRetroReadings(response);
+      _updateRetroState(response);
     } catch (e) {
       print('Retro kontrol hatası: $e');
-      _handleError('Retro kontrol hatası: $e');
+      hasRetrogrades.value = false;
+      activeRetrogrades.clear();
     } finally {
       isLoading.value = false;
     }
   }
 
   void _updateRetroState(Map<String, dynamic> data) {
-    hasRetrogrades.value = data['hasRetrogrades'] ?? false;
-    if (data['retrogrades'] != null) {
-      activeRetrogrades.value =
-          List<Map<String, dynamic>>.from(data['retrogrades']);
-    } else {
+    try {
+      // Debug için gelen veriyi yazdır
+      print('_updateRetroState\'e gelen veri: $data');
+
+      // hasRetrogrades değerini doğrudan kontrol et
+      hasRetrogrades.value = data['hasRetrogrades'] ?? false;
+      print('hasRetrogrades değeri güncellendi: ${hasRetrogrades.value}');
+
+      if (data['retrogrades'] != null && data['retrogrades'] is List) {
+        final retroList = List<Map<String, dynamic>>.from(data['retrogrades']);
+        activeRetrogrades.value = retroList;
+
+        // Liste boş değilse hasRetrogrades'i true yap
+        if (retroList.isNotEmpty) {
+          hasRetrogrades.value = true;
+        }
+
+        print('Retro listesi güncellendi - uzunluk: ${retroList.length}');
+      } else {
+        activeRetrogrades.clear();
+        print('Retro listesi boş veya hatalı format');
+      }
+    } catch (e) {
+      print('Retro state güncelleme hatası: $e');
+      hasRetrogrades.value = false;
       activeRetrogrades.clear();
     }
   }

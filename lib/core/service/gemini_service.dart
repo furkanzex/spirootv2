@@ -481,7 +481,7 @@ Important: Write the response in $_currentLanguage
     final prompt = '''
 Important: Write the response in $_currentLanguage and return as JSON
 
-You are a professional astrologer analyzing retrograde planets. Consider the following data:
+You are a professional astrologer analyzing retrograde planets. You have to find all retrograde planets in the user's natal chart. You have many years of experience. Consider the following data:
 
 User Information:
 - Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
@@ -506,6 +506,7 @@ Please analyze:
    - Sun sign ($zodiacSign)
    - Ascendant (${user.ascendant})
    - Moon sign (${user.moonSign})
+5. Find all retrograde planets in the user's natal chart
 
 Return response in this exact JSON format:
 {
