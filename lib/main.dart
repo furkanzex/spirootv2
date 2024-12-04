@@ -28,7 +28,7 @@ Future<void> main() async {
     // Önce geçici dizini al
     final tempDir = await getTemporaryDirectory();
     final ephePath = '${tempDir.path}/ephe';
-    
+
     // Dizin yoksa oluştur
     final epheDir = Directory(ephePath);
     if (!await epheDir.exists()) {
@@ -55,12 +55,12 @@ Future<void> main() async {
     try {
       final appDir = await getApplicationDocumentsDirectory();
       final altEphePath = '${appDir.path}/ephe';
-      
+
       final altEpheDir = Directory(altEphePath);
       if (!await altEpheDir.exists()) {
         await altEpheDir.create(recursive: true);
       }
-      
+
       Sweph.swe_set_ephe_path(altEphePath);
     } catch (e2) {
       print('Alternative path also failed: $e2');

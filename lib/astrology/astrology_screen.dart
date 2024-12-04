@@ -19,7 +19,7 @@ import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:get/get.dart';
 import 'package:spirootv2/astrology/astrology_controller.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:spirootv2/profile/user_controller.dart';
