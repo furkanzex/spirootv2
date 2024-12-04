@@ -14,7 +14,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:spirootv2/profile/user_repository.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:sweph/sweph.dart';
 import 'dart:io';
 
@@ -98,9 +97,7 @@ Future<void> main() async {
       ],
       path: 'assets/translations',
       fallbackLocale: const Locale('tr', 'TR'),
-      child: Phoenix(
-        child: const MyApp(),
-      ),
+      child: const MyApp(),
     ),
   );
 }
