@@ -83,6 +83,11 @@ class AstrologyController extends GetxController {
   final RxMap<String, dynamic> biorhythmReading = <String, dynamic>{}.obs;
   final RxBool isBiorhythmAvailable = false.obs;
 
+  // Retro durumu için yeni değişkenler
+  final RxBool hasRetrogrades = false.obs;
+  final RxList<Map<String, dynamic>> activeRetrogrades =
+      <Map<String, dynamic>>[].obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -305,15 +310,15 @@ class AstrologyController extends GetxController {
         now,
         weekEnd,
         user.zodiacSign,
+        user: user,
+        currentTransits: currentTransits.value,
       );
 
-      final jsonResponse = json.decode(response);
-      retrogradeReadings.value = jsonResponse['retrogrades'];
-
       // Firebase'e kaydet
-      await _saveRetroReadings(jsonResponse['retrogrades']);
+      await _saveRetroReadings(response);
 
-      isRetroReadingsAvailable.value = true;
+      // State'i güncelle
+      _updateRetroState(response);
     } catch (e) {
       print('Generate and Save Retro Readings Error: $e');
       _useDefaultRetroReadings();
@@ -1057,12 +1062,13 @@ class AstrologyController extends GetxController {
         'retrogrades': {
           'readings': readings,
           'createdAt': now,
-          'expiryDate': now.add(const Duration(days: 7)), // 7 günlük süre
+          'expiryDate': now.add(const Duration(days: 7)),
           'lastUpdated': now,
         }
       });
     } catch (e) {
-      print('Save retro readings error: $e');
+      print('Retro kayıt hatası: $e');
+      _handleError('Retro kayıt hatası: $e');
     }
   }
 
@@ -1195,7 +1201,7 @@ class AstrologyController extends GetxController {
         }
       }
 
-      // Yeni yorum oluşturma ihtiyacı varsa
+      // Yeni yorum oluşturma ihtiyac�� varsa
       if (needsNewReading) {
         final user = _userController.currentUser.value!;
         final natalReading = await _geminiService.generateWeeklyNatalReading(
@@ -1806,6 +1812,67 @@ class AstrologyController extends GetxController {
       isBiorhythmAvailable.value = false;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> checkRetrogrades() async {
+    try {
+      isLoading.value = true;
+      final user = _userController.currentUser.value;
+      if (user == null) return;
+
+      final doc = await _firestore
+          .collection('users')
+          .doc(_userController.userId.value)
+          .get();
+
+      final retroData = doc.data()?['retrogrades'];
+      final now = DateTime.now();
+
+      if (retroData != null && retroData['expiryDate'] != null) {
+        final expiryDate = (retroData['expiryDate'] as Timestamp).toDate();
+
+        if (expiryDate.isAfter(now)) {
+          // Cache geçerli, mevcut verileri kullan
+          _updateRetroState(retroData['readings']);
+          return;
+        }
+      }
+
+      // Yeni retro verilerini oluştur
+      final weekEnd = now.add(const Duration(days: 7));
+      final response = await _geminiService.generateRetroReadings(
+        now,
+        weekEnd,
+        user.zodiacSign,
+        user: user,
+        currentTransits: currentTransits.value,
+      );
+
+      if (response['hasRetrogrades'] == true) {
+        await _saveRetroReadings(response);
+        _updateRetroState(response);
+      } else {
+        hasRetrogrades.value = false;
+        activeRetrogrades.clear();
+        // Retro olmadığını Firebase'e kaydet
+        await _saveRetroReadings({'hasRetrogrades': false, 'retrogrades': []});
+      }
+    } catch (e) {
+      print('Retro kontrol hatası: $e');
+      _handleError('Retro kontrol hatası: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void _updateRetroState(Map<String, dynamic> data) {
+    hasRetrogrades.value = data['hasRetrogrades'] ?? false;
+    if (data['retrogrades'] != null) {
+      activeRetrogrades.value =
+          List<Map<String, dynamic>>.from(data['retrogrades']);
+    } else {
+      activeRetrogrades.clear();
     }
   }
 }

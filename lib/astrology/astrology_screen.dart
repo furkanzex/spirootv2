@@ -2008,157 +2008,169 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   }
 
   Widget _buildRetroSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Retrolar",
-          style: MyStyle.s2.copyWith(
-            color: MyColor.white,
-            fontWeight: FontWeight.w500,
+    return Obx(() {
+      if (_astrologyController.isLoading.value) {
+        return const Center(
+          child: CircularProgressIndicator(color: MyColor.primaryColor),
+        );
+      }
+
+      if (!_astrologyController.hasRetrogrades.value) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.check_circle_outline,
+                  color: MyColor.successColor, size: 48),
+              verticalGap(MySize.defaultPadding),
+              Text(
+                "Şu anda retroda gezegen bulunmuyor!",
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
-        ),
-        verticalGap(MySize.defaultPadding),
+        );
+      }
 
-        // Retro kartları
-        ...(_astrologyController.retrogradeReadings['activePlanets'] as List? ??
-                [])
-            .map((planet) {
-          final reading =
-              _astrologyController.retrogradeReadings['readings']?[planet];
-          if (reading == null) return const SizedBox.shrink();
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: _astrologyController.activeRetrogrades.length,
+        itemBuilder: (context, index) {
+          final retro = _astrologyController.activeRetrogrades[index];
+          return _buildRetroCard(retro);
+        },
+      );
+    });
+  }
 
-          final period = reading['period'] as String? ?? '';
-          final dates = period.split(' - ');
-          final startDate = dates.isNotEmpty ? dates[0] : '';
-          final endDate = dates.length > 1 ? dates[1] : '';
+  Widget _buildRetroCard(Map<String, dynamic> retro) {
+    final period = retro['period'] as String? ?? '';
+    final dates = period.split(' - ');
+    final startDate = dates.isNotEmpty ? dates[0] : '';
+    final endDate = dates.length > 1 ? dates[1] : '';
 
-          // Kalan süreyi hesapla
-          final remainingTime = _getRemainingDays(endDate);
+    // Kalan süreyi hesapla
+    final remainingTime = _getRemainingDays(endDate);
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
-            decoration: BoxDecoration(
-              color: MyColor.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(MySize.halfRadius),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _showRetroDetails(planet, reading),
-                borderRadius: BorderRadius.circular(MySize.halfRadius),
-                child: Padding(
-                  padding: const EdgeInsets.all(MySize.defaultPadding),
-                  child: Row(
-                    children: [
-                      // Gezegen ikonu
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: ExtendedImage.network(
-                          "https://apptoic.com/spiroot/images/${_getPlanetImageName(planet)}.png",
+    return Container(
+      margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
+      decoration: BoxDecoration(
+        color: MyColor.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(MySize.halfRadius),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showRetroDetails(retro['planet'], retro),
+          borderRadius: BorderRadius.circular(MySize.halfRadius),
+          child: Padding(
+            padding: const EdgeInsets.all(MySize.defaultPadding),
+            child: Row(
+              children: [
+                // Gezegen ikonu
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: ExtendedImage.network(
+                    "https://apptoic.com/spiroot/images/${_getPlanetImageName(retro['planet'] ?? '')}.png",
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    cache: true,
+                    loadStateChanged: (state) {
+                      if (state.extendedImageLoadState == LoadState.loading) {
+                        return Container(
                           width: 60,
                           height: 60,
-                          fit: BoxFit.cover,
-                          cache: true,
-                          loadStateChanged: (state) {
-                            if (state.extendedImageLoadState ==
-                                LoadState.loading) {
-                              return Container(
-                                width: 60,
-                                height: 60,
-                                color:
-                                    MyColor.primaryLightColor.withOpacity(0.1),
-                                child: const Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              );
-                            }
-                            if (state.extendedImageLoadState ==
-                                LoadState.failed) {
-                              print(
-                                  'Görsel yükleme hatası: ${state.lastException}');
-                              return Container(
-                                width: 60,
-                                height: 60,
-                                color:
-                                    MyColor.primaryLightColor.withOpacity(0.1),
-                                child: Icon(
-                                  Icons.error_outline,
-                                  color: MyColor.white,
-                                  size: 24,
-                                ),
-                              );
-                            }
-                            return null;
-                          },
+                          color: MyColor.primaryLightColor.withOpacity(0.1),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        );
+                      }
+                      if (state.extendedImageLoadState == LoadState.failed) {
+                        print('Görsel yükleme hatası: ${state.lastException}');
+                        return Container(
+                          width: 60,
+                          height: 60,
+                          color: MyColor.primaryLightColor.withOpacity(0.1),
+                          child: Icon(
+                            Icons.error_outline,
+                            color: MyColor.white,
+                            size: 24,
+                          ),
+                        );
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                horizontalGap(MySize.defaultPadding),
+
+                // Gezegen bilgileri
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            _getPlanetName(retro['planet'] ?? ''),
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          horizontalGap(MySize.halfPadding),
+                          Text(
+                            _getZodiacSymbol(retro['sign'] ?? ''),
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              " ${_getZodiacName(retro['sign'] ?? '')} burcunda",
+                              style: MyStyle.s3.copyWith(
+                                color: MyColor.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalGap(MySize.quarterPadding),
+                      Text(
+                        "$startDate → $endDate",
+                        style: MyStyle.s3.copyWith(
+                          color: MyColor.textGreyColor,
                         ),
                       ),
-                      horizontalGap(MySize.defaultPadding),
-
-                      // Gezegen bilgileri
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  _getPlanetName(planet),
-                                  style: MyStyle.s2.copyWith(
-                                    color: MyColor.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                horizontalGap(MySize.halfPadding),
-                                Text(
-                                  _getZodiacSymbol(reading['sign'] ?? ''),
-                                  style: MyStyle.s2.copyWith(
-                                    color: MyColor.white,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    " ${_getZodiacName(reading['sign'] ?? '')} burcunda",
-                                    style: MyStyle.s3.copyWith(
-                                      color: MyColor.white,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            verticalGap(MySize.quarterPadding),
-                            Text(
-                              "$startDate → $endDate",
-                              style: MyStyle.s3.copyWith(
-                                color: MyColor.textGreyColor,
-                              ),
-                            ),
-                            verticalGap(MySize.quarterPadding),
-                            Text(
-                              remainingTime, // Dinamik geri sayım metni
-                              style: MyStyle.s3.copyWith(
-                                color: remainingTime.contains("saat")
-                                    ? MyColor.primaryLightColor
-                                    : MyColor.textGreyColor,
-                                fontWeight: remainingTime.contains("saat")
-                                    ? FontWeight.w500
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ],
+                      verticalGap(MySize.quarterPadding),
+                      Text(
+                        remainingTime, // Dinamik geri sayım metni
+                        style: MyStyle.s3.copyWith(
+                          color: remainingTime.contains("saat")
+                              ? MyColor.primaryLightColor
+                              : MyColor.textGreyColor,
+                          fontWeight: remainingTime.contains("saat")
+                              ? FontWeight.w500
+                              : FontWeight.normal,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
-          );
-        }),
-      ],
+          ),
+        ),
+      ),
     );
   }
 

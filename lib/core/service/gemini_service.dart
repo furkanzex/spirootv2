@@ -471,66 +471,87 @@ Important: Write the response in $_currentLanguage
     return jsonStr;
   }
 
-  Future<String> generateRetroReadings(
+  Future<Map<String, dynamic>> generateRetroReadings(
     DateTime startDate,
     DateTime endDate,
-    String zodiacSign,
-  ) async {
-    try {
-      final prompt = '''
-      Important: Write the response in $_currentLanguage
+    String zodiacSign, {
+    required UserModel user,
+    required Map<String, Map<String, dynamic>> currentTransits,
+  }) async {
+    final prompt = '''
+Important: Write the response in $_currentLanguage and return as JSON
 
-      You are an experienced astrologer. Create retrograde readings for the following period:
-      
-      Date Range: ${DateFormat('MMMM dd').format(startDate)} - ${DateFormat('MMMM dd, yyyy').format(endDate)}
-      Zodiac Sign: $zodiacSign
-      
-      Create a JSON response with current retrograde planets and their interpretations:
-      {
-        "retrogrades": {
-          "activePlanets": ["planet_names"],
-          "readings": {
-            "planet_name": {
-              "period": "retrograde_period",
-              "impact": "brief_impact_description (max 150 chars)",
-              "advice": "brief_advice (max 100 chars)"
-            }
-          }
-        }
-      }
-      
-      Instructions:
-      1. Only include currently retrograde planets
-      2. Keep descriptions concise and specific
-      3. Focus on practical impacts and advice
+You are a professional astrologer analyzing retrograde planets. Consider the following data:
 
-Important: Write the response in $_currentLanguage
-      ''';
+User Information:
+- Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
+- Birth Time: ${user.birthTime}
+- Birth Place: ${user.birthPlace}
+- Sun Sign: ${user.zodiacSign}
+- Ascendant: ${user.ascendant}
+- Moon Sign: ${user.moonSign}
 
-      final response = await _textModel.generateContent([Content.text(prompt)]);
-      String jsonStr = response.text ?? '';
+Analysis Period:
+Start: ${DateFormat('dd MMM yyyy, HH:mm').format(startDate)}
+End: ${DateFormat('dd MMM yyyy, HH:mm').format(endDate)}
 
-      jsonStr = _cleanJsonResponse(jsonStr);
-      return jsonStr;
-    } catch (e) {
-      print('Retrograde reading error: $e');
-      return _createDefaultRetroJson();
-    }
-  }
+Current Planetary Positions:
+${currentTransits.entries.map((e) => "- ${e.key}: ${e.value['sign']} (${e.value['degree']}°)${e.value['isRetrograde'] ? ' Retrograde' : ''}").join('\n')}
 
-  String _createDefaultRetroJson() {
-    return '''
-Important: Write the response in $_currentLanguage
+Please analyze:
+1. Currently retrograde planets
+2. Planets about to station retrograde/direct
+3. Impact on natal chart placements
+4. Specific effects based on user's:
+   - Sun sign ($zodiacSign)
+   - Ascendant (${user.ascendant})
+   - Moon sign (${user.moonSign})
 
+Return response in this exact JSON format:
+{
+  "hasRetrogrades": boolean,
+  "retrogrades": [
     {
-      "retrogrades": {
-        "activePlanets": [],
-        "readings": {}
-      }
+      "planet": "planet_name",
+      "startDate": "dd MMM",
+      "endDate": "dd MMM",
+      "sign": "zodiac_sign",
+      "degree": number,
+      "impact": "detailed_impact_considering_natal_chart_max_200_chars",
+      "advice": "practical_advice_based_on_user_placements_max_200_chars",
+      "natalAspects": [
+        {
+          "natalPlanet": "planet_name",
+          "aspect": "aspect_type",
+          "orb": number,
+          "interpretation": "brief_interpretation"
+        }
+      ]
     }
+  ]
+}
 
-    Important: Write the response in $_currentLanguage
-    ''';
+Important Notes:
+- Use accurate astronomical ephemeris data
+- Consider natal chart aspects
+- Provide personalized interpretations
+- Focus on practical impacts and advice
+- Write in $_currentLanguage
+''';
+
+    try {
+      final content = Content.text(prompt);
+      final response = await _textModel.generateContent([content]);
+
+      if (response.text == null || response.text!.isEmpty) {
+        throw Exception('Retro yorumu oluşturulamadı');
+      }
+
+      final cleanedResponse = _cleanJsonResponse(response.text!);
+      return json.decode(cleanedResponse);
+    } catch (e) {
+      throw Exception('Retro analizi hatası: $e');
+    }
   }
 
   Future<String> generateWeeklyNatalReading(
