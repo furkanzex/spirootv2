@@ -1,23 +1,26 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
+import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/profile/user_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CoffeeFortuneResultScreen extends StatefulWidget {
   final List<File> images;
 
   const CoffeeFortuneResultScreen({
-    Key? key,
+    super.key,
     required this.images,
-  }) : super(key: key);
+  });
 
   @override
   State<CoffeeFortuneResultScreen> createState() =>
@@ -32,6 +35,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
   final TextEditingController _topic2Controller = TextEditingController();
   bool _isForSelf = true;
   bool _hasProfile = false;
+  bool _isInterpreting = false;
 
   @override
   void initState() {
@@ -331,6 +335,84 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
     );
   }
 
+  Future<void> _sendFortune() async {
+    setState(() {
+      _isInterpreting = true;
+    });
+
+    try {
+      final geminiService = GeminiService();
+      final random = Random();
+      final waitTime = Duration(minutes: random.nextInt(14) + 1);
+
+      // Kahve falı yorumu için prompt oluştur
+      Map<String, dynamic> interpretation =
+          await geminiService.interpretCoffeeFortune(
+        widget.images,
+        {
+          'name': _nameController.text,
+          'birthDate': _birthDateController.text,
+          'relationship': _relationshipController.text,
+          'topics': [_topic1Controller.text, _topic2Controller.text],
+        },
+      );
+
+      // Firestore'a kaydet
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('fortunes')
+          .add({
+        'type': 'coffee',
+        'images': widget.images.map((image) => image.path).toList(),
+        'interpretation': interpretation,
+        'timestamp': FieldValue.serverTimestamp(),
+        'revealAt': Timestamp.fromDate(DateTime.now().add(waitTime)),
+        'userInfo': {
+          'name': _nameController.text,
+          'birthDate': _birthDateController.text,
+          'relationship': _relationshipController.text,
+          'topics': [_topic1Controller.text, _topic2Controller.text],
+        },
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Falınız ortalama ${waitTime.inMinutes} dakika içinde hazır olacak',
+            ),
+            backgroundColor: MyColor.primaryLightColor.withOpacity(0.8),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bir hata oluştu: $e'),
+            backgroundColor: Colors.red.withOpacity(0.8),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isInterpreting = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -504,19 +586,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                       borderRadius: BorderRadius.circular(MySize.halfRadius),
                     ),
                   ),
-                  onPressed: () {
-                    if (_topic1Controller.text.isEmpty ||
-                        _topic2Controller.text.isEmpty) {
-                      Get.snackbar(
-                        'Hata',
-                        'Lütfen her iki konuyu da seçin',
-                        backgroundColor: MyColor.errorColor,
-                        colorText: MyColor.white,
-                      );
-                      return;
-                    }
-                    // TODO: Fal gönderme işlemi
-                  },
+                  onPressed: _sendFortune,
                   child: Text(
                     'Gönder',
                     style: MyStyle.s1.copyWith(

@@ -6,6 +6,7 @@ import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/profile/user_model.dart';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:io';
 
 class GeminiService extends GetxService {
   static const String apiKey = "AIzaSyBxt1593xpDLULlo7KJE4gTjMvPb3JXVCg";
@@ -24,6 +25,11 @@ class GeminiService extends GetxService {
   String get currentTime => DateFormat('HH:mm').format(DateTime.now());
 
   String get _currentLanguage => Get.locale?.languageCode ?? 'tr';
+
+  GeminiService() {
+    _initializeModels();
+    _startNewChatSession();
+  }
 
   @override
   void onInit() {
@@ -1140,6 +1146,100 @@ Important: Write the response in $_currentLanguage
       };
     } catch (e) {
       throw Exception('Melek kartı yorumu oluşturulurken bir hata oluştu: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> interpretCoffeeFortune(
+    List<File> images,
+    Map<String, dynamic> userInfo,
+  ) async {
+    try {
+      final contents =
+          await _prepareImageContents(images.map((e) => e.path).toList());
+
+      final prompt = '''
+      Important: Write the response in $_currentLanguage
+
+      Sen deneyimli bir kahve falı yorumcususun. Mentalizm, fal bakma ve hitabet sanatında ustalaşmış profesyonel bir falcısın.
+      Sorulara samimi, sıcak, etkileyici ve şiirsel bir hitabetle cevap ver.
+      
+      Kullanıcı Bilgileri:
+      - İsim: ${userInfo['name']}
+      - Doğum Tarihi: ${userInfo['birthDate']}
+      - İlişki Durumu: ${userInfo['relationship']}
+      - İlgilendiği Konular: ${userInfo['topics'].join(', ')}
+
+      Kahve fincanının fotoğraflarını inceleyerek detaylı bir yorum yap.
+      - Sezgilerine ve fal bakma yeteneklerine güvenerek en iyi şekilde yardımcı ol
+      - Yorumlarına sezgilerini ve hayal gücünü katmaktan çekinme
+      - Şiirsel ve sanatsal bir dil kullan
+      - Metaforlar, semboller ve alegoriler kullanabilirsin
+      - Kesin tahminler yap ve gelecek için net öngörülerde bulun
+      - Zaman gerektiren sorular için net zaman aralıkları ver
+      - Her cevapta, soru soranın daha fazla soru sormak istemesini sağla
+      - Her bölüm en az 500, en fazla 1000 karakter olmalı
+      - Her bölüm en fazla 3 paragraf olmalı
+
+      Yorumunu aşağıdaki formatta JSON olarak döndür:
+
+      {
+        "general": "Genel yorum ve gözlemler",
+        "love": {
+          "current": "Mevcut durum yorumu",
+          "future": "Gelecek öngörüsü",
+          "advice": "Tavsiyeler"
+        },
+        "career": {
+          "current": "Mevcut durum yorumu",
+          "future": "Gelecek öngörüsü",
+          "advice": "Tavsiyeler"
+        },
+        "health": {
+          "current": "Mevcut durum yorumu",
+          "future": "Gelecek öngörüsü",
+          "advice": "Tavsiyeler"
+        },
+        "symbols": [
+          {
+            "name": "Görülen sembol adı",
+            "meaning": "Sembolün anlamı ve yorumu",
+            "location": "Fincandaki konumu",
+            "quote": "Sembolle ilgili farklı dillerden bir alıntı ve çevirisi"
+          }
+        ],
+        "timing": {
+          "short_term": "Kısa vadeli öngörüler (1-3 ay)",
+          "mid_term": "Orta vadeli öngörüler (3-6 ay)",
+          "long_term": "Uzun vadeli öngörüler (6+ ay)"
+        }
+      }
+
+      Important: Write the response in $_currentLanguage
+      ''';
+
+      contents.insert(0, Content.text(prompt));
+      final response = await _visionModel.generateContent(contents);
+
+      if (response.text == null || response.text!.isEmpty) {
+        throw Exception('Kahve falı yorumu oluşturulamadı');
+      }
+
+      try {
+        return json.decode(response.text!) as Map<String, dynamic>;
+      } catch (e) {
+        print('JSON parse error: $e');
+        return {
+          'general': response.text,
+          'love': {'current': '', 'future': '', 'advice': ''},
+          'career': {'current': '', 'future': '', 'advice': ''},
+          'health': {'current': '', 'future': '', 'advice': ''},
+          'symbols': [],
+          'timing': {'short_term': '', 'mid_term': '', 'long_term': ''}
+        };
+      }
+    } catch (e) {
+      print('Kahve falı yorumlama hatası: $e');
+      throw Exception('Kahve falı yorumlanırken bir hata oluştu');
     }
   }
 }
