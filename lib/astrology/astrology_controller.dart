@@ -1095,7 +1095,10 @@ class AstrologyController extends GetxController {
       final userId = _userController.userId.value;
       final now = DateTime.now();
 
-      // Firebase'e direkt olarak readings objesini kaydet
+      // Debug için kaydedilecek veriyi yazdır
+      print('Firebase\'e kaydedilecek retro verisi: $readings');
+
+      // Firebase'e kaydet
       await _firestore.collection('users').doc(userId).set({
         'retrogrades': {
           'readings': readings,
@@ -1105,7 +1108,7 @@ class AstrologyController extends GetxController {
         }
       }, SetOptions(merge: true));
 
-      print('Retro verileri Firebase\'e kaydedildi: $readings');
+      print('Retro verileri Firebase\'e kaydedildi');
     } catch (e) {
       print('Retro kayıt hatası: $e');
       _handleError('Retro kayıt hatası: $e');
@@ -1830,27 +1833,39 @@ class AstrologyController extends GetxController {
       // Debug için veriyi yazdır
       print('Firebase\'den gelen retro verisi: $retroData');
 
+      // Mevcut retro verilerini kontrol et
       if (retroData != null && retroData['readings'] != null) {
-        final readings = retroData['readings'] as Map<String, dynamic>;
+        final expiryDate = (retroData['expiryDate'] as Timestamp).toDate();
 
-        // Debug için readings verisini yazdır
-        print('Readings verisi: $readings');
+        // Veriler güncel mi kontrol et
+        if (expiryDate.isAfter(now)) {
+          final readings = retroData['readings'] as Map<String, dynamic>;
 
-        if (readings['hasRetrogrades'] != null) {
-          hasRetrogrades.value = readings['hasRetrogrades'];
-          if (readings['retrogrades'] != null) {
-            activeRetrogrades.clear();
-            activeRetrogrades.addAll(
-                List<Map<String, dynamic>>.from(readings['retrogrades']));
+          // Debug için readings verisini yazdır
+          print('Mevcut readings verisi: $readings');
+
+          if (readings['hasRetrogrades'] != null) {
+            hasRetrogrades.value = readings['hasRetrogrades'];
+            if (readings['retrogrades'] != null) {
+              activeRetrogrades.value =
+                  List<Map<String, dynamic>>.from(readings['retrogrades']);
+            }
+            print(
+                'Cache\'den retro durumu güncellendi - hasRetrogrades: ${hasRetrogrades.value}, activeRetrogrades: ${activeRetrogrades.length}');
+            return;
           }
-          print(
-              'Cache\'den retro durumu güncellendi - hasRetrogrades: ${hasRetrogrades.value}');
-          return;
         }
       }
 
       // Yeni retro verilerini oluştur
       final weekEnd = now.add(const Duration(days: 7));
+
+      // Önce transit pozisyonlarını güncelle
+      await _loadCurrentTransits();
+
+      print('Transit pozisyonları güncellendi: ${currentTransits.value}');
+
+      // Retro hesaplamalarını yap
       final response = await _geminiService.generateRetroReadings(
         now,
         weekEnd,
@@ -1860,11 +1875,16 @@ class AstrologyController extends GetxController {
       );
 
       // Debug için response verisini yazdır
-      print('Gemini\'den gelen yanıt: $response');
+      print('Gemini\'den gelen retro yanıtı: $response');
 
-      // Firebase'e kaydet ve state'i güncelle
+      // Firebase'e kaydet
       await _saveRetroReadings(response);
+
+      // State'i güncelle
       _updateRetroState(response);
+
+      print(
+          'Retro durumu güncellendi - hasRetrogrades: ${hasRetrogrades.value}, activeRetrogrades: ${activeRetrogrades.length}');
     } catch (e) {
       print('Retro kontrol hatası: $e');
       hasRetrogrades.value = false;
@@ -1879,10 +1899,11 @@ class AstrologyController extends GetxController {
       // Debug için gelen veriyi yazdır
       print('_updateRetroState\'e gelen veri: $data');
 
-      // hasRetrogrades değerini doğrudan kontrol et
+      // hasRetrogrades değerini güncelle
       hasRetrogrades.value = data['hasRetrogrades'] ?? false;
       print('hasRetrogrades değeri güncellendi: ${hasRetrogrades.value}');
 
+      // Retrogrades listesini güncelle
       if (data['retrogrades'] != null && data['retrogrades'] is List) {
         final retroList = List<Map<String, dynamic>>.from(data['retrogrades']);
         activeRetrogrades.value = retroList;
@@ -1893,6 +1914,21 @@ class AstrologyController extends GetxController {
         }
 
         print('Retro listesi güncellendi - uzunluk: ${retroList.length}');
+
+        // Her bir retrograd için detayları yazdır
+        for (var retro in retroList) {
+          print('Retrograd Gezegen: ${retro['planet']}');
+          print('Burç: ${retro['sign']}');
+          print('Derece: ${retro['degree']}');
+          print('Başlangıç: ${retro['startDate']}');
+          print('Bitiş: ${retro['endDate']}');
+          if (retro['shadowPeriod'] != null) {
+            print(
+                'Gölge Periyodu - Öncesi: ${retro['shadowPeriod']['preRetrograde']}');
+            print(
+                'Gölge Periyodu - Sonrası: ${retro['shadowPeriod']['postRetrograde']}');
+          }
+        }
       } else {
         activeRetrogrades.clear();
         print('Retro listesi boş veya hatalı format');

@@ -2008,53 +2008,95 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   }
 
   Widget _buildRetroSection() {
-    return Obx(() {
-      if (_astrologyController.isLoading.value) {
-        return const Center(
-          child: CircularProgressIndicator(color: MyColor.primaryColor),
-        );
-      }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Retrolar",
+          style: MyStyle.s2.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        verticalGap(MySize.defaultPadding),
+        Obx(() {
+          if (_astrologyController.isLoading.value) {
+            return const Center(
+              child: CircularProgressIndicator(color: MyColor.primaryColor),
+            );
+          }
 
-      // activeRetrogrades listesini kontrol et
-      if (!_astrologyController.hasRetrogrades.value ||
-          _astrologyController.activeRetrogrades.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.check_circle_outline,
-                  color: MyColor.successColor, size: 48),
-              verticalGap(MySize.defaultPadding),
-              Text(
-                "Şu anda retroda gezegen bulunmuyor!",
-                style: MyStyle.s2.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.w500,
+          // activeRetrogrades listesini kontrol et
+          if (!_astrologyController.hasRetrogrades.value ||
+              _astrologyController.activeRetrogrades.isEmpty) {
+            return Container(
+              padding: const EdgeInsets.all(MySize.defaultPadding),
+              decoration: BoxDecoration(
+                color: MyColor.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(MySize.halfRadius),
+                border: Border.all(
+                  color: MyColor.primaryLightColor.withOpacity(0.1),
+                  width: 1,
                 ),
               ),
-            ],
-          ),
-        );
-      }
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.check_circle_outline,
+                    color: MyColor.successColor,
+                    size: 48,
+                  ),
+                  verticalGap(MySize.defaultPadding),
+                  Text(
+                    "Şu anda retroda gezegen bulunmuyor!",
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  verticalGap(MySize.halfPadding),
+                  Text(
+                    "Tüm gezegenler direkt hareketlerine devam ediyor.",
+                    style: MyStyle.s3.copyWith(
+                      color: MyColor.textGreyColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
 
-      return ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: _astrologyController.activeRetrogrades.length,
-        itemBuilder: (context, index) {
-          final retro = _astrologyController.activeRetrogrades[index];
-          return _buildRetroCard(retro);
-        },
-      );
-    });
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _astrologyController.activeRetrogrades.length,
+            itemBuilder: (context, index) {
+              final retro = _astrologyController.activeRetrogrades[index];
+              return _buildRetroCard(retro);
+            },
+          );
+        }),
+      ],
+    );
   }
 
   Widget _buildRetroCard(Map<String, dynamic> retro) {
+    final shadowPeriod = retro['shadowPeriod'];
+    final bool isInShadow = shadowPeriod != null;
+
     return Container(
       margin: const EdgeInsets.only(bottom: MySize.defaultPadding),
       decoration: BoxDecoration(
         color: MyColor.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(MySize.halfRadius),
+        border: Border.all(
+          color: isInShadow
+              ? MyColor.primaryLightColor.withOpacity(0.2)
+              : Colors.transparent,
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -2063,81 +2105,123 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           borderRadius: BorderRadius.circular(MySize.halfRadius),
           child: Padding(
             padding: const EdgeInsets.all(MySize.defaultPadding),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Gezegen ikonu
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: ExtendedImage.network(
-                    "https://apptoic.com/spiroot/images/${_getPlanetImageName(retro['planet'])}.png",
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    cache: true,
-                    loadStateChanged: (state) {
-                      if (state.extendedImageLoadState == LoadState.loading) {
-                        return Container(
-                          width: 60,
-                          height: 60,
-                          color: MyColor.primaryLightColor.withOpacity(0.1),
-                          child:
-                              const CircularProgressIndicator(strokeWidth: 2),
-                        );
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                horizontalGap(MySize.defaultPadding),
+                Row(
+                  children: [
+                    // Gezegen ikonu
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: ExtendedImage.network(
+                        "https://apptoic.com/spiroot/images/${_getPlanetImageName(retro['planet'])}.png",
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        cache: true,
+                        loadStateChanged: (state) {
+                          if (state.extendedImageLoadState ==
+                              LoadState.loading) {
+                            return Container(
+                              width: 60,
+                              height: 60,
+                              color: MyColor.primaryLightColor.withOpacity(0.1),
+                              child: const CircularProgressIndicator(
+                                  strokeWidth: 2),
+                            );
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    horizontalGap(MySize.defaultPadding),
 
-                // Gezegen detayları
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                    // Gezegen detayları
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            _getPlanetName(retro['planet']),
-                            style: MyStyle.s2.copyWith(
-                              color: MyColor.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          horizontalGap(MySize.halfPadding),
-                          Text(
-                            "${retro['degree']}° ${_getZodiacSymbol(retro['sign'])}",
-                            style: MyStyle.s2.copyWith(color: MyColor.white),
-                          ),
-                        ],
-                      ),
-                      verticalGap(MySize.quarterPadding),
-                      Text(
-                        "${retro['startDate']} → ${retro['endDate']}",
-                        style:
-                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
-                      ),
-                      if (retro['natalAspects']?.isNotEmpty == true) ...[
-                        verticalGap(MySize.quarterPadding),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.auto_graph,
-                              color: MyColor.primaryLightColor,
-                              size: 14,
-                            ),
-                            horizontalGap(4),
-                            Text(
-                              "Natal açılar: ${(retro['natalAspects'] as List).length}",
-                              style: MyStyle.s3.copyWith(
-                                color: MyColor.primaryLightColor,
+                          Row(
+                            children: [
+                              Text(
+                                _getPlanetName(retro['planet']),
+                                style: MyStyle.s2.copyWith(
+                                  color: MyColor.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
+                              horizontalGap(MySize.halfPadding),
+                              Text(
+                                "${retro['degree']}° ${_getZodiacSymbol(retro['sign'])}",
+                                style:
+                                    MyStyle.s2.copyWith(color: MyColor.white),
+                              ),
+                            ],
+                          ),
+                          verticalGap(MySize.quarterPadding),
+                          Text(
+                            "${retro['startDate']} → ${retro['endDate']}",
+                            style: MyStyle.s3
+                                .copyWith(color: MyColor.textGreyColor),
+                          ),
+                          if (isInShadow) ...[
+                            verticalGap(MySize.quarterPadding),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.wb_twilight,
+                                  color: MyColor.primaryLightColor,
+                                  size: 14,
+                                ),
+                                horizontalGap(4),
+                                Text(
+                                  "Gölge Periyodu",
+                                  style: MyStyle.s3.copyWith(
+                                    color: MyColor.primaryLightColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            verticalGap(MySize.quarterPadding),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Pre-Retro: ${retro['shadowPeriod']['preRetrograde']}",
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
+                                ),
+                                Text(
+                                  "Post-Retro: ${retro['shadowPeriod']['postRetrograde']}",
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                      ],
-                    ],
-                  ),
+                          if (retro['natalAspects']?.isNotEmpty == true) ...[
+                            verticalGap(MySize.quarterPadding),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.auto_graph,
+                                  color: MyColor.primaryLightColor,
+                                  size: 14,
+                                ),
+                                horizontalGap(4),
+                                Text(
+                                  "Natal açılar: ${(retro['natalAspects'] as List).length}",
+                                  style: MyStyle.s3.copyWith(
+                                    color: MyColor.primaryLightColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -2183,25 +2267,68 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               ),
               verticalGap(MySize.defaultPadding),
 
-              // Konum bilgisi
+              // Konum ve tarih bilgisi
               Container(
                 padding: const EdgeInsets.all(MySize.defaultPadding),
                 decoration: BoxDecoration(
                   color: MyColor.white.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(MySize.halfRadius),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "${retro['sign']} ${retro['degree']}°",
-                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${retro['sign']} ${retro['degree']}° ",
+                          style: MyStyle.s2.copyWith(color: MyColor.white),
+                        ),
+                        verticalGap(MySize.halfPadding),
+                        Text(
+                          "(${retro['startDate']} → ${retro['endDate']})",
+                          style: MyStyle.s3.copyWith(
+                            color: MyColor.primaryLightColor,
+                          ),
+                          softWrap: true,
+                        ),
+                      ],
                     ),
-                    Text(
-                      "${retro['startDate']} → ${retro['endDate']}",
-                      style:
-                          MyStyle.s2.copyWith(color: MyColor.primaryLightColor),
-                    ),
+                    if (retro['shadowPeriod'] != null) ...[
+                      verticalGap(MySize.defaultPadding),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.wb_twilight,
+                            color: MyColor.primaryLightColor,
+                            size: 16,
+                          ),
+                          horizontalGap(MySize.halfPadding),
+                          Text(
+                            "Gölge Periyodu:",
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.primaryLightColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalGap(MySize.quarterPadding),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Pre-Retro: ${retro['shadowPeriod']['preRetrograde']}",
+                            style: MyStyle.s3
+                                .copyWith(color: MyColor.textGreyColor),
+                          ),
+                          Text(
+                            "Post-Retro: ${retro['shadowPeriod']['postRetrograde']}",
+                            style: MyStyle.s3
+                                .copyWith(color: MyColor.textGreyColor),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -2235,14 +2362,37 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   ),
                 ),
                 verticalGap(MySize.halfPadding),
-                ...(retro['natalAspects'] as List).map((aspect) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        "${aspect['natalPlanet']} ${_getAspectSymbol(aspect['aspect'])} (${aspect['orb']}°)\n${aspect['interpretation']}",
-                        style: MyStyle.s3.copyWith(
-                          color: MyColor.white,
-                          height: 1.5,
-                        ),
+                ...(retro['natalAspects'] as List).map((aspect) => Container(
+                      margin: const EdgeInsets.only(bottom: MySize.halfPadding),
+                      padding: const EdgeInsets.all(MySize.defaultPadding),
+                      decoration: BoxDecoration(
+                        color: MyColor.white.withOpacity(0.05),
+                        borderRadius:
+                            BorderRadius.circular(MySize.quarterRadius),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "${aspect['natalPlanet']} ${_getAspectSymbol(aspect['aspect'])} (${aspect['orb']}°)",
+                                style: MyStyle.s3.copyWith(
+                                  color: MyColor.primaryLightColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          verticalGap(MySize.quarterPadding),
+                          Text(
+                            aspect['interpretation'],
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.white,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
                       ),
                     )),
                 verticalGap(MySize.defaultPadding),

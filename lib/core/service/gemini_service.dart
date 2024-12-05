@@ -481,7 +481,7 @@ Important: Write the response in $_currentLanguage
     final prompt = '''
 Important: Write the response in $_currentLanguage and return as JSON
 
-You are a professional astrologer analyzing retrograde planets. You have to find all retrograde planets in the user's natal chart. You have many years of experience. Consider the following data:
+You are a professional astrologer analyzing retrograde planets. You have many years of experience in ephemeris calculations and retrograde analysis. Consider the following data:
 
 User Information:
 - Birth Date: ${DateFormat('dd.MM.yyyy').format(user.birthDate)}
@@ -498,15 +498,40 @@ End: ${DateFormat('dd MMM yyyy, HH:mm').format(endDate)}
 Current Planetary Positions:
 ${currentTransits.entries.map((e) => "- ${e.key}: ${e.value['sign']} (${e.value['degree']}°)${e.value['isRetrograde'] ? ' Retrograde' : ''}").join('\n')}
 
-Please analyze:
-1. Currently retrograde planets
-2. Planets about to station retrograde/direct
-3. Impact on natal chart placements
-4. Specific effects based on user's:
-   - Sun sign ($zodiacSign)
-   - Ascendant (${user.ascendant})
-   - Moon sign (${user.moonSign})
-5. Find all retrograde planets in the user's natal chart
+Required Analysis:
+1. Check ALL planets for retrograde motion:
+   - Mercury
+   - Venus
+   - Mars
+   - Jupiter
+   - Saturn
+   - Uranus
+   - Neptune
+   - Pluto
+
+2. For each planet:
+   - Calculate exact retrograde periods
+   - Determine zodiac sign and degree at station points
+   - Analyze speed and motion
+   - Check aspects to natal planets
+   - Consider shadow periods
+
+3. Special Considerations:
+   - Pre-retrograde shadow periods
+   - Post-retrograde shadow periods
+   - Station points (when planets appear to stand still)
+   - Direct motion periods
+   - Aspects to natal planets during retrogrades
+   - House positions in natal chart
+
+4. Impact Analysis:
+   - Effect on natal chart placements
+   - Influence on houses and angles
+   - Aspect patterns during retrograde
+   - Personal significance based on:
+     * Sun sign ($zodiacSign)
+     * Ascendant (${user.ascendant})
+     * Moon sign (${user.moonSign})
 
 Return response in this exact JSON format:
 {
@@ -523,21 +548,33 @@ Return response in this exact JSON format:
       "natalAspects": [
         {
           "natalPlanet": "planet_name",
-          "aspect": "aspect_type",
+          "aspect": "aspect_type (conjunction, sextile, square, trine, opposition)",
           "orb": number,
           "interpretation": "brief_interpretation"
         }
-      ]
+      ],
+      "shadowPeriod": {
+        "preRetrograde": "dd MMM",
+        "postRetrograde": "dd MMM"
+      }
     }
   ]
 }
 
-Important Notes:
-- Use accurate astronomical ephemeris data
-- Consider natal chart aspects
-- Provide personalized interpretations
-- Focus on practical impacts and advice
-- Write in $_currentLanguage
+Technical Notes:
+1. Use Swiss Ephemeris calculations for accuracy
+2. Consider stations within 1 degree orb
+3. Include aspects within these orbs:
+   - Conjunction: 8°
+   - Opposition: 8°
+   - Trine: 7°
+   - Square: 7°
+   - Sextile: 6°
+4. Check shadow periods:
+   - Pre-retrograde: When planet first crosses degree where it will station direct
+   - Post-retrograde: Until planet crosses degree where it stationed retrograde
+
+Important: Write the response in $_currentLanguage
 ''';
 
     try {
@@ -551,6 +588,7 @@ Important Notes:
       final cleanedResponse = _cleanJsonResponse(response.text!);
       return json.decode(cleanedResponse);
     } catch (e) {
+      print('Retro analizi hatası: $e');
       throw Exception('Retro analizi hatası: $e');
     }
   }
