@@ -113,7 +113,7 @@ class _TarotScreenState extends State<TarotScreen>
     }
 
     final random = Random();
-    final waitTime = Duration(minutes: random.nextInt(9) + 1);
+    final waitTime = Duration(minutes: random.nextInt(14) + 1);
 
     try {
       final geminiService = GeminiService();
