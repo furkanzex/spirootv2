@@ -16,6 +16,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/fortune/tarot/tarot_screen.dart';
 import 'package:spirootv2/home/home_controller.dart';
+import 'package:spirootv2/fortune/coffee/coffee_fortune_screen.dart';
 
 Widget fortuneSection(
     {bool isMainPageWidget = false, required BuildContext context}) {
@@ -25,7 +26,12 @@ Widget fortuneSection(
       title: "Kahve Falı",
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
-        // Kahve falı sayfasına git
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CoffeeFortuneScreen(),
+          ),
+        );
       },
     ),
     FortuneCard(

@@ -69,12 +69,16 @@
 		<true/>
 	</dict>
 	<key>NSDocumentsFolderUsageDescription</key>
-	<string>Astrolojik hesaplamalar i��in gerekli dosyaları saklamak için izin gerekiyor.</string>
+	<string>Astrolojik hesaplamalar için gerekli dosyaları saklamak için izin gerekiyor.</string>
 	<key>NSApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Fallar için fotoğraf çekmek üzere kamera erişimi gerekiyor</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Sohbette ses paylaşımı yapabilmek için mikrofon erişimi gerekiyor</string>
 </dict>
 </plist>

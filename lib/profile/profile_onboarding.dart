@@ -972,6 +972,9 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                           onLoadComplete: () async {
                             try {
                               await _userController.saveUserProfile();
+                              final astrologyController =
+                                  Get.find<AstrologyController>();
+                              astrologyController.onInit();
                             } catch (e) {
                               Get.snackbar(
                                 'Hata',

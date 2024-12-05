@@ -165,7 +165,10 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () => Get.to(ProfileOnboarding()),
+                onTap: () => Get.to(
+                  () => ProfileOnboarding(),
+                  fullscreenDialog: true,
+                ),
                 borderRadius: BorderRadius.circular(30),
                 child: Center(
                   child: Text(
