@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 
 class CoffeeFortuneResultScreen extends StatefulWidget {
@@ -25,15 +27,15 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _relationshipController = TextEditingController();
+  final TextEditingController _topic1Controller = TextEditingController();
+  final TextEditingController _topic2Controller = TextEditingController();
   bool _isForSelf = true;
-  List<bool> selectedTopics = [
-    false,
-    false
-  ]; // Para ve Kariyer için seçim durumları
 
   @override
   void initState() {
     super.initState();
+    _topic1Controller.text = tr('profile.interests.money');
+    _topic2Controller.text = tr('profile.interests.career');
     _loadUserData();
   }
 
@@ -44,55 +46,274 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
       _birthDateController.text = DateFormat('d MMM yyyy', 'tr_TR')
           .format(userController.selectedBirthDateTime.value);
       _relationshipController.text =
-          userController.selectedRelationshipStatus.value;
+          tr(userController.selectedRelationshipStatus.value);
     }
   }
 
-  Widget _buildTopicItem(String title, String emoji, int index) {
-    return GestureDetector(
+  void _showTopicPicker(TextEditingController controller) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: MyColor.darkBackgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
+      ),
+      builder: (context) => Container(
+        padding: EdgeInsets.all(MySize.defaultPadding),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Konu Seç',
+              style: MyStyle.s1.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: MySize.defaultPadding),
+            Expanded(
+              child: ListView(
+                children: [
+                  ...[
+                    'money',
+                    'business',
+                    'friendship',
+                    'love',
+                    'family',
+                    'career',
+                    'education',
+                    'travel'
+                  ].map(
+                    (interest) => _buildTopicTile(
+                        controller, 'profile.interests.$interest'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopicTile(
+      TextEditingController controller, String translationKey) {
+    return ListTile(
+      title: Text(
+        tr(translationKey),
+        style: MyStyle.s2.copyWith(color: MyColor.white),
+      ),
       onTap: () {
         setState(() {
-          selectedTopics[index] = !selectedTopics[index];
+          controller.text = tr(translationKey);
         });
+        Navigator.pop(context);
       },
+    );
+  }
+
+  Widget _buildTopicItem(String title, TextEditingController controller) {
+    return GestureDetector(
+      onTap: () => _showTopicPicker(controller),
       child: Container(
         padding: EdgeInsets.all(MySize.defaultPadding),
         decoration: BoxDecoration(
-          color: selectedTopics[index]
-              ? MyColor.primaryColor
-              : MyColor.white.withOpacity(0.1),
+          color: MyColor.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(MySize.halfRadius),
         ),
         child: Row(
           children: [
             Text(
-              '${index + 1}. ',
-              style: MyStyle.s1.copyWith(
-                color: MyColor.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              emoji,
-              style: TextStyle(fontSize: 24),
+              title,
+              style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
             ),
             SizedBox(width: MySize.defaultPadding),
-            Text(
-              title,
-              style: MyStyle.s1.copyWith(
-                color: MyColor.white,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                controller.text,
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            Spacer(),
-            Icon(
-              selectedTopics[index]
-                  ? Icons.check_circle
-                  : Icons.circle_outlined,
-              color: MyColor.white,
-              size: 24,
+            Icon(Icons.arrow_forward_ios, color: MyColor.white, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDatePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: MyColor.darkBackgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
+      ),
+      builder: (context) => Container(
+        height: 300,
+        padding: EdgeInsets.all(MySize.defaultPadding),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(MySize.halfRadius),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'İptal',
+                    style: MyStyle.s2
+                        .copyWith(color: MyColor.white.withOpacity(0.3)),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Tamam',
+                    style:
+                        MyStyle.s2.copyWith(color: MyColor.primaryLightColor),
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: CupertinoTheme(
+                data: CupertinoThemeData(
+                  textTheme: CupertinoTextThemeData(
+                    dateTimePickerTextStyle: TextStyle(
+                      color: MyColor.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: DateTime.now(),
+                  maximumDate: DateTime.now(),
+                  minimumDate: DateTime(1900),
+                  onDateTimeChanged: (DateTime value) {
+                    if (!_isForSelf) {
+                      setState(() {
+                        _birthDateController.text =
+                            DateFormat('d MMM yyyy', 'tr_TR').format(value);
+                      });
+                    }
+                  },
+                ),
+              ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showRelationshipPicker() {
+    final userController = Get.find<UserController>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: MyColor.darkBackgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
+      ),
+      builder: (context) => Container(
+        padding: EdgeInsets.all(MySize.defaultPadding),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: userController.relationshipStatuses.map((status) {
+            return ListTile(
+              title: Text(
+                status,
+                style: MyStyle.s2.copyWith(color: MyColor.white),
+              ),
+              onTap: () {
+                setState(() {
+                  _relationshipController.text = status;
+                });
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectionButton({
+    required String title,
+    required String icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.all(MySize.defaultPadding),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? MyColor.primaryColor
+                : MyColor.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(MySize.halfRadius),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                icon,
+                style: TextStyle(fontSize: 20),
+              ),
+              SizedBox(width: 8),
+              Text(
+                title,
+                style: MyStyle.s2.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool readOnly = false,
+    VoidCallback? onTap,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
+      decoration: BoxDecoration(
+        color: MyColor.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(MySize.halfRadius),
+      ),
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        onTap: () {
+          if (label == 'Doğum Günü' && !_isForSelf) {
+            _showDatePicker();
+          } else if (label == 'İlişki Durumu' && !_isForSelf) {
+            _showRelationshipPicker();
+          }
+        },
+        style: MyStyle.s1.copyWith(color: MyColor.white),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          icon: Icon(icon, color: MyColor.white),
+          labelText: label,
+          labelStyle:
+              MyStyle.s2.copyWith(color: MyColor.white.withOpacity(0.7)),
         ),
       ),
     );
@@ -144,9 +365,9 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
               ),
               child: Column(
                 children: [
-                  _buildTopicItem('Para', '💰', 0),
+                  _buildTopicItem('1. Konu', _topic1Controller),
                   SizedBox(height: MySize.halfPadding),
-                  _buildTopicItem('Kariyer', '💼', 1),
+                  _buildTopicItem('2. Konu', _topic2Controller),
                 ],
               ),
             ),
@@ -268,10 +489,11 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                   ),
                 ),
                 onPressed: () {
-                  if (!selectedTopics.contains(true)) {
+                  if (_topic1Controller.text.isEmpty ||
+                      _topic2Controller.text.isEmpty) {
                     Get.snackbar(
                       'Hata',
-                      'Lütfen en az bir konu seçin',
+                      'Lütfen her iki konuyu da seçin',
                       backgroundColor: MyColor.errorColor,
                       colorText: MyColor.white,
                     );
@@ -289,106 +511,6 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  void _showRelationshipPicker() {
-    final userController = Get.find<UserController>();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: MyColor.darkBackgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
-      ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(MySize.defaultPadding),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: userController.relationshipStatuses.map((status) {
-            return ListTile(
-              title: Text(
-                status,
-                style: MyStyle.s2.copyWith(color: MyColor.white),
-              ),
-              onTap: () {
-                setState(() {
-                  _relationshipController.text = status;
-                });
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSelectionButton({
-    required String title,
-    required String icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.all(MySize.defaultPadding),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? MyColor.primaryColor
-                : MyColor.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(MySize.halfRadius),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                icon,
-                style: TextStyle(fontSize: 20),
-              ),
-              SizedBox(width: 8),
-              Text(
-                title,
-                style: MyStyle.s2.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool readOnly = false,
-    VoidCallback? onTap,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
-      decoration: BoxDecoration(
-        color: MyColor.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(MySize.halfRadius),
-      ),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        onTap: onTap,
-        style: MyStyle.s1.copyWith(color: MyColor.white),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          icon: Icon(icon, color: MyColor.white),
-          labelText: label,
-          labelStyle:
-              MyStyle.s2.copyWith(color: MyColor.white.withOpacity(0.7)),
         ),
       ),
     );

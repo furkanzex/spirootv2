@@ -961,6 +961,16 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                       MingCute.trending_up_line,
                       _userController,
                     ),
+                    _buildInterestBox(
+                      _userController.interestStatuses[6],
+                      MingCute.backpack_line,
+                      _userController,
+                    ),
+                    _buildInterestBox(
+                      _userController.interestStatuses[7],
+                      MingCute.airplane_line,
+                      _userController,
+                    ),
                   ],
                 ),
                 const Spacer(),

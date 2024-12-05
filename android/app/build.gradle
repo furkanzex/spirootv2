@@ -9,9 +9,9 @@ plugins {
 }
 
 android {
-    namespace = "com.apptoic.spiroot"
-    compileSdk = 34
-    ndkVersion = flutter.ndkVersion
+    namespace "com.apptoic.spiroot"
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -20,14 +20,16 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
+
     }
 
     defaultConfig {
-        applicationId = "com.apptoic.spiroot"
-        minSdk = 24
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        applicationId "com.apptoic.spiroot"
+        minSdkVersion 24
+        targetSdkVersion 33
+        versionCode flutter.versionCode
+        versionName flutter.versionName
+        multiDexEnabled true
     }
 
     buildTypes {

@@ -121,7 +121,9 @@
       "friendship": "Arkadaşlık",
       "love": "Aşk",
       "family": "Aile",
-      "career": "Kariyer"
+      "career": "Kariyer",
+      "education": "Eğitim",
+      "travel": "Seyahat"
     }
   },
   "settings": {

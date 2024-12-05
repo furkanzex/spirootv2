@@ -77,8 +77,12 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Fallar için fotoğraf çekmek üzere kamera erişimi gerekiyor</string>
+	<string>Kahve falı için fotoğraf çekmek üzere kamera erişimi gerekiyor</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Sohbette ses paylaşımı yapabilmek için mikrofon erişimi gerekiyor</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kahve falı için galeriden fotoğraf seçmek üzere erişim gerekiyor</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Çekilen kahve falı fotoğraflarını kaydetmek için erişim gerekiyor</string>
 </dict>
 </plist>
