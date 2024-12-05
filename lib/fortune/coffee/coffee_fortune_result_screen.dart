@@ -90,19 +90,14 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
             Expanded(
               child: ListView(
                 children: [
-                  ...[
-                    'money',
-                    'business',
-                    'friendship',
-                    'love',
-                    'family',
-                    'career',
-                    'education',
-                    'travel'
-                  ].map(
-                    (interest) => _buildTopicTile(
-                        controller, 'profile.interests.$interest'),
-                  ),
+                  _buildTopicTile(controller, 'profile.interests.money'),
+                  _buildTopicTile(controller, 'profile.interests.business'),
+                  _buildTopicTile(controller, 'profile.interests.friendship'),
+                  _buildTopicTile(controller, 'profile.interests.love'),
+                  _buildTopicTile(controller, 'profile.interests.family'),
+                  _buildTopicTile(controller, 'profile.interests.career'),
+                  _buildTopicTile(controller, 'profile.interests.education'),
+                  _buildTopicTile(controller, 'profile.interests.travel'),
                 ],
               ),
             ),
