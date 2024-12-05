@@ -3,7 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:intl/intl.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
@@ -18,9 +19,9 @@ class CoffeeFortuneResultScreen extends StatefulWidget {
   final List<File> images;
 
   const CoffeeFortuneResultScreen({
-    super.key,
+    Key? key,
     required this.images,
-  });
+  }) : super(key: key);
 
   @override
   State<CoffeeFortuneResultScreen> createState() =>
@@ -40,8 +41,8 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
   @override
   void initState() {
     super.initState();
-    _topic1Controller.text = tr('profile.interests.money');
-    _topic2Controller.text = tr('profile.interests.career');
+    _topic1Controller.text = easy.tr('profile.interests.money');
+    _topic2Controller.text = easy.tr('profile.interests.career');
     _checkProfile();
   }
 
@@ -62,7 +63,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
       _birthDateController.text = DateFormat('d MMM yyyy', 'tr_TR')
           .format(userController.selectedBirthDateTime.value);
       _relationshipController.text =
-          tr(userController.selectedRelationshipStatus.value);
+          easy.tr(userController.selectedRelationshipStatus.value);
     }
   }
 
@@ -111,12 +112,12 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
       TextEditingController controller, String translationKey) {
     return ListTile(
       title: Text(
-        tr(translationKey),
+        easy.tr(translationKey),
         style: MyStyle.s2.copyWith(color: MyColor.white),
       ),
       onTap: () {
         setState(() {
-          controller.text = tr(translationKey);
+          controller.text = easy.tr(translationKey);
         });
         Navigator.pop(context);
       },
@@ -298,39 +299,54 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
-    required IconData icon,
     bool readOnly = false,
+    bool isEnabled = true,
     VoidCallback? onTap,
   }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
-      decoration: BoxDecoration(
-        color: MyColor.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(MySize.halfRadius),
-      ),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        onTap: () {
-          if (label == 'Doğum Günü' && !_isForSelf) {
-            _showDatePicker();
-          } else if (label == 'İlişki Durumu' && !_isForSelf) {
-            _showRelationshipPicker();
-          }
-        },
-        style: MyStyle.s1.copyWith(color: MyColor.white),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          icon: Icon(icon, color: MyColor.white),
-          labelText: label,
-          labelStyle:
-              MyStyle.s2.copyWith(color: MyColor.white.withOpacity(0.7)),
+    return TextFormField(
+      controller: controller,
+      readOnly: readOnly,
+      enabled: isEnabled,
+      onTap: onTap,
+      style: MyStyle.s2.copyWith(color: MyColor.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(MySize.halfRadius),
+          borderSide: BorderSide(color: MyColor.white.withOpacity(0.3)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(MySize.halfRadius),
+          borderSide: const BorderSide(color: MyColor.primaryLightColor),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(MySize.halfRadius),
+          borderSide: BorderSide(color: MyColor.white.withOpacity(0.1)),
         ),
       ),
     );
   }
 
   Future<void> _sendFortune() async {
+    // Form validasyonu
+    if (_nameController.text.isEmpty ||
+        _birthDateController.text.isEmpty ||
+        _relationshipController.text.isEmpty ||
+        _topic1Controller.text.isEmpty ||
+        _topic2Controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(easy.tr('Lütfen tüm alanları doldurun')),
+          backgroundColor: Colors.red.withOpacity(0.8),
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isInterpreting = true;
     });
@@ -368,6 +384,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
           'birthDate': _birthDateController.text,
           'relationship': _relationshipController.text,
           'topics': [_topic1Controller.text, _topic2Controller.text],
+          'isForSelf': _isForSelf,
         },
       });
 
@@ -375,7 +392,8 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Falınız ortalama ${waitTime.inMinutes} dakika içinde hazır olacak',
+              easy.tr('Falınız ortalama {0} dakika içinde hazır olacak',
+                  args: [waitTime.inMinutes.toString()]),
             ),
             backgroundColor: MyColor.primaryLightColor.withOpacity(0.8),
             behavior: SnackBarBehavior.floating,
@@ -390,7 +408,8 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Bir hata oluştu: $e'),
+            content:
+                Text(easy.tr('Bir hata oluştu: {0}', args: [e.toString()])),
             backgroundColor: Colors.red.withOpacity(0.8),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -410,189 +429,139 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => DeviceHelper.hideKeyboard(),
-      child: ScaffoldGradientBackground(
-        gradient: LinearGradient(
-          begin: Alignment.bottomLeft,
-          end: Alignment.topRight,
-          colors: [
-            MyColor.darkBackgroundColor,
-            MyColor.primaryColor,
-          ],
+    return ScaffoldGradientBackground(
+      gradient: LinearGradient(
+        begin: Alignment.bottomLeft,
+        end: Alignment.topRight,
+        colors: [
+          MyColor.darkBackgroundColor,
+          MyColor.primaryColor,
+        ],
+      ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Kahve Falı',
+          style: MyStyle.s1.copyWith(
+            color: MyColor.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: Text(
-            'Kahve Falı',
-            style: MyStyle.s1.copyWith(
-              color: MyColor.white,
-              fontWeight: FontWeight.bold,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(MySize.defaultPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_hasProfile)
+              Row(
+                children: [
+                  _buildSelectionButton(
+                    title: 'Kendim İçin',
+                    icon: '👍',
+                    isSelected: _isForSelf,
+                    onTap: () {
+                      setState(() {
+                        _isForSelf = true;
+                        _loadUserData();
+                      });
+                    },
+                  ),
+                  SizedBox(width: MySize.defaultPadding),
+                  _buildSelectionButton(
+                    title: 'Başkası İçin',
+                    icon: '👉',
+                    isSelected: !_isForSelf,
+                    onTap: () {
+                      setState(() {
+                        _isForSelf = false;
+                        _nameController.clear();
+                        _birthDateController.clear();
+                        _relationshipController.clear();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            SizedBox(height: MySize.defaultPadding),
+            Text(
+              'Kimin İçin?',
+              style: MyStyle.s1.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.all(MySize.defaultPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Merak ettiğin konular?',
-                style: MyStyle.s1.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            SizedBox(height: MySize.defaultPadding),
+            _buildTextField(
+              controller: _nameController,
+              label: 'İsim',
+              isEnabled: !_isForSelf || !_hasProfile,
+            ),
+            SizedBox(height: MySize.defaultPadding),
+            _buildTextField(
+              controller: _birthDateController,
+              label: 'Doğum Tarihi',
+              isEnabled: !_isForSelf || !_hasProfile,
+              onTap: () => _showDatePicker(),
+              readOnly: true,
+            ),
+            SizedBox(height: MySize.defaultPadding),
+            _buildTextField(
+              controller: _relationshipController,
+              label: 'İlişki Durumu',
+              isEnabled: !_isForSelf || !_hasProfile,
+              onTap: () => _showRelationshipPicker(),
+              readOnly: true,
+            ),
+            SizedBox(height: MySize.doublePadding),
+            Text(
+              'Merak Ettiğin Konular',
+              style: MyStyle.s1.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.bold,
               ),
-              SizedBox(height: MySize.defaultPadding),
-              Container(
-                padding: EdgeInsets.all(MySize.defaultPadding),
-                decoration: BoxDecoration(
-                  color: MyColor.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(MySize.halfRadius),
-                ),
-                child: Column(
-                  children: [
-                    _buildTopicItem('1. Konu', _topic1Controller),
-                    SizedBox(height: MySize.halfPadding),
-                    _buildTopicItem('2. Konu', _topic2Controller),
-                  ],
-                ),
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              Text(
-                'Fotoğraflar',
-                style: MyStyle.s1.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: MySize.halfPadding,
-                  mainAxisSpacing: MySize.halfPadding,
-                ),
-                itemCount: widget.images.length,
-                itemBuilder: (context, index) {
-                  return ClipRRect(
+            ),
+            SizedBox(height: MySize.defaultPadding),
+            _buildTopicItem('1. Konu', _topic1Controller),
+            SizedBox(height: MySize.defaultPadding),
+            _buildTopicItem('2. Konu', _topic2Controller),
+            SizedBox(height: MySize.doublePadding),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MyColor.primaryLightColor,
+                  padding:
+                      EdgeInsets.symmetric(vertical: MySize.defaultPadding),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(MySize.halfRadius),
-                    child: Image.file(
-                      widget.images[index],
-                      fit: BoxFit.cover,
-                    ),
-                  );
-                },
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              Text(
-                'Kimin İçin?',
-                style: MyStyle.s1.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              if (_hasProfile)
-                Row(
-                  children: [
-                    _buildSelectionButton(
-                      title: 'Kendim İçin',
-                      icon: '👍',
-                      isSelected: _isForSelf,
-                      onTap: () {
-                        setState(() {
-                          _isForSelf = true;
-                          _loadUserData();
-                        });
-                      },
-                    ),
-                    SizedBox(width: MySize.defaultPadding),
-                    _buildSelectionButton(
-                      title: 'Başkası İçin',
-                      icon: '👉',
-                      isSelected: !_isForSelf,
-                      onTap: () {
-                        setState(() {
-                          _isForSelf = false;
-                          _nameController.clear();
-                          _birthDateController.clear();
-                          _relationshipController.clear();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              SizedBox(height: MySize.defaultPadding),
-              _buildTextField(
-                readOnly: _isForSelf,
-                controller: _nameController,
-                label: 'İsim',
-                icon: Icons.person,
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              _buildTextField(
-                controller: _birthDateController,
-                label: 'Doğum Günü',
-                icon: Icons.calendar_today,
-                readOnly: true,
-                onTap: () async {
-                  if (!_isForSelf) {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                    );
-                    if (date != null) {
-                      _birthDateController.text =
-                          DateFormat('d MMM yyyy', 'tr_TR').format(date);
-                    }
-                  }
-                },
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              _buildTextField(
-                controller: _relationshipController,
-                label: 'İlişki Durumu',
-                icon: Icons.favorite,
-                readOnly: true,
-                onTap: () {
-                  if (!_isForSelf) {
-                    _showRelationshipPicker();
-                  }
-                },
-              ),
-              SizedBox(height: MySize.defaultPadding * 2),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: MyColor.primaryColor,
-                    padding:
-                        EdgeInsets.symmetric(vertical: MySize.defaultPadding),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(MySize.halfRadius),
-                    ),
-                  ),
-                  onPressed: _sendFortune,
-                  child: Text(
-                    'Gönder',
-                    style: MyStyle.s1.copyWith(
-                      color: MyColor.white,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                 ),
+                onPressed: _isInterpreting ? null : _sendFortune,
+                child: _isInterpreting
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: MyColor.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        'Gönder',
+                        style: MyStyle.s1.copyWith(
+                          color: MyColor.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -19,10 +19,6 @@ String getInterpretationText(Map<String, dynamic> data) {
     final interpretation = data['interpretation'] as Map<String, dynamic>;
     return '${interpretation['past']}\n\n${interpretation['present']}\n\n${interpretation['future']}';
   }
-  if (data['type'] == 'coffee') {
-    final interpretation = data['interpretation'] as Map<String, dynamic>;
-    return interpretation['general'] ?? 'Yorum yükleniyor...';
-  }
   if (data['interpretation'] is Map<String, dynamic>) {
     final interpretation = data['interpretation'] as Map<String, dynamic>;
     return interpretation.values.join('\n\n');
@@ -255,185 +251,61 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
         ),
         child: Column(
           children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12),
+              decoration: BoxDecoration(
+                color: MyColor.white.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(MySize.halfRadius),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(MySize.defaultPadding),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    item.type == 'coffee' ? 'Kahve Falı' : item.type.tr(),
-                    style: MyStyle.s1.copyWith(
-                      color: MyColor.white,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: MySize.iconSizeMedium,
+                    height: MySize.iconSizeMedium,
+                    padding: const EdgeInsets.all(MySize.quarterPadding),
+                    decoration: BoxDecoration(
+                      color: MyColor.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                    ),
+                    child: ExtendedImage.network(
+                      item.image,
+                      cache: true,
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: MyColor.white),
+                  horizontalGap(MySize.defaultPadding),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          easy.tr("fortune.${item.type}"),
+                          style: MyStyle.s1.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          item.date,
+                          style: MyStyle.s3.copyWith(
+                            color: MyColor.textGreyColor,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const Divider(color: MyColor.primaryPurpleColor),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(MySize.defaultPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (item.type == 'coffee') ...[
-                      Text(
-                        'Genel Yorum',
-                        style: MyStyle.s1.copyWith(
-                          color: MyColor.primaryLightColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      verticalGap(MySize.defaultPadding),
-                      Text(
-                        (item.content as Map<String, dynamic>)['general'] ?? '',
-                        style: MyStyle.s2.copyWith(color: MyColor.white),
-                      ),
-                      verticalGap(MySize.doublePadding),
-                      for (var section in ['love', 'career', 'health']) ...[
-                        Text(
-                          section.tr(),
-                          style: MyStyle.s1.copyWith(
-                            color: MyColor.primaryLightColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        verticalGap(MySize.defaultPadding),
-                        Text(
-                          'Mevcut Durum:',
-                          style: MyStyle.s2.copyWith(
-                            color: MyColor.primaryPurpleColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          (item.content as Map<String, dynamic>)[section]
-                                  ['current'] ??
-                              '',
-                          style: MyStyle.s2.copyWith(color: MyColor.white),
-                        ),
-                        verticalGap(MySize.defaultPadding),
-                        Text(
-                          'Gelecek:',
-                          style: MyStyle.s2.copyWith(
-                            color: MyColor.primaryPurpleColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          (item.content as Map<String, dynamic>)[section]
-                                  ['future'] ??
-                              '',
-                          style: MyStyle.s2.copyWith(color: MyColor.white),
-                        ),
-                        verticalGap(MySize.defaultPadding),
-                        Text(
-                          'Tavsiyeler:',
-                          style: MyStyle.s2.copyWith(
-                            color: MyColor.primaryPurpleColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          (item.content as Map<String, dynamic>)[section]
-                                  ['advice'] ??
-                              '',
-                          style: MyStyle.s2.copyWith(color: MyColor.white),
-                        ),
-                        verticalGap(MySize.doublePadding),
-                      ],
-                      Text(
-                        'Görülen Semboller',
-                        style: MyStyle.s1.copyWith(
-                          color: MyColor.primaryLightColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      verticalGap(MySize.defaultPadding),
-                      ...(((item.content as Map<String, dynamic>)['symbols']
-                                  as List<dynamic>?) ??
-                              [])
-                          .map((symbol) => Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    symbol['name'],
-                                    style: MyStyle.s2.copyWith(
-                                      color: MyColor.primaryPurpleColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${symbol['meaning']}\nKonum: ${symbol['location']}',
-                                    style: MyStyle.s2
-                                        .copyWith(color: MyColor.white),
-                                  ),
-                                  verticalGap(MySize.defaultPadding),
-                                ],
-                              ))
-                          .toList(),
-                      Text(
-                        'Zaman Çizelgesi',
-                        style: MyStyle.s1.copyWith(
-                          color: MyColor.primaryLightColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      verticalGap(MySize.defaultPadding),
-                      Text(
-                        'Kısa Vadeli (1-3 ay):',
-                        style: MyStyle.s2.copyWith(
-                          color: MyColor.primaryPurpleColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        (item.content as Map<String, dynamic>)['timing']
-                                ['short_term'] ??
-                            '',
-                        style: MyStyle.s2.copyWith(color: MyColor.white),
-                      ),
-                      verticalGap(MySize.defaultPadding),
-                      Text(
-                        'Orta Vadeli (3-6 ay):',
-                        style: MyStyle.s2.copyWith(
-                          color: MyColor.primaryPurpleColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        (item.content as Map<String, dynamic>)['timing']
-                                ['mid_term'] ??
-                            '',
-                        style: MyStyle.s2.copyWith(color: MyColor.white),
-                      ),
-                      verticalGap(MySize.defaultPadding),
-                      Text(
-                        'Uzun Vadeli (6+ ay):',
-                        style: MyStyle.s2.copyWith(
-                          color: MyColor.primaryPurpleColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        (item.content as Map<String, dynamic>)['timing']
-                                ['long_term'] ??
-                            '',
-                        style: MyStyle.s2.copyWith(color: MyColor.white),
-                      ),
-                    ] else ...[
-                      Text(
-                        item.content.toString(),
-                        style: MyStyle.s2.copyWith(color: MyColor.white),
-                      ),
-                    ],
-                  ],
-                ),
+                child: _buildDetailContent(item),
               ),
             ),
           ],
@@ -460,31 +332,70 @@ class FortuneHistoryItem {
 }
 
 Widget _buildInterpretationText(Map<String, dynamic> data) {
-  final now = DateTime.now();
   final revealAt = data['revealAt'] != null
       ? (data['revealAt'] as Timestamp).toDate()
       : null;
 
-  if (revealAt != null && now.isBefore(revealAt)) {
-    final remainingTime = revealAt.difference(now);
+  if (revealAt != null && DateTime.now().isBefore(revealAt)) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              MingCute.time_line,
+              color: MyColor.primaryPurpleColor,
+              size: 16,
+            ),
+            horizontalGap(4),
+            Text(
+              'Falınız Bakılıyor',
+              style: MyStyle.s3.copyWith(
+                color: MyColor.primaryPurpleColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        verticalGap(4),
+        Text(
+          'Kalan Süre: ${_formatDuration(revealAt.difference(DateTime.now()))}',
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  final interpretation = data['interpretation'];
+  if (interpretation == null) return const SizedBox();
+
+  // Eğer yorum bir Map ise
+  if (interpretation is Map<String, dynamic>) {
     return Text(
-      'Falınız ${remainingTime.inMinutes} dakika içinde hazır olacak'.tr(),
+      '${interpretation['past'] ?? ''}\n${interpretation['present'] ?? ''}\n${interpretation['future'] ?? ''}',
       style: MyStyle.s3.copyWith(
         color: MyColor.textGreyColor,
-        fontStyle: FontStyle.italic,
       ),
-      maxLines: 2,
+      maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );
   }
 
-  String interpretationText = getInterpretationText(data);
-  return Text(
-    interpretationText,
-    style: MyStyle.s3.copyWith(color: MyColor.white),
-    maxLines: 2,
-    overflow: TextOverflow.ellipsis,
-  );
+  // Eğer yorum bir String ise
+  if (interpretation is String) {
+    return Text(
+      interpretation,
+      style: MyStyle.s3.copyWith(
+        color: MyColor.textGreyColor,
+      ),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  return const SizedBox();
 }
 
 String _formatDuration(Duration duration) {
