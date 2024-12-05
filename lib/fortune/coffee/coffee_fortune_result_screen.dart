@@ -582,13 +582,22 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                     ),
                   ),
                   onPressed: _sendFortune,
-                  child: Text(
-                    'Gönder',
-                    style: MyStyle.s1.copyWith(
-                      color: MyColor.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: _isInterpreting
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: MyColor.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          'Gönder',
+                          style: MyStyle.s1.copyWith(
+                            color: MyColor.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ],
