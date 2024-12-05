@@ -371,6 +371,18 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
   final interpretation = data['interpretation'];
   if (interpretation == null) return const SizedBox();
 
+  if (data['type'] == 'coffee') {
+    final content = interpretation as Map<String, dynamic>;
+    return Text(
+      content['general'] ?? '',
+      style: MyStyle.s3.copyWith(
+        color: MyColor.textGreyColor,
+      ),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
   // Eğer yorum bir Map ise
   if (interpretation is Map<String, dynamic>) {
     return Text(
@@ -457,6 +469,125 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
     );
   }
 
+  if (item.type == 'coffee') {
+    final content = item.content as Map<String, dynamic>;
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(MySize.defaultPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildFortuneSection('🔮 Genel Yorum', content['general'] ?? ''),
+            const Divider(color: MyColor.primaryPurpleColor, height: 32),
+
+            // Aşk Bölümü
+            _buildExpandableSection(
+              '❤️ Aşk',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSubSection('Mevcut Durum:', content['love']['current']),
+                  _buildSubSection('Gelecek:', content['love']['future']),
+                  _buildSubSection('Tavsiyeler:', content['love']['advice']),
+                ],
+              ),
+            ),
+            const Divider(color: MyColor.primaryPurpleColor, height: 32),
+
+            // Kariyer Bölümü
+            _buildExpandableSection(
+              '💼 Kariyer',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSubSection(
+                      'Mevcut Durum:', content['career']['current']),
+                  _buildSubSection('Gelecek:', content['career']['future']),
+                  _buildSubSection('Tavsiyeler:', content['career']['advice']),
+                ],
+              ),
+            ),
+            const Divider(color: MyColor.primaryPurpleColor, height: 32),
+
+            // Sağlık Bölümü
+            _buildExpandableSection(
+              '🏥 Sağlık',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSubSection(
+                      'Mevcut Durum:', content['health']['current']),
+                  _buildSubSection('Gelecek:', content['health']['future']),
+                  _buildSubSection('Tavsiyeler:', content['health']['advice']),
+                ],
+              ),
+            ),
+            const Divider(color: MyColor.primaryPurpleColor, height: 32),
+
+            // Semboller Bölümü
+            _buildExpandableSection(
+              '🎯 Semboller',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var symbol in (content['symbols'] as List))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${symbol['name']}',
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.primaryPurpleColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Anlamı: ${symbol['meaning']}',
+                            style: MyStyle.s3.copyWith(color: MyColor.white),
+                          ),
+                          Text(
+                            'Konum: ${symbol['location']}',
+                            style: MyStyle.s3.copyWith(color: MyColor.white),
+                          ),
+                          Text(
+                            symbol['quote'],
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.textGreyColor,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const Divider(color: MyColor.primaryPurpleColor, height: 32),
+
+            // Zamanlama Bölümü
+            _buildExpandableSection(
+              '⏰ Zamanlama',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSubSection(
+                      'Kısa Vadede:', content['timing']['short_term']),
+                  _buildSubSection(
+                      'Orta Vadede:', content['timing']['mid_term']),
+                  _buildSubSection(
+                      'Uzun Vadede:', content['timing']['long_term']),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // Eğer içerik bir Map ise
   if (item.content is Map<String, dynamic>) {
     final interpretations = item.content as Map<String, dynamic>;
@@ -498,6 +629,84 @@ Widget _buildInterpretationSection(String title, String content) {
       Text(
         content,
         style: MyStyle.s2.copyWith(color: MyColor.white),
+      ),
+    ],
+  );
+}
+
+String _buildSymbolsText(List<dynamic> symbols) {
+  return symbols
+      .map((symbol) => '${symbol['name']}\n'
+          'Anlamı: ${symbol['meaning']}\n'
+          'Konum: ${symbol['location']}\n'
+          '${symbol['quote']}\n')
+      .join('\n');
+}
+
+String _buildTimingText(Map<String, dynamic> timing) {
+  return 'Kısa Vadede: ${timing['short_term']}\n\n'
+      'Orta Vadede: ${timing['mid_term']}\n\n'
+      'Uzun Vadede: ${timing['long_term']}';
+}
+
+Widget _buildFortuneSection(String title, String content) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        style: MyStyle.s1.copyWith(
+          color: MyColor.primaryPurpleColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      verticalGap(MySize.halfPadding),
+      Text(
+        content,
+        style: MyStyle.s2.copyWith(color: MyColor.white),
+      ),
+    ],
+  );
+}
+
+Widget _buildSubSection(String title, String content) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 12.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: MyStyle.s2.copyWith(
+            color: MyColor.primaryLightColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          content,
+          style: MyStyle.s3.copyWith(color: MyColor.white),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildExpandableSection(String title, Widget content) {
+  return ExpansionTile(
+    title: Text(
+      title,
+      style: MyStyle.s1.copyWith(
+        color: MyColor.primaryPurpleColor,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    collapsedIconColor: MyColor.primaryPurpleColor,
+    iconColor: MyColor.primaryPurpleColor,
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: content,
       ),
     ],
   );

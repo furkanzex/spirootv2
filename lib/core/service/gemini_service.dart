@@ -458,22 +458,29 @@ Important: Write the response in $_currentLanguage
   }
 
   String _cleanJsonResponse(String jsonStr) {
-    // JSON formatını temizle ve kontrol et
+    // Gereksiz açıklamaları temizle
+    jsonStr = jsonStr.replaceAll(
+        RegExp(r'Important: Write the response in [a-z]{2}.*?\n',
+            multiLine: true),
+        '');
+    jsonStr = jsonStr.replaceAll(RegExp(r'```json\s*'), '');
+    jsonStr = jsonStr.replaceAll(RegExp(r'```\s*'), '');
+
+    // Başlangıç ve sondaki boşlukları temizle
     jsonStr = jsonStr.trim();
-    if (!jsonStr.startsWith('{')) {
-      // Eğer JSON direkt başlamıyorsa, ilk { karakterinden itibaren al
-      final startIndex = jsonStr.indexOf('{');
-      if (startIndex != -1) {
-        jsonStr = jsonStr.substring(startIndex);
-      }
+
+    // İlk { karakterinden önceki her şeyi temizle
+    final startIndex = jsonStr.indexOf('{');
+    if (startIndex != -1) {
+      jsonStr = jsonStr.substring(startIndex);
     }
-    if (!jsonStr.endsWith('}')) {
-      // Eğer JSON direkt bitmiyorsa, son } karakterine kadar al
-      final endIndex = jsonStr.lastIndexOf('}') + 1;
-      if (endIndex != 0) {
-        jsonStr = jsonStr.substring(0, endIndex);
-      }
+
+    // Son } karakterinden sonraki her şeyi temizle
+    final endIndex = jsonStr.lastIndexOf('}') + 1;
+    if (endIndex > 0) {
+      jsonStr = jsonStr.substring(0, endIndex);
     }
+
     return jsonStr;
   }
 
@@ -1158,8 +1165,6 @@ Important: Write the response in $_currentLanguage
           await _prepareImageContents(images.map((e) => e.path).toList());
 
       final prompt = '''
-      Important: Write the response in $_currentLanguage
-
       Sen deneyimli bir kahve falı yorumcususun. Mentalizm, fal bakma ve hitabet sanatında ustalaşmış profesyonel bir falcısın.
       Sorulara samimi, sıcak, etkileyici ve şiirsel bir hitabetle cevap ver.
       
@@ -1213,8 +1218,6 @@ Important: Write the response in $_currentLanguage
           "long_term": "Uzun vadeli öngörüler (6+ ay)"
         }
       }
-
-      Important: Write the response in $_currentLanguage
       ''';
 
       contents.insert(0, Content.text(prompt));
@@ -1224,12 +1227,14 @@ Important: Write the response in $_currentLanguage
         throw Exception('Kahve falı yorumu oluşturulamadı');
       }
 
+      String cleanedResponse = _cleanJsonResponse(response.text!);
+
       try {
-        return json.decode(response.text!) as Map<String, dynamic>;
+        return json.decode(cleanedResponse) as Map<String, dynamic>;
       } catch (e) {
         print('JSON parse error: $e');
         return {
-          'general': response.text,
+          'general': cleanedResponse,
           'love': {'current': '', 'future': '', 'advice': ''},
           'career': {'current': '', 'future': '', 'advice': ''},
           'health': {'current': '', 'future': '', 'advice': ''},

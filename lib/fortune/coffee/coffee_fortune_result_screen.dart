@@ -581,7 +581,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                       borderRadius: BorderRadius.circular(MySize.halfRadius),
                     ),
                   ),
-                  onPressed: _sendFortune,
+                  onPressed: _isInterpreting ? null : _sendFortune,
                   child: _isInterpreting
                       ? const SizedBox(
                           height: 24,
