@@ -322,7 +322,7 @@ class AstrologyController extends GetxController {
         weekEnd,
         user.zodiacSign,
         user: user,
-        currentTransits: currentTransits.value,
+        currentTransits: currentTransits,
       );
 
       // Yanıtı kontrol et ve state'i güncelle
@@ -1863,7 +1863,7 @@ class AstrologyController extends GetxController {
       // Önce transit pozisyonlarını güncelle
       await _loadCurrentTransits();
 
-      print('Transit pozisyonları güncellendi: ${currentTransits.value}');
+      print('Transit pozisyonları güncellendi: $currentTransits');
 
       // Retro hesaplamalarını yap
       final response = await _geminiService.generateRetroReadings(
@@ -1871,7 +1871,7 @@ class AstrologyController extends GetxController {
         weekEnd,
         user.zodiacSign,
         user: user,
-        currentTransits: currentTransits.value,
+        currentTransits: currentTransits,
       );
 
       // Debug için response verisini yazdır
