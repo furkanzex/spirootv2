@@ -26,16 +26,24 @@ class GeminiService extends GetxService {
 
   String get _currentLanguage => Get.locale?.languageCode ?? 'tr';
 
+  bool _isInitialized = false;
+
   GeminiService() {
-    _initializeModels();
-    _startNewChatSession();
+    if (!_isInitialized) {
+      _initializeModels();
+      _startNewChatSession();
+      _isInitialized = true;
+    }
   }
 
   @override
   void onInit() {
     super.onInit();
-    _initializeModels();
-    _startNewChatSession();
+    if (!_isInitialized) {
+      _initializeModels();
+      _startNewChatSession();
+      _isInitialized = true;
+    }
   }
 
   void _initializeModels() {
