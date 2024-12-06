@@ -1172,60 +1172,67 @@ Important: Write the response in $_currentLanguage
       final contents =
           await _prepareImageContents(images.map((e) => e.path).toList());
 
+      final examples = '''
+      [Ah, valued guest! The coffee grounds reveal symbols of ambition and determination. Within the next few weeks (aligned with a clock symbol in the cup), you might face a significant decision point in your career (reflected by a crossroads symbol in the cup). An old Chinese proverb says, 'The longest journey begins with a single step.' If you're considering pursuing a new position or taking on different responsibilities within your current job, follow your intuition. Don't be afraid, for the coffee grounds hint at a path where you can potentially succeed and grow. Remember, the road to success can sometimes be read even in the coffee grounds.],
+      [Ah, welcome seeker! The coffee grounds swirl with a vibrant energy, hinting at a wellspring of creativity within you. A prominent star shape catches the light, suggesting a burst of inspiration on the horizon. Perhaps within the next few months (as the star appears bright and defined), you'll be struck by a brilliant idea or rediscover a long-dormant passion. As the Roman poet Ovid once wrote, 'Ingenium nobis sola est artificum manus' (Our mind is the only tool of the craftsman). Don't be afraid to nurture this creative spark, for it has the potential to lead you down unexpected and fulfilling paths. The grounds also reveal a faint image of a butterfly, a symbol of transformation and change. Embrace this period of creative awakening, for it could lead to a significant shift in your perspective or even your career path. Remember, the greatest works of art often begin with a single spark, so allow yours to ignite and illuminate your world.],
+      [Ah, dear friend! The coffee grounds reveal a beautiful image of two doves perched on a branch, their wings gently touching. This is a powerful symbol of harmony and connection, suggesting a period of peace and understanding in your relationships. Perhaps within the next few months (as the doves are close together), you'll experience a deepening of existing bonds or a reconciliation with someone you've been estranged from. As the African proverb says, 'If you want to go fast, go alone. If you want to go far, go together.' This is a time to nurture your connections with loved ones, offering support and understanding. The grounds also reveal a faint crescent moon, signifying a new beginning. Perhaps a new relationship will blossom during this period, further enriching your life. Remember, true happiness is often found in the strength of our connections with others.],
+      [Welcome, seeker! The coffee grounds seem to whisper a forgotten message, revealing a faint image of an old-fashioned letter. This suggests news or a message from the past that could resurface within the next few weeks (as the letter appears faded). This could be a long-lost connection reaching out, or a memory that resurfaces with newfound clarity. Don't be afraid to revisit this message from the past, for it may hold the key to resolving an old conflict or unlocking a hidden potential within yourself. Look closely at the grounds - do you see a faint image of a key? This symbolizes a newfound opportunity that awaits you. Perhaps the message from the past will provide the key you need to unlock a new chapter in your life. Embrace the wisdom of the past, for it can guide you towards a brighter future.]
+      ''';
+
       final prompt = '''
-      Sen deneyimli bir kahve falı yorumcususun. Mentalizm, fal bakma ve hitabet sanatında ustalaşmış profesyonel bir falcısın.
-      Sorulara samimi, sıcak, etkileyici ve şiirsel bir hitabetle cevap ver.
-      
+      Answer in $_currentLanguage. Be a professional coffee fortune teller and interpret my coffee grounds fortune by following these instructions:
+
+      Delivery: Imbue your pronouncements with a mysterious, sincere, warm, and impressive aura. Let your words flow like poetic verses, leaving a lasting impression.
+
+      Detail and Insight: Be as detailed and informative as the grounds allow. Weave together the scattered symbols and patterns to paint a vivid picture of the querent's past, present, and potential futures.
+
+      Precise Predictions: Don't shy away from acting as a soothsayer. Make specific predictions about upcoming events, offering timeframes within a reasonable range (e.g., within the next week, month, or year).
+
+      Global Inspiration: Feel free to incorporate proverbs or quotes from various cultures related to coffee divination or human nature. Provide translations to enrich the experience.
+
+      Image Analysis: Integrate the insights gleaned from the three uploaded images into your reading. Let the symbols and visual elements within the photographs resonate with the coffee grounds, adding another layer of interpretation.
+
+      Length Requirements:
+      - General section must be minimum 1200 characters long
+      - General section should be 3-5 paragraphs
+      - Each paragraph should flow naturally into the next
+      - Use poetic and mystical language
+      - Include specific details from the coffee grounds
+      - Focus on the user's selected topics and interests
+      - Incorporate cultural quotes and proverbs
+      - Make precise predictions with timeframes
+
+      Remember: Don't give moral advices, Maintain a professional yet warm and inviting tone, Combine the information from the coffee grounds with the visual cues from the images, Provide specific predictions with reasonable timeframes, Infuse your readings with cultural proverbs for added depth.
+
+      Use this examples for train yourself: $examples, answer should be similar.
+
       Kullanıcı Bilgileri:
       - İsim: ${userInfo['name']}
       - Doğum Tarihi: ${userInfo['birthDate']}
       - İlişki Durumu: ${userInfo['relationship']}
       - İlgilendiği Konular: ${userInfo['topics'].join(', ')}
-
-      Kahve fincanının fotoğraflarını inceleyerek detaylı bir yorum yap.
-      - Sezgilerine ve fal bakma yeteneklerine güvenerek en iyi şekilde yardımcı ol
-      - Yorumlarına sezgilerini ve hayal gücünü katmaktan çekinme
-      - Şiirsel ve sanatsal bir dil kullan
-      - Metaforlar, semboller ve alegoriler kullanabilirsin
-      - Kesin tahminler yap ve gelecek için net öngörülerde bulun
-      - Zaman gerektiren sorular için net zaman aralıkları ver
-      - Her cevapta, soru soranın daha fazla soru sormak istemesini sağla
-      - Her bölüm en az 500, en fazla 1000 karakter olmalı
-      - Her bölüm en fazla 3 paragraf olmalı
+      - Mevcut Tarih: ${DateTime.now().toIso8601String()}
 
       Yorumunu aşağıdaki formatta JSON olarak döndür:
 
       {
-        "general": "Genel yorum ve gözlemler",
-        "love": {
-          "current": "Mevcut durum yorumu",
-          "future": "Gelecek öngörüsü",
-          "advice": "Tavsiyeler"
-        },
-        "career": {
-          "current": "Mevcut durum yorumu",
-          "future": "Gelecek öngörüsü",
-          "advice": "Tavsiyeler"
-        },
-        "health": {
-          "current": "Mevcut durum yorumu",
-          "future": "Gelecek öngörüsü",
-          "advice": "Tavsiyeler"
-        },
+        "general": "Genel yorum ve gözlemler - kullanıcının seçtiği konulara odaklanarak (minimum 1500 karakter, 3-5 paragraf arası, şiirsel ve mistik bir dil kullanarak, kültürel alıntılar ve atasözleri içerecek şekilde, net zaman aralıkları ile, kullanıcı bilgilerini de kullanarak, gerçek bir falcının ağzından, profesyonel bir şekilde)",
         "symbols": [
           {
             "name": "Görülen sembol adı",
-            "meaning": "Sembolün anlamı ve yorumu",
+            "meaning": "Sembolün anlamı ve kullanıcının seçtiği konularla ilişkisi (çok kısa - maksimum 200 karakter)",
             "location": "Fincandaki konumu",
             "quote": "Sembolle ilgili farklı dillerden bir alıntı ve çevirisi"
           }
         ],
         "timing": {
-          "short_term": "Kısa vadeli öngörüler (1-3 ay)",
-          "mid_term": "Orta vadeli öngörüler (3-6 ay)",
-          "long_term": "Uzun vadeli öngörüler (6+ ay)"
+          "short_term": "Yakın geleceğinizde (1-3 ay içinde) gerçekleşecek olayları, fincanınızdaki sembollerin konumlarına ve enerjilerine göre detaylı bir şekilde açıklayın. Her bir öngörü için net tarihler ve olaylar belirtin. Örneğin: '6 hafta içinde önemli bir iş fırsatı' gibi.",
+          "mid_term": "Orta vadede (3-6 ay içinde) karşınıza çıkacak fırsatları ve zorlukları, kahve tellerinin oluşturduğu desenlere dayanarak yorumlayın. Her öngörü için ay bazında net zaman dilimleri verin. Örneğin: '4. ayın sonunda bir seyahat' gibi.",
+          "long_term": "Uzun vadeli geleceğinizi (6+ ay) fincanın en derin noktalarında ve kenarlarında oluşan şekillere göre analiz edin. Her öngörü için sezon veya ay olarak net dönemler belirtin. Örneğin: 'Gelecek kış aylarında kariyer değişimi' gibi."
         }
       }
+
+      Answer in $_currentLanguage.
       ''';
 
       contents.insert(0, Content.text(prompt));
@@ -1238,14 +1245,28 @@ Important: Write the response in $_currentLanguage
       String cleanedResponse = _cleanJsonResponse(response.text!);
 
       try {
-        return json.decode(cleanedResponse) as Map<String, dynamic>;
+        final Map<String, dynamic> parsedJson = json.decode(cleanedResponse);
+
+        // JSON formatını kontrol et
+        if (!parsedJson.containsKey('general') ||
+            !parsedJson.containsKey('love') ||
+            !parsedJson.containsKey('symbols') ||
+            !parsedJson.containsKey('timing')) {
+          print('JSON format hatası: Eksik alanlar var');
+        }
+
+        // General alanının uzunluğunu kontrol et
+        final generalText = parsedJson['general'] as String;
+        if (generalText.length < 1200) {
+          print('General metin çok kısa: ${generalText.length} karakter');
+        }
+
+        return parsedJson;
       } catch (e) {
         print('JSON parse error: $e');
         return {
           'general': cleanedResponse,
-          'love': {'current': '', 'future': '', 'advice': ''},
-          'career': {'current': '', 'future': '', 'advice': ''},
-          'health': {'current': '', 'future': '', 'advice': ''},
+          'love': '',
           'symbols': [],
           'timing': {'short_term': '', 'mid_term': '', 'long_term': ''}
         };

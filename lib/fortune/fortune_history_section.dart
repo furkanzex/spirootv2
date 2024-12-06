@@ -4,6 +4,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -263,40 +264,51 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
             Padding(
               padding: const EdgeInsets.all(MySize.defaultPadding),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: MySize.iconSizeMedium,
-                    height: MySize.iconSizeMedium,
-                    padding: const EdgeInsets.all(MySize.quarterPadding),
-                    decoration: BoxDecoration(
-                      color: MyColor.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                    ),
-                    child: ExtendedImage.network(
-                      item.image,
-                      cache: true,
-                      fit: BoxFit.contain,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        width: MySize.iconSizeMedium,
+                        height: MySize.iconSizeMedium,
+                        padding: const EdgeInsets.all(MySize.quarterPadding),
+                        decoration: BoxDecoration(
+                          color: MyColor.primaryColor.withOpacity(0.1),
+                          borderRadius:
+                              BorderRadius.circular(MySize.quarterRadius),
+                        ),
+                        child: ExtendedImage.network(
+                          item.image,
+                          cache: true,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      horizontalGap(MySize.defaultPadding),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            easy.tr("fortune.${item.type}"),
+                            style: MyStyle.s1.copyWith(
+                              color: MyColor.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            item.date,
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.textGreyColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  horizontalGap(MySize.defaultPadding),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          easy.tr("fortune.${item.type}"),
-                          style: MyStyle.s1.copyWith(
-                            color: MyColor.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          item.date,
-                          style: MyStyle.s3.copyWith(
-                            color: MyColor.textGreyColor,
-                          ),
-                        ),
-                      ],
+                  IconButton(
+                    onPressed: () => _shareFortune(context, item),
+                    icon: Icon(
+                      MingCute.share_2_line,
+                      color: MyColor.primaryPurpleColor,
                     ),
                   ),
                 ],
@@ -313,6 +325,60 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
       ),
     ),
   );
+}
+
+void _shareFortune(BuildContext context, FortuneHistoryItem item) async {
+  try {
+    String shareText = '';
+
+    final content = item.content as Map<String, dynamic>;
+
+    // Fal tipine göre paylaşım metni oluştur
+    if (item.type == 'coffee') {
+      shareText = '''
+🔮 Kahve Falı
+📅 ${item.date}
+
+${content['general']}
+
+⏰ Zamanlama:
+📅 Kısa Vade (1-3 ay): ${content['timing']['short_term']}
+📅 Orta Vade (3-6 ay): ${content['timing']['mid_term']}
+📅 Uzun Vade (6+ ay): ${content['timing']['long_term']}
+
+🎯 Görülen Semboller:
+${(content['symbols'] as List).map((symbol) => '''
+• ${symbol['name']}
+  ${symbol['meaning']}
+  ${symbol['quote']}
+''').join('\n')}
+
+Spiroot ile falına baktır! 🔮✨
+''';
+    } else {
+      // Diğer fal tipleri için genel bir paylaşım metni
+      shareText = '''
+🔮 ${easy.tr("fortune.${item.type}")}
+📅 ${item.date}
+
+${content['general']}
+
+Spiroot ile falına baktır! 🔮✨
+''';
+    }
+
+    await Share.share(
+      shareText,
+      subject: '${easy.tr("fortune.${item.type}")} - Spiroot',
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Paylaşım sırasında bir hata oluştu'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 }
 
 class FortuneHistoryItem {
@@ -472,118 +538,108 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
   if (item.type == 'coffee') {
     final content = item.content as Map<String, dynamic>;
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(MySize.defaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildFortuneSection('🔮 Genel Yorum', content['general'] ?? ''),
-            const Divider(color: MyColor.primaryPurpleColor, height: 32),
+      padding: const EdgeInsets.all(MySize.defaultPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Genel Yorum
+          _buildFortuneSection(
+            '🔮 Genel Yorum',
+            content['general'] ?? '',
+          ),
+          verticalGap(MySize.doublePadding),
 
-            // Aşk Bölümü
-            _buildExpandableSection(
-              '❤️ Aşk',
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSubSection('Mevcut Durum:', content['love']['current']),
-                  _buildSubSection('Gelecek:', content['love']['future']),
-                  _buildSubSection('Tavsiyeler:', content['love']['advice']),
-                ],
+          // Semboller Bölümü
+          if ((content['symbols'] as List?)?.isNotEmpty ?? false) ...[
+            Text(
+              '🎯 Görülen Semboller',
+              style: MyStyle.s1.copyWith(
+                color: MyColor.primaryPurpleColor,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const Divider(color: MyColor.primaryPurpleColor, height: 32),
-
-            // Kariyer Bölümü
-            _buildExpandableSection(
-              '💼 Kariyer',
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSubSection(
-                      'Mevcut Durum:', content['career']['current']),
-                  _buildSubSection('Gelecek:', content['career']['future']),
-                  _buildSubSection('Tavsiyeler:', content['career']['advice']),
-                ],
-              ),
-            ),
-            const Divider(color: MyColor.primaryPurpleColor, height: 32),
-
-            // Sağlık Bölümü
-            _buildExpandableSection(
-              '🏥 Sağlık',
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSubSection(
-                      'Mevcut Durum:', content['health']['current']),
-                  _buildSubSection('Gelecek:', content['health']['future']),
-                  _buildSubSection('Tavsiyeler:', content['health']['advice']),
-                ],
-              ),
-            ),
-            const Divider(color: MyColor.primaryPurpleColor, height: 32),
-
-            // Semboller Bölümü
-            _buildExpandableSection(
-              '🎯 Semboller',
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var symbol in (content['symbols'] as List))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${symbol['name']}',
-                            style: MyStyle.s2.copyWith(
-                              color: MyColor.primaryPurpleColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Anlamı: ${symbol['meaning']}',
-                            style: MyStyle.s3.copyWith(color: MyColor.white),
-                          ),
-                          Text(
-                            'Konum: ${symbol['location']}',
-                            style: MyStyle.s3.copyWith(color: MyColor.white),
-                          ),
-                          Text(
-                            symbol['quote'],
-                            style: MyStyle.s3.copyWith(
-                              color: MyColor.textGreyColor,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ],
+            verticalGap(MySize.defaultPadding),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: (content['symbols'] as List).length,
+              itemBuilder: (context, index) {
+                final symbol = content['symbols'][index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: MyColor.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        symbol['name'] ?? '',
+                        style: MyStyle.s2.copyWith(
+                          color: MyColor.primaryPurpleColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                ],
-              ),
+                      verticalGap(8),
+                      Text(
+                        'Anlamı: ${symbol['meaning'] ?? ''}',
+                        style: MyStyle.s3.copyWith(color: MyColor.white),
+                      ),
+                      verticalGap(4),
+                      Text(
+                        'Konum: ${symbol['location'] ?? ''}',
+                        style: MyStyle.s3.copyWith(color: MyColor.white),
+                      ),
+                      if (symbol['quote'] != null) ...[
+                        verticalGap(8),
+                        Text(
+                          symbol['quote'],
+                          style: MyStyle.s3.copyWith(
+                            color: MyColor.textGreyColor,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
             ),
-            const Divider(color: MyColor.primaryPurpleColor, height: 32),
-
-            // Zamanlama Bölümü
-            _buildExpandableSection(
-              '⏰ Zamanlama',
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSubSection(
-                      'Kısa Vadede:', content['timing']['short_term']),
-                  _buildSubSection(
-                      'Orta Vadede:', content['timing']['mid_term']),
-                  _buildSubSection(
-                      'Uzun Vadede:', content['timing']['long_term']),
-                ],
-              ),
-            ),
+            verticalGap(MySize.doublePadding),
           ],
-        ),
+
+          // Zamanlama Bölümü
+          Text(
+            '⏰ Zamanlama',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: MyColor.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(MySize.halfRadius),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTimingSection('Kısa Vadede (1-3 ay):',
+                    content['timing']['short_term'] ?? ''),
+                verticalGap(12),
+                _buildTimingSection('Orta Vadede (3-6 ay):',
+                    content['timing']['mid_term'] ?? ''),
+                verticalGap(12),
+                _buildTimingSection('Uzun Vadede (6+ ay):',
+                    content['timing']['long_term'] ?? ''),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -634,79 +690,48 @@ Widget _buildInterpretationSection(String title, String content) {
   );
 }
 
-String _buildSymbolsText(List<dynamic> symbols) {
-  return symbols
-      .map((symbol) => '${symbol['name']}\n'
-          'Anlamı: ${symbol['meaning']}\n'
-          'Konum: ${symbol['location']}\n'
-          '${symbol['quote']}\n')
-      .join('\n');
-}
-
-String _buildTimingText(Map<String, dynamic> timing) {
-  return 'Kısa Vadede: ${timing['short_term']}\n\n'
-      'Orta Vadede: ${timing['mid_term']}\n\n'
-      'Uzun Vadede: ${timing['long_term']}';
-}
-
 Widget _buildFortuneSection(String title, String content) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        title,
-        style: MyStyle.s1.copyWith(
-          color: MyColor.primaryPurpleColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      verticalGap(MySize.halfPadding),
-      Text(
-        content,
-        style: MyStyle.s2.copyWith(color: MyColor.white),
-      ),
-    ],
-  );
-}
-
-Widget _buildSubSection(String title, String content) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 12.0),
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: MyColor.white.withOpacity(0.05),
+      borderRadius: BorderRadius.circular(MySize.halfRadius),
+    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: MyStyle.s2.copyWith(
-            color: MyColor.primaryLightColor,
+          style: MyStyle.s1.copyWith(
+            color: MyColor.primaryPurpleColor,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
+        verticalGap(MySize.halfPadding),
         Text(
           content,
-          style: MyStyle.s3.copyWith(color: MyColor.white),
+          style: MyStyle.s2.copyWith(color: MyColor.white),
         ),
       ],
     ),
   );
 }
 
-Widget _buildExpandableSection(String title, Widget content) {
-  return ExpansionTile(
-    title: Text(
-      title,
-      style: MyStyle.s1.copyWith(
-        color: MyColor.primaryPurpleColor,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    collapsedIconColor: MyColor.primaryPurpleColor,
-    iconColor: MyColor.primaryPurpleColor,
+Widget _buildTimingSection(String title, String content) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: content,
+      Text(
+        title,
+        style: MyStyle.s2.copyWith(
+          color: MyColor.primaryLightColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      verticalGap(4),
+      Text(
+        content,
+        style: MyStyle.s3.copyWith(color: MyColor.white),
       ),
     ],
   );
