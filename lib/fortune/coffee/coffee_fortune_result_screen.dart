@@ -6,10 +6,12 @@ import 'package:get/get.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
+import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -127,28 +129,35 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
     return GestureDetector(
       onTap: () => _showTopicPicker(controller),
       child: Container(
-        padding: EdgeInsets.all(MySize.defaultPadding),
+        padding: EdgeInsets.symmetric(
+          horizontal: MySize.defaultPadding,
+          vertical: MySize.threeQuartersPadding,
+        ),
         decoration: BoxDecoration(
-          color: MyColor.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(MySize.halfRadius),
+          color: MyColor.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(MySize.quarterRadius),
         ),
         child: Row(
           children: [
             Text(
               title,
-              style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+              style: MyStyle.s2.copyWith(
+                color: MyColor.textGreyColor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            SizedBox(width: MySize.defaultPadding),
+            SizedBox(width: MySize.threeQuartersPadding),
             Expanded(
               child: Text(
                 controller.text,
-                style: MyStyle.s1.copyWith(
+                style: MyStyle.s2.copyWith(
                   color: MyColor.white,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: MyColor.white, size: 16),
+            Icon(MyIcon.forward,
+                color: MyColor.textGreyColor, size: MySize.iconSizeTiny),
           ],
         ),
       ),
@@ -230,27 +239,43 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
       context: context,
       backgroundColor: MyColor.darkBackgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
       builder: (context) => Container(
         padding: EdgeInsets.all(MySize.defaultPadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: userController.relationshipStatuses.map((status) {
-            return ListTile(
-              title: Text(
-                status,
-                style: MyStyle.s2.copyWith(color: MyColor.white),
+          children: [
+            Text(
+              'İlişki Durumu Seç',
+              style: MyStyle.s1.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.bold,
               ),
-              onTap: () {
-                setState(() {
-                  _relationshipController.text = status;
-                });
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
+            ),
+            SizedBox(height: MySize.defaultPadding),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: userController.relationshipStatuses.map((status) {
+                    return ListTile(
+                      title: Text(
+                        status,
+                        style: MyStyle.s2.copyWith(color: MyColor.white),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _relationshipController.text = status;
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -266,26 +291,23 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.all(MySize.defaultPadding),
+          padding: EdgeInsets.symmetric(vertical: MySize.threeQuartersPadding),
           decoration: BoxDecoration(
             color: isSelected
-                ? MyColor.primaryColor
-                : MyColor.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(MySize.halfRadius),
+                ? MyColor.primaryPurpleColor
+                : MyColor.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(MySize.quarterRadius),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                icon,
-                style: TextStyle(fontSize: 20),
-              ),
-              SizedBox(width: 8),
+              Text(icon, style: TextStyle(fontSize: MySize.defaultPadding)),
+              SizedBox(width: MySize.halfPadding),
               Text(
                 title,
                 style: MyStyle.s2.copyWith(
                   color: MyColor.white,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -303,28 +325,35 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
     VoidCallback? onTap,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
-      decoration: BoxDecoration(
-        color: MyColor.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(MySize.halfRadius),
+      padding: EdgeInsets.symmetric(
+        horizontal: MySize.defaultPadding,
+        vertical: MySize.threeQuartersPadding,
       ),
-      child: TextField(
+      decoration: BoxDecoration(
+        color: MyColor.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(MySize.quarterRadius),
+      ),
+      child: CupertinoTextField(
         controller: controller,
         readOnly: readOnly,
-        onTap: () {
-          if (label == 'Doğum Günü' && !_isForSelf) {
-            _showDatePicker();
-          } else if (label == 'İlişki Durumu' && !_isForSelf) {
-            _showRelationshipPicker();
-          }
-        },
-        style: MyStyle.s1.copyWith(color: MyColor.white),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          icon: Icon(icon, color: MyColor.white),
-          labelText: label,
-          labelStyle:
-              MyStyle.s2.copyWith(color: MyColor.white.withOpacity(0.7)),
+        onTap: readOnly && !_isForSelf ? onTap : null,
+        style: MyStyle.s2.copyWith(
+          color: MyColor.white,
+          fontWeight: FontWeight.w500,
+        ),
+        prefix: Padding(
+          padding: EdgeInsets.only(left: MySize.halfPadding),
+          child: Icon(icon,
+              color: MyColor.textGreyColor, size: MySize.iconSizeTiny),
+        ),
+        placeholder: label,
+        placeholderStyle: MyStyle.s2.copyWith(
+          color: MyColor.textGreyColor,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(MySize.quarterRadius),
         ),
       ),
     );
@@ -423,88 +452,87 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
         ),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
           title: Text(
             'Kahve Falı',
             style: MyStyle.s1.copyWith(
               color: MyColor.white,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
             ),
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
+            icon: Icon(MyIcon.back,
+                color: MyColor.white, size: MySize.iconSizeSmall),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.all(MySize.defaultPadding),
+          padding: EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Fotoğraflar Bölümü
+              SizedBox(
+                height: MySize.cardHeight,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: widget.images.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: MySize.cardWidth * 0.6,
+                      margin: EdgeInsets.only(
+                        right: index != widget.images.length - 1
+                            ? MySize.threeQuartersPadding
+                            : 0,
+                        bottom: MySize.defaultPadding,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(MySize.halfRadius),
+                        color: MyColor.white.withOpacity(0.05),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(MySize.halfRadius),
+                        child: Image.file(
+                          widget.images[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: MySize.sixQuartersPadding),
+
+              // Merak Edilen Konular
               Text(
-                'Merak ettiğin konular?',
+                'Merak ettiğin konular',
                 style: MyStyle.s1.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
+                  color: MyColor.textGreyColor,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: MySize.defaultPadding),
-              Container(
-                padding: EdgeInsets.all(MySize.defaultPadding),
-                decoration: BoxDecoration(
-                  color: MyColor.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(MySize.halfRadius),
+              _buildTopicItem('1. Konu', _topic1Controller),
+              SizedBox(height: MySize.threeQuartersPadding),
+              _buildTopicItem('2. Konu', _topic2Controller),
+              SizedBox(height: MySize.doublePadding),
+
+              // Kimin İçin Bölümü
+              if (_hasProfile) ...[
+                Text(
+                  'Kimin İçin?',
+                  style: MyStyle.s1.copyWith(
+                    color: MyColor.textGreyColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    _buildTopicItem('1. Konu', _topic1Controller),
-                    SizedBox(height: MySize.halfPadding),
-                    _buildTopicItem('2. Konu', _topic2Controller),
-                  ],
-                ),
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              Text(
-                'Fotoğraflar',
-                style: MyStyle.s1.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: MySize.halfPadding,
-                  mainAxisSpacing: MySize.halfPadding,
-                ),
-                itemCount: widget.images.length,
-                itemBuilder: (context, index) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(MySize.halfRadius),
-                    child: Image.file(
-                      widget.images[index],
-                      fit: BoxFit.cover,
-                    ),
-                  );
-                },
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              Text(
-                'Kimin İçin?',
-                style: MyStyle.s1.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: MySize.defaultPadding),
-              if (_hasProfile)
+                SizedBox(height: MySize.defaultPadding),
                 Row(
                   children: [
                     _buildSelectionButton(
                       title: 'Kendim İçin',
-                      icon: '👍',
+                      icon: '👤',
                       isSelected: _isForSelf,
                       onTap: () {
                         setState(() {
@@ -513,10 +541,10 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                         });
                       },
                     ),
-                    SizedBox(width: MySize.defaultPadding),
+                    SizedBox(width: MySize.threeQuartersPadding),
                     _buildSelectionButton(
                       title: 'Başkası İçin',
-                      icon: '👉',
+                      icon: '👥',
                       isSelected: !_isForSelf,
                       onTap: () {
                         setState(() {
@@ -529,73 +557,51 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                     ),
                   ],
                 ),
-              SizedBox(height: MySize.defaultPadding),
+                SizedBox(height: MySize.doublePadding),
+              ],
+
+              // Kişisel Bilgiler Bölümü
               _buildTextField(
                 readOnly: _isForSelf,
                 controller: _nameController,
                 label: 'İsim',
-                icon: Icons.person,
+                icon: CupertinoIcons.person,
               ),
               SizedBox(height: MySize.defaultPadding),
               _buildTextField(
                 controller: _birthDateController,
                 label: 'Doğum Günü',
-                icon: Icons.calendar_today,
+                icon: CupertinoIcons.calendar,
                 readOnly: true,
-                onTap: () async {
-                  if (!_isForSelf) {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                    );
-                    if (date != null) {
-                      _birthDateController.text =
-                          DateFormat('d MMM yyyy', 'tr_TR').format(date);
-                    }
-                  }
-                },
+                onTap: _showDatePicker,
               ),
               SizedBox(height: MySize.defaultPadding),
               _buildTextField(
                 controller: _relationshipController,
                 label: 'İlişki Durumu',
-                icon: Icons.favorite,
+                icon: CupertinoIcons.heart,
                 readOnly: true,
-                onTap: () {
-                  if (!_isForSelf) {
-                    _showRelationshipPicker();
-                  }
-                },
+                onTap: _showRelationshipPicker,
               ),
-              SizedBox(height: MySize.defaultPadding * 2),
-              SizedBox(
+              SizedBox(height: MySize.doublePadding),
+
+              // Gönder Butonu
+              Container(
                 width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: MyColor.primaryColor,
-                    padding:
-                        EdgeInsets.symmetric(vertical: MySize.defaultPadding),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(MySize.halfRadius),
-                    ),
-                  ),
+                height: MySize.iconSizeMedium + MySize.quarterPadding,
+                margin: EdgeInsets.only(bottom: MySize.defaultPadding),
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  color: MyColor.primaryPurpleColor,
+                  borderRadius: BorderRadius.circular(MySize.quarterRadius),
                   onPressed: _isInterpreting ? null : _sendFortune,
                   child: _isInterpreting
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            color: MyColor.white,
-                            strokeWidth: 2,
-                          ),
-                        )
+                      ? CupertinoActivityIndicator(color: MyColor.white)
                       : Text(
                           'Gönder',
                           style: MyStyle.s1.copyWith(
                             color: MyColor.white,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                 ),
