@@ -340,7 +340,7 @@ void _shareFortune(BuildContext context, FortuneHistoryItem item) async {
 
     ${content['general']}
 
-    ⏰ Zamanlama:
+    ⏰ Kehanet:
     📅 Kısa Vade (1-3 ay): ${content['timing']['short_term']}
     📅 Orta Vade (3-6 ay): ${content['timing']['mid_term']}
     📅 Uzun Vade (6+ ay): ${content['timing']['long_term']}
@@ -671,32 +671,25 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
 
           // Zamanlama Bölümü
           Text(
-            '⏰ Zamanlama',
+            '⏰ Kehanet',
             style: MyStyle.s1.copyWith(
               color: MyColor.primaryPurpleColor,
               fontWeight: FontWeight.bold,
             ),
           ),
           verticalGap(MySize.defaultPadding),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: MyColor.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(MySize.halfRadius),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTimingSection('Kısa Vadede (1-3 ay):',
-                    content['timing']['short_term'] ?? ''),
-                verticalGap(12),
-                _buildTimingSection('Orta Vadede (3-6 ay):',
-                    content['timing']['mid_term'] ?? ''),
-                verticalGap(12),
-                _buildTimingSection('Uzun Vadede (6+ ay):',
-                    content['timing']['long_term'] ?? ''),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTimingSection('Kısa Vadede (1-3 ay):',
+                  content['timing']['short_term'] ?? ''),
+              verticalGap(12),
+              _buildTimingSection(
+                  'Orta Vadede (3-6 ay):', content['timing']['mid_term'] ?? ''),
+              verticalGap(12),
+              _buildTimingSection(
+                  'Uzun Vadede (6+ ay):', content['timing']['long_term'] ?? ''),
+            ],
           ),
         ],
       ),
@@ -750,29 +743,22 @@ Widget _buildInterpretationSection(String title, String content) {
 }
 
 Widget _buildFortuneSection(String title, String content) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: MyColor.white.withOpacity(0.05),
-      borderRadius: BorderRadius.circular(MySize.halfRadius),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: MyStyle.s1.copyWith(
-            color: MyColor.primaryPurpleColor,
-            fontWeight: FontWeight.bold,
-          ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        style: MyStyle.s1.copyWith(
+          color: MyColor.primaryPurpleColor,
+          fontWeight: FontWeight.bold,
         ),
-        verticalGap(MySize.halfPadding),
-        Text(
-          content,
-          style: MyStyle.s2.copyWith(color: MyColor.white),
-        ),
-      ],
-    ),
+      ),
+      verticalGap(MySize.halfPadding),
+      Text(
+        content,
+        style: MyStyle.s2.copyWith(color: MyColor.white),
+      ),
+    ],
   );
 }
 
