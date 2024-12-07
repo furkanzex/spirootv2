@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>spiroot</string>
+	<string>spirootv2</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -27,13 +27,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Kahve falı için fincan fotoğraflarını çekmek üzere kamera erişimine ihtiyacımız var.</string>
+	<string>For coffee fortune telling we need access to a camera to take photos of the cups.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Kahve falı için fincan fotoğraflarını seçmek üzere fotoğraf galerisine erişim izni gerekiyor.</string>
+	<string>Access to photo gallery required to select cup photos for coffee fortune telling.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Çekilen kahve falı fotoğraflarını kaydetmek için erişim gerekiyor</string>
+	<string>Access required to save coffee horoscope photos taken</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Kamera kullanımı için mikrofon erişimi gerekiyor</string>
+	<string>Microphone access required for camera use</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

@@ -25,9 +25,6 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   final ImagePicker _picker = ImagePicker();
   List<CameraDescription> cameras = [];
   int selectedCameraIndex = 0;
-  bool _isCameraInitialized = false;
-  bool _isCameraPermissionGranted = false;
-  bool _isGalleryPermissionGranted = false;
   FlashMode _flashMode = FlashMode.off;
   bool _isRearCameraSelected = true;
 
@@ -35,7 +32,7 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initPermissions();
+    _initializeCamera();
   }
 
   @override
@@ -56,84 +53,8 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
     if (state == AppLifecycleState.inactive) {
       cameraController.dispose();
     } else if (state == AppLifecycleState.resumed) {
-      _initPermissions();
+      _initializeCamera();
     }
-  }
-
-  Future<void> _initPermissions() async {
-    if (!await Permission.camera.isGranted) {
-      final status = await Permission.camera.request();
-      setState(() => _isCameraPermissionGranted = status.isGranted);
-
-      if (!status.isGranted) {
-        _showPermissionDialog('Kamera');
-        return;
-      }
-    } else {
-      setState(() => _isCameraPermissionGranted = true);
-    }
-
-    if (!await Permission.photos.isGranted) {
-      final status = await Permission.photos.request();
-      setState(() => _isGalleryPermissionGranted = status.isGranted);
-
-      if (!status.isGranted) {
-        _showPermissionDialog('Fotoğraf');
-        return;
-      }
-    } else {
-      setState(() => _isGalleryPermissionGranted = true);
-    }
-
-    if (_isCameraPermissionGranted && _isGalleryPermissionGranted) {
-      await _initializeCamera();
-    }
-  }
-
-  void _showPermissionDialog(String permissionType) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => CupertinoAlertDialog(
-        title: Text('$permissionType İzni Gerekli'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: MySize.halfPadding),
-            Text(
-              'Kahve falı için $permissionType iznine ihtiyacımız var.',
-              style: MyStyle.s3,
-            ),
-            SizedBox(height: MySize.halfPadding),
-            Text(
-              'Lütfen Ayarlar > Spiroot > $permissionType iznini açın.',
-              style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
-            ),
-          ],
-        ),
-        actions: [
-          CupertinoDialogAction(
-            child: Text('İptal'),
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            child: Text('Ayarlara Git'),
-            onPressed: () async {
-              Navigator.pop(context);
-              if (await openAppSettings()) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _initPermissions();
-                });
-              }
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _initializeCamera() async {
@@ -152,9 +73,7 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
         }
       }
 
-      if (selectedCamera == null) {
-        selectedCamera = cameras.first;
-      }
+      selectedCamera ??= cameras.first;
 
       await _initializeCameraController(selectedCamera);
     } catch (e) {
@@ -181,9 +100,7 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
       await cameraController.setFlashMode(_flashMode);
 
       if (mounted) {
-        setState(() {
-          _isCameraInitialized = true;
-        });
+        setState(() {});
       }
     } catch (e) {
       _showError('Kamera başlatılamadı: $e');
@@ -204,15 +121,6 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   }
 
   Future<void> _takePicture() async {
-    if (!_isCameraPermissionGranted) {
-      final status = await Permission.camera.request();
-      if (!status.isGranted) {
-        _showPermissionDialog('Kamera');
-        return;
-      }
-      setState(() => _isCameraPermissionGranted = true);
-    }
-
     final CameraController? cameraController = _controller;
 
     if (cameraController == null || !cameraController.value.isInitialized) {
@@ -241,15 +149,6 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   }
 
   Future<void> _pickImage() async {
-    if (!_isGalleryPermissionGranted) {
-      final status = await Permission.photos.request();
-      if (!status.isGranted) {
-        _showPermissionDialog('Fotoğraf');
-        return;
-      }
-      setState(() => _isGalleryPermissionGranted = true);
-    }
-
     try {
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.gallery,

@@ -19,23 +19,45 @@ import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 
 Future<void> _initializePermissions() async {
-  //Kamera ve galeri izinlerini iste
+  // Önce izinleri iste, bu işlem izinlerin ayarlarda görünmesini sağlayacak
   Map<Permission, PermissionStatus> statuses = await [
     Permission.camera,
     Permission.photos,
     Permission.storage,
+    Permission.microphone,
   ].request();
 
-  // İzinlerin durumunu kontrol et
+  // İzinlerin durumunu logla
   statuses.forEach((permission, status) {
     print('$permission: $status');
   });
+
+  // Herhangi bir izin reddedilmişse veya kalıcı olarak reddedilmişse
+  bool needsPermissions = statuses.values.any(
+    (status) => status.isDenied || status.isPermanentlyDenied,
+  );
+
+  if (needsPermissions) {
+    // Önce izinleri tekrar iste
+    statuses = await [
+      Permission.camera,
+      Permission.photos,
+      Permission.storage,
+      Permission.microphone,
+    ].request();
+
+    // Hala reddedilen izinler varsa ayarlara yönlendir
+    if (statuses.values
+        .any((status) => status.isDenied || status.isPermanentlyDenied)) {
+      await openAppSettings();
+    }
+  }
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Uygulama başlarken izinleri al
+  // İzinleri ZORLA iste!
   await _initializePermissions();
 
   await GetStorage.init();
