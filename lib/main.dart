@@ -16,9 +16,28 @@ import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sweph/sweph.dart';
 import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
+
+Future<void> _initializePermissions() async {
+  //Kamera ve galeri izinlerini iste
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.camera,
+    Permission.photos,
+    Permission.storage,
+  ].request();
+
+  // İzinlerin durumunu kontrol et
+  statuses.forEach((permission, status) {
+    print('$permission: $status');
+  });
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Uygulama başlarken izinleri al
+  await _initializePermissions();
+
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();
 

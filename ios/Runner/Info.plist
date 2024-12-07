@@ -8,8 +8,6 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Spiroot</string>
-	<key>CFBundleDocumentTypes</key>
-	<array/>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>spirootv2</string>
+	<string>spiroot</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -26,23 +24,16 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<!-- Google Sign-in Section -->
-	<key>GIDClientID</key>
-	<string>121839034936-u5fsali0um0kgheihgpm1qh292pi2k05.apps.googleusercontent.com</string><!-- CLIENT_ID -->
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.121839034936-u5fsali0um0kgheihgpm1qh292pi2k05</string><!-- REVERSED_CLIENT_ID -->
-			</array>
-		</dict>
-	</array>
-	<!-- Google Sign-in Section -->
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Kahve falı için fincan fotoğraflarını çekmek üzere kamera erişimine ihtiyacımız var.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kahve falı için fincan fotoğraflarını seçmek üzere fotoğraf galerisine erişim izni gerekiyor.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Çekilen kahve falı fotoğraflarını kaydetmek için erişim gerekiyor</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Kamera kullanımı için mikrofon erişimi gerekiyor</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -52,37 +43,14 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- Dosya sistemi izinleri -->
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
-	<key>NSDocumentsFolderUsageDescription</key>
-	<string>Astrolojik hesaplamalar için gerekli dosyaları saklamak için izin gerekiyor.</string>
-	<key>NSApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
-	<key>UIFileSharingEnabled</key>
-	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>Kahve falı için fotoğraf çekmek üzere kamera erişimi gerekiyor</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Sohbette ses paylaşımı yapabilmek için mikrofon erişimi gerekiyor</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Kahve falı için galeriden fotoğraf seçmek üzere erişim gerekiyor</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Çekilen kahve falı fotoğraflarını kaydetmek için erişim gerekiyor</string>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 </dict>
 </plist>
+

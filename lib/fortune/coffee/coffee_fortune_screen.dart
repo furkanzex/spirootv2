@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:spirootv2/core/constant/my_color.dart';
-import 'package:spirootv2/fortune/coffee/coffee_fortune_result_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
+import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:spirootv2/core/constant/my_size.dart';
+import 'package:spirootv2/fortune/coffee/coffee_fortune_result_screen.dart';
 
 class CoffeeFortuneScreen extends StatefulWidget {
   const CoffeeFortuneScreen({super.key});
@@ -14,247 +17,301 @@ class CoffeeFortuneScreen extends StatefulWidget {
   State<CoffeeFortuneScreen> createState() => _CoffeeFortuneScreenState();
 }
 
-class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen> {
+class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
+    with WidgetsBindingObserver {
   CameraController? _controller;
-  Future<void> _initializeControllerFuture = Future.value();
   List<File> capturedImages = [];
   int currentImageIndex = 0;
   final ImagePicker _picker = ImagePicker();
   List<CameraDescription> cameras = [];
   int selectedCameraIndex = 0;
+  bool _isCameraInitialized = false;
+  bool _isCameraPermissionGranted = false;
+  bool _isGalleryPermissionGranted = false;
+  FlashMode _flashMode = FlashMode.off;
+  bool _isRearCameraSelected = true;
 
   @override
   void initState() {
     super.initState();
-    _checkPermissions();
+    WidgetsBinding.instance.addObserver(this);
+    _initPermissions();
   }
 
-  Future<void> _checkPermissions() async {
-    final cameraStatus = await Permission.camera.status;
-    final mediaStatus = await Permission.mediaLibrary.status;
-    final photosStatus = await Permission.photos.status;
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _controller?.dispose();
+    super.dispose();
+  }
 
-    if (!cameraStatus.isGranted ||
-        (!mediaStatus.isGranted && !photosStatus.isGranted)) {
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          backgroundColor: MyColor.darkBackgroundColor,
-          title: Text(
-            'İzin Gerekli',
-            style: TextStyle(color: MyColor.white),
-          ),
-          content: Text(
-            'Kahve falı için kamera ve galeri izinleri gerekiyor.',
-            style: TextStyle(color: MyColor.white),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await _requestPermissions();
-              },
-              child: Text(
-                'İzin Ver',
-                style: TextStyle(color: MyColor.primaryColor),
-              ),
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? cameraController = _controller;
+
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      cameraController.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      _initPermissions();
+    }
+  }
+
+  Future<void> _initPermissions() async {
+    if (!await Permission.camera.isGranted) {
+      final status = await Permission.camera.request();
+      setState(() => _isCameraPermissionGranted = status.isGranted);
+
+      if (!status.isGranted) {
+        _showPermissionDialog('Kamera');
+        return;
+      }
+    } else {
+      setState(() => _isCameraPermissionGranted = true);
+    }
+
+    if (!await Permission.photos.isGranted) {
+      final status = await Permission.photos.request();
+      setState(() => _isGalleryPermissionGranted = status.isGranted);
+
+      if (!status.isGranted) {
+        _showPermissionDialog('Fotoğraf');
+        return;
+      }
+    } else {
+      setState(() => _isGalleryPermissionGranted = true);
+    }
+
+    if (_isCameraPermissionGranted && _isGalleryPermissionGranted) {
+      await _initializeCamera();
+    }
+  }
+
+  void _showPermissionDialog(String permissionType) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text('$permissionType İzni Gerekli'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: MySize.halfPadding),
+            Text(
+              'Kahve falı için $permissionType iznine ihtiyacımız var.',
+              style: MyStyle.s3,
+            ),
+            SizedBox(height: MySize.halfPadding),
+            Text(
+              'Lütfen Ayarlar > Spiroot > $permissionType iznini açın.',
+              style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
             ),
           ],
         ),
-      );
-    } else {
-      _initializeCamera();
-    }
-  }
-
-  Future<void> _requestPermissions() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.camera,
-      Permission.mediaLibrary,
-      Permission.photos,
-    ].request();
-
-    bool allGranted = true;
-    statuses.forEach((permission, status) {
-      if (!status.isGranted) allGranted = false;
-    });
-
-    if (allGranted) {
-      _initializeCamera();
-    } else {
-      Get.snackbar(
-        'İzin Reddedildi',
-        'Ayarlardan izinleri etkinleştirmeniz gerekiyor',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: Duration(seconds: 3),
-        mainButton: TextButton(
-          onPressed: () => openAppSettings(),
-          child: Text(
-            'AYARLAR',
-            style: TextStyle(color: Colors.white),
+        actions: [
+          CupertinoDialogAction(
+            child: Text('İptal'),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
           ),
-        ),
-      );
-    }
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: Text('Ayarlara Git'),
+            onPressed: () async {
+              Navigator.pop(context);
+              if (await openAppSettings()) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _initPermissions();
+                });
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _initializeCamera() async {
     try {
       cameras = await availableCameras();
       if (cameras.isEmpty) {
-        print('Kamera bulunamadı');
+        _showError('Kamera bulunamadı');
         return;
       }
 
-      await _initCameraController(cameras[selectedCameraIndex]);
+      CameraDescription? selectedCamera;
+      for (var camera in cameras) {
+        if (camera.lensDirection == CameraLensDirection.back) {
+          selectedCamera = camera;
+          break;
+        }
+      }
+
+      if (selectedCamera == null) {
+        selectedCamera = cameras.first;
+      }
+
+      await _initializeCameraController(selectedCamera);
     } catch (e) {
-      print('Kamera başlatma hatası: $e');
+      _showError('Kamera başlatılamadı: $e');
     }
   }
 
-  Future<void> _initCameraController(CameraDescription camera) async {
+  Future<void> _initializeCameraController(CameraDescription camera) async {
     if (_controller != null) {
       await _controller!.dispose();
     }
 
-    _controller = CameraController(
+    final CameraController cameraController = CameraController(
       camera,
-      ResolutionPreset.medium,
+      ResolutionPreset.max,
+      enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.jpeg,
     );
 
-    _initializeControllerFuture = _controller!.initialize();
-    if (mounted) {
-      setState(() {});
-    }
-  }
+    _controller = cameraController;
 
-  Future<void> _switchCamera() async {
-    selectedCameraIndex = selectedCameraIndex == 0 ? 1 : 0;
-    await _initCameraController(cameras[selectedCameraIndex]);
-  }
-
-  Future<void> _pickImage() async {
     try {
-      final mediaStatus = await Permission.mediaLibrary.status;
-      final photosStatus = await Permission.photos.status;
+      await cameraController.initialize();
+      await cameraController.setFlashMode(_flashMode);
 
-      if (!mediaStatus.isGranted && !photosStatus.isGranted) {
-        final result = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: MyColor.darkBackgroundColor,
-            title: Text(
-              'İzin Gerekli',
-              style: TextStyle(color: MyColor.white),
-            ),
-            content: Text(
-              'Galeri erişimi için izin gerekiyor.',
-              style: TextStyle(color: MyColor.white),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(
-                  'İPTAL',
-                  style: TextStyle(color: MyColor.white),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: Text(
-                  'İZİN VER',
-                  style: TextStyle(color: MyColor.primaryColor),
-                ),
-              ),
-            ],
-          ),
-        );
-
-        if (result == true) {
-          if (await Permission.mediaLibrary.request().isGranted ||
-              await Permission.photos.request().isGranted) {
-            _pickImageFromGallery();
-          } else {
-            Get.snackbar(
-              'İzin Reddedildi',
-              'Ayarlardan galeri iznini etkinleştirmeniz gerekiyor',
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-              duration: Duration(seconds: 3),
-              mainButton: TextButton(
-                onPressed: () => openAppSettings(),
-                child: Text(
-                  'AYARLAR',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            );
-          }
-        }
-      } else {
-        _pickImageFromGallery();
+      if (mounted) {
+        setState(() {
+          _isCameraInitialized = true;
+        });
       }
     } catch (e) {
-      print('Galeri hatası: $e');
-      Get.snackbar(
-        'Hata',
-        'Galeri açılırken bir hata oluştu',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      _showError('Kamera başlatılamadı: $e');
     }
   }
 
-  Future<void> _pickImageFromGallery() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null && currentImageIndex < 4) {
-      setState(() {
-        capturedImages.add(File(image.path));
-        currentImageIndex++;
-      });
+  void _showError(String message) {
+    if (!mounted) return;
 
-      if (currentImageIndex >= 4) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => CoffeeFortuneResultScreen(
-              images: capturedImages,
-            ),
-          ),
-        );
-      }
-    }
+    Get.snackbar(
+      'Hata',
+      message,
+      backgroundColor: MyColor.errorColor,
+      colorText: MyColor.white,
+      duration: Duration(seconds: 3),
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   Future<void> _takePicture() async {
-    if (_controller == null) return;
+    if (!_isCameraPermissionGranted) {
+      final status = await Permission.camera.request();
+      if (!status.isGranted) {
+        _showPermissionDialog('Kamera');
+        return;
+      }
+      setState(() => _isCameraPermissionGranted = true);
+    }
+
+    final CameraController? cameraController = _controller;
+
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      _showError('Kamera hazır değil');
+      return;
+    }
+
+    if (cameraController.value.isTakingPicture) {
+      return;
+    }
+
     try {
-      await _initializeControllerFuture;
-      final image = await _controller!.takePicture();
+      final XFile photo = await cameraController.takePicture();
+
       setState(() {
-        capturedImages.add(File(image.path));
+        capturedImages.add(File(photo.path));
         currentImageIndex++;
       });
 
       if (currentImageIndex >= 4) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => CoffeeFortuneResultScreen(
-              images: capturedImages,
-            ),
-          ),
-        );
+        _navigateToResult();
       }
     } catch (e) {
-      print(e);
+      _showError('Fotoğraf çekilemedi: $e');
     }
   }
 
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
+  Future<void> _pickImage() async {
+    if (!_isGalleryPermissionGranted) {
+      final status = await Permission.photos.request();
+      if (!status.isGranted) {
+        _showPermissionDialog('Fotoğraf');
+        return;
+      }
+      setState(() => _isGalleryPermissionGranted = true);
+    }
+
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 100,
+      );
+
+      if (photo != null && currentImageIndex < 4) {
+        setState(() {
+          capturedImages.add(File(photo.path));
+          currentImageIndex++;
+        });
+
+        if (currentImageIndex >= 4) {
+          _navigateToResult();
+        }
+      }
+    } catch (e) {
+      _showError('Fotoğraf seçilemedi: $e');
+    }
+  }
+
+  void _navigateToResult() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => CoffeeFortuneResultScreen(
+          images: capturedImages,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _switchCamera() async {
+    if (cameras.length < 2) return;
+
+    setState(() {
+      _isRearCameraSelected = !_isRearCameraSelected;
+    });
+
+    final newCamera = _isRearCameraSelected
+        ? cameras.firstWhere(
+            (camera) => camera.lensDirection == CameraLensDirection.back,
+            orElse: () => cameras.first)
+        : cameras.firstWhere(
+            (camera) => camera.lensDirection == CameraLensDirection.front,
+            orElse: () => cameras.last);
+
+    await _initializeCameraController(newCamera);
+  }
+
+  Future<void> _toggleFlash() async {
+    if (_controller == null) return;
+
+    try {
+      final newMode =
+          _flashMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
+      await _controller!.setFlashMode(newMode);
+      setState(() {
+        _flashMode = newMode;
+      });
+    } catch (e) {
+      _showError('Flaş değiştirilemedi');
+    }
   }
 
   @override
@@ -264,82 +321,79 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Kamera Önizleme
             if (_controller != null && _controller!.value.isInitialized)
-              Transform.scale(
-                scale: 1.0,
-                child: Center(
-                  child: AspectRatio(
-                    aspectRatio: _controller!.value.aspectRatio,
-                    child: CameraPreview(_controller!),
-                  ),
-                ),
+              Center(
+                child: CameraPreview(_controller!),
               ),
-
-            // Üst Bar
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(
+                  horizontal: MySize.defaultPadding,
+                  vertical: MySize.halfPadding,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Geri Butonu
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.arrow_back_ios,
-                              color: MyColor.primaryPurpleColor),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        Text(
-                          'Anasayfa',
-                          style: TextStyle(
-                            color: MyColor.primaryPurpleColor,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
+                    IconButton(
+                      icon: Icon(CupertinoIcons.back,
+                          color: MyColor.white, size: MySize.iconSizeSmall),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _flashMode == FlashMode.off
+                            ? CupertinoIcons.bolt_slash_fill
+                            : CupertinoIcons.bolt_fill,
+                        color: MyColor.white,
+                        size: MySize.iconSizeSmall,
+                      ),
+                      onPressed: _toggleFlash,
                     ),
                   ],
                 ),
               ),
             ),
-
-            // Çekilen Fotoğraflar
             Positioned(
-              top: 60,
+              top: MySize.iconSizeBig,
               left: 0,
               right: 0,
               child: Container(
-                height: 80,
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                height: MySize.iconSizeBig + MySize.defaultPadding,
+                padding:
+                    EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(4, (index) {
                     return Container(
-                      width: 80,
-                      height: 80,
+                      width: MySize.iconSizeBig,
+                      height: MySize.iconSizeBig,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius:
+                            BorderRadius.circular(MySize.quarterRadius),
                         border: Border.all(
                           color: index == currentImageIndex
-                              ? MyColor.primaryLightColor
-                              : MyColor.white,
+                              ? MyColor.primaryColor
+                              : MyColor.white.withOpacity(0.3),
                           width: 2,
                         ),
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius:
+                            BorderRadius.circular(MySize.quarterRadius - 2),
                         child: index < capturedImages.length
                             ? Image.file(
                                 capturedImages[index],
                                 fit: BoxFit.cover,
                               )
                             : Container(
-                                color: Colors.black.withOpacity(0.3),
+                                color: MyColor.white.withOpacity(0.1),
+                                child: Icon(
+                                  CupertinoIcons.camera,
+                                  color: MyColor.white.withOpacity(0.3),
+                                ),
                               ),
                       ),
                     );
@@ -347,56 +401,62 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen> {
                 ),
               ),
             ),
-
-            // Alt Bar
             Positioned(
-              bottom: 20,
+              bottom: MySize.defaultPadding,
               left: 0,
               right: 0,
-              child: Column(
-                children: [
-                  // Alt butonlar
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.photo_library,
-                            color: Colors.white, size: 30),
-                        onPressed: _pickImage,
-                      ),
-                      // Çekim butonu
-                      GestureDetector(
-                        onTap: _takePicture,
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: MyColor.primaryColor, width: 3),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(3),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: MyColor.primaryColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.flip_camera_ios,
-                            color: Colors.white, size: 30),
-                        onPressed: cameras.length > 1 ? _switchCamera : null,
-                      ),
-                    ],
-                  ),
-                ],
+              child: Container(
+                padding:
+                    EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildCircleButton(
+                      icon: CupertinoIcons.photo,
+                      onTap: _pickImage,
+                      size: MySize.iconSizeMedium,
+                    ),
+                    _buildCircleButton(
+                      icon: CupertinoIcons.camera_fill,
+                      onTap: _takePicture,
+                      size: MySize.iconSizeBig,
+                      isMain: true,
+                    ),
+                    _buildCircleButton(
+                      icon: CupertinoIcons.switch_camera,
+                      onTap: cameras.length > 1 ? _switchCamera : null,
+                      size: MySize.iconSizeMedium,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCircleButton({
+    required IconData icon,
+    required VoidCallback? onTap,
+    required double size,
+    bool isMain = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isMain ? MyColor.primaryColor : MyColor.white.withOpacity(0.2),
+          border: isMain ? Border.all(color: MyColor.white, width: 3) : null,
+        ),
+        child: Icon(
+          icon,
+          color: MyColor.white,
+          size: isMain ? size * 0.5 : size * 0.4,
         ),
       ),
     );
