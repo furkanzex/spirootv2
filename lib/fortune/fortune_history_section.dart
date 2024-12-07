@@ -330,41 +330,95 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
 void _shareFortune(BuildContext context, FortuneHistoryItem item) async {
   try {
     String shareText = '';
-
     final content = item.content as Map<String, dynamic>;
 
-    // Fal tipine göre paylaşım metni oluştur
-    if (item.type == 'coffee') {
-      shareText = '''
-🔮 Kahve Falı
-📅 ${item.date}
+    switch (item.type) {
+      case 'coffee':
+        shareText = '''
+    🔮 Kahve Falı
+    📅 ${item.date}
 
-${content['general']}
+    ${content['general']}
 
-⏰ Zamanlama:
-📅 Kısa Vade (1-3 ay): ${content['timing']['short_term']}
-📅 Orta Vade (3-6 ay): ${content['timing']['mid_term']}
-📅 Uzun Vade (6+ ay): ${content['timing']['long_term']}
+    ⏰ Zamanlama:
+    📅 Kısa Vade (1-3 ay): ${content['timing']['short_term']}
+    📅 Orta Vade (3-6 ay): ${content['timing']['mid_term']}
+    📅 Uzun Vade (6+ ay): ${content['timing']['long_term']}
 
-🎯 Görülen Semboller:
-${(content['symbols'] as List).map((symbol) => '''
-• ${symbol['name']}
-  ${symbol['meaning']}
-  ${symbol['quote']}
-''').join('\n')}
+    🎯 Görülen Semboller:
+    ${(content['symbols'] as List).map((symbol) => '''
+    • ${symbol['name']}
+      ${symbol['meaning']}
+      ${symbol['quote']}
+    ''').join('\n')}
 
-Spiroot ile falına baktır! 🔮✨
-''';
-    } else {
-      // Diğer fal tipleri için genel bir paylaşım metni
-      shareText = '''
-🔮 ${easy.tr("fortune.${item.type}")}
-📅 ${item.date}
+    Spiroot ile falına baktır! 🔮✨
+    ''';
+        break;
 
-${content['general']}
+      case 'tarot':
+        shareText = '''
+    🎴 Tarot Falı
+    📅 ${item.date}
 
-Spiroot ile falına baktır! 🔮✨
-''';
+    ⏳ Geçmiş:
+    ${content['past']}
+
+    📍 Şimdi:
+    ${content['present']}
+
+    🔮 Gelecek:
+    ${content['future']}
+
+    Spiroot ile falına baktır! 🔮✨
+    ''';
+        break;
+
+      case 'katina':
+        shareText = '''
+    💝 Katina Aşk Falı
+    📅 ${item.date}
+
+    ⏳ Geçmiş:
+    ${content['past']}
+
+    📍 Şimdi:
+    ${content['present']}
+
+    🔮 Gelecek:
+    ${content['future']}
+
+    Spiroot ile falına baktır! 🔮✨
+    ''';
+        break;
+
+      case 'angel':
+        shareText = '''
+    👼 Melek Kartı
+    📅 ${item.date}
+
+    ⏳ Geçmiş:
+    ${content['past']}
+
+    📍 Şimdi:
+    ${content['present']}
+
+    🔮 Gelecek:
+    ${content['future']}
+
+    Spiroot ile falına baktır! 🔮✨
+    ''';
+        break;
+
+      default:
+        shareText = '''
+    🔮 ${easy.tr("fortune.${item.type}")}
+    📅 ${item.date}
+
+    ${content['general'] ?? content['interpretation'] ?? 'Fal yorumu bulunamadı.'}
+
+    Spiroot ile falına baktır! 🔮✨
+    ''';
     }
 
     await Share.share(
@@ -372,10 +426,15 @@ Spiroot ile falına baktır! 🔮✨
       subject: '${easy.tr("fortune.${item.type}")} - Spiroot',
     );
   } catch (e) {
+    print('Paylaşım hatası: $e');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Paylaşım sırasında bir hata oluştu'),
+        content: Text('Paylaşım sırasında bir hata oluştu: ${e.toString()}'),
         backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
     );
   }
