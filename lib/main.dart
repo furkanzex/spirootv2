@@ -16,49 +16,9 @@ import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sweph/sweph.dart';
 import 'dart:io';
-import 'package:permission_handler/permission_handler.dart';
-
-Future<void> _initializePermissions() async {
-  // Önce izinleri iste, bu işlem izinlerin ayarlarda görünmesini sağlayacak
-  Map<Permission, PermissionStatus> statuses = await [
-    Permission.camera,
-    Permission.photos,
-    Permission.storage,
-    Permission.microphone,
-  ].request();
-
-  // İzinlerin durumunu logla
-  statuses.forEach((permission, status) {
-    print('$permission: $status');
-  });
-
-  // Herhangi bir izin reddedilmişse veya kalıcı olarak reddedilmişse
-  bool needsPermissions = statuses.values.any(
-    (status) => status.isDenied || status.isPermanentlyDenied,
-  );
-
-  if (needsPermissions) {
-    // Önce izinleri tekrar iste
-    statuses = await [
-      Permission.camera,
-      Permission.photos,
-      Permission.storage,
-      Permission.microphone,
-    ].request();
-
-    // Hala reddedilen izinler varsa ayarlara yönlendir
-    if (statuses.values
-        .any((status) => status.isDenied || status.isPermanentlyDenied)) {
-      await openAppSettings();
-    }
-  }
-}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // İzinleri ZORLA iste!
-  await _initializePermissions();
 
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();

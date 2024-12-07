@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
-import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/fortune/coffee/coffee_fortune_result_screen.dart';
 
@@ -32,7 +31,7 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initializeCamera();
+    _checkPermissions();
   }
 
   @override
@@ -210,6 +209,30 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
       });
     } catch (e) {
       _showError('Flaş değiştirilemedi');
+    }
+  }
+
+  Future<void> _checkPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.photos,
+    ].request();
+
+    statuses.forEach((permission, status) {
+      print('$permission: $status');
+    });
+
+    bool needsPermissions = statuses.values.any(
+      (status) => status.isDenied || status.isPermanentlyDenied,
+    );
+
+    if (needsPermissions) {
+      await openAppSettings();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } else {
+      _initializeCamera();
     }
   }
 
