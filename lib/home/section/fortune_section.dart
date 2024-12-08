@@ -16,7 +16,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/fortune/tarot/tarot_screen.dart';
 import 'package:spirootv2/home/home_controller.dart';
-import 'package:spirootv2/fortune/coffee/coffee_fortune_screen.dart';
+import 'package:spirootv2/fortune/interpretation/fortune_camera_screen.dart';
 
 Widget fortuneSection(
     {bool isMainPageWidget = false, required BuildContext context}) {
@@ -29,7 +29,9 @@ Widget fortuneSection(
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const CoffeeFortuneScreen(),
+            builder: (context) => const FortuneCameraScreen(
+              fortuneType: FortuneType.coffee,
+            ),
           ),
         );
       },
@@ -47,7 +49,14 @@ Widget fortuneSection(
       title: "El Falı",
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
-        // El falı sayfasına git
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const FortuneCameraScreen(
+              fortuneType: FortuneType.palm,
+            ),
+          ),
+        );
       },
     ),
     FortuneCard(
@@ -63,7 +72,14 @@ Widget fortuneSection(
       title: "Yüz Falı",
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
-        // Yüz falı sayfasına git
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const FortuneCameraScreen(
+              fortuneType: FortuneType.face,
+            ),
+          ),
+        );
       },
     ),
     FortuneCard(

@@ -11,24 +11,27 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
+import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
+import 'package:spirootv2/fortune/interpretation/fortune_camera_screen.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class CoffeeFortuneResultScreen extends StatefulWidget {
+class FortuneResultScreen extends StatefulWidget {
   final List<File> images;
+  final FortuneType fortuneType;
 
-  const CoffeeFortuneResultScreen({
+  const FortuneResultScreen({
     super.key,
     required this.images,
+    required this.fortuneType,
   });
 
   @override
-  State<CoffeeFortuneResultScreen> createState() =>
-      _CoffeeFortuneResultScreenState();
+  State<FortuneResultScreen> createState() => _FortuneResultScreenState();
 }
 
-class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
+class _FortuneResultScreenState extends State<FortuneResultScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _relationshipController = TextEditingController();
@@ -332,28 +335,33 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
         color: MyColor.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(MySize.quarterRadius),
       ),
-      child: CupertinoTextField(
-        controller: controller,
-        readOnly: readOnly,
-        onTap: readOnly && !_isForSelf ? onTap : null,
-        style: MyStyle.s2.copyWith(
-          color: MyColor.white,
-          fontWeight: FontWeight.w500,
-        ),
-        prefix: Padding(
-          padding: EdgeInsets.only(left: MySize.halfPadding),
-          child: Icon(icon,
-              color: MyColor.textGreyColor, size: MySize.iconSizeTiny),
-        ),
-        placeholder: label,
-        placeholderStyle: MyStyle.s2.copyWith(
-          color: MyColor.textGreyColor,
-          fontWeight: FontWeight.w500,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(MySize.quarterRadius),
-        ),
+      child: Row(
+        children: [
+          Icon(icon, color: MyColor.textGreyColor, size: MySize.iconSizeTiny),
+          SizedBox(width: MySize.defaultPadding),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              readOnly: readOnly,
+              onTap: readOnly ? onTap : null,
+              style: MyStyle.s2.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.w500,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: label,
+                hintStyle: MyStyle.s2.copyWith(
+                  color: MyColor.textGreyColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          if (readOnly && onTap != null)
+            Icon(MyIcon.forward,
+                color: MyColor.textGreyColor, size: MySize.iconSizeTiny),
+        ],
       ),
     );
   }
@@ -436,6 +444,28 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
     }
   }
 
+  String get screenTitle {
+    switch (widget.fortuneType) {
+      case FortuneType.coffee:
+        return 'Kahve Falı';
+      case FortuneType.palm:
+        return 'El Falı';
+      case FortuneType.face:
+        return 'Yüz Falı';
+    }
+  }
+
+  String get fortuneTypeText {
+    switch (widget.fortuneType) {
+      case FortuneType.coffee:
+        return 'coffee';
+      case FortuneType.palm:
+        return 'palm';
+      case FortuneType.face:
+        return 'face';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -450,11 +480,12 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
           ],
         ),
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: MyColor.transparent,
+          surfaceTintColor: MyColor.transparent,
           elevation: 0,
           centerTitle: true,
           title: Text(
-            'Kahve Falı',
+            screenTitle,
             style: MyStyle.s1.copyWith(
               color: MyColor.white,
               fontWeight: FontWeight.w600,
@@ -467,7 +498,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
           ),
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
+          padding: EdgeInsets.all(MySize.defaultPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -484,7 +515,6 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                         right: index != widget.images.length - 1
                             ? MySize.threeQuartersPadding
                             : 0,
-                        bottom: MySize.defaultPadding,
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(MySize.halfRadius),
@@ -501,32 +531,32 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                   },
                 ),
               ),
-              SizedBox(height: MySize.sixQuartersPadding),
+              verticalGap(MySize.doublePadding),
 
               // Merak Edilen Konular
               Text(
                 'Merak ettiğin konular',
                 style: MyStyle.s1.copyWith(
-                  color: MyColor.textGreyColor,
+                  color: MyColor.white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: MySize.defaultPadding),
+              verticalGap(MySize.defaultPadding),
               _buildTopicItem('1. Konu', _topic1Controller),
-              SizedBox(height: MySize.threeQuartersPadding),
+              verticalGap(MySize.halfPadding),
               _buildTopicItem('2. Konu', _topic2Controller),
-              SizedBox(height: MySize.doublePadding),
+              verticalGap(MySize.doublePadding),
 
               // Kimin İçin Bölümü
               if (_hasProfile) ...[
                 Text(
                   'Kimin İçin?',
                   style: MyStyle.s1.copyWith(
-                    color: MyColor.textGreyColor,
+                    color: MyColor.white,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: MySize.defaultPadding),
+                verticalGap(MySize.defaultPadding),
                 Row(
                   children: [
                     _buildSelectionButton(
@@ -540,7 +570,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                         });
                       },
                     ),
-                    SizedBox(width: MySize.threeQuartersPadding),
+                    SizedBox(width: MySize.halfPadding),
                     _buildSelectionButton(
                       title: 'Başkası İçin',
                       icon: '👥',
@@ -556,17 +586,16 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: MySize.doublePadding),
+                verticalGap(MySize.doublePadding),
               ],
 
-              // Kişisel Bilgiler Bölümü
               _buildTextField(
                 readOnly: _isForSelf,
                 controller: _nameController,
                 label: 'İsim',
                 icon: CupertinoIcons.person,
               ),
-              SizedBox(height: MySize.defaultPadding),
+              verticalGap(MySize.halfPadding),
               _buildTextField(
                 controller: _birthDateController,
                 label: 'Doğum Günü',
@@ -574,7 +603,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                 readOnly: true,
                 onTap: _showDatePicker,
               ),
-              SizedBox(height: MySize.defaultPadding),
+              verticalGap(MySize.halfPadding),
               _buildTextField(
                 controller: _relationshipController,
                 label: 'İlişki Durumu',
@@ -582,22 +611,27 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                 readOnly: true,
                 onTap: _showRelationshipPicker,
               ),
-              SizedBox(height: MySize.doublePadding),
+              verticalGap(MySize.doublePadding),
 
               // Gönder Butonu
-              Container(
+              SizedBox(
                 width: double.infinity,
                 height: MySize.iconSizeMedium + MySize.quarterPadding,
-                margin: EdgeInsets.only(bottom: MySize.defaultPadding),
-                child: CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  color: MyColor.primaryPurpleColor,
-                  borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                child: ElevatedButton(
                   onPressed: _isInterpreting ? null : _sendFortune,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: MyColor.primaryPurpleColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                    ),
+                  ),
                   child: _isInterpreting
-                      ? CupertinoActivityIndicator(color: MyColor.white)
+                      ? CircularProgressIndicator(
+                          color: MyColor.white,
+                          strokeWidth: 2,
+                        )
                       : Text(
-                          'Gönder',
+                          'Yorumla',
                           style: MyStyle.s1.copyWith(
                             color: MyColor.white,
                             fontWeight: FontWeight.w600,
@@ -605,6 +639,7 @@ class _CoffeeFortuneResultScreenState extends State<CoffeeFortuneResultScreen> {
                         ),
                 ),
               ),
+              verticalGap(MySize.defaultPadding),
             ],
           ),
         ),

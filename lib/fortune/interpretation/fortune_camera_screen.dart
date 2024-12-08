@@ -7,16 +7,23 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
-import 'package:spirootv2/fortune/coffee/coffee_fortune_result_screen.dart';
+import 'package:spirootv2/fortune/interpretation/fortune_result_screen.dart';
 
-class CoffeeFortuneScreen extends StatefulWidget {
-  const CoffeeFortuneScreen({super.key});
+enum FortuneType { coffee, palm, face }
+
+class FortuneCameraScreen extends StatefulWidget {
+  final FortuneType fortuneType;
+
+  const FortuneCameraScreen({
+    super.key,
+    required this.fortuneType,
+  });
 
   @override
-  State<CoffeeFortuneScreen> createState() => _CoffeeFortuneScreenState();
+  State<FortuneCameraScreen> createState() => _FortuneCameraScreenState();
 }
 
-class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
+class _FortuneCameraScreenState extends State<FortuneCameraScreen>
     with WidgetsBindingObserver {
   CameraController? _controller;
   List<File> capturedImages = [];
@@ -26,6 +33,31 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   int selectedCameraIndex = 0;
   FlashMode _flashMode = FlashMode.off;
   bool _isRearCameraSelected = true;
+
+  int get requiredImageCount =>
+      widget.fortuneType == FortuneType.coffee ? 4 : 1;
+
+  String get screenTitle {
+    switch (widget.fortuneType) {
+      case FortuneType.coffee:
+        return 'Kahve Falı';
+      case FortuneType.palm:
+        return 'El Falı';
+      case FortuneType.face:
+        return 'Yüz Falı';
+    }
+  }
+
+  String get instructionText {
+    switch (widget.fortuneType) {
+      case FortuneType.coffee:
+        return 'Fincanınızın 4 farklı açıdan fotoğrafını çekin';
+      case FortuneType.palm:
+        return 'Avuç içinizin net bir fotoğrafını çekin';
+      case FortuneType.face:
+        return 'Yüzünüzün net bir fotoğrafını çekin';
+    }
+  }
 
   @override
   void initState() {
@@ -37,20 +69,26 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _controller?.dispose();
+    _disposeCamera();
     super.dispose();
+  }
+
+  Future<void> _disposeCamera() async {
+    if (_controller != null) {
+      await _controller!.dispose();
+      _controller = null;
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final CameraController? cameraController = _controller;
-
-    if (cameraController == null || !cameraController.value.isInitialized) {
+    if (_controller == null || !_controller!.value.isInitialized) {
       return;
     }
 
-    if (state == AppLifecycleState.inactive) {
-      cameraController.dispose();
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      _disposeCamera();
     } else if (state == AppLifecycleState.resumed) {
       _initializeCamera();
     }
@@ -58,6 +96,10 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
 
   Future<void> _initializeCamera() async {
     try {
+      if (_controller != null) {
+        await _disposeCamera();
+      }
+
       cameras = await availableCameras();
       if (cameras.isEmpty) {
         _showError('Kamera bulunamadı');
@@ -66,7 +108,10 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
 
       CameraDescription? selectedCamera;
       for (var camera in cameras) {
-        if (camera.lensDirection == CameraLensDirection.back) {
+        if (_isRearCameraSelected &&
+                camera.lensDirection == CameraLensDirection.back ||
+            !_isRearCameraSelected &&
+                camera.lensDirection == CameraLensDirection.front) {
           selectedCamera = camera;
           break;
         }
@@ -81,26 +126,23 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   }
 
   Future<void> _initializeCameraController(CameraDescription camera) async {
-    if (_controller != null) {
-      await _controller!.dispose();
-    }
-
-    final CameraController cameraController = CameraController(
-      camera,
-      ResolutionPreset.max,
-      enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
-    );
-
-    _controller = cameraController;
-
     try {
-      await cameraController.initialize();
-      await cameraController.setFlashMode(_flashMode);
+      final CameraController cameraController = CameraController(
+        camera,
+        ResolutionPreset.max,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.jpeg,
+      );
 
-      if (mounted) {
-        setState(() {});
-      }
+      _controller = cameraController;
+
+      await cameraController.initialize();
+      if (!mounted) return;
+
+      await cameraController.setFlashMode(_flashMode);
+      if (!mounted) return;
+
+      setState(() {});
     } catch (e) {
       _showError('Kamera başlatılamadı: $e');
     }
@@ -120,27 +162,29 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   }
 
   Future<void> _takePicture() async {
-    final CameraController? cameraController = _controller;
-
-    if (cameraController == null || !cameraController.value.isInitialized) {
-      _showError('Kamera hazır değil');
-      return;
-    }
-
-    if (cameraController.value.isTakingPicture) {
-      return;
-    }
-
     try {
-      final XFile photo = await cameraController.takePicture();
+      if (_controller == null || !_controller!.value.isInitialized) {
+        _showError('Kamera hazır değil');
+        return;
+      }
+
+      if (_controller!.value.isTakingPicture) {
+        return;
+      }
+
+      final XFile photo = await _controller!.takePicture();
+      if (!mounted) return;
 
       setState(() {
         capturedImages.add(File(photo.path));
         currentImageIndex++;
       });
 
-      if (currentImageIndex >= 4) {
+      if (currentImageIndex >= requiredImageCount) {
         _navigateToResult();
+      } else {
+        // Kamerayı yeniden başlat
+        await _initializeCamera();
       }
     } catch (e) {
       _showError('Fotoğraf çekilemedi: $e');
@@ -154,13 +198,13 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
         imageQuality: 100,
       );
 
-      if (photo != null && currentImageIndex < 4) {
+      if (photo != null && currentImageIndex < requiredImageCount) {
         setState(() {
           capturedImages.add(File(photo.path));
           currentImageIndex++;
         });
 
-        if (currentImageIndex >= 4) {
+        if (currentImageIndex >= requiredImageCount) {
           _navigateToResult();
         }
       }
@@ -172,29 +216,28 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
   void _navigateToResult() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => CoffeeFortuneResultScreen(
+        builder: (context) => FortuneResultScreen(
           images: capturedImages,
+          fortuneType: widget.fortuneType,
         ),
       ),
     );
   }
 
   Future<void> _switchCamera() async {
-    if (cameras.length < 2) return;
+    try {
+      if (cameras.length < 2) return;
 
-    setState(() {
-      _isRearCameraSelected = !_isRearCameraSelected;
-    });
+      await _disposeCamera();
 
-    final newCamera = _isRearCameraSelected
-        ? cameras.firstWhere(
-            (camera) => camera.lensDirection == CameraLensDirection.back,
-            orElse: () => cameras.first)
-        : cameras.firstWhere(
-            (camera) => camera.lensDirection == CameraLensDirection.front,
-            orElse: () => cameras.last);
+      setState(() {
+        _isRearCameraSelected = !_isRearCameraSelected;
+      });
 
-    await _initializeCameraController(newCamera);
+      await _initializeCamera();
+    } catch (e) {
+      _showError('Kamera değiştirilemedi: $e');
+    }
   }
 
   Future<void> _toggleFlash() async {
@@ -256,30 +299,72 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
                   horizontal: MySize.defaultPadding,
                   vertical: MySize.halfPadding,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.7),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+                child: Column(
                   children: [
-                    IconButton(
-                      icon: Icon(CupertinoIcons.back,
-                          color: MyColor.white, size: MySize.iconSizeSmall),
-                      onPressed: () => Navigator.pop(context),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: Icon(CupertinoIcons.back,
+                              color: MyColor.white, size: MySize.iconSizeSmall),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        Text(
+                          screenTitle,
+                          style: TextStyle(
+                            color: MyColor.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            _flashMode == FlashMode.off
+                                ? CupertinoIcons.bolt_slash_fill
+                                : CupertinoIcons.bolt_fill,
+                            color: MyColor.white,
+                            size: MySize.iconSizeSmall,
+                          ),
+                          onPressed: _toggleFlash,
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: Icon(
-                        _flashMode == FlashMode.off
-                            ? CupertinoIcons.bolt_slash_fill
-                            : CupertinoIcons.bolt_fill,
-                        color: MyColor.white,
-                        size: MySize.iconSizeSmall,
+                    SizedBox(height: 8),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MySize.defaultPadding,
+                        vertical: MySize.quarterPadding,
                       ),
-                      onPressed: _toggleFlash,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius:
+                            BorderRadius.circular(MySize.quarterRadius),
+                      ),
+                      child: Text(
+                        instructionText,
+                        style: TextStyle(
+                          color: MyColor.white,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             Positioned(
-              top: MySize.iconSizeBig,
+              top: MySize.iconSizeBig + MySize.defaultPadding * 3,
               left: 0,
               right: 0,
               child: Container(
@@ -288,7 +373,7 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
                     EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(4, (index) {
+                  children: List.generate(requiredImageCount, (index) {
                     return Container(
                       width: MySize.iconSizeBig,
                       height: MySize.iconSizeBig,
@@ -330,6 +415,16 @@ class _CoffeeFortuneScreenState extends State<CoffeeFortuneScreen>
               child: Container(
                 padding:
                     EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.7),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [

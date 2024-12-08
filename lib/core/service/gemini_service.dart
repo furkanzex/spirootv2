@@ -248,6 +248,68 @@ class GeminiService extends GetxService {
     }
   }
 
+  String _createFortunePrompt(String type) {
+    final basePrompt = '''
+    Important: Write the response in $_currentLanguage
+
+    You are an experienced fortune teller. Please analyze the provided image(s) and create a detailed reading.
+    
+    User Information:
+    ${_getInitialChatContext()}
+    
+    Please provide a detailed reading that includes:
+    - General overview and first impressions
+    - Specific insights about love life and relationships
+    - Career and professional life predictions
+    - Financial prospects and advice
+    - Health and well-being insights
+    - Important warnings or advice
+    - Lucky numbers, colors, and days
+    
+    Make the reading personal, detailed, and insightful while maintaining a positive and constructive tone.
+    ''';
+
+    switch (type) {
+      case 'coffee':
+        return '''
+        $basePrompt
+        
+        This is a Turkish coffee cup reading. Please analyze:
+        - The patterns and symbols in the coffee grounds
+        - The relationship between different symbols
+        - Near future predictions (next 40 days)
+        - Long term insights
+        ''';
+
+      case 'palm':
+        return '''
+        $basePrompt
+        
+        This is a palm reading. Please analyze:
+        - The main lines (Life, Head, Heart, Fate)
+        - Special markings and symbols
+        - The shape and size of the palm and fingers
+        - The mounts and their significance
+        - Past influences and future potentials
+        ''';
+
+      case 'face':
+        return '''
+        $basePrompt
+        
+        This is a face reading. Please analyze:
+        - Facial features and their meanings
+        - Character traits revealed by facial structure
+        - Life path and destiny indicators
+        - Health and well-being signs
+        - Natural talents and potential challenges
+        ''';
+
+      default:
+        return basePrompt;
+    }
+  }
+
   Future<List<Content>> _prepareImageContents(List<String> imageUrls) async {
     return [];
   }
@@ -336,55 +398,6 @@ Important: Write the response in $_currentLanguage
 
 Important: Write the response in $_currentLanguage
     ''';
-  }
-
-  String _createFortunePrompt(String type) {
-    String basePrompt = '''
-    Important: Write the response in $_currentLanguage
-
-    You are an experienced fortune teller. Analyze the provided images in detail and interpret the $type reading.
-    
-    Personal Information:
-    ${_getInitialChatContext()}
-    
-    The reading should include:
-    - General Overview and First Impressions
-    - Details About Love and Relationships
-    - Signs for Career and Professional Life
-    - Financial Matters and Opportunities
-    - Predictions for the Near Future
-    - Points of Attention
-    - Special Advice and Guidance
-
-    Important: Write the response in $_currentLanguage
-    ''';
-
-    switch (type.toLowerCase()) {
-      case "coffee":
-        return '''
-        $basePrompt
-        
-        Special instructions for Coffee Reading:
-        - Analyze the shapes inside the cup in detail
-        - Interpret the signs on the saucer
-        - Distinguish between near and distant future
-        - Explain important symbols and their meanings
-        ''';
-
-      case "tarot":
-        return '''
-        $basePrompt
-        
-        Special instructions for Tarot Reading:
-        - Explain the position and meaning of each card
-        - Interpret relationships between cards
-        - Tell the overall story and message
-        - Highlight special warnings and advice
-        ''';
-
-      default:
-        return basePrompt;
-    }
   }
 
   String _getTimeframeText(String timeframe) {
