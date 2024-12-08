@@ -6,7 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
+import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
+import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/interpretation/fortune_result_screen.dart';
 
 enum FortuneType { coffee, palm, face }
@@ -314,14 +317,23 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (currentImageIndex < requiredImageCount) {
-          _showError('Lütfen $requiredImageCount adet fotoğraf çekin');
-          return false;
-        }
         return true;
       },
       child: Scaffold(
         backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(MyIcon.back, color: MyColor.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text(
+            screenTitle,
+            style: MyStyle.s1.copyWith(color: MyColor.white),
+          ),
+          centerTitle: true,
+        ),
         body: SafeArea(
           child: Stack(
             children: [
@@ -337,89 +349,88 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
                 top: 0,
                 left: 0,
                 right: 0,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MySize.defaultPadding,
-                    vertical: MySize.halfPadding,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.7),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        '$currentImageIndex/$requiredImageCount Fotoğraf',
-                        style: TextStyle(
-                          color: MyColor.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MySize.halfPadding,
+                        vertical: MySize.halfPadding,
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Fincanınızın $requiredImageCount farklı açıdan fotoğrafını çekin',
-                        style: TextStyle(
-                          color: MyColor.white,
-                          fontSize: 16,
-                        ),
-                        textAlign: TextAlign.center,
+                      decoration: BoxDecoration(
+                        color: MyColor.white.withOpacity(0.1),
+                        borderRadius:
+                            BorderRadius.circular(MySize.quarterRadius),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                top: MySize.iconSizeBig + MySize.defaultPadding * 3,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: MySize.iconSizeBig + MySize.defaultPadding,
-                  padding:
-                      EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(requiredImageCount, (index) {
-                      return Container(
-                        width: MySize.iconSizeBig,
-                        height: MySize.iconSizeBig,
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(MySize.quarterRadius),
-                          border: Border.all(
-                            color: index == currentImageIndex
-                                ? MyColor.primaryColor
-                                : MyColor.white.withOpacity(0.3),
-                            width: 2,
+                      child: Column(
+                        children: [
+                          Text(
+                            widget.fortuneType == FortuneType.coffee
+                                ? 'Fincanınızın $requiredImageCount farklı açıdan fotoğrafını çekin'
+                                : widget.fortuneType == FortuneType.face
+                                    ? 'Yüzünüzün net bir fotoğrafını çekin'
+                                    : 'Avuç içinizin net bir fotoğrafını çekin',
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(MySize.quarterRadius - 2),
-                          child: index < capturedImages.length
-                              ? Image.file(
-                                  capturedImages[index],
-                                  fit: BoxFit.cover,
+                          widget.fortuneType == FortuneType.coffee
+                              ? verticalGap(MySize.halfPadding)
+                              : SizedBox.shrink(),
+                          widget.fortuneType == FortuneType.coffee
+                              ? Text(
+                                  '$currentImageIndex/$requiredImageCount Fotoğraf',
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
                                 )
-                              : Container(
-                                  color: MyColor.white.withOpacity(0.1),
-                                  child: Icon(
-                                    CupertinoIcons.camera,
-                                    color: MyColor.white.withOpacity(0.3),
-                                  ),
-                                ),
-                        ),
-                      );
-                    }),
-                  ),
+                              : SizedBox.shrink(),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: MySize.iconSizeBig + MySize.defaultPadding,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: MySize.defaultPadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(requiredImageCount, (index) {
+                          return Container(
+                            width: MySize.iconSizeBig,
+                            height: MySize.iconSizeBig,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.circular(MySize.quarterRadius),
+                              border: Border.all(
+                                color: index == currentImageIndex
+                                    ? MyColor.primaryColor
+                                    : MyColor.white.withOpacity(0.3),
+                                width: 2,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                  MySize.quarterRadius - 2),
+                              child: index < capturedImages.length
+                                  ? Image.file(
+                                      capturedImages[index],
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Container(
+                                      color: MyColor.white.withOpacity(0.1),
+                                      child: Icon(
+                                        CupertinoIcons.camera,
+                                        color: MyColor.white.withOpacity(0.3),
+                                      ),
+                                    ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+
               Positioned(
                 bottom: MySize.defaultPadding,
                 left: 0,

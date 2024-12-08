@@ -1289,4 +1289,211 @@ Important: Write the response in $_currentLanguage
       throw Exception('Kahve falı yorumlanırken bir hata oluştu');
     }
   }
+
+  Future<Map<String, dynamic>> interpretPalmFortune(
+    File image,
+    Map<String, dynamic> userInfo,
+  ) async {
+    try {
+      final contents = await _prepareImageContents([image.path]);
+
+      final prompt = '''
+      Answer in $_currentLanguage. Be a professional palm reader and interpret the palm by following these instructions:
+
+      Delivery: Maintain a professional, warm, and insightful tone while revealing the secrets written in the lines of the palm.
+
+      Detail and Insight: Analyze all major palm lines:
+      - Life Line (Vitality and life force)
+      - Head Line (Intellectual capabilities)
+      - Heart Line (Emotional life and relationships)
+      - Fate Line (Career and life direction)
+      - Sun Line (Success and recognition)
+      - Marriage Line(s) (Significant relationships)
+
+      Precise Predictions: Make specific predictions based on the lines' characteristics:
+      - Length and depth of lines
+      - Breaks and chains in the lines
+      - Special markings and symbols
+      - Mounts and their significance
+      - Finger length and shape
+
+      Length Requirements:
+      - General section must be minimum 1200 characters long
+      - General section should be 3-5 paragraphs
+      - Each paragraph should focus on different aspects
+      - Use professional and mystical language
+      - Include specific details from the palm lines
+      - Focus on the user's selected topics and interests
+      - Make precise predictions with timeframes
+
+      Remember: Maintain a professional yet warm tone, provide specific predictions with reasonable timeframes, and focus on the unique characteristics of the individual's palm.
+
+      Kullanıcı Bilgileri:
+      - İsim: ${userInfo['name']}
+      - Doğum Tarihi: ${userInfo['birthDate']}
+      - İlişki Durumu: ${userInfo['relationship']}
+      - İlgilendiği Konular: ${userInfo['topics'].join(', ')}
+      - Mevcut Tarih: ${DateTime.now().toIso8601String()}
+
+      Yorumunu aşağıdaki formatta JSON olarak döndür:
+
+      {
+        "general": "Genel yorum ve el çizgilerinin analizi (minimum 1500 karakter)",
+        "lines": [
+          {
+            "name": "Çizgi adı",
+            "analysis": "Çizginin detaylı analizi ve anlamı (maksimum 300 karakter)",
+            "prediction": "Bu çizgiye dayalı öngörüler"
+          }
+        ],
+        "timing": {
+          "short_term": "Yakın gelecek öngörüleri (1-3 ay)",
+          "mid_term": "Orta vadeli öngörüler (3-6 ay)",
+          "long_term": "Uzun vadeli öngörüler (6+ ay)"
+        },
+        "special_markings": [
+          {
+            "name": "Özel işaret adı",
+            "meaning": "İşaretin anlamı ve yorumu",
+            "location": "İşaretin eldeki konumu"
+          }
+        ]
+      }
+
+      Answer in $_currentLanguage.
+      ''';
+
+      contents.insert(0, Content.text(prompt));
+      final response = await _visionModel.generateContent(contents);
+
+      if (response.text == null || response.text!.isEmpty) {
+        throw Exception('El falı yorumu oluşturulamadı');
+      }
+
+      String cleanedResponse = _cleanJsonResponse(response.text!);
+
+      try {
+        final Map<String, dynamic> parsedJson = json.decode(cleanedResponse);
+        return parsedJson;
+      } catch (e) {
+        print('JSON parse error: $e');
+        return {
+          'general': cleanedResponse,
+          'lines': [],
+          'timing': {'short_term': '', 'mid_term': '', 'long_term': ''},
+          'special_markings': []
+        };
+      }
+    } catch (e) {
+      print('El falı yorumlama hatası: $e');
+      throw Exception('El falı yorumlanırken bir hata oluştu');
+    }
+  }
+
+  Future<Map<String, dynamic>> interpretFaceFortune(
+    File image,
+    Map<String, dynamic> userInfo,
+  ) async {
+    try {
+      final contents = await _prepareImageContents([image.path]);
+
+      final prompt = '''
+      Answer in $_currentLanguage. Be a professional face reader and interpret the facial features by following these instructions:
+
+      Delivery: Maintain a professional, respectful, and insightful tone while revealing the character and destiny written in the facial features.
+
+      Detail and Insight: Analyze all major facial features:
+      - Forehead (Intelligence and wisdom)
+      - Eyes (Soul and emotional depth)
+      - Nose (Power and wealth potential)
+      - Mouth (Communication and relationships)
+      - Chin (Willpower and determination)
+      - Cheeks (Social life and happiness)
+      - Facial shape (Overall character)
+      - Facial proportions (Life balance)
+
+      Precise Analysis: Make specific interpretations based on:
+      - Feature shapes and sizes
+      - Facial proportions and symmetry
+      - Distinctive markings
+      - Overall facial harmony
+      - Character traits revealed
+      - Life path indicators
+
+      Length Requirements:
+      - General section must be minimum 1200 characters long
+      - General section should be 3-5 paragraphs
+      - Each paragraph should focus on different aspects
+      - Use professional and mystical language
+      - Include specific details from facial features
+      - Focus on the user's personality and potential
+      - Make precise predictions about life path
+
+      Remember: Maintain a professional and respectful tone, focus on positive aspects while being honest, and provide insights about character and potential.
+
+      Kullanıcı Bilgileri:
+      - İsim: ${userInfo['name']}
+      - Doğum Tarihi: ${userInfo['birthDate']}
+      - İlişki Durumu: ${userInfo['relationship']}
+      - İlgilendiği Konular: ${userInfo['topics'].join(', ')}
+      - Mevcut Tarih: ${DateTime.now().toIso8601String()}
+
+      Yorumunu aşağıdaki formatta JSON olarak döndür:
+
+      {
+        "general": "Genel yorum ve yüz özelliklerinin analizi (minimum 1500 karakter)",
+        "features": [
+          {
+            "name": "Yüz özelliği",
+            "analysis": "Özelliğin detaylı analizi ve karaktere etkisi (maksimum 300 karakter)",
+            "indication": "Bu özelliğin işaret ettiği karakter özellikleri ve potansiyel"
+          }
+        ],
+        "life_path": {
+          "character": "Genel karakter analizi",
+          "potential": "Potansiyel ve yetenekler",
+          "challenges": "Olası zorluklar ve aşılması gerekenler",
+          "advice": "Kişisel gelişim önerileri"
+        },
+        "predictions": {
+          "short_term": "Yakın gelecek öngörüleri (1-3 ay)",
+          "mid_term": "Orta vadeli öngörüler (3-6 ay)",
+          "long_term": "Uzun vadeli öngörüler (6+ ay)"
+        }
+      }
+
+      Answer in $_currentLanguage.
+      ''';
+
+      contents.insert(0, Content.text(prompt));
+      final response = await _visionModel.generateContent(contents);
+
+      if (response.text == null || response.text!.isEmpty) {
+        throw Exception('Yüz falı yorumu oluşturulamadı');
+      }
+
+      String cleanedResponse = _cleanJsonResponse(response.text!);
+
+      try {
+        final Map<String, dynamic> parsedJson = json.decode(cleanedResponse);
+        return parsedJson;
+      } catch (e) {
+        print('JSON parse error: $e');
+        return {
+          'general': cleanedResponse,
+          'features': [],
+          'life_path': {
+            'character': '',
+            'potential': '',
+            'challenges': '',
+            'advice': ''
+          },
+          'predictions': {'short_term': '', 'mid_term': '', 'long_term': ''}
+        };
+      }
+    } catch (e) {
+      print('Yüz falı yorumlama hatası: $e');
+      throw Exception('Yüz falı yorumlanırken bir hata oluştu');
+    }
+  }
 }

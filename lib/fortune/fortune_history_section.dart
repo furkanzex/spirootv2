@@ -410,6 +410,67 @@ void _shareFortune(BuildContext context, FortuneHistoryItem item) async {
     ''';
         break;
 
+      case 'palm':
+        shareText = '''
+    🖐️ El Falı
+    📅 ${item.date}
+
+    📝 Genel Analiz:
+    ${content['general']}
+
+    📍 El Çizgileri:
+    ${(content['lines'] as List).map((line) => '''
+    • ${line['name']}
+      ${line['analysis']}
+      Öngörü: ${line['prediction']}
+    ''').join('\n')}
+
+    ✨ Özel İşaretler:
+    ${(content['special_markings'] as List).map((marking) => '''
+    • ${marking['name']}
+      ${marking['meaning']}
+      Konum: ${marking['location']}
+    ''').join('\n')}
+
+    ⏰ Öngörüler:
+    📅 Kısa Vade (1-3 ay): ${content['timing']['short_term']}
+    📅 Orta Vade (3-6 ay): ${content['timing']['mid_term']}
+    📅 Uzun Vade (6+ ay): ${content['timing']['long_term']}
+
+    Spiroot ile falına baktır! 🔮✨
+    ''';
+        break;
+
+      case 'face':
+        shareText = '''
+    👤 Yüz Falı
+    📅 ${item.date}
+
+    📝 Genel Analiz:
+    ${content['general']}
+
+    📍 Yüz Özellikleri:
+    ${(content['features'] as List).map((feature) => '''
+    • ${feature['name']}
+      ${feature['analysis']}
+      İşaret ettiği özellikler: ${feature['indication']}
+    ''').join('\n')}
+
+    🌟 Yaşam Yolu:
+    • Karakter: ${content['life_path']['character']}
+    • Potansiyel: ${content['life_path']['potential']}
+    • Zorluklar: ${content['life_path']['challenges']}
+    • Öneriler: ${content['life_path']['advice']}
+
+    ⏰ Öngörüler:
+    📅 Kısa Vade (1-3 ay): ${content['predictions']['short_term']}
+    📅 Orta Vade (3-6 ay): ${content['predictions']['mid_term']}
+    📅 Uzun Vade (6+ ay): ${content['predictions']['long_term']}
+
+    Spiroot ile falına baktır! 🔮✨
+    ''';
+        break;
+
       default:
         shareText = '''
     🔮 ${easy.tr("fortune.${item.type}")}
@@ -496,40 +557,64 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
   final interpretation = data['interpretation'];
   if (interpretation == null) return const SizedBox();
 
-  if (data['type'] == 'coffee') {
-    final content = interpretation as Map<String, dynamic>;
-    return Text(
-      content['general'] ?? '',
-      style: MyStyle.s3.copyWith(
-        color: MyColor.textGreyColor,
-      ),
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
+  switch (data['type']) {
+    case 'coffee':
+      final content = interpretation as Map<String, dynamic>;
+      return Text(
+        content['general'] ?? '',
+        style: MyStyle.s3.copyWith(
+          color: MyColor.textGreyColor,
+        ),
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+      );
 
-  // Eğer yorum bir Map ise
-  if (interpretation is Map<String, dynamic>) {
-    return Text(
-      '${interpretation['past'] ?? ''}\n${interpretation['present'] ?? ''}\n${interpretation['future'] ?? ''}',
-      style: MyStyle.s3.copyWith(
-        color: MyColor.textGreyColor,
-      ),
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
+    case 'palm':
+      final content = interpretation as Map<String, dynamic>;
+      return Text(
+        content['general'] ?? '',
+        style: MyStyle.s3.copyWith(
+          color: MyColor.textGreyColor,
+        ),
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+      );
 
-  // Eğer yorum bir String ise
-  if (interpretation is String) {
-    return Text(
-      interpretation,
-      style: MyStyle.s3.copyWith(
-        color: MyColor.textGreyColor,
-      ),
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-    );
+    case 'face':
+      final content = interpretation as Map<String, dynamic>;
+      return Text(
+        content['general'] ?? '',
+        style: MyStyle.s3.copyWith(
+          color: MyColor.textGreyColor,
+        ),
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+      );
+
+    case 'angel':
+      if (interpretation is Map<String, dynamic>) {
+        return Text(
+          '${interpretation['past'] ?? ''}\n${interpretation['present'] ?? ''}\n${interpretation['future'] ?? ''}',
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+          ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        );
+      }
+      break;
+
+    default:
+      if (interpretation is String) {
+        return Text(
+          interpretation,
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+          ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        );
+      }
   }
 
   return const SizedBox();
@@ -594,21 +679,22 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
     );
   }
 
-  if (item.type == 'coffee') {
-    final content = item.content as Map<String, dynamic>;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(MySize.defaultPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Genel Yorum
-          _buildFortuneSection(
-            '🔮 Genel Yorum',
-            content['general'] ?? '',
-          ),
-          verticalGap(MySize.doublePadding),
+  final content = item.content as Map<String, dynamic>;
 
-          // Semboller Bölümü
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(MySize.defaultPadding),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Genel Yorum
+        _buildFortuneSection(
+          '🔮 Genel Yorum',
+          content['general'] ?? '',
+        ),
+        verticalGap(MySize.doublePadding),
+
+        if (item.type == 'coffee') ...[
+          // Kahve Falı - Semboller Bölümü
           if ((content['symbols'] as List?)?.isNotEmpty ?? false) ...[
             Text(
               '🎯 Görülen Semboller',
@@ -666,79 +752,170 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
                 );
               },
             ),
-            verticalGap(MySize.doublePadding),
           ],
+        ] else if (item.type == 'palm') ...[
+          // El Falı - Çizgiler Bölümü
+          if ((content['lines'] as List?)?.isNotEmpty ?? false) ...[
+            Text(
+              '✋ El Çizgileri',
+              style: MyStyle.s1.copyWith(
+                color: MyColor.primaryPurpleColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            verticalGap(MySize.defaultPadding),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: (content['lines'] as List).length,
+              itemBuilder: (context, index) {
+                final line = content['lines'][index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: MyColor.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        line['name'] ?? '',
+                        style: MyStyle.s2.copyWith(
+                          color: MyColor.primaryPurpleColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      verticalGap(8),
+                      Text(
+                        'Analiz: ${line['analysis'] ?? ''}',
+                        style: MyStyle.s3.copyWith(color: MyColor.white),
+                      ),
+                      verticalGap(8),
+                      Text(
+                        'Öngörü: ${line['prediction'] ?? ''}',
+                        style:
+                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ] else if (item.type == 'face') ...[
+          // Yüz Falı - Özellikler Bölümü
+          if ((content['features'] as List?)?.isNotEmpty ?? false) ...[
+            Text(
+              '👤 Yüz Özellikleri',
+              style: MyStyle.s1.copyWith(
+                color: MyColor.primaryPurpleColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            verticalGap(MySize.defaultPadding),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: (content['features'] as List).length,
+              itemBuilder: (context, index) {
+                final feature = content['features'][index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: MyColor.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        feature['name'] ?? '',
+                        style: MyStyle.s2.copyWith(
+                          color: MyColor.primaryPurpleColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      verticalGap(8),
+                      Text(
+                        'Analiz: ${feature['analysis'] ?? ''}',
+                        style: MyStyle.s3.copyWith(color: MyColor.white),
+                      ),
+                      verticalGap(8),
+                      Text(
+                        'İşaret: ${feature['indication'] ?? ''}',
+                        style:
+                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ],
 
-          // Zamanlama Bölümü
+        verticalGap(MySize.doublePadding),
+
+        // Zamanlama/Öngörüler Bölümü
+        Text(
+          '⏰ ${item.type == 'face' ? 'Öngörüler' : 'Kehanet'}',
+          style: MyStyle.s1.copyWith(
+            color: MyColor.primaryPurpleColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        verticalGap(MySize.defaultPadding),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTimingSection(
+                'Kısa Vadede (1-3 ay):',
+                content['timing']?['short_term'] ??
+                    content['predictions']?['short_term'] ??
+                    ''),
+            verticalGap(12),
+            _buildTimingSection(
+                'Orta Vadede (3-6 ay):',
+                content['timing']?['mid_term'] ??
+                    content['predictions']?['mid_term'] ??
+                    ''),
+            verticalGap(12),
+            _buildTimingSection(
+                'Uzun Vadede (6+ ay):',
+                content['timing']?['long_term'] ??
+                    content['predictions']?['long_term'] ??
+                    ''),
+          ],
+        ),
+
+        // Yüz Falı için Ek Yaşam Yolu Bölümü
+        if (item.type == 'face' && content['life_path'] != null) ...[
+          verticalGap(MySize.doublePadding),
           Text(
-            '⏰ Kehanet',
+            '🛣️ Yaşam Yolu',
             style: MyStyle.s1.copyWith(
               color: MyColor.primaryPurpleColor,
               fontWeight: FontWeight.bold,
             ),
           ),
           verticalGap(MySize.defaultPadding),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTimingSection('Kısa Vadede (1-3 ay):',
-                  content['timing']['short_term'] ?? ''),
-              verticalGap(12),
-              _buildTimingSection(
-                  'Orta Vadede (3-6 ay):', content['timing']['mid_term'] ?? ''),
-              verticalGap(12),
-              _buildTimingSection(
-                  'Uzun Vadede (6+ ay):', content['timing']['long_term'] ?? ''),
-            ],
-          ),
+          _buildFortuneSection(
+              'Karakter:', content['life_path']['character'] ?? ''),
+          verticalGap(8),
+          _buildFortuneSection(
+              'Potansiyel:', content['life_path']['potential'] ?? ''),
+          verticalGap(8),
+          _buildFortuneSection(
+              'Zorluklar:', content['life_path']['challenges'] ?? ''),
+          verticalGap(8),
+          _buildFortuneSection(
+              'Öneriler:', content['life_path']['advice'] ?? ''),
         ],
-      ),
-    );
-  }
-
-  // Eğer içerik bir Map ise
-  if (item.content is Map<String, dynamic>) {
-    final interpretations = item.content as Map<String, dynamic>;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInterpretationSection('Geçmiş', interpretations['past'] ?? ''),
-        verticalGap(MySize.defaultPadding),
-        _buildInterpretationSection('Şimdi', interpretations['present'] ?? ''),
-        verticalGap(MySize.defaultPadding),
-        _buildInterpretationSection('Gelecek', interpretations['future'] ?? ''),
       ],
-    );
-  }
-
-  // Eğer içerik bir String ise
-  if (item.content is String) {
-    return Text(
-      item.content as String,
-      style: MyStyle.s2.copyWith(color: MyColor.white),
-    );
-  }
-
-  return const SizedBox();
-}
-
-Widget _buildInterpretationSection(String title, String content) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        title,
-        style: MyStyle.s1.copyWith(
-          color: MyColor.primaryPurpleColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      verticalGap(MySize.halfPadding),
-      Text(
-        content,
-        style: MyStyle.s2.copyWith(color: MyColor.white),
-      ),
-    ],
+    ),
   );
 }
 

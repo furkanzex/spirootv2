@@ -419,17 +419,43 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
       final random = Random();
       final waitTime = Duration(minutes: random.nextInt(14) + 1);
 
-      // Kahve falı yorumu için prompt oluştur
-      Map<String, dynamic> interpretation =
-          await geminiService.interpretCoffeeFortune(
-        widget.images,
-        {
-          'name': _nameController.text,
-          'birthDate': _birthDateController.text,
-          'relationship': _relationshipController.text,
-          'topics': [_topic1Controller.text, _topic2Controller.text],
-        },
-      );
+      Map<String, dynamic> interpretation;
+
+      switch (widget.fortuneType) {
+        case FortuneType.coffee:
+          interpretation = await geminiService.interpretCoffeeFortune(
+            widget.images,
+            {
+              'name': _nameController.text,
+              'birthDate': _birthDateController.text,
+              'relationship': _relationshipController.text,
+              'topics': [_topic1Controller.text, _topic2Controller.text],
+            },
+          );
+          break;
+        case FortuneType.palm:
+          interpretation = await geminiService.interpretPalmFortune(
+            widget.images.first,
+            {
+              'name': _nameController.text,
+              'birthDate': _birthDateController.text,
+              'relationship': _relationshipController.text,
+              'topics': [_topic1Controller.text, _topic2Controller.text],
+            },
+          );
+          break;
+        case FortuneType.face:
+          interpretation = await geminiService.interpretFaceFortune(
+            widget.images.first,
+            {
+              'name': _nameController.text,
+              'birthDate': _birthDateController.text,
+              'relationship': _relationshipController.text,
+              'topics': [_topic1Controller.text, _topic2Controller.text],
+            },
+          );
+          break;
+      }
 
       // Firestore'a kaydet
       await FirebaseFirestore.instance
@@ -437,7 +463,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .collection('fortunes')
           .add({
-        'type': 'coffee',
+        'type': fortuneTypeText,
         'images': widget.images.map((image) => image.path).toList(),
         'interpretation': interpretation,
         'timestamp': FieldValue.serverTimestamp(),
