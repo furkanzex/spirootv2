@@ -299,43 +299,67 @@ class _TarotScreenState extends State<TarotScreen>
                           ),
                         ),
                         verticalGap(MySize.defaultPadding),
-                        DragTarget<TarotCard>(
-                          onWillAccept: (card) =>
-                              _selectedCards[index] == null &&
-                              !card!.isSelected,
-                          onAccept: (card) {
-                            setState(() {
-                              card.isSelected = true;
-                              _selectedCards[index] = card;
-                            });
-                          },
-                          builder: (context, candidateData, rejectedData) {
-                            return Container(
+                        Stack(
+                          children: [
+                            Container(
                               width: cardWidth / 1.5,
                               height: cardHeight / 1.5,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: candidateData.isNotEmpty
-                                      ? MyColor.primaryLightColor
-                                      : MyColor.primaryPurpleColor,
-                                  width: candidateData.isNotEmpty ? 2 : 1,
-                                ),
-                                borderRadius:
-                                    BorderRadius.circular(MySize.quarterRadius),
-                              ),
-                              child: _selectedCards[index] != null
-                                  ? _buildCard(_selectedCards[index]!,
-                                      width: cardWidth, height: cardHeight)
-                                  : Center(
-                                      child: Icon(
-                                        MingCute.add_circle_line,
-                                        color: MyColor.primaryPurpleColor
-                                            .withOpacity(0.5),
-                                        size: MySize.iconSizeSmall,
+                            ),
+                            Positioned.fill(
+                              child: DragTarget<TarotCard>(
+                                onWillAccept: (card) {
+                                  if (card == null ||
+                                      _selectedCards[index] != null ||
+                                      card.isSelected) {
+                                    return false;
+                                  }
+                                  return true;
+                                },
+                                onAccept: (card) {
+                                  setState(() {
+                                    card.isSelected = true;
+                                    _selectedCards[index] = card;
+                                  });
+                                },
+                                onMove: (details) {
+                                  setState(() {});
+                                },
+                                builder:
+                                    (context, candidateData, rejectedData) {
+                                  return Container(
+                                    width: cardWidth / 1.5,
+                                    height: cardHeight / 1.5,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: candidateData.isNotEmpty
+                                            ? MyColor.primaryLightColor
+                                            : MyColor.primaryPurpleColor,
+                                        width: candidateData.isNotEmpty ? 2 : 1,
                                       ),
+                                      borderRadius: BorderRadius.circular(
+                                          MySize.quarterRadius),
+                                      color: candidateData.isNotEmpty
+                                          ? MyColor.primaryLightColor
+                                              .withOpacity(0.1)
+                                          : Colors.transparent,
                                     ),
-                            );
-                          },
+                                    child: _selectedCards[index] != null
+                                        ? _buildCard(_selectedCards[index]!,
+                                            width: cardWidth,
+                                            height: cardHeight)
+                                        : Center(
+                                            child: Icon(
+                                              MingCute.add_circle_line,
+                                              color: MyColor.primaryPurpleColor
+                                                  .withOpacity(0.5),
+                                              size: MySize.iconSizeSmall,
+                                            ),
+                                          ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                         verticalGap(MySize.halfPadding),
                         if (_selectedCards[index]?.isRevealed == true) ...[
@@ -456,13 +480,19 @@ class _TarotScreenState extends State<TarotScreen>
 
         return Positioned(
           left: x - cardWidth / 2,
-          top: y - cardHeight / 2,
+          top: y - cardHeight / 1,
           child: Transform.rotate(
             angle: rotationAngle,
             child: Draggable<TarotCard>(
               data: _deck![cardIndex],
-              feedback: _buildCard(_deck![cardIndex],
-                  width: cardWidth, height: cardHeight),
+              feedback: Transform.translate(
+                offset: Offset(-cardWidth / 2, -cardHeight / 7),
+                child: Material(
+                  color: Colors.transparent,
+                  child: _buildCard(_deck![cardIndex],
+                      width: cardWidth, height: cardHeight),
+                ),
+              ),
               childWhenDragging: Opacity(
                 opacity: 0.2,
                 child: _buildCard(_deck![cardIndex],
