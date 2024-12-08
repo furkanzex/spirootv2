@@ -34,6 +34,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   FlashMode _flashMode = FlashMode.off;
   bool _isRearCameraSelected = true;
   bool _isProcessing = false;
+  bool _isCameraActive = false;
 
   int get requiredImageCount =>
       widget.fortuneType == FortuneType.coffee ? 4 : 1;
@@ -75,6 +76,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   }
 
   Future<void> _disposeCamera() async {
+    _isCameraActive = false;
     if (_controller != null) {
       await _controller!.dispose();
       _controller = null;
@@ -96,34 +98,28 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   }
 
   Future<void> _initializeCamera() async {
-    try {
-      if (_controller != null) {
-        await _disposeCamera();
-      }
+    if (_isCameraActive) return;
 
+    try {
       cameras = await availableCameras();
       if (cameras.isEmpty) {
         _showError('Kamera bulunamadı');
         return;
       }
 
-      CameraDescription? selectedCamera = cameras.firstWhere(
+      CameraDescription selectedCamera = cameras.firstWhere(
         (camera) => _isRearCameraSelected
             ? camera.lensDirection == CameraLensDirection.back
             : camera.lensDirection == CameraLensDirection.front,
         orElse: () => cameras.first,
       );
 
-      await _initializeCameraController(selectedCamera);
-    } catch (e) {
-      _showError('Kamera başlatılamadı: $e');
-    }
-  }
+      if (_controller != null) {
+        await _disposeCamera();
+      }
 
-  Future<void> _initializeCameraController(CameraDescription camera) async {
-    try {
-      final CameraController cameraController = CameraController(
-        camera,
+      _controller = CameraController(
+        selectedCamera,
         ResolutionPreset.max,
         enableAudio: false,
         imageFormatGroup: Platform.isAndroid
@@ -131,19 +127,19 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
             : ImageFormatGroup.bgra8888,
       );
 
-      _controller = cameraController;
+      await _controller!.initialize();
+      if (!mounted) return;
 
-      await cameraController.initialize().then((_) async {
-        if (!mounted) return;
+      await Future.wait([
+        _controller!.setFocusMode(FocusMode.auto),
+        _controller!.setExposureMode(ExposureMode.auto),
+        _controller!.setFlashMode(_flashMode),
+      ]);
 
-        await Future.wait([
-          cameraController.setFocusMode(FocusMode.auto),
-          cameraController.setExposureMode(ExposureMode.auto),
-          cameraController.setFlashMode(_flashMode),
-        ]);
-
+      _isCameraActive = true;
+      if (mounted) {
         setState(() {});
-      });
+      }
     } catch (e) {
       _showError('Kamera başlatılamadı: $e');
     }
@@ -168,6 +164,10 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
     try {
       setState(() => _isProcessing = true);
 
+      if (!_isCameraActive) {
+        await _initializeCamera();
+      }
+
       if (_controller == null || !_controller!.value.isInitialized) {
         _showError('Kamera hazır değil');
         return;
@@ -177,7 +177,6 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
       await _controller!.setExposureMode(ExposureMode.locked);
 
       final XFile photo = await _controller!.takePicture();
-
       final File imageFile = File(photo.path);
       final imageBytes = await imageFile.readAsBytes();
 
@@ -209,6 +208,11 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
     try {
       setState(() => _isProcessing = true);
 
+      // Galeriye geçmeden önce kamerayı kapat
+      if (_isCameraActive) {
+        await _disposeCamera();
+      }
+
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 100,
@@ -224,15 +228,13 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
           throw Exception('Seçilen fotoğrafın kalitesi çok düşük');
         }
 
-        if (currentImageIndex < requiredImageCount) {
-          setState(() {
-            capturedImages.add(imageFile);
-            currentImageIndex++;
-          });
+        setState(() {
+          capturedImages.add(imageFile);
+          currentImageIndex++;
+        });
 
-          if (currentImageIndex >= requiredImageCount) {
-            _navigateToResult();
-          }
+        if (currentImageIndex >= requiredImageCount) {
+          _navigateToResult();
         }
       }
     } catch (e) {
@@ -323,7 +325,11 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         body: SafeArea(
           child: Stack(
             children: [
-              if (_controller != null && _controller!.value.isInitialized)
+              // Kamera önizlemesini koşullu olarak göster
+              if (_controller != null &&
+                  _controller!.value.isInitialized &&
+                  _isCameraActive &&
+                  mounted)
                 Center(
                   child: CameraPreview(_controller!),
                 ),
