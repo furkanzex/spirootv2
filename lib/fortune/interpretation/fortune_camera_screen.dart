@@ -33,6 +33,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   int selectedCameraIndex = 0;
   FlashMode _flashMode = FlashMode.off;
   bool _isRearCameraSelected = true;
+  bool _isProcessing = false;
 
   int get requiredImageCount =>
       widget.fortuneType == FortuneType.coffee ? 4 : 1;
@@ -106,18 +107,12 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         return;
       }
 
-      CameraDescription? selectedCamera;
-      for (var camera in cameras) {
-        if (_isRearCameraSelected &&
-                camera.lensDirection == CameraLensDirection.back ||
-            !_isRearCameraSelected &&
-                camera.lensDirection == CameraLensDirection.front) {
-          selectedCamera = camera;
-          break;
-        }
-      }
-
-      selectedCamera ??= cameras.first;
+      CameraDescription? selectedCamera = cameras.firstWhere(
+        (camera) => _isRearCameraSelected
+            ? camera.lensDirection == CameraLensDirection.back
+            : camera.lensDirection == CameraLensDirection.front,
+        orElse: () => cameras.first,
+      );
 
       await _initializeCameraController(selectedCamera);
     } catch (e) {
@@ -131,18 +126,24 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         camera,
         ResolutionPreset.max,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.jpeg,
+        imageFormatGroup: Platform.isAndroid
+            ? ImageFormatGroup.jpeg
+            : ImageFormatGroup.bgra8888,
       );
 
       _controller = cameraController;
 
-      await cameraController.initialize();
-      if (!mounted) return;
+      await cameraController.initialize().then((_) async {
+        if (!mounted) return;
 
-      await cameraController.setFlashMode(_flashMode);
-      if (!mounted) return;
+        await Future.wait([
+          cameraController.setFocusMode(FocusMode.auto),
+          cameraController.setExposureMode(ExposureMode.auto),
+          cameraController.setFlashMode(_flashMode),
+        ]);
 
-      setState(() {});
+        setState(() {});
+      });
     } catch (e) {
       _showError('Kamera başlatılamadı: $e');
     }
@@ -162,54 +163,82 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   }
 
   Future<void> _takePicture() async {
+    if (_isProcessing) return;
+
     try {
+      setState(() => _isProcessing = true);
+
       if (_controller == null || !_controller!.value.isInitialized) {
         _showError('Kamera hazır değil');
         return;
       }
 
-      if (_controller!.value.isTakingPicture) {
-        return;
-      }
+      await _controller!.setFocusMode(FocusMode.locked);
+      await _controller!.setExposureMode(ExposureMode.locked);
 
       final XFile photo = await _controller!.takePicture();
-      if (!mounted) return;
+
+      final File imageFile = File(photo.path);
+      final imageBytes = await imageFile.readAsBytes();
+
+      if (imageBytes.length < 1000) {
+        throw Exception('Fotoğraf kalitesi çok düşük');
+      }
 
       setState(() {
-        capturedImages.add(File(photo.path));
+        capturedImages.add(imageFile);
         currentImageIndex++;
       });
 
+      await _controller!.setFocusMode(FocusMode.auto);
+      await _controller!.setExposureMode(ExposureMode.auto);
+
       if (currentImageIndex >= requiredImageCount) {
         _navigateToResult();
-      } else {
-        // Kamerayı yeniden başlat
-        await _initializeCamera();
       }
     } catch (e) {
       _showError('Fotoğraf çekilemedi: $e');
+    } finally {
+      setState(() => _isProcessing = false);
     }
   }
 
   Future<void> _pickImage() async {
+    if (_isProcessing) return;
+
     try {
+      setState(() => _isProcessing = true);
+
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 100,
+        maxWidth: 2048,
+        maxHeight: 2048,
       );
 
-      if (photo != null && currentImageIndex < requiredImageCount) {
-        setState(() {
-          capturedImages.add(File(photo.path));
-          currentImageIndex++;
-        });
+      if (photo != null) {
+        final File imageFile = File(photo.path);
+        final imageBytes = await imageFile.readAsBytes();
 
-        if (currentImageIndex >= requiredImageCount) {
-          _navigateToResult();
+        if (imageBytes.length < 1000) {
+          throw Exception('Seçilen fotoğrafın kalitesi çok düşük');
+        }
+
+        if (currentImageIndex < requiredImageCount) {
+          setState(() {
+            capturedImages.add(imageFile);
+            currentImageIndex++;
+          });
+
+          if (currentImageIndex >= requiredImageCount) {
+            _navigateToResult();
+          }
         }
       }
     } catch (e) {
       _showError('Fotoğraf seçilemedi: $e');
+    } finally {
+      setState(() => _isProcessing = false);
     }
   }
 
@@ -281,174 +310,153 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            if (_controller != null && _controller!.value.isInitialized)
-              Center(
-                child: CameraPreview(_controller!),
-              ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: MySize.defaultPadding,
-                  vertical: MySize.halfPadding,
+    return WillPopScope(
+      onWillPop: () async {
+        if (currentImageIndex < requiredImageCount) {
+          _showError('Lütfen $requiredImageCount adet fotoğraf çekin');
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              if (_controller != null && _controller!.value.isInitialized)
+                Center(
+                  child: CameraPreview(_controller!),
                 ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.7),
-                      Colors.transparent,
-                    ],
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MySize.defaultPadding,
+                    vertical: MySize.halfPadding,
                   ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: Icon(CupertinoIcons.back,
-                              color: MyColor.white, size: MySize.iconSizeSmall),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        Text(
-                          screenTitle,
-                          style: TextStyle(
-                            color: MyColor.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            _flashMode == FlashMode.off
-                                ? CupertinoIcons.bolt_slash_fill
-                                : CupertinoIcons.bolt_fill,
-                            color: MyColor.white,
-                            size: MySize.iconSizeSmall,
-                          ),
-                          onPressed: _toggleFlash,
-                        ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.7),
+                        Colors.transparent,
                       ],
                     ),
-                    SizedBox(height: 8),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: MySize.defaultPadding,
-                        vertical: MySize.quarterPadding,
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '$currentImageIndex/$requiredImageCount Fotoğraf',
+                        style: TextStyle(
+                          color: MyColor.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
-                        borderRadius:
-                            BorderRadius.circular(MySize.quarterRadius),
-                      ),
-                      child: Text(
-                        instructionText,
+                      SizedBox(height: 8),
+                      Text(
+                        'Fincanınızın $requiredImageCount farklı açıdan fotoğrafını çekin',
                         style: TextStyle(
                           color: MyColor.white,
                           fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              top: MySize.iconSizeBig + MySize.defaultPadding * 3,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: MySize.iconSizeBig + MySize.defaultPadding,
-                padding:
-                    EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(requiredImageCount, (index) {
-                    return Container(
-                      width: MySize.iconSizeBig,
-                      height: MySize.iconSizeBig,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(MySize.quarterRadius),
-                        border: Border.all(
-                          color: index == currentImageIndex
-                              ? MyColor.primaryColor
-                              : MyColor.white.withOpacity(0.3),
-                          width: 2,
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius:
-                            BorderRadius.circular(MySize.quarterRadius - 2),
-                        child: index < capturedImages.length
-                            ? Image.file(
-                                capturedImages[index],
-                                fit: BoxFit.cover,
-                              )
-                            : Container(
-                                color: MyColor.white.withOpacity(0.1),
-                                child: Icon(
-                                  CupertinoIcons.camera,
-                                  color: MyColor.white.withOpacity(0.3),
-                                ),
-                              ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: MySize.defaultPadding,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.7),
-                      Colors.transparent,
                     ],
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildCircleButton(
-                      icon: CupertinoIcons.photo,
-                      onTap: _pickImage,
-                      size: MySize.iconSizeMedium,
-                    ),
-                    _buildCircleButton(
-                      icon: CupertinoIcons.camera_fill,
-                      onTap: _takePicture,
-                      size: MySize.iconSizeBig,
-                      isMain: true,
-                    ),
-                    _buildCircleButton(
-                      icon: CupertinoIcons.switch_camera,
-                      onTap: cameras.length > 1 ? _switchCamera : null,
-                      size: MySize.iconSizeMedium,
-                    ),
-                  ],
+              ),
+              Positioned(
+                top: MySize.iconSizeBig + MySize.defaultPadding * 3,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: MySize.iconSizeBig + MySize.defaultPadding,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(requiredImageCount, (index) {
+                      return Container(
+                        width: MySize.iconSizeBig,
+                        height: MySize.iconSizeBig,
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(MySize.quarterRadius),
+                          border: Border.all(
+                            color: index == currentImageIndex
+                                ? MyColor.primaryColor
+                                : MyColor.white.withOpacity(0.3),
+                            width: 2,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius:
+                              BorderRadius.circular(MySize.quarterRadius - 2),
+                          child: index < capturedImages.length
+                              ? Image.file(
+                                  capturedImages[index],
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  color: MyColor.white.withOpacity(0.1),
+                                  child: Icon(
+                                    CupertinoIcons.camera,
+                                    color: MyColor.white.withOpacity(0.3),
+                                  ),
+                                ),
+                        ),
+                      );
+                    }),
+                  ),
                 ),
               ),
-            ),
-          ],
+              Positioned(
+                bottom: MySize.defaultPadding,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: MySize.defaultPadding),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.7),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildCircleButton(
+                        icon: CupertinoIcons.photo,
+                        onTap: _pickImage,
+                        size: MySize.iconSizeMedium,
+                      ),
+                      _buildCircleButton(
+                        icon: CupertinoIcons.camera_fill,
+                        onTap: _takePicture,
+                        size: MySize.iconSizeBig,
+                        isMain: true,
+                      ),
+                      if (cameras.length > 1)
+                        _buildCircleButton(
+                          icon: CupertinoIcons.switch_camera,
+                          onTap: _switchCamera,
+                          size: MySize.iconSizeMedium,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
