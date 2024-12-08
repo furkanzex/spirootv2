@@ -148,69 +148,81 @@ Widget fortuneHistorySection(BuildContext context) {
                                             ),
                                           ),
                                           horizontalGap(MySize.halfPadding),
-                                          GestureDetector(
-                                            onTap: () async {
-                                              bool? confirm =
-                                                  await showDialog<bool>(
-                                                context: context,
-                                                builder: (context) =>
-                                                    AlertDialog(
-                                                  backgroundColor: MyColor
-                                                      .darkBackgroundColor,
-                                                  title: Text(
-                                                    'Yorumu Sil',
-                                                    style: MyStyle.s1.copyWith(
-                                                        color: MyColor.white),
-                                                  ),
-                                                  content: Text(
-                                                    'Bu yorumu silmek istediğinizden emin misiniz?',
-                                                    style: MyStyle.s2.copyWith(
-                                                        color: MyColor.white),
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              context, false),
-                                                      child: Text(
-                                                        'İptal',
-                                                        style: MyStyle.s2.copyWith(
-                                                            color: MyColor
-                                                                .primaryLightColor),
-                                                      ),
+                                          if (data['revealAt'] == null ||
+                                              DateTime.now().isAfter(
+                                                  (data['revealAt']
+                                                          as Timestamp)
+                                                      .toDate()))
+                                            GestureDetector(
+                                              onTap: () async {
+                                                bool? confirm =
+                                                    await showDialog<bool>(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      AlertDialog(
+                                                    backgroundColor: MyColor
+                                                        .darkBackgroundColor,
+                                                    title: Text(
+                                                      'Yorumu Sil',
+                                                      style: MyStyle.s1
+                                                          .copyWith(
+                                                              color: MyColor
+                                                                  .white),
                                                     ),
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              context, true),
-                                                      child: Text(
-                                                        'Sil',
-                                                        style: MyStyle.s2
-                                                            .copyWith(
-                                                                color:
-                                                                    Colors.red),
-                                                      ),
+                                                    content: Text(
+                                                      'Bu yorumu silmek istediğinizden emin misiniz?',
+                                                      style: MyStyle.s2
+                                                          .copyWith(
+                                                              color: MyColor
+                                                                  .white),
                                                     ),
-                                                  ],
-                                                ),
-                                              );
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                context, false),
+                                                        child: Text(
+                                                          'İptal',
+                                                          style: MyStyle.s2
+                                                              .copyWith(
+                                                                  color: MyColor
+                                                                      .primaryLightColor),
+                                                        ),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                context, true),
+                                                        child: Text(
+                                                          'Sil',
+                                                          style: MyStyle.s2
+                                                              .copyWith(
+                                                                  color: Colors
+                                                                      .red),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
 
-                                              if (confirm == true) {
-                                                await FirebaseFirestore.instance
-                                                    .collection('users')
-                                                    .doc(FirebaseAuth.instance
-                                                        .currentUser?.uid)
-                                                    .collection('fortunes')
-                                                    .doc(fortune.id)
-                                                    .delete();
-                                              }
-                                            },
-                                            child: Icon(
-                                              MingCute.delete_2_line,
-                                              color: MyColor.primaryPurpleColor,
-                                              size: 20,
+                                                if (confirm == true) {
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('users')
+                                                      .doc(FirebaseAuth.instance
+                                                          .currentUser?.uid)
+                                                      .collection('fortunes')
+                                                      .doc(fortune.id)
+                                                      .delete();
+                                                }
+                                              },
+                                              child: Icon(
+                                                MingCute.delete_2_line,
+                                                color:
+                                                    MyColor.primaryPurpleColor,
+                                                size: 20,
+                                              ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     ],
@@ -304,13 +316,15 @@ void _showFortuneDetail(BuildContext context, FortuneHistoryItem item) {
                       ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () => _shareFortune(context, item),
-                    icon: Icon(
-                      MingCute.share_2_line,
-                      color: MyColor.primaryPurpleColor,
+                  if (item.revealAt == null ||
+                      DateTime.now().isAfter(item.revealAt!))
+                    IconButton(
+                      onPressed: () => _shareFortune(context, item),
+                      icon: Icon(
+                        MingCute.share_2_line,
+                        color: MyColor.primaryPurpleColor,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
