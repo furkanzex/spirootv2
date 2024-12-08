@@ -13,6 +13,7 @@ import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/interpretation/fortune_camera_screen.dart';
+import 'package:spirootv2/home/home_controller.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,7 +38,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
   final TextEditingController _relationshipController = TextEditingController();
   final TextEditingController _topic1Controller = TextEditingController();
   final TextEditingController _topic2Controller = TextEditingController();
-  bool _isForSelf = true;
+  bool _isForSelf = false;
   bool _hasProfile = false;
   bool _isInterpreting = false;
 
@@ -47,6 +48,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
     _topic1Controller.text = tr('profile.interests.money');
     _topic2Controller.text = tr('profile.interests.career');
     _checkProfile();
+    _isForSelf = _hasProfile ? true : false;
   }
 
   void _checkProfile() {
@@ -617,46 +619,59 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
               verticalGap(MySize.doublePadding),
 
               // Kimin İçin Bölümü
-              if (_hasProfile) ...[
-                Text(
-                  'Kimin İçin?',
-                  style: MyStyle.s1.copyWith(
-                    color: MyColor.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+              Text(
+                'Kimin İçin?',
+                style: MyStyle.s1.copyWith(
+                  color: MyColor.white,
+                  fontWeight: FontWeight.w600,
                 ),
-                verticalGap(MySize.defaultPadding),
-                Row(
-                  children: [
-                    _buildSelectionButton(
-                      title: 'Kendim İçin',
-                      icon: '👤',
-                      isSelected: _isForSelf,
-                      onTap: () {
+              ),
+              verticalGap(MySize.defaultPadding),
+              Row(
+                children: [
+                  _buildSelectionButton(
+                    title: 'Kendim İçin',
+                    icon: '👤',
+                    isSelected: _isForSelf,
+                    onTap: () {
+                      if (!_hasProfile) {
+                        Get.snackbar(
+                          'Profil Tamamlanmamış',
+                          'Kendiniz için fal baktırmak için önce profilinizi tamamlamalısınız.',
+                          backgroundColor:
+                              MyColor.primaryPurpleColor.withOpacity(0.8),
+                          colorText: MyColor.white,
+                          duration: Duration(seconds: 3),
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                        Navigator.pop(context);
+                        final controller = Get.find<HomeController>();
+                        controller.changePage(2);
+                      } else {
                         setState(() {
                           _isForSelf = true;
                           _loadUserData();
                         });
-                      },
-                    ),
-                    SizedBox(width: MySize.halfPadding),
-                    _buildSelectionButton(
-                      title: 'Başkası İçin',
-                      icon: '👥',
-                      isSelected: !_isForSelf,
-                      onTap: () {
-                        setState(() {
-                          _isForSelf = false;
-                          _nameController.clear();
-                          _birthDateController.clear();
-                          _relationshipController.clear();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                verticalGap(MySize.doublePadding),
-              ],
+                      }
+                    },
+                  ),
+                  SizedBox(width: MySize.halfPadding),
+                  _buildSelectionButton(
+                    title: 'Başkası İçin',
+                    icon: '👥',
+                    isSelected: !_isForSelf,
+                    onTap: () {
+                      setState(() {
+                        _isForSelf = false;
+                        _nameController.clear();
+                        _birthDateController.clear();
+                        _relationshipController.clear();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              verticalGap(MySize.doublePadding),
 
               _buildTextField(
                 readOnly: _isForSelf,
