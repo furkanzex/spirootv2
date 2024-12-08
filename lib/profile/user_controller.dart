@@ -53,7 +53,9 @@ class UserController extends GetxController {
     'friendship',
     'love',
     'family',
-    'career'
+    'career',
+    'education',
+    'travel'
   ];
 
   UserController({UserRepository? repository})
