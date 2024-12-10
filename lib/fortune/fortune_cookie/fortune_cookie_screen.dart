@@ -1,4 +1,8 @@
+import 'dart:math';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:translator/translator.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
@@ -16,10 +20,33 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
   int _tapCount = 0;
   bool _isBroken = false;
   bool _showMessage = false;
+  String _fortuneMessage = '';
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotateAnimation;
   late Animation<double> _slideAnimation;
+  final translator = GoogleTranslator();
+
+  Future<String> _getRandomFortune() async {
+    try {
+      final String response =
+          await rootBundle.loadString('assets/json/fortune_cookie.json');
+      final data = json.decode(response);
+      final messages = List<String>.from(data['messages']);
+      final randomMessage = messages[Random().nextInt(messages.length)];
+
+      // Çeviri işlemi
+      final translation = await translator.translate(
+        randomMessage,
+        to: Localizations.localeOf(context).languageCode,
+      );
+
+      return translation.text;
+    } catch (e) {
+      print('Fortune message error: $e');
+      return 'Şansınız her zaman sizinle olsun!';
+    }
+  }
 
   @override
   void initState() {
@@ -85,8 +112,10 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
       _controller.duration = const Duration(milliseconds: 800);
       _controller.forward(from: 0);
 
-      Future.delayed(const Duration(milliseconds: 500), () {
+      // Mesajı getir ve çevir
+      _getRandomFortune().then((message) {
         setState(() {
+          _fortuneMessage = message;
           _showMessage = true;
         });
       });
@@ -186,7 +215,7 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
                             ],
                           ),
                           child: Text(
-                            'Hayatta en önemli şey, kendine inanmaktır. Başarı, inancın ve çabanın birleşimidir.',
+                            _fortuneMessage,
                             style: MyStyle.s1.copyWith(
                               color: MyColor.white,
                               fontStyle: FontStyle.italic,
