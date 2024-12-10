@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               children: [
                 verticalGap(MySize.doublePadding),
-                luckSection(),
+                luckSection(context),
                 verticalGap(MySize.doublePadding),
               ],
             ),

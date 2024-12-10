@@ -6,15 +6,21 @@ import 'package:spirootv2/fortune/fortune_card.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/core/widget/text_field/section_title.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/fortune/fortune_cookie/fortune_cookie_screen.dart';
 
-Widget luckSection() {
+Widget luckSection(BuildContext context) {
   final List<FortuneCard> fortuneCards = [
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/cookie.png",
       title: "Şans Kurabiyesi",
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
-        // Şans kurabiyesi sayfasına git
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const FortuneCookieScreen(),
+          ),
+        );
       },
     ),
     FortuneCard(

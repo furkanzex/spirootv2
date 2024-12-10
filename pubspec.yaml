@@ -46,6 +46,7 @@ dependencies:
   camera: ^0.10.5+9
   permission_handler: ^11.3.0
   image_picker: ^1.0.7
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:
