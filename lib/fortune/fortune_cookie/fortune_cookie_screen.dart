@@ -98,6 +98,9 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
   void _handleTap() {
     if (_isBroken) return;
 
+    // Titreşim efekti ekle
+    HapticFeedback.mediumImpact();
+
     setState(() {
       _tapCount++;
     });
@@ -105,6 +108,9 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
     _controller.forward(from: 0);
 
     if (_tapCount >= 10) {
+      // Son tıklamada daha güçlü titreşim
+      HapticFeedback.heavyImpact();
+
       setState(() {
         _isBroken = true;
       });

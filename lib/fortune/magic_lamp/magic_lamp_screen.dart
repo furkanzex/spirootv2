@@ -93,6 +93,8 @@ class _MagicLampScreenState extends State<MagicLampScreen>
 
   void _startReading() async {
     if (!_isReading) {
+      HapticFeedback.heavyImpact();
+
       setState(() {
         _isReading = true;
       });
@@ -118,6 +120,10 @@ class _MagicLampScreenState extends State<MagicLampScreen>
 
   void _handlePanUpdate(DragUpdateDetails details) {
     if (!_isReading) {
+      if (_points.isEmpty || _random.nextInt(10) == 0) {
+        HapticFeedback.lightImpact();
+      }
+
       setState(() {
         _points.add(
           TrailPoint(
