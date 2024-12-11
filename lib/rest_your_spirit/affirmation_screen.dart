@@ -67,7 +67,6 @@ class _AffirmationScreenState extends State<AffirmationScreen>
       final data = json.decode(response);
       final allAffirmations = List<String>.from(data['affirmations']);
 
-      // Rastgele 5 olumlama seç
       final random = Random();
       while (_selectedAffirmations.length < 5) {
         final randomIndex = random.nextInt(allAffirmations.length);

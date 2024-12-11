@@ -25,17 +25,7 @@ Widget restUrSpiritSection(BuildContext context) {
       image: "https://apptoic.com/spiroot/images/meditation.png",
       title: "Meditasyon Egzersizi",
       color: MyColor.primaryLightColor,
-      onTap: () {
-        // Sihirli küre sayfasına git
-      },
-    ),
-    FortuneCard(
-      image: "https://apptoic.com/spiroot/images/spiritual_improvement.png",
-      title: "Ruhsal Gelişim Egzersizi",
-      color: MyColor.white.withOpacity(0.1),
-      onTap: () {
-        // Sihirli lamba sayfasına git
-      },
+      onTap: () {},
     ),
   ];
 
@@ -49,10 +39,10 @@ Widget restUrSpiritSection(BuildContext context) {
         padding: EdgeInsets.all(0),
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
-        crossAxisCount: 3,
+        crossAxisCount: 2,
         mainAxisSpacing: MySize.sixQuartersPadding,
         crossAxisSpacing: MySize.halfPadding,
-        childAspectRatio: 1,
+        childAspectRatio: 3 / 2,
         children: fortuneCards.map((card) => buildFortuneCard(card)).toList(),
       ),
     ],
