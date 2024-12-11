@@ -19,14 +19,12 @@ class AffirmationScreen extends StatefulWidget {
 
 class _AffirmationScreenState extends State<AffirmationScreen>
     with SingleTickerProviderStateMixin {
-  String _affirmation = '';
   bool _isLoading = true;
   int _currentAffirmationIndex = 0;
   int _tapCount = 0;
   List<String> _selectedAffirmations = [];
   bool _isCompleted = false;
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
   final translator = GoogleTranslator();
   late ConfettiController _confettiController;
 
@@ -37,14 +35,6 @@ class _AffirmationScreenState extends State<AffirmationScreen>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -209,7 +199,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
                               value: index < _currentAffirmationIndex
                                   ? 1
                                   : index == _currentAffirmationIndex
-                                      ? _tapCount / 10
+                                      ? _tapCount / 7
                                       : 0,
                               backgroundColor: MyColor.white.withOpacity(0.1),
                               valueColor: AlwaysStoppedAnimation<Color>(
@@ -259,7 +249,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
                     left: MySize.defaultPadding,
                     right: MySize.defaultPadding,
                     child: Text(
-                      'Bu olumlama için ${10 - _tapCount} tekrar kaldı',
+                      'Bu olumlama için ${7 - _tapCount} tekrar kaldı',
                       style: MyStyle.s2.copyWith(color: MyColor.white),
                       textAlign: TextAlign.center,
                     ),
@@ -279,10 +269,10 @@ class _AffirmationScreenState extends State<AffirmationScreen>
               gravity: 0.1,
               shouldLoop: false,
               colors: [
-                MyColor.primaryColor,
+                MyColor.primaryPurpleColor,
                 MyColor.primaryLightColor,
-                MyColor.secondaryColor,
-                MyColor.thirdColor,
+                MyColor.goldColor,
+                MyColor.roseColor,
               ],
             ),
           ),
