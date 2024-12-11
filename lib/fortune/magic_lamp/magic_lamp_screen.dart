@@ -10,14 +10,14 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
-class MagicOrbScreen extends StatefulWidget {
-  const MagicOrbScreen({super.key});
+class MagicLampScreen extends StatefulWidget {
+  const MagicLampScreen({super.key});
 
   @override
-  State<MagicOrbScreen> createState() => _MagicOrbScreenState();
+  State<MagicLampScreen> createState() => _MagicLampScreenState();
 }
 
-class _MagicOrbScreenState extends State<MagicOrbScreen>
+class _MagicLampScreenState extends State<MagicLampScreen>
     with SingleTickerProviderStateMixin {
   final List<TrailPoint> _points = [];
   bool _isReading = false;
@@ -31,9 +31,9 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
   final Random _random = Random();
 
   final List<Color> _colors = [
-    MyColor.primaryLightColor,
-    MyColor.primaryColor,
-    MyColor.thirdColor,
+    MyColor.white,
+    MyColor.secondaryColor,
+    MyColor.goldColor,
   ];
 
   @override
@@ -150,7 +150,7 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
           icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(easy.tr("Sihirli Küre"),
+        title: Text(easy.tr("Sihirli Lamba"),
             style: MyStyle.s1.copyWith(color: MyColor.white)),
         centerTitle: true,
       ),
@@ -164,20 +164,10 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
               Padding(
                 padding: EdgeInsets.only(
                     top: DeviceHelper.getScreenHeight(context) * 0.1),
-                child: Container(
+                child: Padding(
                   padding: EdgeInsets.all(MySize.defaultPadding),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: MyColor.primaryColor.withOpacity(0.2),
-                        blurRadius: 20,
-                        spreadRadius: 10,
-                      ),
-                    ],
-                  ),
                   child: Image.asset(
-                    "assets/images/magic_orb.png",
+                    "assets/images/magic_lamp.png",
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -222,7 +212,7 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
                 left: MySize.defaultPadding,
                 right: MySize.defaultPadding,
                 child: Text(
-                  easy.tr("Sihirli küreyi ovalamaya başla!"),
+                  easy.tr("Sihirli lambayı ovalamaya başla!"),
                   style: MyStyle.s2.copyWith(
                     color: MyColor.whiteTintColor,
                   ),
@@ -303,4 +293,21 @@ class TrailPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(TrailPainter oldDelegate) => true;
+}
+
+class LampClipper extends CustomClipper<Rect> {
+  final Offset center;
+  final double radius;
+
+  LampClipper({required this.center, required this.radius});
+
+  @override
+  Rect getClip(Size size) {
+    return Rect.fromCircle(center: center, radius: radius);
+  }
+
+  @override
+  bool shouldReclip(LampClipper oldClipper) {
+    return center != oldClipper.center || radius != oldClipper.radius;
+  }
 }
