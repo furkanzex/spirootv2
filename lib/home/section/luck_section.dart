@@ -7,6 +7,7 @@ import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/core/widget/text_field/section_title.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/fortune/fortune_cookie/fortune_cookie_screen.dart';
+import 'package:spirootv2/fortune/magic_orb/magic_orb_screen.dart';
 
 Widget luckSection(BuildContext context) {
   final List<FortuneCard> fortuneCards = [
@@ -28,7 +29,12 @@ Widget luckSection(BuildContext context) {
       title: "Sihirli Küre",
       color: MyColor.primaryLightColor,
       onTap: () {
-        // Sihirli küre sayfasına git
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MagicOrbScreen(),
+          ),
+        );
       },
     ),
     FortuneCard(
