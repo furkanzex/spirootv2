@@ -18,7 +18,7 @@ class AffirmationScreen extends StatefulWidget {
 }
 
 class _AffirmationScreenState extends State<AffirmationScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   bool _isLoading = true;
   int _currentAffirmationIndex = 0;
   int _tapCount = 0;
@@ -27,6 +27,8 @@ class _AffirmationScreenState extends State<AffirmationScreen>
   late AnimationController _controller;
   final translator = GoogleTranslator();
   late ConfettiController _confettiController;
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -44,6 +46,17 @@ class _AffirmationScreenState extends State<AffirmationScreen>
 
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 3));
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(
+      parent: _scaleController,
+      curve: Curves.easeInOut,
+    ));
     _loadInitialAffirmation();
   }
 
@@ -98,28 +111,19 @@ class _AffirmationScreenState extends State<AffirmationScreen>
     }
   }
 
-  void _handleTap() {
-    if (_isCompleted) return;
-
-    HapticFeedback.mediumImpact();
-
+  void _handleTap() async {
+    HapticFeedback.heavyImpact();
+    _scaleController.forward().then((_) => _scaleController.reverse());
     setState(() {
       _tapCount++;
     });
 
-    _controller.forward(from: 0);
-
-    if (_tapCount >= 7) {
-      HapticFeedback.heavyImpact();
-
+    if (_tapCount == 7) {
       if (_currentAffirmationIndex == 4) {
         setState(() {
           _isCompleted = true;
         });
         _confettiController.play();
-        Future.delayed(const Duration(seconds: 3), () {
-          Navigator.pop(context);
-        });
       } else {
         setState(() {
           _currentAffirmationIndex++;
@@ -133,6 +137,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
   void dispose() {
     _controller.dispose();
     _confettiController.dispose();
+    _scaleController.dispose();
     super.dispose();
   }
 
@@ -224,18 +229,38 @@ class _AffirmationScreenState extends State<AffirmationScreen>
                         height: MySize.deviceWidth(context) * 0.9,
                         fit: BoxFit.contain,
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(MySize.defaultPadding * 2),
-                        child: Text(
-                          _isCompleted
-                              ? "Tebrikler! Bugünkü olumlamalarınızı tamamladınız! 🎉"
-                              : _selectedAffirmations[_currentAffirmationIndex],
-                          style: MyStyle.s1.copyWith(
-                            color: MyColor.white,
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
+                      GestureDetector(
+                        onTapDown: (_) => _scaleController.forward(),
+                        onTapUp: (_) => _scaleController.reverse(),
+                        onTapCancel: () => _scaleController.reverse(),
+                        onTap: _handleTap,
+                        child: AnimatedBuilder(
+                          animation: _scaleController,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _scaleAnimation.value,
+                              child: Container(
+                                padding:
+                                    EdgeInsets.all(MySize.defaultPadding * 2),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      MySize.defaultRadius),
+                                ),
+                                child: Text(
+                                  _isCompleted
+                                      ? "Tebrikler! Bugünkü olumlamalarınızı tamamladınız! 🎉"
+                                      : _selectedAffirmations[
+                                          _currentAffirmationIndex],
+                                  style: MyStyle.s1.copyWith(
+                                    color: MyColor.white,
+                                    fontStyle: FontStyle.italic,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
