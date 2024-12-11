@@ -47,6 +47,8 @@ dependencies:
   permission_handler: ^11.3.0
   image_picker: ^1.0.7
   translator: ^1.0.3+1
+  device_preview: ^1.2.0
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:

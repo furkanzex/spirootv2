@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/auth/splash_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -98,7 +99,10 @@ Future<void> main() async {
       ],
       path: 'assets/translations',
       fallbackLocale: const Locale('tr', 'TR'),
-      child: const MyApp(),
+      child: DevicePreview(
+        enabled: false,
+        builder: (context) => const MyApp(),
+      ),
     ),
   );
 }

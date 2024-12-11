@@ -37,4 +37,6 @@ class MyColor {
   //Premium Color
   static const Color goldColor = Color(0xFFFF9800);
   static Color lightGoldColor = Colors.amber[100]!;
+
+  static const Color roseColor = Color(0xFF974b52);
 }
