@@ -30,7 +30,7 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
   Future<String> _getRandomFortune() async {
     try {
       final String response =
-          await rootBundle.loadString('assets/json/fortune_cookie.json');
+          await rootBundle.loadString('assets/json/fortunes.json');
       final data = json.decode(response);
       final messages = List<String>.from(data['messages']);
       final randomMessage = messages[Random().nextInt(messages.length)];
