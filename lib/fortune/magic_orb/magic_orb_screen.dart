@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:translator/translator.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
@@ -108,7 +109,7 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _touchDuration++;
-      if (_touchDuration >= 5 && !_isReading) {
+      if (_touchDuration >= 3 && !_isReading) {
         timer.cancel();
         _startReading();
       }
@@ -169,6 +170,28 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
               size: Size(
                   MySize.deviceWidth(context), MySize.deviceHeight(context)),
             ),
+            if (!_isReading)
+              Padding(
+                padding: EdgeInsets.only(
+                    top: DeviceHelper.getScreenHeight(context) * 0.1),
+                child: Container(
+                  padding: EdgeInsets.all(MySize.defaultPadding),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: MyColor.primaryColor.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Image.asset(
+                    "assets/images/magic_orb.png",
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
             if (_isReading)
               Center(
                 child: FadeTransition(
