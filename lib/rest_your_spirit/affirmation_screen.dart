@@ -124,6 +124,10 @@ class _AffirmationScreenState extends State<AffirmationScreen>
           _isCompleted = true;
         });
         _confettiController.play();
+        // 3 saniye sonra anasayfaya dön
+        Future.delayed(const Duration(seconds: 3), () {
+          Navigator.pop(context);
+        });
       } else {
         setState(() {
           _currentAffirmationIndex++;
