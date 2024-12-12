@@ -369,7 +369,7 @@ class _MeditationPageState extends State<_MeditationPage>
     });
   }
 
-  Future<void> _beginMeditation() async {
+  void _beginMeditation() {
     if (!mounted) return;
 
     setState(() {
@@ -377,29 +377,20 @@ class _MeditationPageState extends State<_MeditationPage>
       _isMeditating = true;
       _isPlaying = true;
       _currentProgress = 0.0;
+      _remainingSeconds = widget.duration * 60;
     });
 
-    try {
-      await _audioPlayer.play();
-      _startCountdown();
-    } catch (e) {
-      print('Meditation start error: $e');
-    }
+    _audioPlayer.play();
+    _startCountdown();
   }
 
   void _startCountdown() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
           _currentProgress = 1.0 - (_remainingSeconds / (widget.duration * 60));
-          print('Remaining seconds: $_remainingSeconds'); // Debug için
         } else {
           _endMeditation();
         }
