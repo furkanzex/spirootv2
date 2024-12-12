@@ -421,6 +421,12 @@ class _MeditationPageState extends State<_MeditationPage>
     widget.onComplete();
   }
 
+  String _formatTime() {
+    int minutes = _remainingSeconds ~/ 60;
+    int seconds = _remainingSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -489,7 +495,7 @@ class _MeditationPageState extends State<_MeditationPage>
                         child: Column(
                           children: [
                             Text(
-                              '${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}',
+                              _formatTime(),
                               style: MyStyle.b1.copyWith(
                                 color: MyColor.white,
                                 fontSize: 72,
