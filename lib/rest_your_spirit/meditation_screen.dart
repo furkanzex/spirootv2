@@ -306,37 +306,37 @@ class _MeditationPageState extends State<_MeditationPage>
       'name': 'Stress',
       'icon': '🌊',
       'color': Color(0xFF7B8FF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/stress_meditation.mp3',
+      'sound': 'https://apptoic.com/spiroot/sounds/1.mp3',
     },
     {
       'name': 'Gratitude',
       'icon': '🌟',
       'color': Color(0xFF9D7BF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/gratitude_meditation.mp3',
+      'sound': 'https://apptoic.com/spiroot/sounds/2.mp3',
     },
     {
       'name': 'Anxiety',
       'icon': '🌀',
       'color': Color(0xFF7B8FF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/anxiety_meditation.mp3',
+      'sound': 'https://apptoic.com/spiroot/sounds/3.mp3',
     },
     {
       'name': 'Sadness',
       'icon': '💧',
       'color': Color(0xFF9D7BF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/sadness_meditation.mp3',
+      'sound': 'https://apptoic.com/spiroot/sounds/4.mp3',
     },
     {
       'name': 'Happiness',
       'icon': '✨',
       'color': Color(0xFF7B8FF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/happiness_meditation.mp3',
+      'sound': 'https://apptoic.com/spiroot/sounds/5.mp3',
     },
     {
       'name': 'Anger',
       'icon': '🔥',
       'color': Color(0xFF9D7BF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/anger_meditation.mp3',
+      'sound': 'https://apptoic.com/spiroot/sounds/6.mp3',
     },
   ];
 
