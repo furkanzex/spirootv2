@@ -307,6 +307,8 @@ class _MeditationPageState extends State<_MeditationPage>
     with SingleTickerProviderStateMixin {
   final AudioPlayer _audioPlayer = AudioPlayer();
   late AnimationController _breathingController;
+  bool _isPlaying = false;
+  bool _isMeditating = false;
   bool _isPreparingMeditation = true;
   double _currentProgress = 0.0;
   Timer? _timer;
@@ -320,6 +322,8 @@ class _MeditationPageState extends State<_MeditationPage>
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat(reverse: true);
+
+    _remainingSeconds = widget.duration * 60;
     _startPreparation();
   }
 
@@ -333,62 +337,88 @@ class _MeditationPageState extends State<_MeditationPage>
 
   Future<void> _startPreparation() async {
     try {
+      // Ses dosyasını yükle
       final selectedSound = widget.feelings
           .firstWhere((f) => f['name'] == widget.feeling)['sound'];
       await _audioPlayer.setUrl(selectedSound);
       await _audioPlayer.setLoopMode(LoopMode.one);
-    } catch (e) {
-      print('Audio error: $e');
-    }
 
-    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
-      if (_relaxationStep < widget.relaxationSteps.length - 1) {
-        setState(() {
-          _relaxationStep++;
-        });
-      } else {
-        timer.cancel();
-        _startMeditation();
-      }
-    });
+      // Rahatlama adımları
+      _relaxationStep = 0;
+      _startRelaxationSteps();
+    } catch (e) {
+      print('Preparation error: $e');
+    }
   }
 
-  void _startMeditation() async {
-    setState(() {
-      _isPreparingMeditation = false;
-      _remainingSeconds = widget.duration * 60;
-      _currentProgress = 0.0;
-    });
-
-    await _audioPlayer.play();
-
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
+  void _startRelaxationSteps() {
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
 
       setState(() {
-        if (_remainingSeconds > 0) {
-          _remainingSeconds--;
-          _currentProgress = 1 - (_remainingSeconds / (widget.duration * 60));
+        if (_relaxationStep < widget.relaxationSteps.length - 1) {
+          _relaxationStep++;
         } else {
           timer.cancel();
-          _completeMeditation();
+          _beginMeditation();
         }
       });
     });
   }
 
-  void _completeMeditation() {
-    _timer?.cancel();
-    _audioPlayer.stop();
-    setState(() {});
-    widget.onComplete();
+  Future<void> _beginMeditation() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isPreparingMeditation = false;
+      _isMeditating = true;
+      _isPlaying = true;
+      _currentProgress = 0.0;
+    });
+
+    try {
+      await _audioPlayer.play();
+      _startCountdown();
+    } catch (e) {
+      print('Meditation start error: $e');
+    }
   }
 
-  String _formatTime(int seconds) {
-    int minutes = seconds ~/ 60;
-    int remainingSeconds = seconds % 60;
-    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
+  void _startCountdown() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      setState(() {
+        if (_remainingSeconds > 0) {
+          _remainingSeconds--;
+          _currentProgress = 1.0 - (_remainingSeconds / (widget.duration * 60));
+          print('Remaining seconds: $_remainingSeconds'); // Debug için
+        } else {
+          _endMeditation();
+        }
+      });
+    });
+  }
+
+  void _endMeditation() {
+    _timer?.cancel();
+    _audioPlayer.stop();
+
+    setState(() {
+      _isPlaying = false;
+      _isMeditating = false;
+      _currentProgress = 1.0;
+      _remainingSeconds = 0;
+    });
+
+    widget.onComplete();
   }
 
   @override
@@ -457,10 +487,9 @@ class _MeditationPageState extends State<_MeditationPage>
                     ] else ...[
                       FadeIn(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              _formatTime(_remainingSeconds),
+                              '${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}',
                               style: MyStyle.b1.copyWith(
                                 color: MyColor.white,
                                 fontSize: 72,
@@ -494,7 +523,7 @@ class _MeditationPageState extends State<_MeditationPage>
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 ElevatedButton(
-                                  onPressed: _completeMeditation,
+                                  onPressed: _endMeditation,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: MyColor.primaryLightColor,
                                     padding: EdgeInsets.symmetric(
