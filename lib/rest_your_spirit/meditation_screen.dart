@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
@@ -9,7 +8,6 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:confetti/confetti.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:animate_do/animate_do.dart';
 
 class MeditationScreen extends StatefulWidget {
   const MeditationScreen({super.key});
@@ -24,72 +22,64 @@ class _MeditationScreenState extends State<MeditationScreen>
   late ConfettiController _confettiController;
   late AnimationController _breathingController;
   String? _selectedFeeling;
-  String? _selectedSound;
-  int? _selectedDuration;
   bool _isPlaying = false;
   bool _isMeditating = false;
+  bool _isLoading = false;
   double _currentProgress = 0.0;
   Timer? _timer;
   int _remainingSeconds = 0;
+  int _relaxationStep = 0;
+  int? _selectedDuration;
+
+  final List<String> _relaxationSteps = [
+    'Gözlerinizi kapatın ve derin bir nefes alın...',
+    'Omuzlarınızı gevşetin ve rahatlayın...',
+    'Zihninizi boşaltın ve anın tadını çıkarın...',
+  ];
 
   final List<Map<String, dynamic>> _feelings = [
     {
       'name': 'Stress',
       'icon': '🌊',
       'color': Color(0xFF7B8FF7),
+      'sound': 'https://apptoic.com/spiroot/sounds/1.mp3',
     },
     {
       'name': 'Gratitude',
       'icon': '🌟',
       'color': Color(0xFF9D7BF7),
+      'sound': 'https://apptoic.com/spiroot/sounds/2.mp3',
     },
     {
       'name': 'Anxiety',
       'icon': '🌀',
       'color': Color(0xFF7B8FF7),
+      'sound': 'https://apptoic.com/spiroot/sounds/3.mp3',
     },
     {
       'name': 'Sadness',
       'icon': '💧',
       'color': Color(0xFF9D7BF7),
+      'sound': 'https://apptoic.com/spiroot/sounds/4.mp3',
     },
     {
       'name': 'Happiness',
       'icon': '✨',
       'color': Color(0xFF7B8FF7),
+      'sound': 'https://apptoic.com/spiroot/sounds/5.mp3',
     },
     {
       'name': 'Anger',
       'icon': '🔥',
       'color': Color(0xFF9D7BF7),
+      'sound': 'https://apptoic.com/spiroot/sounds/6.mp3',
     },
   ];
 
   final List<Map<String, dynamic>> _durations = [
-    {'minutes': 3, 'text': '3 min'},
     {'minutes': 5, 'text': '5 min'},
-    {'minutes': 7, 'text': '7 min'},
-  ];
-
-  final List<Map<String, dynamic>> _sounds = [
-    {
-      'name': 'Calm Summer Night',
-      'subtitle': 'The Sounds of Nature',
-      'duration': '58:24',
-      'url': 'https://apptoic.com/spiroot/sounds/1.mp3',
-    },
-    {
-      'name': 'Peaceful Rain',
-      'subtitle': 'The Sounds of Nature',
-      'duration': '45:30',
-      'url': 'https://apptoic.com/spiroot/sounds/2.mp3',
-    },
-    {
-      'name': 'Ocean Waves',
-      'subtitle': 'The Sounds of Nature',
-      'duration': '52:15',
-      'url': 'https://apptoic.com/spiroot/sounds/3.mp3',
-    },
+    {'minutes': 10, 'text': '10 min'},
+    {'minutes': 15, 'text': '15 min'},
   ];
 
   @override
@@ -112,52 +102,76 @@ class _MeditationScreenState extends State<MeditationScreen>
     super.dispose();
   }
 
-  void _togglePlay() async {
-    if (_isPlaying) {
-      await _audioPlayer.pause();
-    } else {
+  Future<void> _startMeditation() async {
+    if (_selectedDuration == null || _selectedFeeling == null) return;
+
+    setState(() {
+      _isLoading = true;
+      _relaxationStep = 0;
+    });
+
+    // Rahatlama adımları için timer
+    Timer.periodic(Duration(seconds: 3), (timer) {
+      if (_relaxationStep < _relaxationSteps.length - 1) {
+        setState(() {
+          _relaxationStep++;
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+
+    // Ses dosyasını yükle ve başlat
+    try {
+      final selectedSound =
+          _feelings.firstWhere((f) => f['name'] == _selectedFeeling)['sound'];
+      await _audioPlayer.setUrl(selectedSound);
+      await _audioPlayer.setLoopMode(LoopMode.one);
       await _audioPlayer.play();
-    }
-    setState(() {
-      _isPlaying = !_isPlaying;
-    });
-  }
 
-  void _startMeditation() {
-    if (_selectedDuration == null) return;
-
-    setState(() {
-      _isMeditating = true;
-      _remainingSeconds = _selectedDuration! * 60;
-      _currentProgress = 0.0;
-    });
-
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
-        if (_remainingSeconds > 0) {
-          _remainingSeconds--;
-          _currentProgress =
-              1 - (_remainingSeconds / (_selectedDuration! * 60));
-        } else {
-          _completeMeditation();
-        }
+        _isLoading = false;
+        _isMeditating = true;
+        _isPlaying = true;
+        _remainingSeconds = _selectedDuration! * 60;
+        _currentProgress = 0.0;
       });
-    });
 
-    _togglePlay();
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        setState(() {
+          if (_remainingSeconds > 0) {
+            _remainingSeconds--;
+            _currentProgress =
+                1 - (_remainingSeconds / (_selectedDuration! * 60));
+          } else {
+            _completeMeditation();
+          }
+        });
+      });
+    } catch (e) {
+      print('Audio error: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _completeMeditation() {
     _timer?.cancel();
-    _togglePlay();
+    _audioPlayer.stop();
     _confettiController.play();
 
-    Future.delayed(Duration(seconds: 3), () {
-      setState(() {
-        _isMeditating = false;
-        Navigator.pop(context);
-      });
+    setState(() {
+      _isMeditating = false;
+      _isPlaying = false;
     });
+  }
+
+  Future<bool> _onWillPop() async {
+    if (_isMeditating) {
+      return false;
+    }
+    return true;
   }
 
   String _formatTime(int seconds) {
@@ -326,195 +340,155 @@ class _MeditationScreenState extends State<MeditationScreen>
   }
 
   Widget _buildPlayerScreen() {
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF2A1CB0),
-                MyColor.darkBackgroundColor,
-              ],
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: ShaderMask(
-            shaderCallback: (Rect bounds) {
-              return LinearGradient(
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Colors.white.withOpacity(0.1)],
-              ).createShader(bounds);
-            },
-            blendMode: BlendMode.srcOver,
-            child: Opacity(
-              opacity: 0.5,
-              child: SvgPicture.asset(
-                'assets/svg/stars.svg',
-                fit: BoxFit.cover,
+                colors: [
+                  Color(0xFF2A1CB0),
+                  MyColor.darkBackgroundColor,
+                ],
               ),
             ),
           ),
-        ),
-        Column(
-          children: [
-            AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: !_isMeditating
-                  ? IconButton(
-                      icon:
-                          Icon(Icons.keyboard_arrow_down, color: MyColor.white),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  : null,
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(MySize.defaultPadding),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (_isMeditating) ...[
-                      Text(
-                        _formatTime(_remainingSeconds),
-                        style: MyStyle.b1.copyWith(color: MyColor.white),
-                      ),
-                      SizedBox(height: MySize.defaultPadding),
-                      Text(
-                        'Take a deep breath...',
-                        style:
-                            MyStyle.s2.copyWith(color: MyColor.whiteTintColor),
-                      ),
-                    ] else ...[
-                      Text(
-                        'Calm Summer Night',
-                        style: MyStyle.b3.copyWith(color: MyColor.white),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'The Sounds of Nature',
-                        style:
-                            MyStyle.s2.copyWith(color: MyColor.whiteTintColor),
-                      ),
-                    ],
-                    SizedBox(height: MySize.doublePadding),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (!_isMeditating) ...[
-                          IconButton(
-                            icon: Icon(Icons.favorite_border,
-                                color: MyColor.white),
-                            onPressed: () {},
-                          ),
-                          SizedBox(width: MySize.defaultPadding),
-                        ],
-                        Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: MyColor.white,
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              _isPlaying ? Icons.pause : Icons.play_arrow,
-                              size: 32,
-                              color: MyColor.primaryColor,
-                            ),
-                            onPressed: _isMeditating ? null : _togglePlay,
-                          ),
-                        ),
-                        if (!_isMeditating) ...[
-                          SizedBox(width: MySize.defaultPadding),
-                          IconButton(
-                            icon: Icon(Icons.share, color: MyColor.white),
-                            onPressed: () {},
-                          ),
-                        ],
-                      ],
-                    ),
-                    SizedBox(height: MySize.defaultPadding),
-                    if (!_isMeditating) ...[
-                      Slider(
-                        value: _currentProgress,
-                        onChanged: (value) {
-                          setState(() {
-                            _currentProgress = value;
-                          });
-                        },
-                        activeColor: MyColor.white,
-                        inactiveColor: MyColor.whiteTintColor,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: MySize.defaultPadding),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '37:18',
-                              style: MyStyle.s3
-                                  .copyWith(color: MyColor.whiteTintColor),
-                            ),
-                            Text(
-                              '58:24',
-                              style: MyStyle.s3
-                                  .copyWith(color: MyColor.whiteTintColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: MySize.doublePadding),
-                      ElevatedButton(
-                        onPressed: _startMeditation,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: MyColor.primaryColor,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: MySize.doublePadding,
-                            vertical: MySize.defaultPadding,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(MySize.halfRadius),
-                          ),
-                        ),
-                        child: Text(
-                          'Begin $_selectedDuration Minutes Meditation',
-                          style: MyStyle.s1.copyWith(color: MyColor.white),
-                        ),
-                      ),
-                    ] else ...[
-                      LinearProgressIndicator(
-                        value: _currentProgress,
-                        backgroundColor: MyColor.primaryColor.withOpacity(0.3),
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(MyColor.white),
-                      ),
-                    ],
-                  ],
+          Positioned.fill(
+            child: ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.white.withOpacity(0.1)],
+                ).createShader(bounds);
+              },
+              blendMode: BlendMode.srcOver,
+              child: Opacity(
+                opacity: 0.5,
+                child: SvgPicture.asset(
+                  'assets/svg/stars.svg',
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-          ],
-        ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: ConfettiWidget(
-            confettiController: _confettiController,
-            blastDirection: pi / 2,
-            maxBlastForce: 5,
-            minBlastForce: 2,
-            emissionFrequency: 0.05,
-            numberOfParticles: 50,
-            gravity: 0.1,
           ),
-        ),
-      ],
+          Column(
+            children: [
+              AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                automaticallyImplyLeading: !_isMeditating,
+                leading: !_isMeditating
+                    ? IconButton(
+                        icon: Icon(Icons.keyboard_arrow_down,
+                            color: MyColor.white),
+                        onPressed: () => Navigator.pop(context),
+                      )
+                    : null,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(MySize.defaultPadding),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_isLoading) ...[
+                        Text(
+                          _relaxationSteps[_relaxationStep],
+                          style: MyStyle.b3.copyWith(color: MyColor.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: MySize.defaultPadding),
+                        CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(MyColor.white),
+                        ),
+                      ] else if (_isMeditating) ...[
+                        Text(
+                          _formatTime(_remainingSeconds),
+                          style: MyStyle.b1.copyWith(color: MyColor.white),
+                        ),
+                        SizedBox(height: MySize.defaultPadding),
+                        Text(
+                          'Take a deep breath...',
+                          style: MyStyle.s2
+                              .copyWith(color: MyColor.whiteTintColor),
+                        ),
+                        SizedBox(height: MySize.doublePadding),
+                        LinearProgressIndicator(
+                          value: _currentProgress,
+                          backgroundColor:
+                              MyColor.primaryColor.withOpacity(0.3),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(MyColor.white),
+                        ),
+                        SizedBox(height: MySize.doublePadding),
+                        ElevatedButton(
+                          onPressed: _completeMeditation,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: MyColor.errorColor,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: MySize.doublePadding,
+                              vertical: MySize.defaultPadding,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(MySize.halfRadius),
+                            ),
+                          ),
+                          child: Text(
+                            'Meditasyonu Bitir',
+                            style: MyStyle.s1.copyWith(color: MyColor.white),
+                          ),
+                        ),
+                      ] else ...[
+                        Text(
+                          'Ready to begin your meditation?',
+                          style: MyStyle.b3.copyWith(color: MyColor.white),
+                        ),
+                        SizedBox(height: MySize.doublePadding),
+                        ElevatedButton(
+                          onPressed: _startMeditation,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: MyColor.primaryColor,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: MySize.doublePadding,
+                              vertical: MySize.defaultPadding,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(MySize.halfRadius),
+                            ),
+                          ),
+                          child: Text(
+                            'Begin $_selectedDuration Minutes Meditation',
+                            style: MyStyle.s1.copyWith(color: MyColor.white),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: pi / 2,
+              maxBlastForce: 5,
+              minBlastForce: 2,
+              emissionFrequency: 0.05,
+              numberOfParticles: 50,
+              gravity: 0.1,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
