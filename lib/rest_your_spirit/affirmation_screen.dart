@@ -62,23 +62,33 @@ class _AffirmationScreenState extends State<AffirmationScreen>
 
   Future<void> _loadInitialAffirmation() async {
     try {
+      // JSON'u bir kere yükle ve cache'le
       final String response =
           await rootBundle.loadString('assets/json/affirmations.json');
       final data = json.decode(response);
       final allAffirmations = List<String>.from(data['affirmations']);
 
+      // Rastgele 5 affirmation seç
       final random = Random();
-      while (_selectedAffirmations.length < 5) {
+      final selectedIndices = <int>{};
+      final currentLocale = Localizations.localeOf(context).languageCode;
+
+      // Paralel çeviri işlemleri için Future listesi
+      final List<Future<String>> translationFutures = [];
+
+      while (selectedIndices.length < 5) {
         final randomIndex = random.nextInt(allAffirmations.length);
-        final affirmation = allAffirmations[randomIndex];
-        if (!_selectedAffirmations.contains(affirmation)) {
-          final translation = await translator.translate(
-            affirmation,
-            to: Localizations.localeOf(context).languageCode,
-          );
-          _selectedAffirmations.add(translation.text);
+        if (selectedIndices.add(randomIndex)) {
+          final affirmation = allAffirmations[randomIndex];
+          translationFutures.add(translator
+              .translate(affirmation, to: currentLocale)
+              .then((translation) => translation.text));
         }
       }
+
+      // Tüm çevirileri paralel olarak bekle
+      final translations = await Future.wait(translationFutures);
+      _selectedAffirmations = translations;
 
       setState(() {
         _isLoading = false;
@@ -91,28 +101,12 @@ class _AffirmationScreenState extends State<AffirmationScreen>
     }
   }
 
-  Future<String> _getRandomAffirmation() async {
-    try {
-      final String response =
-          await rootBundle.loadString('assets/json/affirmations.json');
-      final data = json.decode(response);
-      final messages = List<String>.from(data['messages']);
-      final randomMessage = messages[Random().nextInt(messages.length)];
+  void _handleTap() {
+    if (_isCompleted) return;
 
-      final translation = await translator.translate(
-        randomMessage,
-        to: Localizations.localeOf(context).languageCode,
-      );
-
-      return translation.text;
-    } catch (e) {
-      return 'Her şey yolunda gidecek!';
-    }
-  }
-
-  void _handleTap() async {
     HapticFeedback.heavyImpact();
     _scaleController.forward().then((_) => _scaleController.reverse());
+
     setState(() {
       _tapCount++;
     });
@@ -123,7 +117,6 @@ class _AffirmationScreenState extends State<AffirmationScreen>
           _isCompleted = true;
         });
         _confettiController.play();
-        // 3 saniye sonra anasayfaya dön
         Future.delayed(const Duration(seconds: 3), () {
           Navigator.pop(context);
         });
@@ -232,39 +225,33 @@ class _AffirmationScreenState extends State<AffirmationScreen>
                         height: MySize.deviceWidth(context) * 0.9,
                         fit: BoxFit.contain,
                       ),
-                      GestureDetector(
-                        onTapDown: (_) => _scaleController.forward(),
-                        onTapUp: (_) => _scaleController.reverse(),
-                        onTapCancel: () => _scaleController.reverse(),
-                        onTap: _handleTap,
-                        child: AnimatedBuilder(
-                          animation: _scaleController,
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: _scaleAnimation.value,
-                              child: Container(
-                                padding:
-                                    EdgeInsets.all(MySize.defaultPadding * 2),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                      MySize.defaultRadius),
-                                ),
-                                child: Text(
-                                  _isCompleted
-                                      ? "Tebrikler! Bugünkü olumlamalarınızı tamamladınız! 🎉"
-                                      : _selectedAffirmations[
-                                          _currentAffirmationIndex],
-                                  style: MyStyle.s1.copyWith(
-                                    color: MyColor.white,
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
+                      AnimatedBuilder(
+                        animation: _scaleController,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _scaleAnimation.value,
+                            child: Container(
+                              padding:
+                                  EdgeInsets.all(MySize.defaultPadding * 2),
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(MySize.defaultRadius),
                               ),
-                            );
-                          },
-                        ),
+                              child: Text(
+                                _isCompleted
+                                    ? "Tebrikler! Bugünkü olumlamalarınızı tamamladınız! 🎉"
+                                    : _selectedAffirmations[
+                                        _currentAffirmationIndex],
+                                style: MyStyle.s1.copyWith(
+                                  color: MyColor.white,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
