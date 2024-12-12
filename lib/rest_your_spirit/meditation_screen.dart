@@ -71,6 +71,12 @@ class _MeditationScreenState extends State<MeditationScreen>
     {'minutes': 15, 'text': '15 min'},
   ];
 
+  final List<String> _relaxationSteps = [
+    'Gözlerinizi kapatın ve derin bir nefes alın...',
+    'Omuzlarınızı gevşetin ve rahatlayın...',
+    'Zihninizi boşaltın ve anın tadını çıkarın...',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -101,6 +107,8 @@ class _MeditationScreenState extends State<MeditationScreen>
           onComplete: () {
             Navigator.of(context).pop();
           },
+          feelings: _feelings,
+          relaxationSteps: _relaxationSteps,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
@@ -277,6 +285,8 @@ class _MeditationScreenState extends State<MeditationScreen>
 }
 
 class _MeditationPage extends StatefulWidget {
+  final List<Map<String, dynamic>> feelings;
+  final List<String> relaxationSteps;
   final String feeling;
   final int duration;
   final VoidCallback onComplete;
@@ -285,6 +295,8 @@ class _MeditationPage extends StatefulWidget {
     required this.feeling,
     required this.duration,
     required this.onComplete,
+    required this.feelings,
+    required this.relaxationSteps,
   });
 
   @override
@@ -300,51 +312,6 @@ class _MeditationPageState extends State<_MeditationPage>
   Timer? _timer;
   int _remainingSeconds = 0;
   int _relaxationStep = 0;
-
-  final List<Map<String, dynamic>> _feelings = [
-    {
-      'name': 'Stress',
-      'icon': '🌊',
-      'color': Color(0xFF7B8FF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/1.mp3',
-    },
-    {
-      'name': 'Gratitude',
-      'icon': '🌟',
-      'color': Color(0xFF9D7BF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/2.mp3',
-    },
-    {
-      'name': 'Anxiety',
-      'icon': '🌀',
-      'color': Color(0xFF7B8FF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/3.mp3',
-    },
-    {
-      'name': 'Sadness',
-      'icon': '💧',
-      'color': Color(0xFF9D7BF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/4.mp3',
-    },
-    {
-      'name': 'Happiness',
-      'icon': '✨',
-      'color': Color(0xFF7B8FF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/5.mp3',
-    },
-    {
-      'name': 'Anger',
-      'icon': '🔥',
-      'color': Color(0xFF9D7BF7),
-      'sound': 'https://apptoic.com/spiroot/sounds/6.mp3',
-    },
-  ];
-
-  final List<String> _relaxationSteps = [
-    'Gözlerinizi kapatın ve derin bir nefes alın...',
-    'Omuzlarınızı gevşetin ve rahatlayın...',
-    'Zihninizi boşaltın ve anın tadını çıkarın...',
-  ];
 
   @override
   void initState() {
@@ -365,19 +332,17 @@ class _MeditationPageState extends State<_MeditationPage>
   }
 
   Future<void> _startPreparation() async {
-    // Ses dosyasını yükle
     try {
-      final selectedSound =
-          _feelings.firstWhere((f) => f['name'] == widget.feeling)['sound'];
+      final selectedSound = widget.feelings
+          .firstWhere((f) => f['name'] == widget.feeling)['sound'];
       await _audioPlayer.setUrl(selectedSound);
       await _audioPlayer.setLoopMode(LoopMode.one);
     } catch (e) {
       print('Audio error: $e');
     }
 
-    // Rahatlama adımları için timer
     _timer = Timer.periodic(Duration(seconds: 3), (timer) {
-      if (_relaxationStep < _relaxationSteps.length - 1) {
+      if (_relaxationStep < widget.relaxationSteps.length - 1) {
         setState(() {
           _relaxationStep++;
         });
@@ -392,16 +357,21 @@ class _MeditationPageState extends State<_MeditationPage>
     setState(() {
       _isPreparingMeditation = false;
       _remainingSeconds = widget.duration * 60;
+      _currentProgress = 0.0;
     });
 
     await _audioPlayer.play();
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
           _currentProgress = 1 - (_remainingSeconds / (widget.duration * 60));
         } else {
+          timer.cancel();
           _completeMeditation();
         }
       });
@@ -411,6 +381,7 @@ class _MeditationPageState extends State<_MeditationPage>
   void _completeMeditation() {
     _timer?.cancel();
     _audioPlayer.stop();
+    setState(() {});
     widget.onComplete();
   }
 
@@ -470,7 +441,7 @@ class _MeditationPageState extends State<_MeditationPage>
                         FadeInDown(
                           duration: Duration(milliseconds: 500),
                           child: Text(
-                            _relaxationSteps[_relaxationStep],
+                            widget.relaxationSteps[_relaxationStep],
                             style: MyStyle.b3.copyWith(color: MyColor.white),
                             textAlign: TextAlign.center,
                           ),
