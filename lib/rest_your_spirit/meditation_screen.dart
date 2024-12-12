@@ -307,7 +307,9 @@ class _MeditationPageState extends State<_MeditationPage>
     with SingleTickerProviderStateMixin {
   final AudioPlayer _audioPlayer = AudioPlayer();
   late AnimationController _breathingController;
+  // ignore: unused_field
   bool _isPlaying = false;
+  // ignore: unused_field
   bool _isMeditating = false;
   bool _isPreparingMeditation = true;
   double _currentProgress = 0.0;
