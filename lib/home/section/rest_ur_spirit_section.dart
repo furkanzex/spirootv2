@@ -7,6 +7,7 @@ import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/core/widget/text_field/section_title.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/rest_your_spirit/affirmation_screen.dart';
+import 'package:spirootv2/rest_your_spirit/meditation_screen.dart';
 
 Widget restUrSpiritSection(BuildContext context) {
   final List<FortuneCard> fortuneCards = [
@@ -25,7 +26,12 @@ Widget restUrSpiritSection(BuildContext context) {
       image: "https://apptoic.com/spiroot/images/meditation.png",
       title: "Meditasyon Egzersizi",
       color: MyColor.primaryLightColor,
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MeditationScreen()),
+        );
+      },
     ),
   ];
 
