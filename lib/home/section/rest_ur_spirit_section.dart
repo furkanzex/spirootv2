@@ -25,7 +25,7 @@ Widget restUrSpiritSection(BuildContext context) {
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/meditation.png",
       title: "Meditasyon Egzersizi",
-      color: MyColor.primaryLightColor,
+      color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(
           context,
