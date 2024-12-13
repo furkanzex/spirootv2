@@ -9,6 +9,7 @@ import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:confetti/confetti.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 
 class MeditationScreen extends StatefulWidget {
   const MeditationScreen({super.key});
@@ -264,8 +265,16 @@ class _MeditationScreenState extends State<MeditationScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyColor.darkBackgroundColor,
+    return ScaffoldGradientBackground(
+      gradient: LinearGradient(
+        begin: Alignment.bottomLeft,
+        end: Alignment.topRight,
+        colors: [
+          MyColor.darkBackgroundColor,
+          MyColor.primaryColor,
+        ],
+      ),
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: MyColor.transparent,
         elevation: 0,
@@ -422,136 +431,116 @@ class _MeditationPageState extends State<_MeditationPage>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: MyColor.darkBackgroundColor,
-        body: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF2A1CB0),
-                    MyColor.darkBackgroundColor,
-                  ],
-                ),
+    return ScaffoldGradientBackground(
+      gradient: LinearGradient(
+        begin: Alignment.bottomLeft,
+        end: Alignment.topRight,
+        colors: [
+          MyColor.darkBackgroundColor,
+          MyColor.thirdColor,
+        ],
+      ),
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.5,
+              child: SvgPicture.asset(
+                'assets/svg/stars.svg',
+                fit: BoxFit.cover,
               ),
             ),
-            Positioned.fill(
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.white.withOpacity(0.1)],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.srcOver,
-                child: Opacity(
-                  opacity: 0.5,
-                  child: SvgPicture.asset(
-                    'assets/svg/stars.svg',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
-            SafeArea(
-              child: Padding(
-                padding: EdgeInsets.all(MySize.defaultPadding),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (_isPreparingMeditation) ...[
-                      Stack(alignment: Alignment.center, children: [
-                        FadeInDown(
-                          duration: Duration(milliseconds: 500),
-                          child: Text(
-                            widget.relaxationSteps[_relaxationStep],
-                            style: MyStyle.b3.copyWith(color: MyColor.white),
-                            textAlign: TextAlign.center,
+          ),
+          Padding(
+            padding: EdgeInsets.all(MySize.defaultPadding),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_isPreparingMeditation) ...[
+                  Stack(alignment: Alignment.center, children: [
+                    FadeInDown(
+                      duration: Duration(milliseconds: 500),
+                      child: Text(
+                        widget.relaxationSteps[_relaxationStep],
+                        style: MyStyle.b3.copyWith(color: MyColor.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Opacity(
+                      opacity: 0.5,
+                      child: Lottie.asset(
+                        'assets/lottie/affirmation_bg.json',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ])
+                ] else ...[
+                  FadeIn(
+                    child: Column(
+                      children: [
+                        Text(
+                          _formatTime(),
+                          style: MyStyle.b1.copyWith(
+                            color: MyColor.white,
+                            fontSize: 72,
                           ),
                         ),
-                        Opacity(
-                          opacity: 0.5,
-                          child: Lottie.asset(
-                            'assets/lottie/affirmation_bg.json',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ])
-                    ] else ...[
-                      FadeIn(
-                        child: Column(
-                          children: [
-                            Text(
-                              _formatTime(),
-                              style: MyStyle.b1.copyWith(
-                                color: MyColor.white,
-                                fontSize: 72,
+                        SizedBox(height: MySize.defaultPadding),
+                        AnimatedBuilder(
+                          animation: _breathingController,
+                          builder: (context, child) {
+                            return Text(
+                              _breathingController.value < 0.5
+                                  ? 'Nefes Al'
+                                  : 'Nefes Ver',
+                              style: MyStyle.s1.copyWith(
+                                color: MyColor.whiteTintColor,
+                                fontSize: 24,
                               ),
-                            ),
-                            SizedBox(height: MySize.defaultPadding),
-                            AnimatedBuilder(
-                              animation: _breathingController,
-                              builder: (context, child) {
-                                return Text(
-                                  _breathingController.value < 0.5
-                                      ? 'Nefes Al'
-                                      : 'Nefes Ver',
-                                  style: MyStyle.s1.copyWith(
-                                    color: MyColor.whiteTintColor,
-                                    fontSize: 24,
-                                  ),
-                                );
-                              },
-                            ),
-                            SizedBox(height: MySize.doublePadding),
-                            LinearProgressIndicator(
-                              value: _currentProgress,
-                              backgroundColor:
-                                  MyColor.primaryColor.withOpacity(0.3),
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(MyColor.white),
-                            ),
-                            SizedBox(height: MySize.doublePadding),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: _endMeditation,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: MyColor.primaryLightColor,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: MySize.doublePadding,
-                                      vertical: MySize.defaultPadding,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          MySize.halfRadius),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Meditasyonu Bitir',
-                                    style: MyStyle.s2
-                                        .copyWith(color: MyColor.white),
-                                  ),
+                            );
+                          },
+                        ),
+                        SizedBox(height: MySize.doublePadding),
+                        LinearProgressIndicator(
+                          value: _currentProgress,
+                          backgroundColor: MyColor.white.withOpacity(0.1),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(MyColor.white),
+                        ),
+                        SizedBox(height: MySize.doublePadding),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: _endMeditation,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: MyColor.thirdColor,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: MySize.doublePadding,
+                                  vertical: MySize.defaultPadding,
                                 ),
-                              ],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(MySize.halfRadius),
+                                ),
+                              ),
+                              child: Text(
+                                'Meditasyonu Bitir',
+                                style:
+                                    MyStyle.s2.copyWith(color: MyColor.white),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

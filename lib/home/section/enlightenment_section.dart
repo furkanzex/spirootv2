@@ -9,6 +9,7 @@ import 'package:spirootv2/core/widget/text_field/section_title.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:extended_image/extended_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:spirootv2/enlightenment/ritual_screen.dart';
 
 Widget enlightenmentSection() {
   final List<Map<String, String>> items = [
@@ -46,7 +47,16 @@ Widget enlightenmentSection() {
         itemBuilder: (context, index, realIdx) {
           return GestureDetector(
             onTap: () {
-              // Implement navigation or onTap action for each item
+              // Ritüeller kartına tıklandığında RitualScreen'e yönlendir
+              if (items[index]["title"] == "Ritüeller") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RitualScreen(),
+                  ),
+                );
+              }
+              // Diğer kartlar için gerekli yönlendirmeleri ekleyebilirsiniz
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(MySize.halfRadius),
