@@ -157,7 +157,7 @@ class _MagicLampScreenState extends State<MagicLampScreen>
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(easy.tr("Sihirli Lamba"),
-            style: MyStyle.s1.copyWith(color: MyColor.white)),
+            style: MyStyle.b4.copyWith(color: MyColor.white)),
         centerTitle: true,
       ),
       body: GestureDetector(

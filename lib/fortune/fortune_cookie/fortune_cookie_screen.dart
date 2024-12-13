@@ -140,7 +140,7 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(easy.tr("Şans Kurabiyesi"),
-            style: MyStyle.s1.copyWith(color: MyColor.white)),
+            style: MyStyle.b4.copyWith(color: MyColor.white)),
       ),
       body: GestureDetector(
         onTapDown: (_) => _handleTap(),

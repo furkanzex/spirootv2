@@ -150,7 +150,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(easy.tr("Olumlama Egzersizi"),
-              style: MyStyle.s1.copyWith(color: MyColor.white)),
+              style: MyStyle.b4.copyWith(color: MyColor.white)),
         ),
         body: Center(
           child: Container(
@@ -173,7 +173,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(easy.tr("Olumlama Egzersizi"),
-            style: MyStyle.s1.copyWith(color: MyColor.white)),
+            style: MyStyle.b4.copyWith(color: MyColor.white)),
       ),
       body: Stack(
         children: [

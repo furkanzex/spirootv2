@@ -284,7 +284,7 @@ class _MeditationScreenState extends State<MeditationScreen>
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(easy.tr("Meditasyon Egzersizi"),
-            style: MyStyle.s1.copyWith(color: MyColor.white)),
+            style: MyStyle.b4.copyWith(color: MyColor.white)),
       ),
       body: SafeArea(
         child: _buildFeelingsGrid(),

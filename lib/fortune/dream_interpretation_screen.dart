@@ -87,11 +87,7 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
           backgroundColor: MyColor.transparent,
           title: Text(
             'Rüya Yorumu'.tr(),
-            style: const TextStyle(
-              color: MyColor.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: MyStyle.b4.copyWith(color: MyColor.white),
           ),
           elevation: 0,
           centerTitle: true,

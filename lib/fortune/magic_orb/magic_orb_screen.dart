@@ -157,7 +157,7 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(easy.tr("Sihirli Küre"),
-            style: MyStyle.s1.copyWith(color: MyColor.white)),
+            style: MyStyle.b4.copyWith(color: MyColor.white)),
         centerTitle: true,
       ),
       body: GestureDetector(

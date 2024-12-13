@@ -237,21 +237,15 @@ class _TarotScreenState extends State<TarotScreen>
         backgroundColor: MyColor.transparent,
         title: Text(
           widget.title,
-          style: const TextStyle(
-            color: MyColor.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: MyStyle.b4.copyWith(color: MyColor.white),
         ),
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: Icon(
-            MyIcon.back,
-            color: MyColor.white,
-          ),
+          icon: Icon(MyIcon.back,
+              color: MyColor.white, size: MySize.iconSizeSmall),
         ),
       ),
       body: Container(

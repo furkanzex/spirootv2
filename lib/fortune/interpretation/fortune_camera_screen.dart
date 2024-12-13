@@ -325,12 +325,13 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(MyIcon.back, color: MyColor.white),
+            icon: Icon(MyIcon.back,
+                color: MyColor.white, size: MySize.iconSizeSmall),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
             screenTitle,
-            style: MyStyle.s1.copyWith(color: MyColor.white),
+            style: MyStyle.b4.copyWith(color: MyColor.white),
           ),
           centerTitle: true,
         ),

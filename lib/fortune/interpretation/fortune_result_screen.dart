@@ -557,10 +557,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
           centerTitle: true,
           title: Text(
             screenTitle,
-            style: MyStyle.s1.copyWith(
-              color: MyColor.white,
-              fontWeight: FontWeight.w600,
-            ),
+            style: MyStyle.b4.copyWith(color: MyColor.white),
           ),
           leading: IconButton(
             icon: Icon(MyIcon.back,
