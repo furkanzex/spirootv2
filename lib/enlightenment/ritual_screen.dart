@@ -7,36 +7,23 @@ import 'package:animate_do/animate_do.dart';
 import 'package:spirootv2/enlightenment/ritual_list_screen.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
+import 'services/ritual_service.dart';
 
 class RitualScreen extends StatelessWidget {
   const RitualScreen({super.key});
 
+  // Kategori renklerini tanımla
+  final Map<String, Color> categoryColors = const {
+    'love': Color(0xFFF77B9D),
+    'money': Color(0xFFF7C77B),
+    'protection': Color(0xFF7B8FF7),
+    'success': Color(0xFF7BF7AD),
+    'inspiration': Color(0xFFB57BF7),
+    'cleansing': Color(0xFF7BE6F7),
+  };
+
   @override
   Widget build(BuildContext context) {
-    final categories = [
-      {
-        'title': 'Şifa Ritüelleri',
-        'image':
-            'https://images.unsplash.com/photo-1600431521340-491eca880813?q=80',
-        'description': 'Fiziksel ve ruhsal şifa için kutsal ritüeller',
-        'color': Color(0xFF7B8FF7),
-      },
-      {
-        'title': 'Bereket Ritüelleri',
-        'image':
-            'https://images.unsplash.com/photo-1515942661900-94b3d1972591?q=80',
-        'description': 'Bolluk ve bereket çekmek için güçlü ritüeller',
-        'color': Color(0xFFF7C77B),
-      },
-      {
-        'title': 'Aşk Ritüelleri',
-        'image':
-            'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80',
-        'description': 'Aşk ve ilişkiler için özel ritüeller',
-        'color': Color(0xFFF77B9D),
-      },
-    ];
-
     return ScaffoldGradientBackground(
       gradient: LinearGradient(
         begin: Alignment.bottomLeft,
@@ -77,68 +64,105 @@ class RitualScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) => FadeInUp(
-                      delay: Duration(milliseconds: 100 * index),
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RitualListScreen(
-                              category: categories[index],
-                            ),
-                          ),
-                        ),
-                        child: Container(
-                          margin:
-                              EdgeInsets.only(bottom: MySize.defaultPadding),
-                          height: 160,
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(MySize.halfRadius),
-                            color: categories[index]['color'] as Color,
-                          ),
-                          child: Stack(
+                  child: FutureBuilder<Map<String, dynamic>>(
+                    future: RitualService.loadRituals(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(MySize.halfRadius),
-                                child: Image.network(
-                                  categories[index]['image'] as String,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  color: Colors.black.withOpacity(0.3),
-                                  colorBlendMode: BlendMode.darken,
-                                ),
+                              CircularProgressIndicator(
+                                color: MyColor.primaryLightColor,
                               ),
-                              Padding(
-                                padding: EdgeInsets.all(MySize.defaultPadding),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      categories[index]['title'] as String,
-                                      style: MyStyle.b4
-                                          .copyWith(color: MyColor.white),
-                                    ),
-                                    Text(
-                                      categories[index]['description']
-                                          as String,
-                                      style: MyStyle.s2
-                                          .copyWith(color: MyColor.white),
-                                    ),
-                                  ],
+                              SizedBox(height: MySize.defaultPadding),
+                              Text(
+                                easy.tr('Ritüeller yükleniyor...'),
+                                style: MyStyle.s2.copyWith(
+                                  color: MyColor.white,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                    ),
+                        );
+                      }
+
+                      if (!snapshot.hasData) {
+                        return Center(child: Text(easy.tr('Veri bulunamadı')));
+                      }
+
+                      final categories = snapshot.data!;
+
+                      return ListView.builder(
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          final categoryKey = categories.keys.elementAt(index);
+                          final category = categories[categoryKey];
+
+                          return FadeInUp(
+                            delay: Duration(milliseconds: 100 * index),
+                            child: GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RitualListScreen(
+                                    category: category,
+                                  ),
+                                ),
+                              ),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    bottom: MySize.defaultPadding),
+                                height: 160,
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.circular(MySize.halfRadius),
+                                  color: categoryColors[categoryKey],
+                                ),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(
+                                          MySize.halfRadius),
+                                      child: Image.network(
+                                        category['image'] as String,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        color: Colors.black.withOpacity(0.3),
+                                        colorBlendMode: BlendMode.darken,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.all(MySize.defaultPadding),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            category['title'] as String,
+                                            style: MyStyle.b4
+                                                .copyWith(color: MyColor.white),
+                                          ),
+                                          Text(
+                                            category['description'] as String,
+                                            style: MyStyle.s2
+                                                .copyWith(color: MyColor.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ],

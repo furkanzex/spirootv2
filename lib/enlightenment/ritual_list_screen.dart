@@ -15,29 +15,7 @@ class RitualListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rituals = [
-      {
-        'title': 'Dolunay Şükran Ritüeli',
-        'duration': '30 dakika',
-        'difficulty': 'Kolay',
-        'image':
-            'https://images.unsplash.com/photo-1502239608882-93b729c6af43?q=80',
-        'materials': [
-          'Beyaz mum',
-          'Tütsü',
-          'Kristal',
-          'Not defteri',
-        ],
-        'steps': [
-          'Kutsal alanınızı hazırlayın',
-          'Tütsünüzü yakın',
-          'Mumu yakın ve niyetinizi belirleyin',
-          'Meditasyon yapın',
-          'Şükranlarınızı yazın',
-        ],
-      },
-      // Diğer ritüeller...
-    ];
+    final rituals = category['rituals'] as List;
 
     return ScaffoldGradientBackground(
       gradient: LinearGradient(
