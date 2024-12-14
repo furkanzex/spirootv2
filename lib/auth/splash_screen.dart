@@ -70,11 +70,11 @@ class _SplashScreenState extends State<SplashScreen>
       setState(() {
         Navigator.pushReplacement(
           context,
-          PageTransition(controller.isLogin.value
-              ? (controller.isRegistered.value
-                  ? const HomePage()
-                  : WelcomeScreen())
-              : WelcomeScreen()),
+          PageTransition(
+            controller.isLogin.value && controller.isRegistered.value
+                ? const HomePage()
+                : WelcomeScreen(),
+          ),
         );
       });
     });

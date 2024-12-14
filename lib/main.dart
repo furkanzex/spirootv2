@@ -74,21 +74,14 @@ Future<void> main() async {
 
   await Get.putAsync(() async => GeminiService());
 
-  final userController = Get.put(UserController());
-  Get.put(AstrologyController());
-
   final storage = LocalStorage();
   await storage.saveAppVersion(MyText.appVersion);
 
   final currentUser = FirebaseAuth.instance.currentUser;
-  if (currentUser != null) {
+  if (currentUser != null && currentUser.uid.isNotEmpty) {
+    final userController = Get.put(UserController());
+    Get.put(AstrologyController());
     await userController.loadUser(currentUser.uid);
-  } else {
-    userController.resetController();
-
-    final userRepository = UserRepository();
-    final anonymousUser = await userRepository.createAnonymousUser();
-    await userController.loadUser(anonymousUser.uid);
   }
 
   runApp(

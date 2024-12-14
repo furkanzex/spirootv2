@@ -105,18 +105,30 @@ class AuthController extends GetxController {
 
   Future<void> deleteAccount() async {
     try {
-      // Mevcut kullanıcı ID'sini al
       final String? userId = _auth.currentUser?.uid;
 
       if (userId != null) {
-        // Önce Firestore'dan kullanıcı verilerini sil
+        // Önce kullanıcının fortunes koleksiyonunu sil
+        final userFortunesRef =
+            _firestore.collection('users').doc(userId).collection('fortunes');
+
+        final fortunesDocs = await userFortunesRef.get();
+        final batch = _firestore.batch();
+
+        for (var doc in fortunesDocs.docs) {
+          batch.delete(doc.reference);
+        }
+
+        await batch.commit();
+
+        // Sonra ana kullanıcı dökümanını sil
         await _firestore.collection('users').doc(userId).delete();
 
         // UserController'ı temizle
         final userController = Get.find<UserController>();
         userController.resetController();
 
-        // Sonra Authentication'dan kullanıcıyı sil
+        // Authentication'dan kullanıcıyı sil
         await _auth.currentUser?.delete();
 
         // Local storage'ı temizle
@@ -126,8 +138,8 @@ class AuthController extends GetxController {
         isLogin.value = false;
         isRegistered.value = false;
 
-        // Welcome sayfasına yönlendir
-        Get.offAll(() => WelcomeScreen());
+        // Welcome sayfasına yönlendir ve geri dönüşü engelle
+        Get.offAll(() => WelcomeScreen(), predicate: (_) => false);
       } else {
         throw Exception('Kullanıcı bulunamadı');
       }
