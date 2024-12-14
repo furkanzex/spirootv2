@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:translator/translator.dart';
@@ -9,6 +8,8 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:lottie/lottie.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:spirootv2/fortune/services/fortune_service.dart';
 
 class AffirmationScreen extends StatefulWidget {
   const AffirmationScreen({super.key});
@@ -62,43 +63,38 @@ class _AffirmationScreenState extends State<AffirmationScreen>
 
   Future<void> _loadInitialAffirmation() async {
     try {
-      // JSON'u bir kere yükle ve cache'le
-      final String response =
-          await rootBundle.loadString('assets/json/affirmations.json');
-      final data = json.decode(response);
-      final allAffirmations = List<String>.from(data['affirmations']);
+      final allAffirmations = await FortuneService.loadAffirmations(context);
 
       // Rastgele 5 affirmation seç
       final random = Random();
       final selectedIndices = <int>{};
-      final currentLocale = Localizations.localeOf(context).languageCode;
-
-      // Paralel çeviri işlemleri için Future listesi
-      final List<Future<String>> translationFutures = [];
+      final selectedAffirmations = <String>[];
 
       while (selectedIndices.length < 5) {
         final randomIndex = random.nextInt(allAffirmations.length);
         if (selectedIndices.add(randomIndex)) {
-          final affirmation = allAffirmations[randomIndex];
-          translationFutures.add(translator
-              .translate(affirmation, to: currentLocale)
-              .then((translation) => translation.text));
+          selectedAffirmations.add(allAffirmations[randomIndex]);
         }
       }
 
-      // Tüm çevirileri paralel olarak bekle
-      final translations = await Future.wait(translationFutures);
-      _selectedAffirmations = translations;
-
       setState(() {
+        _selectedAffirmations = selectedAffirmations;
         _isLoading = false;
       });
     } catch (e) {
-      _selectedAffirmations = List.filled(5, 'Her şey yolunda gidecek!');
+      debugPrint('Error loading affirmations: $e');
       setState(() {
+        _selectedAffirmations = List.filled(5, 'Her şey yolunda gidecek!');
         _isLoading = false;
       });
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newLocale = context.locale.languageCode;
+    FortuneService.onLocaleChanged(newLocale);
   }
 
   void _handleTap() {
@@ -137,30 +133,100 @@ class _AffirmationScreenState extends State<AffirmationScreen>
     super.dispose();
   }
 
+  Widget _buildShimmerContent() {
+    return Scaffold(
+      backgroundColor: MyColor.darkBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: MyColor.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(easy.tr("Olumlama Egzersizi"),
+            style: MyStyle.b4.copyWith(color: MyColor.white)),
+      ),
+      body: Stack(
+        children: [
+          // Progress Bar Shimmer
+          Positioned(
+            top: MySize.defaultPadding,
+            left: MySize.defaultPadding,
+            right: MySize.defaultPadding,
+            child: Row(
+              children: List.generate(
+                5,
+                (index) => Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: MyColor.white.withOpacity(0.1),
+                    highlightColor: MyColor.white.withOpacity(0.2),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(
+                          horizontal: MySize.quarterPadding),
+                      height: MySize.quarterPadding * 2,
+                      decoration: BoxDecoration(
+                        color: MyColor.white,
+                        borderRadius:
+                            BorderRadius.circular(MySize.quarterRadius),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Center Text Shimmer
+          Center(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Lottie.asset(
+                  'assets/lottie/affirmation_bg.json',
+                  width: MySize.deviceWidth(context) * 0.9,
+                  height: MySize.deviceWidth(context) * 0.9,
+                  fit: BoxFit.contain,
+                ),
+                Shimmer.fromColors(
+                  baseColor: MyColor.white.withOpacity(0.1),
+                  highlightColor: MyColor.white.withOpacity(0.2),
+                  child: Container(
+                    width: MySize.deviceWidth(context) * 0.7,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: MyColor.white,
+                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Bottom Text Shimmer
+          Positioned(
+            bottom: MySize.tenQuartersPadding,
+            left: MySize.defaultPadding,
+            right: MySize.defaultPadding,
+            child: Shimmer.fromColors(
+              baseColor: MyColor.white.withOpacity(0.1),
+              highlightColor: MyColor.white.withOpacity(0.2),
+              child: Container(
+                height: 20,
+                decoration: BoxDecoration(
+                  color: MyColor.white,
+                  borderRadius: BorderRadius.circular(MySize.quarterRadius),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
-        backgroundColor: MyColor.darkBackgroundColor,
-        appBar: AppBar(
-          backgroundColor: MyColor.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(easy.tr("Olumlama Egzersizi"),
-              style: MyStyle.b4.copyWith(color: MyColor.white)),
-        ),
-        body: Center(
-          child: Container(
-            color: MyColor.darkBackgroundColor,
-            child: CircularProgressIndicator(
-              color: MyColor.primaryColor,
-            ),
-          ),
-        ),
-      );
+      return _buildShimmerContent();
     }
 
     return Scaffold(

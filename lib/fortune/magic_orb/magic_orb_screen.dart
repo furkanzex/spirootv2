@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
@@ -9,6 +8,7 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/fortune/services/fortune_service.dart';
 
 class MagicOrbScreen extends StatefulWidget {
   const MagicOrbScreen({super.key});
@@ -73,20 +73,10 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
 
   Future<String> _getRandomFortune() async {
     try {
-      final String response =
-          await rootBundle.loadString('assets/json/fortunes.json');
-      final data = json.decode(response);
-      final messages = List<String>.from(data['messages']);
-      final randomMessage = messages[Random().nextInt(messages.length)];
-
-      final translation = await translator.translate(
-        randomMessage,
-        to: Localizations.localeOf(context).languageCode,
-      );
-
-      return translation.text;
+      final messages = await FortuneService.loadFortunes(context);
+      return messages[Random().nextInt(messages.length)];
     } catch (e) {
-      print('Fortune message error: $e');
+      debugPrint('Fortune message error: $e');
       return 'Şansınız her zaman sizinle olsun!';
     }
   }
@@ -143,6 +133,13 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
   void _handlePanEnd(DragEndDetails details) {
     _timer?.cancel();
     _touchDuration = 0;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newLocale = context.locale.languageCode;
+    FortuneService.onLocaleChanged(newLocale);
   }
 
   @override

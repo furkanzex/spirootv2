@@ -12,7 +12,6 @@ import 'package:spirootv2/core/helper/local_storage.dart';
 import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:spirootv2/profile/user_repository.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sweph/sweph.dart';

@@ -1,46 +1,58 @@
 import 'dart:convert';
-import 'package:flutter/services.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:http/http.dart' as http;
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class RitualService {
   static final _storage = GetStorage();
   static const String _cacheKeyPrefix = 'ritual_data_';
+  static const String _baseUrl = 'https://apptoic.com/spiroot/json';
 
   static Future<Map<String, dynamic>> loadRituals(BuildContext context) async {
     final locale = context.locale.languageCode;
     final cacheKey = '$_cacheKeyPrefix$locale';
 
-    // Cache'den kontrol et
+    // Önce cache'den kontrol et
     final cachedData = _storage.read(cacheKey);
     if (cachedData != null) {
       return Map<String, dynamic>.from(cachedData);
     }
 
-    // JSON'dan yükle
-    final String response =
-        await rootBundle.loadString('assets/json/rituals.json');
-    final Map<String, dynamic> data = json.decode(response);
+    try {
+      // Dil dosyasından ritüel dosya adını al
+      final ritualFileName = easy.tr("ritual");
 
-    // Temel çevirileri yap
-    for (var category in data.values) {
-      category['title'] = easy.tr(category['title']);
-      category['description'] = easy.tr(category['description']);
+      // HTTP isteğini UTF-8 headers ile yap
+      final response = await http.get(
+        Uri.parse('$_baseUrl/$ritualFileName'),
+        headers: {'Accept-Charset': 'utf-8'},
+      );
 
-      final rituals = category['rituals'] as List;
-      for (var ritual in rituals) {
-        ritual['title'] = easy.tr(ritual['title']);
-        ritual['difficulty'] = easy.tr(ritual['difficulty']);
-        ritual['duration'] = easy.tr(ritual['duration']);
+      if (response.statusCode == 200) {
+        // Yanıtı UTF-8 olarak decode et
+        final String decodedResponse = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedResponse);
+
+        // Cache'e kaydet
+        _storage.write(cacheKey, data);
+        return Map<String, dynamic>.from(data);
+      } else {
+        throw Exception('Failed to load rituals');
       }
+    } catch (e) {
+      debugPrint('Error loading rituals: $e');
+      rethrow;
     }
+  }
 
-    // Cache'e kaydet
-    _storage.write(cacheKey, data);
-
-    return data;
+  static Future<Map<String, dynamic>> translateRitualDetails(
+    Map<String, dynamic> ritual,
+    String locale,
+  ) async {
+    // Çeviriye gerek yok çünkü doğru dildeki JSON dosyasını kullanıyoruz
+    return ritual;
   }
 
   static Widget getCachedImage(String imageUrl, {double? height}) {
@@ -75,5 +87,20 @@ class RitualService {
         }
       },
     );
+  }
+
+  // Sadece çeviri cache'ini temizle
+  static void clearTranslationCache() {
+    final keys = _storage.getKeys().toList();
+    for (var key in keys) {
+      if (key is String && key.startsWith(_cacheKeyPrefix)) {
+        _storage.remove(key);
+      }
+    }
+  }
+
+  // Dil değiştiğinde cache'i temizle
+  static void onLocaleChanged(String newLocale) {
+    clearTranslationCache();
   }
 }

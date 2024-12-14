@@ -347,5 +347,8 @@
       "title": "Spiritüel rehberinizle sohbete başlayın",
       "subtitle": "Size özel tavsiyeler ve rehberlik için\nsorularınızı sorabilirsiniz"
     }
-  }
+  },
+  "ritual": "tr_rituals.json",
+  "fortunes": "tr_fortunes.json",
+  "affirmations": "tr_affirmations.json"
 }

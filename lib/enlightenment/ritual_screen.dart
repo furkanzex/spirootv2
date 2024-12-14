@@ -7,10 +7,56 @@ import 'package:animate_do/animate_do.dart';
 import 'package:spirootv2/enlightenment/ritual_list_screen.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
+import 'package:shimmer/shimmer.dart';
 import 'services/ritual_service.dart';
 
-class RitualScreen extends StatelessWidget {
+class RitualScreen extends StatefulWidget {
   const RitualScreen({super.key});
+
+  @override
+  State<RitualScreen> createState() => _RitualScreenState();
+}
+
+class _RitualScreenState extends State<RitualScreen> {
+  String? _currentLocale;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newLocale = context.locale.languageCode;
+
+    if (_currentLocale != newLocale) {
+      _currentLocale = newLocale;
+      RitualService.onLocaleChanged(newLocale);
+    }
+  }
+
+  Widget _buildShimmerItem() {
+    return Shimmer.fromColors(
+      baseColor: MyColor.white.withOpacity(0.1),
+      highlightColor: MyColor.white.withOpacity(0.2),
+      child: Container(
+        margin: EdgeInsets.only(bottom: MySize.defaultPadding),
+        height: 160,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(MySize.halfRadius),
+          color: MyColor.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerList() {
+    return ListView.builder(
+      itemCount: 6,
+      itemBuilder: (context, index) => _buildShimmerItem(),
+    );
+  }
 
   // Kategori renklerini tanımla
   final Map<String, Color> categoryColors = const {
@@ -47,7 +93,6 @@ class RitualScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // Arkaplan dekorasyonu
           Positioned.fill(
             child: Opacity(
               opacity: 0.5,
@@ -57,7 +102,6 @@ class RitualScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Ana içerik
           Padding(
             padding: EdgeInsets.all(MySize.defaultPadding),
             child: Column(
@@ -68,23 +112,7 @@ class RitualScreen extends StatelessWidget {
                     future: RitualService.loadRituals(context),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircularProgressIndicator(
-                                color: MyColor.primaryLightColor,
-                              ),
-                              SizedBox(height: MySize.defaultPadding),
-                              Text(
-                                easy.tr('Ritüeller yükleniyor...'),
-                                style: MyStyle.s2.copyWith(
-                                  color: MyColor.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                        return _buildShimmerList();
                       }
 
                       if (!snapshot.hasData) {
@@ -127,6 +155,13 @@ class RitualScreen extends StatelessWidget {
                                       child: RitualService.getCachedImage(
                                           category['image'] as String,
                                           height: 160),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(
+                                            MySize.halfRadius),
+                                        color: MyColor.black.withOpacity(0.6),
+                                      ),
                                     ),
                                     Padding(
                                       padding:
