@@ -10,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:extended_image/extended_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:spirootv2/enlightenment/ritual_screen.dart';
+import 'package:spirootv2/blog/screens/blog_list_screen.dart';
 
 Widget enlightenmentSection() {
   final List<Map<String, String>> items = [
@@ -47,7 +48,6 @@ Widget enlightenmentSection() {
         itemBuilder: (context, index, realIdx) {
           return GestureDetector(
             onTap: () {
-              // Ritüeller kartına tıklandığında RitualScreen'e yönlendir
               if (items[index]["title"] == "Ritüeller") {
                 Navigator.push(
                   context,
@@ -55,8 +55,15 @@ Widget enlightenmentSection() {
                     builder: (context) => const RitualScreen(),
                   ),
                 );
+              } else if (items[index]["title"] == "Blog Yazıları") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlogListScreen(),
+                  ),
+                );
               }
-              // Diğer kartlar için gerekli yönlendirmeleri ekleyebilirsiniz
+              // El Kitapları için yönlendirme eklenecek
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(MySize.halfRadius),

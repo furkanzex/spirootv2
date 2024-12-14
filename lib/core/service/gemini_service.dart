@@ -1496,4 +1496,38 @@ Important: Write the response in $_currentLanguage
       throw Exception('Yüz falı yorumlanırken bir hata oluştu');
     }
   }
+
+  // Blog moderasyon kontrolü
+  Future<bool> checkBlogContentModeration(String title, String content) async {
+    try {
+      final prompt = '''
+      You are a content moderator for a spiritual blog platform. Please analyze the following blog post for inappropriate content.
+      
+      Title: $title
+      
+      Content: $content
+      
+      Check for the following criteria:
+      1. Hate speech or discrimination
+      2. Explicit or adult content
+      3. Violence or gore
+      4. Harassment or bullying
+      5. Spam or misleading content
+      6. Harmful or dangerous content
+      7. Copyright infringement
+      8. Personal information exposure
+      
+      Respond with ONLY "true" if the content is appropriate and safe, or "false" if it violates any of the above criteria.
+      Do not include any explanation or additional text in your response.
+      ''';
+
+      final response = await generateContent(prompt);
+      final result = response.toLowerCase().trim();
+
+      return result == "true";
+    } catch (e) {
+      print('Blog content moderation error: $e');
+      rethrow;
+    }
+  }
 }

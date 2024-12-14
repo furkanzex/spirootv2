@@ -1,0 +1,102 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:spirootv2/core/service/gemini_service.dart';
+import '../models/blog_post.dart';
+
+class BlogService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GeminiService _geminiService = Get.find<GeminiService>();
+
+  // Blog yazısı oluşturma
+  Future<bool> createBlogPost({
+    required String title,
+    required String content,
+    required String imageUrl,
+  }) async {
+    try {
+      print('Blog yazısı oluşturma başladı');
+
+      // İçerik uzunluğunu kontrol et
+      if (content.length < 500) {
+        throw Exception('İçerik en az 500 karakter olmalıdır.');
+      }
+
+      // Görsel URL'sini kontrol et
+      if (imageUrl.isEmpty) {
+        throw Exception('Görsel URL\'si zorunludur.');
+      }
+
+      print('İçerik kontrolleri tamamlandı, moderasyon başlıyor');
+
+      // AI moderasyon kontrolü
+      final bool isAppropriate =
+          await _geminiService.checkBlogContentModeration(title, content);
+      if (!isAppropriate) {
+        throw Exception('İçerik uygunsuz bulundu ve reddedildi.');
+      }
+
+      print('Moderasyon tamamlandı, kullanıcı kontrolü yapılıyor');
+
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('Kullanıcı oturum açmamış.');
+
+      print('Kullanıcı doğrulandı, Firestore\'a yazılıyor');
+
+      final docRef = _firestore.collection('blog_posts').doc();
+      final blogPost = BlogPost(
+        id: docRef.id,
+        title: title,
+        content: content,
+        imageUrl: imageUrl,
+        authorId: user.uid,
+        authorName: user.displayName ?? 'Anonim',
+        createdAt: DateTime.now(),
+        isApproved: true,
+      );
+
+      await docRef.set(blogPost.toMap());
+      print('Blog yazısı başarıyla oluşturuldu: ${docRef.id}');
+      return true;
+    } catch (e) {
+      print('Blog yazısı oluşturma hatası: $e');
+      rethrow;
+    }
+  }
+
+  // Tüm onaylanmış blog yazılarını getir
+  Stream<List<BlogPost>> getApprovedBlogPosts() {
+    print('Blog yazıları stream başlatıldı');
+
+    return _firestore
+        .collection('blog_posts')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      print(
+          'Blog yazıları snapshot alındı. Doküman sayısı: ${snapshot.docs.length}');
+
+      final posts = snapshot.docs
+          .map((doc) {
+            print('Doküman verisi: ${doc.data()}');
+            try {
+              final post = BlogPost.fromMap(doc.data());
+              if (post.isApproved) {
+                return post;
+              }
+              return null;
+            } catch (e) {
+              print('Blog post dönüştürme hatası: $e');
+              return null;
+            }
+          })
+          .where((post) => post != null)
+          .cast<BlogPost>()
+          .toList();
+
+      print('Dönüştürülen blog yazısı sayısı: ${posts.length}');
+      return posts;
+    });
+  }
+}
