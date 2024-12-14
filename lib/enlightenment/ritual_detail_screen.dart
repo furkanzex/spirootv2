@@ -128,6 +128,7 @@ class RitualDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(MySize.quarterRadius),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: MySize.iconSizeTiny,
@@ -148,6 +149,7 @@ class RitualDetailScreen extends StatelessWidget {
             child: Text(
               text,
               style: MyStyle.s2.copyWith(color: MyColor.white),
+              softWrap: true,
             ),
           ),
         ],

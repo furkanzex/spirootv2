@@ -15,6 +15,7 @@ import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/service/ephemeris_service.dart';
 import 'package:spirootv2/astrology/compatibility_result_screen.dart';
 import 'package:spirootv2/core/extension/string_extension.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AstrologyController extends GetxController {
   final RxDouble zodiacRotation = 0.0.obs;
@@ -684,10 +685,14 @@ class AstrologyController extends GetxController {
 
       // Firebase'e kaydet
       await _firestore.collection('users').doc(userId).update({
-        'interpretations.${user.zodiacSign}.$timeframe': {
-          ...horoscope.toMap(),
-          'createdAt': now,
-          'expiryDate': expiryDate,
+        'interpretations': {
+          user.zodiacSign: {
+            timeframe: {
+              ...horoscope.toMap(),
+              'createdAt': now,
+              'expiryDate': expiryDate,
+            }
+          }
         }
       });
     } catch (e) {
@@ -1937,6 +1942,27 @@ class AstrologyController extends GetxController {
       print('Retro state güncelleme hatası: $e');
       hasRetrogrades.value = false;
       activeRetrogrades.clear();
+    }
+  }
+
+  Future<void> saveRetroData(Map<String, dynamic> retroData) async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) throw Exception('Kullanıcı girişi yapılmamış');
+
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('retrogrades')
+          .add({
+        ...retroData,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      print('Retro verileri Firebase\'e kaydedildi');
+    } catch (e) {
+      print('Save retro data error: $e');
+      throw Exception('Retro verileri kaydedilemedi');
     }
   }
 }

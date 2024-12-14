@@ -7,6 +7,7 @@ import 'package:spirootv2/enlightenment/ritual_detail_screen.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
+import 'package:spirootv2/enlightenment/services/ritual_service.dart';
 
 class RitualListScreen extends StatelessWidget {
   final Map<String, dynamic> category;
@@ -86,12 +87,9 @@ class RitualListScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.vertical(
                                     top: Radius.circular(MySize.halfRadius),
                                   ),
-                                  child: Image.network(
-                                    ritual['image'] as String,
-                                    height: 200,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
+                                  child: RitualService.getCachedImage(
+                                      category['image'] as String,
+                                      height: 200),
                                 ),
                                 Padding(
                                   padding:

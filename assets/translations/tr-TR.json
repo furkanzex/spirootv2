@@ -51,7 +51,11 @@
       "start_journey": "Astroloji Yolculuğunu Hemen Başlat",
       "features": {
         "birth_chart": "Burç Kartı",
-        "natal_chart": "Doğum Haritası"
+        "natal_chart": "Doğum Haritası",
+        "fortune": "Günlük Burç Yorumu",
+        "natal": "Doğum Haritası",
+        "compatibility": "Uyum Analizi",
+        "transit": "Transit Analizi"
       }
     },
     "fortune": {

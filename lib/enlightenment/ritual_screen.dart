@@ -14,12 +14,12 @@ class RitualScreen extends StatelessWidget {
 
   // Kategori renklerini tanımla
   final Map<String, Color> categoryColors = const {
-    'love': Color(0xFFF77B9D),
-    'money': Color(0xFFF7C77B),
-    'protection': Color(0xFF7B8FF7),
-    'success': Color(0xFF7BF7AD),
-    'inspiration': Color(0xFFB57BF7),
-    'cleansing': Color(0xFF7BE6F7),
+    'love': MyColor.primaryLightColor,
+    'money': MyColor.primaryLightColor,
+    'protection': MyColor.primaryLightColor,
+    'success': MyColor.primaryLightColor,
+    'inspiration': MyColor.primaryLightColor,
+    'cleansing': MyColor.primaryLightColor,
   };
 
   @override
@@ -65,7 +65,7 @@ class RitualScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: FutureBuilder<Map<String, dynamic>>(
-                    future: RitualService.loadRituals(),
+                    future: RitualService.loadRituals(context),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
@@ -124,14 +124,9 @@ class RitualScreen extends StatelessWidget {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(
                                           MySize.halfRadius),
-                                      child: Image.network(
-                                        category['image'] as String,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        color: Colors.black.withOpacity(0.3),
-                                        colorBlendMode: BlendMode.darken,
-                                      ),
+                                      child: RitualService.getCachedImage(
+                                          category['image'] as String,
+                                          height: 160),
                                     ),
                                     Padding(
                                       padding:
