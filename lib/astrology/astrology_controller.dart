@@ -683,8 +683,8 @@ class AstrologyController extends GetxController {
           expiryDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
       }
 
-      // Firebase'e kaydet
-      await _firestore.collection('users').doc(userId).update({
+      // Sadece ilgili yorumu güncelle, diğerlerine dokunma
+      await _firestore.collection('users').doc(userId).set({
         'interpretations': {
           user.zodiacSign: {
             timeframe: {
@@ -694,7 +694,7 @@ class AstrologyController extends GetxController {
             }
           }
         }
-      });
+      }, SetOptions(merge: true)); // merge: true ile mevcut verileri koru
     } catch (e) {
       print('Save horoscope error: $e');
       throw Exception('Yorum kaydedilemedi');
@@ -703,7 +703,36 @@ class AstrologyController extends GetxController {
 
   void changeDay(String day) async {
     try {
+      // Eğer zaten yükleme yapılıyorsa çık
+      if (isLoading.value) return;
+
+      // Seçili günü güncelle
       selectedDay.value = day;
+
+      // Önce mevcut yorumu kontrol et
+      final userId = _userController.userId.value;
+      final zodiacSign = _userController.currentUser.value?.zodiacSign ?? '';
+      final cleanTimeframe = day.replaceAll("astrology.horoscope.dates.", "");
+
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        final interpretations = doc.data()?['interpretations'];
+        if (interpretations != null &&
+            interpretations[zodiacSign] != null &&
+            interpretations[zodiacSign][cleanTimeframe] != null) {
+          final interpretation = interpretations[zodiacSign][cleanTimeframe];
+          final expiryDate = interpretation['expiryDate'].toDate();
+
+          // Yorum varsa ve süresi geçmemişse, direkt onu kullan
+          if (expiryDate.isAfter(DateTime.now())) {
+            selectedHoroscope.value = DailyHoroscope.fromMap(interpretation);
+            isHoroscopeAvailable.value = true;
+            return;
+          }
+        }
+      }
+
+      // Yorum yoksa veya süresi geçmişse yeni yorum oluştur
       await checkHoroscope(day);
     } catch (e) {
       print('Change Day Error: $e');

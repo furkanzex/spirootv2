@@ -181,15 +181,15 @@ class AuthController extends GetxController {
 
   // Aktif abonelik kontrolü
   Future<bool> hasActiveSubscription() async {
-    final user = _auth.currentUser;
-    if (user == null) return false;
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return false;
 
-    final userData = await _firestore.collection('users').doc(user.uid).get();
-    final subscriptionEndDate = userData.data()?['subscriptionEndDate'];
-
-    if (subscriptionEndDate == null) return false;
-
-    final endDate = (subscriptionEndDate as Timestamp).toDate();
-    return endDate.isAfter(DateTime.now());
+      final userData = await _firestore.collection('users').doc(user.uid).get();
+      return userData.data()?['isSubscribed'] ?? false;
+    } catch (e) {
+      print('Subscription check error: $e');
+      return false;
+    }
   }
 }
