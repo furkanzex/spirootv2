@@ -9,6 +9,7 @@ class Event {
   final DateTime createdAt;
   final List<String> participants;
   final List<String> reports;
+  final int commentCount;
 
   Event({
     required this.id,
@@ -21,6 +22,7 @@ class Event {
     required this.createdAt,
     required this.participants,
     required this.reports,
+    this.commentCount = 0,
   });
 
   factory Event.fromMap(Map<String, dynamic> map, String id) {
@@ -37,6 +39,7 @@ class Event {
           DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
       participants: List<String>.from(map['participants'] ?? []),
       reports: List<String>.from(map['reports'] ?? []),
+      commentCount: map['commentCount'] ?? 0,
     );
   }
 
@@ -51,6 +54,7 @@ class Event {
       'createdAt': createdAt.toIso8601String(),
       'participants': participants,
       'reports': reports,
+      'commentCount': commentCount,
     };
   }
 
@@ -65,6 +69,7 @@ class Event {
     DateTime? createdAt,
     List<String>? participants,
     List<String>? reports,
+    int? commentCount,
   }) {
     return Event(
       id: id ?? this.id,
@@ -77,6 +82,7 @@ class Event {
       createdAt: createdAt ?? this.createdAt,
       participants: participants ?? this.participants,
       reports: reports ?? this.reports,
+      commentCount: commentCount ?? this.commentCount,
     );
   }
 }

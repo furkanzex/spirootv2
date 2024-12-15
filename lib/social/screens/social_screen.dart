@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:intl/intl.dart';
@@ -27,6 +28,8 @@ class _SocialScreenState extends State<SocialScreen> {
   bool _isPostsTab = true;
   final _userController = Get.find<UserController>();
   final _astrologyController = Get.find<AstrologyController>();
+  final Map<String, bool> _expandedPosts = {};
+  final Map<String, bool> _expandedEvents = {};
 
   Future<bool> _checkUserStatusAndRedirect() async {
     if (_userController.userName.isEmpty) {
@@ -239,27 +242,31 @@ class _SocialScreenState extends State<SocialScreen> {
                     Text(
                       post.content,
                       style: MyStyle.s2.copyWith(color: MyColor.white),
-                      maxLines: post.isExpanded ? null : 5,
-                      overflow: post.isExpanded ? null : TextOverflow.ellipsis,
+                      maxLines: _expandedPosts[post.id] == true ? null : 5,
+                      overflow: _expandedPosts[post.id] == true
+                          ? null
+                          : TextOverflow.ellipsis,
                     ),
-                    if (isTextOverflowing || post.isExpanded)
+                    if (isTextOverflowing || _expandedPosts[post.id] == true)
                       TextButton(
                         onPressed: () {
-                          SocialService.togglePostExpansion(
-                              post.id, !post.isExpanded);
+                          setState(() {
+                            _expandedPosts[post.id] =
+                                !(_expandedPosts[post.id] ?? false);
+                          });
                         },
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              post.isExpanded
+                              _expandedPosts[post.id] == true
                                   ? 'Daha az göster'
                                   : 'Devamını göster',
                               style: MyStyle.s3
                                   .copyWith(color: MyColor.primaryPurpleColor),
                             ),
                             Icon(
-                              post.isExpanded
+                              _expandedPosts[post.id] == true
                                   ? Icons.keyboard_arrow_up
                                   : Icons.keyboard_arrow_down,
                               color: MyColor.primaryPurpleColor,
@@ -458,18 +465,77 @@ class _SocialScreenState extends State<SocialScreen> {
                   style: MyStyle.b4.copyWith(color: MyColor.white),
                 ),
                 SizedBox(height: MySize.quarterPadding),
-                Text(
-                  event.description,
-                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final textSpan = TextSpan(
+                      text: event.description,
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                    );
+                    final textPainter = TextPainter(
+                      text: textSpan,
+                      textDirection: ui.TextDirection.ltr,
+                      maxLines: 5,
+                    );
+                    textPainter.layout(maxWidth: constraints.maxWidth);
+
+                    final isTextOverflowing = textPainter.didExceedMaxLines;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          event.description,
+                          style: MyStyle.s2.copyWith(color: MyColor.white),
+                          maxLines:
+                              _expandedEvents[event.id] == true ? null : 5,
+                          overflow: _expandedEvents[event.id] == true
+                              ? null
+                              : TextOverflow.ellipsis,
+                        ),
+                        if (isTextOverflowing ||
+                            _expandedEvents[event.id] == true)
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _expandedEvents[event.id] =
+                                    !(_expandedEvents[event.id] ?? false);
+                              });
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _expandedEvents[event.id] == true
+                                      ? 'Daha az göster'
+                                      : 'Devamını göster',
+                                  style: MyStyle.s3.copyWith(
+                                      color: MyColor.primaryPurpleColor),
+                                ),
+                                Icon(
+                                  _expandedEvents[event.id] == true
+                                      ? Icons.keyboard_arrow_up
+                                      : Icons.keyboard_arrow_down,
+                                  color: MyColor.primaryPurpleColor,
+                                  size: MySize.iconSizeSmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
                 SizedBox(height: MySize.halfPadding),
                 Row(
                   children: [
                     Icon(Icons.location_on, color: MyColor.primaryPurpleColor),
                     SizedBox(width: MySize.quarterPadding),
-                    Text(
-                      event.location,
-                      style: MyStyle.s3.copyWith(color: MyColor.white),
+                    Expanded(
+                      child: Text(
+                        event.location,
+                        style: MyStyle.s3.copyWith(color: MyColor.white),
+                        overflow: TextOverflow.visible,
+                      ),
                     ),
                   ],
                 ),
@@ -615,8 +681,9 @@ class _SocialScreenState extends State<SocialScreen> {
     final descriptionController = TextEditingController();
     final locationController = TextEditingController();
     final imageUrlController = TextEditingController();
-    DateTime selectedDate = DateTime.now();
-    TimeOfDay selectedTime = TimeOfDay.now();
+    final now = DateTime.now();
+    DateTime selectedDate = now;
+    TimeOfDay selectedTime = TimeOfDay.fromDateTime(now);
 
     showModalBottomSheet(
       context: context,
@@ -690,45 +757,63 @@ class _SocialScreenState extends State<SocialScreen> {
                   ),
                 ),
                 SizedBox(height: MySize.defaultPadding),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: selectedDate,
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(Duration(days: 365)),
-                          );
-                          if (date != null) {
-                            selectedDate = date;
-                          }
-                        },
-                        child: Text(
-                          'Tarih Seç',
-                          style: MyStyle.s2.copyWith(color: MyColor.white),
+                Container(
+                  padding: EdgeInsets.all(MySize.defaultPadding),
+                  decoration: BoxDecoration(
+                    color: MyColor.darkBackgroundColor,
+                    borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Etkinlik Tarihi ve Saati',
+                        style: MyStyle.s2.copyWith(color: MyColor.white),
+                      ),
+                      SizedBox(height: MySize.defaultPadding),
+                      Container(
+                        height: 180,
+                        decoration: BoxDecoration(
+                          color: MyColor.transparent,
+                          borderRadius:
+                              BorderRadius.circular(MySize.quarterRadius),
+                        ),
+                        child: CupertinoTheme(
+                          data: CupertinoThemeData(
+                            textTheme: CupertinoTextThemeData(
+                              dateTimePickerTextStyle: MyStyle.s1.copyWith(
+                                color: MyColor.white,
+                                fontSize: 22,
+                              ),
+                            ),
+                          ),
+                          child: CupertinoDatePicker(
+                            itemExtent: MySize.tenQuartersPadding,
+                            mode: CupertinoDatePickerMode.dateAndTime,
+                            initialDateTime: DateTime.now(),
+                            minimumDate: DateTime.now(),
+                            maximumDate:
+                                DateTime.now().add(const Duration(days: 365)),
+                            onDateTimeChanged: (DateTime value) {
+                              selectedDate = value;
+                              selectedTime = TimeOfDay.fromDateTime(value);
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          final time = await showTimePicker(
-                            context: context,
-                            initialTime: selectedTime,
-                          );
-                          if (time != null) {
-                            selectedTime = time;
-                          }
-                        },
-                        child: Text(
-                          'Saat Seç',
-                          style: MyStyle.s2.copyWith(color: MyColor.white),
-                        ),
+                      SizedBox(height: MySize.defaultPadding),
+                      Text(
+                        'Seçilen Tarih: ${DateFormat('dd.MM.yyyy').format(selectedDate)}',
+                        style:
+                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                       ),
-                    ),
-                  ],
+                      Text(
+                        'Seçilen Saat: ${selectedTime.format(context)}',
+                        style:
+                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: MySize.defaultPadding),
                 Row(

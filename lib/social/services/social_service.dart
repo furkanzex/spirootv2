@@ -15,7 +15,8 @@ class SocialService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Post.fromMap(doc.data(), doc.id))
+            .map((doc) =>
+                Post.fromMap(doc.data() as Map<String, dynamic>, doc.id))
             .toList());
   }
 
@@ -28,7 +29,6 @@ class SocialService {
       likes: [],
       commentCount: 0,
       reports: [],
-      isExpanded: false,
     );
 
     await _firestore.collection('posts').add(post.toMap());
@@ -83,18 +83,12 @@ class SocialService {
     await _firestore.collection('posts').doc(postId).delete();
   }
 
-  static Future<void> togglePostExpansion(
-      String postId, bool isExpanded) async {
-    await _firestore.collection('posts').doc(postId).update({
-      'isExpanded': isExpanded,
-    });
-  }
-
   // Event işlemleri
   static Stream<List<Event>> getEvents() {
     return _firestore.collection('events').orderBy('eventDate').snapshots().map(
         (snapshot) => snapshot.docs
-            .map((doc) => Event.fromMap(doc.data(), doc.id))
+            .map((doc) =>
+                Event.fromMap(doc.data() as Map<String, dynamic>, doc.id))
             .toList());
   }
 
@@ -180,7 +174,8 @@ class SocialService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Comment.fromMap(doc.data(), doc.id))
+            .map((doc) =>
+                Comment.fromMap(doc.data() as Map<String, dynamic>, doc.id))
             .toList());
   }
 
@@ -253,5 +248,75 @@ class SocialService {
     });
 
     await batch.commit();
+  }
+
+  static Stream<List<Comment>> getEventComments(String eventId) {
+    return _firestore
+        .collection('events')
+        .doc(eventId)
+        .collection('comments')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) =>
+                Comment.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .toList());
+  }
+
+  static Stream<List<Event>> getFilteredEvents({
+    DateTime? startDate,
+    DateTime? endDate,
+    String? location,
+    bool? onlyUpcoming,
+  }) {
+    Query query = _firestore.collection('events');
+
+    if (startDate != null) {
+      query = query.where('eventDate',
+          isGreaterThanOrEqualTo: startDate.toIso8601String());
+    }
+
+    if (endDate != null) {
+      query = query.where('eventDate',
+          isLessThanOrEqualTo: endDate.toIso8601String());
+    }
+
+    if (location != null && location.isNotEmpty) {
+      query = query.where('location', isEqualTo: location);
+    }
+
+    if (onlyUpcoming == true) {
+      query = query.where('eventDate',
+          isGreaterThanOrEqualTo: DateTime.now().toIso8601String());
+    }
+
+    return query.orderBy('eventDate').snapshots().map((snapshot) => snapshot
+        .docs
+        .map((doc) => Event.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList());
+  }
+
+  static Stream<List<Post>> getUserPosts(String creatorName) {
+    return _firestore
+        .collection('posts')
+        .where('creatorName', isEqualTo: creatorName)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) =>
+                Post.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .toList());
+  }
+
+  static Stream<List<Event>> getUserEvents(String creatorName) {
+    return _firestore
+        .collection('events')
+        .where('creatorName', isEqualTo: creatorName)
+        .orderBy('eventDate')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) =>
+                Event.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .toList());
   }
 }
