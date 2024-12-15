@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:intl/intl.dart';
+import 'package:spirootv2/social/screens/my_content_screen.dart';
 import 'dart:ui' as ui;
 import '../services/social_service.dart';
 import '../models/post_model.dart';
@@ -30,6 +31,8 @@ class _SocialScreenState extends State<SocialScreen> {
   final _astrologyController = Get.find<AstrologyController>();
   final Map<String, bool> _expandedPosts = {};
   final Map<String, bool> _expandedEvents = {};
+  final _postsScrollController = ScrollController();
+  final _eventsScrollController = ScrollController();
 
   Future<bool> _checkUserStatusAndRedirect() async {
     if (_userController.userName.isEmpty) {
@@ -48,6 +51,8 @@ class _SocialScreenState extends State<SocialScreen> {
   @override
   void dispose() {
     _postController.dispose();
+    _postsScrollController.dispose();
+    _eventsScrollController.dispose();
     super.dispose();
   }
 
@@ -99,41 +104,136 @@ class _SocialScreenState extends State<SocialScreen> {
   }
 
   Widget _buildPostsTab() {
-    return StreamBuilder<List<Post>>(
-      stream: SocialService.getPosts(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Bir hata oluştu',
-              style: MyStyle.s2.copyWith(color: MyColor.white),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: MySize.halfPadding),
+          child: GestureDetector(
+            onTap: () => Get.to(() => const MyContentScreen()),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.person,
+                  color: MyColor.primaryPurpleColor,
+                  size: MySize.iconSizeTiny,
+                ),
+                SizedBox(width: MySize.quarterPadding),
+                Text(
+                  'Gönderilerim',
+                  style: MyStyle.s3.copyWith(color: MyColor.primaryPurpleColor),
+                ),
+              ],
             ),
-          );
-        }
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<List<Post>>(
+            stream: SocialService.getPosts(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Bir hata oluştu',
+                    style: MyStyle.s2.copyWith(color: MyColor.white),
+                  ),
+                );
+              }
 
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-        final posts = snapshot.data!;
-        if (posts.isEmpty) {
-          return Center(
-            child: Text(
-              'Henüz gönderi yok',
-              style: MyStyle.s2.copyWith(color: MyColor.white),
+              final posts = snapshot.data!;
+              if (posts.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Henüz gönderi yok',
+                    style: MyStyle.s2.copyWith(color: MyColor.white),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                controller: _postsScrollController,
+                padding: EdgeInsets.all(MySize.defaultPadding),
+                itemCount: posts.length,
+                itemBuilder: (context, index) {
+                  final post = posts[index];
+                  return _buildPostCard(post);
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEventsTab() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: MySize.halfPadding),
+          child: GestureDetector(
+            onTap: () => Get.to(() => const MyContentScreen()),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.person,
+                  color: MyColor.primaryPurpleColor,
+                  size: MySize.iconSizeTiny,
+                ),
+                SizedBox(width: MySize.quarterPadding),
+                Text(
+                  'Etkinliklerim',
+                  style: MyStyle.s3.copyWith(color: MyColor.primaryPurpleColor),
+                ),
+              ],
             ),
-          );
-        }
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<List<Event>>(
+            stream: SocialService.getEvents(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Bir hata oluştu',
+                    style: MyStyle.s2.copyWith(color: MyColor.white),
+                  ),
+                );
+              }
 
-        return ListView.builder(
-          padding: EdgeInsets.all(MySize.defaultPadding),
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            final post = posts[index];
-            return _buildPostCard(post);
-          },
-        );
-      },
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final events = snapshot.data!;
+              if (events.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Henüz etkinlik yok',
+                    style: MyStyle.s2.copyWith(color: MyColor.white),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                controller: _eventsScrollController,
+                padding: EdgeInsets.all(MySize.defaultPadding),
+                itemCount: events.length,
+                itemBuilder: (context, index) {
+                  final event = events[index];
+                  return _buildEventCard(event);
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -318,45 +418,6 @@ class _SocialScreenState extends State<SocialScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildEventsTab() {
-    return StreamBuilder<List<Event>>(
-      stream: SocialService.getEvents(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Bir hata oluştu',
-              style: MyStyle.s2.copyWith(color: MyColor.white),
-            ),
-          );
-        }
-
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        final events = snapshot.data!;
-        if (events.isEmpty) {
-          return Center(
-            child: Text(
-              'Henüz etkinlik yok',
-              style: MyStyle.s2.copyWith(color: MyColor.white),
-            ),
-          );
-        }
-
-        return ListView.builder(
-          padding: EdgeInsets.all(MySize.defaultPadding),
-          itemCount: events.length,
-          itemBuilder: (context, index) {
-            final event = events[index];
-            return _buildEventCard(event);
-          },
-        );
-      },
     );
   }
 

@@ -4,6 +4,8 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/profile/user_controller.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
+
 import '../services/social_service.dart';
 import '../models/post_model.dart';
 import '../models/event_model.dart';
@@ -18,7 +20,6 @@ class MyContentScreen extends StatefulWidget {
 
 class _MyContentScreenState extends State<MyContentScreen> {
   final _userController = Get.find<UserController>();
-  bool _isPostsTab = true;
 
   @override
   Widget build(BuildContext context) {
@@ -29,19 +30,19 @@ class _MyContentScreenState extends State<MyContentScreen> {
         appBar: AppBar(
           backgroundColor: MyColor.transparent,
           elevation: 0,
-          title: Text(
-            'İçeriklerim',
-            style: MyStyle.b4.copyWith(color: MyColor.white),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
+            onPressed: () => Navigator.pop(context),
           ),
+          title: Text(easy.tr("Gönderilerim"),
+              style: MyStyle.b4.copyWith(color: MyColor.white)),
           bottom: TabBar(
             labelColor: MyColor.white,
             unselectedLabelColor: MyColor.white.withOpacity(0.5),
             dividerColor: MyColor.white.withOpacity(0.5),
             indicatorColor: MyColor.primaryPurpleColor,
             onTap: (index) {
-              setState(() {
-                _isPostsTab = index == 0;
-              });
+              setState(() {});
             },
             tabs: const [
               Tab(text: 'Gönderilerim'),
@@ -104,7 +105,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
                 ),
                 subtitle: Text(
                   DateFormat('dd.MM.yyyy HH:mm').format(post.createdAt),
-                  style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                  style: MyStyle.s3.copyWith(color: MyColor.primaryPurpleColor),
                 ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete, color: MyColor.errorColor),
@@ -159,10 +160,27 @@ class _MyContentScreenState extends State<MyContentScreen> {
       stream: SocialService.getUserEvents(_userController.userName),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          print('Hata detayı: ${snapshot.error}');
           return Center(
-            child: Text(
-              'Bir hata oluştu',
-              style: MyStyle.s2.copyWith(color: MyColor.white),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, color: MyColor.errorColor, size: 48),
+                SizedBox(height: MySize.defaultPadding),
+                Text(
+                  'Etkinlikleriniz yüklenirken bir hata oluştu',
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  textAlign: TextAlign.center,
+                ),
+                TextButton(
+                  onPressed: () => setState(() {}),
+                  child: Text(
+                    'Tekrar Dene',
+                    style:
+                        MyStyle.s2.copyWith(color: MyColor.primaryPurpleColor),
+                  ),
+                ),
+              ],
             ),
           );
         }
@@ -227,8 +245,10 @@ class _MyContentScreenState extends State<MyContentScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      event.location,
+                      event.description,
                       style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       DateFormat('dd.MM.yyyy HH:mm').format(event.eventDate),

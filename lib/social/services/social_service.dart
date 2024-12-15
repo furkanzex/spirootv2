@@ -300,7 +300,6 @@ class SocialService {
     return _firestore
         .collection('posts')
         .where('creatorName', isEqualTo: creatorName)
-        .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) =>
@@ -312,7 +311,6 @@ class SocialService {
     return _firestore
         .collection('events')
         .where('creatorName', isEqualTo: creatorName)
-        .orderBy('eventDate')
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) =>
