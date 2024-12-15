@@ -173,39 +173,45 @@ class _SocialScreenState extends State<SocialScreen> {
                 PopupMenuButton<String>(
                   icon: Icon(Icons.more_vert, color: MyColor.white),
                   color: MyColor.darkBackgroundColor,
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'report',
-                      child: Row(
-                        children: [
-                          Icon(Icons.report_problem_outlined,
-                              color: MyColor.errorColor),
-                          SizedBox(width: MySize.defaultPadding),
-                          Text(
-                            'Şikayet Et',
-                            style: MyStyle.s2.copyWith(color: MyColor.white),
-                          ),
-                        ],
+                  itemBuilder: (context) {
+                    final hasReported = post.reports
+                        .contains(FirebaseAuth.instance.currentUser?.uid);
+                    return [
+                      PopupMenuItem(
+                        value: hasReported ? 'unreport' : 'report',
+                        child: Row(
+                          children: [
+                            Icon(
+                              hasReported
+                                  ? Icons.remove_circle_outline
+                                  : Icons.report_problem_outlined,
+                              color: hasReported
+                                  ? MyColor.primaryPurpleColor
+                                  : MyColor.errorColor,
+                            ),
+                            SizedBox(width: MySize.defaultPadding),
+                            Text(
+                              hasReported ? 'Şikayeti Geri Al' : 'Şikayet Et',
+                              style: MyStyle.s2.copyWith(color: MyColor.white),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ];
+                  },
                   onSelected: (value) async {
+                    final userId = FirebaseAuth.instance.currentUser?.uid;
+                    if (userId == null) return;
+
                     if (value == 'report') {
-                      if (!post.reports
-                          .contains(FirebaseAuth.instance.currentUser?.uid)) {
+                      if (!post.reports.contains(userId)) {
                         await SocialService.reportPost(post.id);
                         if (post.reports.length >= 49) {
-                          // 49 çünkü yeni report ile 50 olacak
                           await SocialService.deletePost(post.id);
                         }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Bu gönderiyi zaten şikayet ettiniz'),
-                            backgroundColor: MyColor.errorColor,
-                          ),
-                        );
                       }
+                    } else if (value == 'unreport') {
+                      await SocialService.unreportPost(post.id);
                     }
                   },
                 ),
@@ -221,7 +227,7 @@ class _SocialScreenState extends State<SocialScreen> {
                 final textPainter = TextPainter(
                   text: textSpan,
                   textDirection: ui.TextDirection.ltr,
-                  maxLines: post.isExpanded ? null : 5,
+                  maxLines: 5,
                 );
                 textPainter.layout(maxWidth: constraints.maxWidth);
 
@@ -236,18 +242,30 @@ class _SocialScreenState extends State<SocialScreen> {
                       maxLines: post.isExpanded ? null : 5,
                       overflow: post.isExpanded ? null : TextOverflow.ellipsis,
                     ),
-                    if (isTextOverflowing)
+                    if (isTextOverflowing || post.isExpanded)
                       TextButton(
-                        onPressed: () async {
-                          await SocialService.togglePostExpansion(
+                        onPressed: () {
+                          SocialService.togglePostExpansion(
                               post.id, !post.isExpanded);
                         },
-                        child: Text(
-                          post.isExpanded
-                              ? 'Daha az göster'
-                              : 'Devamını göster',
-                          style: MyStyle.s3
-                              .copyWith(color: MyColor.primaryPurpleColor),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              post.isExpanded
+                                  ? 'Daha az göster'
+                                  : 'Devamını göster',
+                              style: MyStyle.s3
+                                  .copyWith(color: MyColor.primaryPurpleColor),
+                            ),
+                            Icon(
+                              post.isExpanded
+                                  ? Icons.keyboard_arrow_up
+                                  : Icons.keyboard_arrow_down,
+                              color: MyColor.primaryPurpleColor,
+                              size: MySize.iconSizeSmall,
+                            ),
+                          ],
                         ),
                       ),
                   ],
@@ -387,41 +405,48 @@ class _SocialScreenState extends State<SocialScreen> {
                     PopupMenuButton<String>(
                       icon: Icon(Icons.more_vert, color: MyColor.white),
                       color: MyColor.darkBackgroundColor,
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'report',
-                          child: Row(
-                            children: [
-                              Icon(Icons.report_problem_outlined,
-                                  color: MyColor.errorColor),
-                              SizedBox(width: MySize.defaultPadding),
-                              Text(
-                                'Şikayet Et',
-                                style:
-                                    MyStyle.s2.copyWith(color: MyColor.white),
-                              ),
-                            ],
+                      itemBuilder: (context) {
+                        final hasReported = event.reports
+                            .contains(FirebaseAuth.instance.currentUser?.uid);
+                        return [
+                          PopupMenuItem(
+                            value: hasReported ? 'unreport' : 'report',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  hasReported
+                                      ? Icons.remove_circle_outline
+                                      : Icons.report_problem_outlined,
+                                  color: hasReported
+                                      ? MyColor.primaryPurpleColor
+                                      : MyColor.errorColor,
+                                ),
+                                SizedBox(width: MySize.defaultPadding),
+                                Text(
+                                  hasReported
+                                      ? 'Şikayeti Geri Al'
+                                      : 'Şikayet Et',
+                                  style:
+                                      MyStyle.s2.copyWith(color: MyColor.white),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ];
+                      },
                       onSelected: (value) async {
+                        final userId = FirebaseAuth.instance.currentUser?.uid;
+                        if (userId == null) return;
+
                         if (value == 'report') {
-                          if (!event.reports.contains(
-                              FirebaseAuth.instance.currentUser?.uid)) {
+                          if (!event.reports.contains(userId)) {
                             await SocialService.reportEvent(event.id);
                             if (event.reports.length >= 49) {
-                              // 49 çünkü yeni report ile 50 olacak
                               await SocialService.deleteEvent(event.id);
                             }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content:
-                                    Text('Bu etkinliği zaten şikayet ettiniz'),
-                                backgroundColor: MyColor.errorColor,
-                              ),
-                            );
                           }
+                        } else if (value == 'unreport') {
+                          await SocialService.unreportEvent(event.id);
                         }
                       },
                     ),

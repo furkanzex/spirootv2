@@ -65,6 +65,20 @@ class SocialService {
     }
   }
 
+  static Future<void> unreportPost(String postId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final postRef = _firestore.collection('posts').doc(postId);
+    final post = await postRef.get();
+    final reports = List<String>.from(post.data()?['reports'] ?? []);
+
+    if (reports.contains(userId)) {
+      reports.remove(userId);
+      await postRef.update({'reports': reports});
+    }
+  }
+
   static Future<void> deletePost(String postId) async {
     await _firestore.collection('posts').doc(postId).delete();
   }
@@ -139,6 +153,20 @@ class SocialService {
     }
   }
 
+  static Future<void> unreportEvent(String eventId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final eventRef = _firestore.collection('events').doc(eventId);
+    final event = await eventRef.get();
+    final reports = List<String>.from(event.data()?['reports'] ?? []);
+
+    if (reports.contains(userId)) {
+      reports.remove(userId);
+      await eventRef.update({'reports': reports});
+    }
+  }
+
   static Future<void> deleteEvent(String eventId) async {
     await _firestore.collection('events').doc(eventId).delete();
   }
@@ -192,6 +220,24 @@ class SocialService {
 
     if (!reports.contains(userId)) {
       reports.add(userId);
+      await commentRef.update({'reports': reports});
+    }
+  }
+
+  static Future<void> unreportComment(String postId, String commentId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final commentRef = _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId);
+    final comment = await commentRef.get();
+    final reports = List<String>.from(comment.data()?['reports'] ?? []);
+
+    if (reports.contains(userId)) {
+      reports.remove(userId);
       await commentRef.update({'reports': reports});
     }
   }
