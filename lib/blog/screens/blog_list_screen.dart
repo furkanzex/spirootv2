@@ -11,6 +11,8 @@ import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/paywall/paywall_screen.dart';
+import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'create_blog_post_screen.dart';
 
 class BlogListScreen extends StatefulWidget {
@@ -24,6 +26,38 @@ class _BlogListScreenState extends State<BlogListScreen> {
   final BlogService _blogService = BlogService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  Future<void> _checkAndNavigateToCreate(BuildContext context) async {
+    try {
+      await _blogService.checkUserEligibility();
+      // Kontroller başarılı, blog oluşturma sayfasına git
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CreateBlogPostScreen()),
+      );
+    } catch (e) {
+      String errorMessage = e.toString();
+
+      if (errorMessage.contains('profile_incomplete')) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfileOnboarding()),
+        );
+      } else if (errorMessage.contains('subscription_required')) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PaywallScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -138,14 +172,7 @@ class _BlogListScreenState extends State<BlogListScreen> {
           actions: [
             IconButton(
               icon: Icon(Icons.add, color: MyColor.white),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CreateBlogPostScreen(),
-                  ),
-                );
-              },
+              onPressed: () => _checkAndNavigateToCreate(context),
             ),
             IconButton(
               icon: Icon(Icons.bookmark, color: MyColor.white),

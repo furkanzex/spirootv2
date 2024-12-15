@@ -5,6 +5,8 @@ import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:spirootv2/paywall/paywall_screen.dart';
+import 'package:spirootv2/profile/profile_onboarding.dart';
 
 class CreateBlogPostScreen extends StatefulWidget {
   const CreateBlogPostScreen({Key? key}) : super(key: key);
@@ -44,19 +46,35 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Blog yazınız başarıyla oluşturuldu'),
+            content: Text(tr('Blog yazınız başarıyla oluşturuldu')),
             backgroundColor: Colors.green,
           ),
         );
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-        ),
-      );
+      String errorMessage = e.toString();
+
+      if (errorMessage.contains('profile_incomplete')) {
+        // Profil tamamlama ekranına yönlendir
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfileOnboarding()),
+        );
+      } else if (errorMessage.contains('subscription_required')) {
+        // Abonelik ekranına yönlendir
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PaywallScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

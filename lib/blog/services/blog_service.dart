@@ -2,12 +2,32 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
+import 'package:spirootv2/auth/auth_controller.dart';
 import '../models/blog_post.dart';
 
 class BlogService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GeminiService _geminiService = Get.find<GeminiService>();
+  final AuthController _authController = Get.find<AuthController>();
+
+  // Kullanıcı kontrolü
+  Future<void> checkUserEligibility() async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Kullanıcı oturum açmamış.');
+
+    // Profil kontrolü
+    final isProfileComplete = await _authController.isProfileComplete();
+    if (!isProfileComplete) {
+      throw Exception('profile_incomplete');
+    }
+
+    // Abonelik kontrolü
+    final hasActiveSubscription = await _authController.hasActiveSubscription();
+    if (!hasActiveSubscription) {
+      throw Exception('subscription_required');
+    }
+  }
 
   // Blog yazısı oluşturma
   Future<bool> createBlogPost({
@@ -17,6 +37,9 @@ class BlogService {
   }) async {
     try {
       print('Blog yazısı oluşturma başladı');
+
+      // Kullanıcı uygunluk kontrolü
+      await checkUserEligibility();
 
       // İçerik uzunluğunu kontrol et
       if (content.length < 500) {
@@ -90,6 +113,9 @@ class BlogService {
   }) async {
     try {
       print('Blog yazısı güncelleme başladı');
+
+      // Kullanıcı uygunluk kontrolü
+      await checkUserEligibility();
 
       // İçerik uzunluğunu kontrol et
       if (content.length < 500) {

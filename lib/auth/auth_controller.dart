@@ -167,4 +167,29 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  // Profil tamamlama kontrolü
+  Future<bool> isProfileComplete() async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+
+    final userData = await _firestore.collection('users').doc(user.uid).get();
+    return userData.exists &&
+        userData.data()?['name'] != null &&
+        userData.data()?['birthDate'] != null;
+  }
+
+  // Aktif abonelik kontrolü
+  Future<bool> hasActiveSubscription() async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+
+    final userData = await _firestore.collection('users').doc(user.uid).get();
+    final subscriptionEndDate = userData.data()?['subscriptionEndDate'];
+
+    if (subscriptionEndDate == null) return false;
+
+    final endDate = (subscriptionEndDate as Timestamp).toDate();
+    return endDate.isAfter(DateTime.now());
+  }
 }
