@@ -620,21 +620,37 @@ class _SocialScreenState extends State<SocialScreen> {
                       '${event.participants.length} katılımcı',
                       style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                     ),
-                    ElevatedButton(
-                      onPressed: () => SocialService.joinEvent(event.id),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: event.participants.contains(
-                                FirebaseAuth.instance.currentUser?.uid)
-                            ? MyColor.roseColor
-                            : MyColor.primaryPurpleColor,
-                      ),
-                      child: Text(
-                        event.participants.contains(
-                                FirebaseAuth.instance.currentUser?.uid)
-                            ? 'Vazgeç'
-                            : 'Katıl',
-                        style: MyStyle.s3.copyWith(color: MyColor.white),
-                      ),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => _showEventCommentsDialog(event.id),
+                          icon: Icon(
+                            Icons.comment_outlined,
+                            color: MyColor.white,
+                          ),
+                        ),
+                        Text(
+                          event.commentCount.toString(),
+                          style: MyStyle.s3.copyWith(color: MyColor.white),
+                        ),
+                        SizedBox(width: MySize.defaultPadding),
+                        ElevatedButton(
+                          onPressed: () => SocialService.joinEvent(event.id),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: event.participants.contains(
+                                    FirebaseAuth.instance.currentUser?.uid)
+                                ? MyColor.roseColor
+                                : MyColor.primaryPurpleColor,
+                          ),
+                          child: Text(
+                            event.participants.contains(
+                                    FirebaseAuth.instance.currentUser?.uid)
+                                ? 'Vazgeç'
+                                : 'Katıl',
+                            style: MyStyle.s3.copyWith(color: MyColor.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -1094,6 +1110,186 @@ class _SocialScreenState extends State<SocialScreen> {
                         if (commentController.text.trim().isNotEmpty) {
                           await SocialService.addComment(
                             postId,
+                            commentController.text.trim(),
+                            _userController.userName,
+                          );
+                          commentController.clear();
+                        }
+                      },
+                      icon: Icon(Icons.send, color: MyColor.primaryPurpleColor),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEventCommentsDialog(String eventId) {
+    final commentController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: MyColor.primaryDarkColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => Padding(
+          padding: EdgeInsets.fromLTRB(
+            MySize.defaultPadding,
+            MySize.defaultPadding,
+            MySize.defaultPadding,
+            MediaQuery.of(context).viewInsets.bottom + MySize.defaultPadding,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Yorumlar',
+                style: MyStyle.b4.copyWith(color: MyColor.white),
+              ),
+              SizedBox(height: MySize.defaultPadding),
+              Expanded(
+                child: StreamBuilder(
+                  stream: SocialService.getEventComments(eventId),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final comments = snapshot.data!;
+                    return ListView.builder(
+                      controller: scrollController,
+                      itemCount: comments.length,
+                      itemBuilder: (context, index) {
+                        final comment = comments[index];
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor:
+                                MyColor.primaryPurpleColor.withOpacity(0.2),
+                            child: Text(
+                              comment.creatorName[0].toUpperCase(),
+                              style: MyStyle.s2.copyWith(color: MyColor.white),
+                            ),
+                          ),
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                comment.creatorName,
+                                style: MyStyle.s2.copyWith(
+                                  color: MyColor.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                comment.content,
+                                style:
+                                    MyStyle.s2.copyWith(color: MyColor.white),
+                              ),
+                            ],
+                          ),
+                          subtitle: Text(
+                            DateFormat('dd.MM.yyyy HH:mm')
+                                .format(comment.createdAt),
+                            style: MyStyle.s3
+                                .copyWith(color: MyColor.textGreyColor),
+                          ),
+                          trailing: PopupMenuButton<String>(
+                            icon: Icon(Icons.more_vert, color: MyColor.white),
+                            color: MyColor.darkBackgroundColor,
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'report',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.report_problem_outlined,
+                                        color: MyColor.errorColor),
+                                    SizedBox(width: MySize.defaultPadding),
+                                    Text(
+                                      'Şikayet Et',
+                                      style: MyStyle.s2
+                                          .copyWith(color: MyColor.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            onSelected: (value) async {
+                              if (value == 'report') {
+                                if (!comment.reports.contains(
+                                    FirebaseAuth.instance.currentUser?.uid)) {
+                                  await SocialService.reportEventComment(
+                                      eventId, comment.id);
+                                  if (comment.reports.length >= 49) {
+                                    await SocialService.deleteComment(
+                                        eventId, comment.id);
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Bu yorumu zaten şikayet ettiniz'),
+                                      backgroundColor: MyColor.errorColor,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: MySize.defaultPadding),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: commentController,
+                        style: MyStyle.s2.copyWith(color: MyColor.white),
+                        decoration: InputDecoration(
+                          hintText: 'Yorum yaz...',
+                          hintStyle:
+                              MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(MySize.halfRadius),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(MySize.halfRadius),
+                            borderSide:
+                                BorderSide(color: MyColor.textGreyColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(MySize.halfRadius),
+                            borderSide:
+                                BorderSide(color: MyColor.primaryPurpleColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: MySize.defaultPadding),
+                    IconButton(
+                      onPressed: () async {
+                        if (commentController.text.trim().isNotEmpty) {
+                          await SocialService.addEventComment(
+                            eventId,
                             commentController.text.trim(),
                             _userController.userName,
                           );

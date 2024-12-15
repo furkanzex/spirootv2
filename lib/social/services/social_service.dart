@@ -1,5 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:spirootv2/profile/user_controller.dart';
+import 'package:spirootv2/astrology/astrology_controller.dart';
+import 'package:spirootv2/profile/profile_onboarding.dart';
+import 'package:spirootv2/paywall/paywall_screen.dart';
 import '../models/post_model.dart';
 import '../models/comment_model.dart';
 import '../models/event_model.dart';
@@ -7,6 +12,23 @@ import '../models/event_model.dart';
 class SocialService {
   static final _firestore = FirebaseFirestore.instance;
   static final _auth = FirebaseAuth.instance;
+
+  static Future<bool> _checkUserEligibility() async {
+    final userController = Get.find<UserController>();
+    final astrologyController = Get.find<AstrologyController>();
+
+    if (userController.userName.isEmpty) {
+      Get.to(() => const ProfileOnboarding());
+      return false;
+    }
+
+    if (!astrologyController.isSubscribed.value) {
+      Get.to(() => const PaywallScreen());
+      return false;
+    }
+
+    return true;
+  }
 
   // Post işlemleri
   static Stream<List<Post>> getPosts() {
@@ -52,6 +74,8 @@ class SocialService {
   }
 
   static Future<void> reportPost(String postId) async {
+    if (!await _checkUserEligibility()) return;
+
     final userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
@@ -134,6 +158,8 @@ class SocialService {
   }
 
   static Future<void> reportEvent(String eventId) async {
+    if (!await _checkUserEligibility()) return;
+
     final userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
@@ -181,6 +207,8 @@ class SocialService {
 
   static Future<void> addComment(
       String postId, String content, String creatorName) async {
+    if (!await _checkUserEligibility()) return;
+
     final comment = Comment(
       id: '',
       content: content,
@@ -202,6 +230,8 @@ class SocialService {
   }
 
   static Future<void> reportComment(String postId, String commentId) async {
+    if (!await _checkUserEligibility()) return;
+
     final userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
@@ -316,5 +346,50 @@ class SocialService {
             .map((doc) =>
                 Event.fromMap(doc.data() as Map<String, dynamic>, doc.id))
             .toList());
+  }
+
+  static Future<void> addEventComment(
+      String eventId, String content, String creatorName) async {
+    if (!await _checkUserEligibility()) return;
+
+    final comment = Comment(
+      id: '',
+      content: content,
+      creatorName: creatorName,
+      createdAt: DateTime.now(),
+      reports: [],
+    );
+
+    final batch = _firestore.batch();
+    final eventRef = _firestore.collection('events').doc(eventId);
+    final commentRef = eventRef.collection('comments').doc();
+
+    batch.set(commentRef, comment.toMap());
+    batch.update(eventRef, {
+      'commentCount': FieldValue.increment(1),
+    });
+
+    await batch.commit();
+  }
+
+  static Future<void> reportEventComment(
+      String eventId, String commentId) async {
+    if (!await _checkUserEligibility()) return;
+
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final commentRef = _firestore
+        .collection('events')
+        .doc(eventId)
+        .collection('comments')
+        .doc(commentId);
+    final comment = await commentRef.get();
+    final reports = List<String>.from(comment.data()?['reports'] ?? []);
+
+    if (!reports.contains(userId)) {
+      reports.add(userId);
+      await commentRef.update({'reports': reports});
+    }
   }
 }
