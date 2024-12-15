@@ -28,6 +28,22 @@ class BlogService {
         throw Exception('Görsel URL\'si zorunludur.');
       }
 
+      // URL formatını kontrol et
+      final uri = Uri.tryParse(imageUrl);
+      if (uri == null || !uri.isAbsolute) {
+        throw Exception('Geçerli bir görsel URL\'si giriniz.');
+      }
+
+      // Desteklenen görsel formatlarını kontrol et
+      final validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+      final hasValidExtension =
+          validExtensions.any((ext) => imageUrl.toLowerCase().endsWith(ext));
+
+      if (!hasValidExtension) {
+        throw Exception(
+            'Desteklenen görsel formatları: JPG, JPEG, PNG, GIF, WEBP');
+      }
+
       print('İçerik kontrolleri tamamlandı, moderasyon başlıyor');
 
       // AI moderasyon kontrolü
@@ -83,6 +99,22 @@ class BlogService {
       // Görsel URL'sini kontrol et
       if (imageUrl.isEmpty) {
         throw Exception('Görsel URL\'si zorunludur.');
+      }
+
+      // URL formatını kontrol et
+      final uri = Uri.tryParse(imageUrl);
+      if (uri == null || !uri.isAbsolute) {
+        throw Exception('Geçerli bir görsel URL\'si giriniz.');
+      }
+
+      // Desteklenen görsel formatlarını kontrol et
+      final validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+      final hasValidExtension =
+          validExtensions.any((ext) => imageUrl.toLowerCase().endsWith(ext));
+
+      if (!hasValidExtension) {
+        throw Exception(
+            'Desteklenen görsel formatları: JPG, JPEG, PNG, GIF, WEBP');
       }
 
       print('İçerik kontrolleri tamamlandı, moderasyon başlıyor');

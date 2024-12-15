@@ -129,9 +129,27 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
                   if (value == null || value.isEmpty) {
                     return tr("Görsel URL'si zorunludur");
                   }
-                  if (!Uri.tryParse(value)!.isAbsolute) {
+
+                  final uri = Uri.tryParse(value);
+                  if (uri == null || !uri.isAbsolute) {
                     return tr("Geçerli bir URL giriniz");
                   }
+
+                  final validExtensions = [
+                    '.jpg',
+                    '.jpeg',
+                    '.png',
+                    '.gif',
+                    '.webp'
+                  ];
+                  final hasValidExtension = validExtensions
+                      .any((ext) => value.toLowerCase().endsWith(ext));
+
+                  if (!hasValidExtension) {
+                    return tr(
+                        "Desteklenen görsel formatları: JPG, JPEG, PNG, GIF, WEBP");
+                  }
+
                   return null;
                 },
               ),
