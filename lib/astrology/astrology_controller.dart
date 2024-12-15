@@ -505,8 +505,11 @@ class AstrologyController extends GetxController {
             interpretations[zodiacSign][cleanTimeframe] != null) {
           final interpretation = interpretations[zodiacSign][cleanTimeframe];
           final expiryDate = interpretation['expiryDate'].toDate();
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
 
-          if (expiryDate.isAfter(DateTime.now())) {
+          // Eğer son kullanma tarihi bugünden büyükse yorumu kullan
+          if (expiryDate.isAfter(today)) {
             selectedHoroscope.value = DailyHoroscope.fromMap(interpretation);
             isHoroscopeAvailable.value = true;
           } else {
@@ -670,17 +673,17 @@ class AstrologyController extends GetxController {
       DateTime expiryDate;
       switch (timeframe) {
         case "today":
-          expiryDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
+          // Günün sonunu değil, bir sonraki günün başlangıcını baz al
+          expiryDate = DateTime(now.year, now.month, now.day + 1);
           break;
         case "week":
           expiryDate = now.add(const Duration(days: 7));
           break;
         case "month":
-          expiryDate = DateTime(now.year, now.month + 1, 1)
-              .subtract(const Duration(seconds: 1));
+          expiryDate = DateTime(now.year, now.month + 1, 1);
           break;
         default:
-          expiryDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
+          expiryDate = DateTime(now.year, now.month, now.day + 1);
       }
 
       // Sadece ilgili yorumu güncelle, diğerlerine dokunma
