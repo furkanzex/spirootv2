@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/blog/models/blog_post.dart';
+import 'package:spirootv2/blog/screens/blog_detail_screen.dart';
 import 'package:spirootv2/blog/services/blog_service.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 import 'create_blog_post_screen.dart';
 
 class BlogListScreen extends StatelessWidget {
@@ -23,13 +25,13 @@ class BlogListScreen extends StatelessWidget {
     if (difference.inDays == 0) {
       if (difference.inHours == 0) {
         if (difference.inMinutes == 0) {
-          return tr("Şimdi");
+          return easy.tr("Şimdi");
         }
-        return "${difference.inMinutes} ${tr("dakika önce")}";
+        return "${difference.inMinutes} ${easy.tr("dakika önce")}";
       }
-      return "${difference.inHours} ${tr("saat önce")}";
+      return "${difference.inHours} ${easy.tr("saat önce")}";
     } else if (difference.inDays < 7) {
-      return "${difference.inDays} ${tr("gün önce")}";
+      return "${difference.inDays} ${easy.tr("gün önce")}";
     } else {
       return DateFormat('dd.MM.yyyy').format(date);
     }
@@ -52,9 +54,10 @@ class BlogListScreen extends StatelessWidget {
         backgroundColor: MyColor.transparent,
         elevation: 0,
         title: Text(
-          tr("Blog Yazıları"),
+          easy.tr("Blog"),
           style: MyStyle.b4.copyWith(color: MyColor.white),
         ),
+        centerTitle: true,
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: Icon(MyIcon.back,
@@ -71,6 +74,12 @@ class BlogListScreen extends StatelessWidget {
                   builder: (context) => CreateBlogPostScreen(),
                 ),
               );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.bookmark, color: MyColor.white),
+            onPressed: () {
+              //kullanıcının kendi paylaştığı blog yazılarını görebileceği ve editleyebileceği sayfaya yönlendirme yapılacak
             },
           ),
         ],
@@ -126,7 +135,12 @@ class BlogListScreen extends StatelessWidget {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(MySize.halfRadius),
                   onTap: () {
-                    // Blog detay sayfasına yönlendirme eklenecek
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlogDetailScreen(post: post),
+                      ),
+                    );
                   },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,13 +155,14 @@ class BlogListScreen extends StatelessWidget {
                           width: double.infinity,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            print('Görsel yükleme hatası: $error');
                             return Container(
                               height: 200,
                               color: MyColor.primaryColor.withOpacity(0.2),
-                              child: Icon(
-                                Icons.error,
-                                color: MyColor.white,
+                              child: Center(
+                                child: Icon(
+                                  Icons.error,
+                                  color: MyColor.white,
+                                ),
                               ),
                             );
                           },
