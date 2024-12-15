@@ -561,27 +561,34 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             debounceTime: 800,
             countries: const ["tr", "us", "gb"],
             isLatLngRequired: true,
-            getPlaceDetailWithLatLng: (Prediction prediction) {
-              if (mounted) {
-                try {
-                  _birthPlaceController.text = prediction.description ?? '';
-                  _userController.birthPlaceController.text =
-                      prediction.description ?? '';
-                  _userController.validatePlace(prediction.description ?? '');
-                  _birthPlaceFocusNode.unfocus();
-                } catch (e) {
-                  _userController.handleLocationError(e.toString());
-                }
-              }
-            },
-            itemClick: (Prediction prediction) {
-              if (mounted) {
+            getPlaceDetailWithLatLng: (Prediction prediction) async {
+              if (!mounted) return;
+
+              try {
                 _birthPlaceController.text = prediction.description ?? '';
                 _userController.birthPlaceController.text =
                     prediction.description ?? '';
                 _userController.validatePlace(prediction.description ?? '');
                 _birthPlaceFocusNode.unfocus();
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Bir hata oluştu: $e'),
+                      backgroundColor: MyColor.errorColor,
+                    ),
+                  );
+                }
               }
+            },
+            itemClick: (Prediction prediction) async {
+              if (!mounted) return;
+
+              _birthPlaceController.text = prediction.description ?? '';
+              _userController.birthPlaceController.text =
+                  prediction.description ?? '';
+              _userController.validatePlace(prediction.description ?? '');
+              _birthPlaceFocusNode.unfocus();
             },
             // Özel liste görünümü
             seperatedBuilder: Divider(
@@ -1110,6 +1117,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
     _pageController.removeListener(_onPageChanged);
     _pageController.dispose();
     _birthPlaceFocusNode.dispose();
+    _birthPlaceController.dispose();
     super.dispose();
   }
 }
