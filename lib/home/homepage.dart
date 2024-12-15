@@ -85,9 +85,9 @@ class _HomePageState extends State<HomePage> {
                 activeIcon: Icon(MingCute.planet_fill),
                 label: easy.tr("navigation.astrology")),
             BottomNavigationBarItem(
-                icon: Icon(MingCute.store_2_line),
-                activeIcon: Icon(MingCute.store_2_fill),
-                label: easy.tr("navigation.shops")),
+                icon: Icon(MingCute.group_line),
+                activeIcon: Icon(MingCute.group_fill),
+                label: easy.tr("navigation.social")),
             BottomNavigationBarItem(
                 icon: Icon(MingCute.search_line),
                 activeIcon: Icon(MingCute.search_fill),

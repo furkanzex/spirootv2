@@ -30,7 +30,7 @@
     "home": "Anasayfa",
     "fortune": "Fal",
     "astrology": "Astroloji",
-    "shops": "Dükkanlar",
+    "social": "Sosyal",
     "explore": "Keşfet",
     "enlightenment": "Aydınlan",
     "rest_ur_spirit": "Ruhunu Dinlendir",
@@ -350,5 +350,32 @@
   },
   "ritual": "tr_rituals.json",
   "fortunes": "tr_fortunes.json",
-  "affirmations": "tr_affirmations.json"
+  "affirmations": "tr_affirmations.json",
+  "social": {
+    "title": "Spiroot Sosyal",
+    "subtitle": "Toplulukla bağlantıda kal",
+    "posts": "Gönderiler",
+    "events": "Etkinlikler",
+    "comments": "Yorumlar",
+    "new_post": "Yeni Gönderi",
+    "new_event": "Yeni Etkinlik",
+    "what_thinking": "Ne düşünüyorsun?",
+    "share": "Paylaş",
+    "cancel": "İptal",
+    "no_posts": "Henüz gönderi yok",
+    "no_events": "Henüz etkinlik yok",
+    "error_occurred": "Bir hata oluştu",
+    "event": {
+      "title": "Başlık",
+      "description": "Açıklama",
+      "location": "Konum",
+      "image_url": "Görsel URL",
+      "select_date": "Tarih Seç",
+      "select_time": "Saat Seç",
+      "create": "Oluştur",
+      "participants": "katılımcı",
+      "join": "Katıl",
+      "leave": "Vazgeç"
+    }
+  }
 }

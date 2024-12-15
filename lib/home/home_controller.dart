@@ -4,7 +4,7 @@ import 'package:spirootv2/astrology/astrology_screen.dart';
 import 'package:spirootv2/explore/explore_screen.dart';
 import 'package:spirootv2/fortune/fortune_screen.dart';
 import 'package:spirootv2/home/home_screen.dart';
-import 'package:spirootv2/shop/shops_screen.dart';
+import 'package:spirootv2/social/screens/social_screen.dart';
 
 class HomeController extends GetxController {
   // Seçili sayfa indeksi
@@ -15,7 +15,7 @@ class HomeController extends GetxController {
     const HomeScreen(),
     const FortuneScreen(),
     AstrologyScreen(),
-    const ShopsScreen(),
+    const SocialScreen(),
     ExploreScreen(),
   ];
 

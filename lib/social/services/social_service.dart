@@ -1,0 +1,211 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../models/post_model.dart';
+import '../models/comment_model.dart';
+import '../models/event_model.dart';
+
+class SocialService {
+  static final _firestore = FirebaseFirestore.instance;
+  static final _auth = FirebaseAuth.instance;
+
+  // Post işlemleri
+  static Stream<List<Post>> getPosts() {
+    return _firestore
+        .collection('posts')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Post.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
+  static Future<void> createPost(String content, String creatorName) async {
+    final post = Post(
+      id: '',
+      content: content,
+      creatorName: creatorName,
+      createdAt: DateTime.now(),
+      likes: [],
+      commentCount: 0,
+      reports: [],
+      isExpanded: false,
+    );
+
+    await _firestore.collection('posts').add(post.toMap());
+  }
+
+  static Future<void> likePost(String postId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final postRef = _firestore.collection('posts').doc(postId);
+    final post = await postRef.get();
+    final likes = List<String>.from(post.data()?['likes'] ?? []);
+
+    if (likes.contains(userId)) {
+      likes.remove(userId);
+    } else {
+      likes.add(userId);
+    }
+
+    await postRef.update({'likes': likes});
+  }
+
+  static Future<void> reportPost(String postId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final postRef = _firestore.collection('posts').doc(postId);
+    final post = await postRef.get();
+    final reports = List<String>.from(post.data()?['reports'] ?? []);
+
+    if (!reports.contains(userId)) {
+      reports.add(userId);
+      await postRef.update({'reports': reports});
+    }
+  }
+
+  static Future<void> deletePost(String postId) async {
+    await _firestore.collection('posts').doc(postId).delete();
+  }
+
+  static Future<void> togglePostExpansion(
+      String postId, bool isExpanded) async {
+    await _firestore.collection('posts').doc(postId).update({
+      'isExpanded': isExpanded,
+    });
+  }
+
+  // Event işlemleri
+  static Stream<List<Event>> getEvents() {
+    return _firestore.collection('events').orderBy('eventDate').snapshots().map(
+        (snapshot) => snapshot.docs
+            .map((doc) => Event.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
+  static Future<void> createEvent({
+    required String title,
+    required String description,
+    required String location,
+    required DateTime eventDate,
+    required String imageUrl,
+    required String creatorName,
+  }) async {
+    final event = Event(
+      id: '',
+      title: title,
+      description: description,
+      location: location,
+      imageUrl: imageUrl,
+      creatorName: creatorName,
+      eventDate: eventDate,
+      createdAt: DateTime.now(),
+      participants: [],
+      reports: [],
+    );
+
+    await _firestore.collection('events').add(event.toMap());
+  }
+
+  static Future<void> joinEvent(String eventId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final eventRef = _firestore.collection('events').doc(eventId);
+    final event = await eventRef.get();
+    final participants = List<String>.from(event.data()?['participants'] ?? []);
+
+    if (participants.contains(userId)) {
+      participants.remove(userId);
+    } else {
+      participants.add(userId);
+    }
+
+    await eventRef.update({'participants': participants});
+  }
+
+  static Future<void> reportEvent(String eventId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final eventRef = _firestore.collection('events').doc(eventId);
+    final event = await eventRef.get();
+    final reports = List<String>.from(event.data()?['reports'] ?? []);
+
+    if (!reports.contains(userId)) {
+      reports.add(userId);
+      await eventRef.update({'reports': reports});
+    }
+  }
+
+  static Future<void> deleteEvent(String eventId) async {
+    await _firestore.collection('events').doc(eventId).delete();
+  }
+
+  // Comment işlemleri
+  static Stream<List<Comment>> getComments(String postId) {
+    return _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Comment.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
+  static Future<void> addComment(
+      String postId, String content, String creatorName) async {
+    final comment = Comment(
+      id: '',
+      content: content,
+      creatorName: creatorName,
+      createdAt: DateTime.now(),
+      reports: [],
+    );
+
+    final batch = _firestore.batch();
+    final postRef = _firestore.collection('posts').doc(postId);
+    final commentRef = postRef.collection('comments').doc();
+
+    batch.set(commentRef, comment.toMap());
+    batch.update(postRef, {
+      'commentCount': FieldValue.increment(1),
+    });
+
+    await batch.commit();
+  }
+
+  static Future<void> reportComment(String postId, String commentId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final commentRef = _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId);
+    final comment = await commentRef.get();
+    final reports = List<String>.from(comment.data()?['reports'] ?? []);
+
+    if (!reports.contains(userId)) {
+      reports.add(userId);
+      await commentRef.update({'reports': reports});
+    }
+  }
+
+  static Future<void> deleteComment(String postId, String commentId) async {
+    final batch = _firestore.batch();
+    final postRef = _firestore.collection('posts').doc(postId);
+    final commentRef = postRef.collection('comments').doc(commentId);
+
+    batch.delete(commentRef);
+    batch.update(postRef, {
+      'commentCount': FieldValue.increment(-1),
+    });
+
+    await batch.commit();
+  }
+}
