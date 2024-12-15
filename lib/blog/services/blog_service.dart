@@ -65,6 +65,57 @@ class BlogService {
     }
   }
 
+  // Blog yazısını güncelle
+  Future<bool> updateBlogPost({
+    required String postId,
+    required String title,
+    required String content,
+    required String imageUrl,
+  }) async {
+    try {
+      print('Blog yazısı güncelleme başladı');
+
+      // İçerik uzunluğunu kontrol et
+      if (content.length < 500) {
+        throw Exception('İçerik en az 500 karakter olmalıdır.');
+      }
+
+      // Görsel URL'sini kontrol et
+      if (imageUrl.isEmpty) {
+        throw Exception('Görsel URL\'si zorunludur.');
+      }
+
+      print('İçerik kontrolleri tamamlandı, moderasyon başlıyor');
+
+      // AI moderasyon kontrolü
+      final bool isAppropriate =
+          await _geminiService.checkBlogContentModeration(title, content);
+      if (!isAppropriate) {
+        throw Exception('İçerik uygunsuz bulundu ve reddedildi.');
+      }
+
+      print('Moderasyon tamamlandı, kullanıcı kontrolü yapılıyor');
+
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('Kullanıcı oturum açmamış.');
+
+      print('Kullanıcı doğrulandı, Firestore\'a yazılıyor');
+
+      await _firestore.collection('blog_posts').doc(postId).update({
+        'title': title,
+        'content': content,
+        'imageUrl': imageUrl,
+        'updatedAt': DateTime.now(),
+      });
+
+      print('Blog yazısı başarıyla güncellendi: $postId');
+      return true;
+    } catch (e) {
+      print('Blog yazısı güncelleme hatası: $e');
+      rethrow;
+    }
+  }
+
   // Tüm onaylanmış blog yazılarını getir
   Stream<List<BlogPost>> getApprovedBlogPosts() {
     print('Blog yazıları stream başlatıldı');
@@ -98,5 +149,32 @@ class BlogService {
       print('Dönüştürülen blog yazısı sayısı: ${posts.length}');
       return posts;
     });
+  }
+
+  // Kullanıcının kendi blog yazılarını getir
+  Stream<List<BlogPost>> getUserBlogPosts(String userId) {
+    return _firestore
+        .collection('blog_posts')
+        .where('authorId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+      final posts =
+          snapshot.docs.map((doc) => BlogPost.fromMap(doc.data())).toList();
+
+      // Client tarafında sıralama
+      posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      return posts;
+    });
+  }
+
+  // Blog yazısını sil
+  Future<void> deleteBlogPost(String postId) async {
+    try {
+      await _firestore.collection('blog_posts').doc(postId).delete();
+    } catch (e) {
+      print('Blog silme hatası: $e');
+      rethrow;
+    }
   }
 }

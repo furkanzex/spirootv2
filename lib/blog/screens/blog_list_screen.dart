@@ -4,6 +4,7 @@ import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/blog/models/blog_post.dart';
 import 'package:spirootv2/blog/screens/blog_detail_screen.dart';
+import 'package:spirootv2/blog/screens/my_blog_posts_screen.dart';
 import 'package:spirootv2/blog/services/blog_service.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
@@ -142,6 +143,17 @@ class _BlogListScreenState extends State<BlogListScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const CreateBlogPostScreen(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.bookmark, color: MyColor.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyBlogPostsScreen(),
                   ),
                 );
               },
