@@ -58,7 +58,16 @@ class _AffirmationScreenState extends State<AffirmationScreen>
       parent: _scaleController,
       curve: Curves.easeInOut,
     ));
-    _loadInitialAffirmation();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoading) {
+      _loadInitialAffirmation();
+    }
+    final newLocale = context.locale.languageCode;
+    FortuneService.onLocaleChanged(newLocale);
   }
 
   Future<void> _loadInitialAffirmation() async {
@@ -88,13 +97,6 @@ class _AffirmationScreenState extends State<AffirmationScreen>
         _isLoading = false;
       });
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final newLocale = context.locale.languageCode;
-    FortuneService.onLocaleChanged(newLocale);
   }
 
   void _handleTap() {

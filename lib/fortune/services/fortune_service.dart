@@ -57,14 +57,20 @@ class FortuneService {
 
     try {
       // Dil dosyasından dosya adını al
-      final fileName = easy.tr("affirmation");
+      final fileName = easy.tr("affirmations");
+      debugPrint('Affirmations dosya adı: $fileName');
+      final url = '$_baseUrl/$fileName';
+      debugPrint('İstek URL: $url');
+
       final response = await http.get(
-        Uri.parse('$_baseUrl/$fileName'),
+        Uri.parse(url),
         headers: {'Accept-Charset': 'utf-8'},
       );
 
+      debugPrint('Yanıt durumu: ${response.statusCode}');
       if (response.statusCode == 200) {
         final decodedResponse = utf8.decode(response.bodyBytes);
+        debugPrint('Yanıt içeriği: $decodedResponse');
         final data = json.decode(decodedResponse);
         final affirmations = List<String>.from(data['affirmations']);
 
