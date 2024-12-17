@@ -15,10 +15,6 @@ import 'package:spirootv2/blog/screens/blog_list_screen.dart';
 Widget enlightenmentSection() {
   final List<Map<String, String>> items = [
     {
-      "title": "El Kitapları",
-      "image": "https://apptoic.com/spiroot/images/guidebook.png"
-    },
-    {
       "title": "Blog Yazıları",
       "image": "https://apptoic.com/spiroot/images/blog.png"
     },
