@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_text.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/firebase_options.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:spirootv2/core/helper/local_storage.dart';
@@ -70,6 +71,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // RevenueCat'i başlat
+  await PurchaseAPI().init();
 
   await Get.putAsync(() async => GeminiService());
 

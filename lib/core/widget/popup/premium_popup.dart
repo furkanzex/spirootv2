@@ -94,9 +94,7 @@ class PremiumPopup extends StatelessWidget {
               child: TextButton(
                 onPressed: () async {
                   try {
-                    final purchaseAPI = PurchaseAPI();
-                    await purchaseAPI.init();
-                    final success = await purchaseAPI.handleSinglePurchase();
+                    final success = await PurchaseAPI().handleSinglePurchase();
                     if (success) {
                       Get.back();
                       onSingleUse();
