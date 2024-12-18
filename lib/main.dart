@@ -16,6 +16,8 @@ import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sweph/sweph.dart';
 import 'dart:io';
+import 'controllers/connectivity_controller.dart';
+import 'widgets/no_internet_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -97,16 +99,13 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
   Widget build(BuildContext context) {
+    final connectivityController = Get.put(ConnectivityController());
+
     return GetMaterialApp(
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
@@ -119,6 +118,20 @@ class _MyAppState extends State<MyApp> {
       ),
       color: MyColor.primaryColor,
       home: const SplashScreen(),
+      builder: (context, child) {
+        return Obx(() {
+          if (!connectivityController.isConnected.value) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: Scaffold(
+                backgroundColor: MyColor.darkBackgroundColor,
+                body: const NoInternetWidget(),
+              ),
+            );
+          }
+          return child!;
+        });
+      },
     );
   }
 }
