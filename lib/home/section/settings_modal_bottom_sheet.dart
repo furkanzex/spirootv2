@@ -13,6 +13,7 @@ import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:spirootv2/core/widget/divider/divider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:spirootv2/profile/profile_page.dart';
+import 'package:spirootv2/astrology/astrology_controller.dart';
 
 // Dil değiştirme fonksiyonu
 void _changeLanguage(BuildContext context, Locale newLocale) async {
@@ -143,6 +144,7 @@ void _showLanguageSelectionModal(BuildContext context) {
 
 void showSettingsBottomSheet(BuildContext context) {
   final userController = Get.find<UserController>();
+  final astrologyController = Get.find<AstrologyController>();
 
   showModalBottomSheet(
     context: context,
@@ -216,11 +218,18 @@ void showSettingsBottomSheet(BuildContext context) {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              easy.tr("settings.account.free_account"),
-                              style: MyStyle.s3
-                                  .copyWith(color: MyColor.textGreyColor),
-                            ),
+                            Obx(() => Text(
+                                  astrologyController.isSubscribed.value
+                                      ? "Premium"
+                                      : easy
+                                          .tr("settings.account.free_account"),
+                                  style: MyStyle.s3.copyWith(
+                                    color:
+                                        astrologyController.isSubscribed.value
+                                            ? MyColor.primaryLightColor
+                                            : MyColor.textGreyColor,
+                                  ),
+                                )),
                           ],
                         ),
                       ),
