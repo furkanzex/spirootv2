@@ -132,7 +132,7 @@
     "camera_not_changed": "Camera could not be changed",
     "flash_not_changed": "Flash could not be changed",
     "coffee_count": "Take a picture of your cup from {count} different angles",
-    "image_count": "{count} Photos",
+    "image_count": "Photos",
     "select_topic": "Select Topic",
     "select_relationship": "Select Relationship",
     "please_fill_name_field": "Please fill the name field",

@@ -275,30 +275,13 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
     }
   }
 
-  Future<void> _toggleFlash() async {
-    if (_controller == null) return;
-
-    try {
-      final newMode =
-          _flashMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
-      await _controller!.setFlashMode(newMode);
-      setState(() {
-        _flashMode = newMode;
-      });
-    } catch (e) {
-      _showError(easy.tr('fortune.flash_not_changed'));
-    }
-  }
-
   Future<void> _checkPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.camera,
       Permission.photos,
     ].request();
 
-    statuses.forEach((permission, status) {
-      print('$permission: $status');
-    });
+    statuses.forEach((permission, status) {});
 
     bool needsPermissions = statuses.values.any(
       (status) => status.isDenied || status.isPermanentlyDenied,
@@ -383,9 +366,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
                               : SizedBox.shrink(),
                           widget.fortuneType == FortuneType.coffee
                               ? Text(
-                                  '$currentImageIndex/$requiredImageCount ${easy.tr('fortune.image_count', namedArgs: {
-                                        'count': requiredImageCount.toString()
-                                      })}',
+                                  '$currentImageIndex/$requiredImageCount ${easy.tr('fortune.image_count')}',
                                   style: MyStyle.s3
                                       .copyWith(color: MyColor.textGreyColor),
                                 )
