@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io' show Platform;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:spirootv2/core/env/env.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class PurchaseAPI {
   final String apiKeyGoogle = Env.apiKeyGoogle;
@@ -55,7 +56,6 @@ class PurchaseAPI {
 
   Future<void> fetchAndPresentPaywall(String offerId) async {
     try {
-      // Fetch available offerings
       final offerings = await Purchases.getOfferings();
       final offering = offerings.getOffering(offerId);
       await RevenueCatUI.presentPaywall(
@@ -65,8 +65,6 @@ class PurchaseAPI {
     }
   }
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   void setupSubscriptionListener({Function? onSubscriptionUpdated}) {
     Purchases.addCustomerInfoUpdateListener((customerInfo) async {
       final isSubscribed = customerInfo.entitlements.active.isNotEmpty;
@@ -75,33 +73,13 @@ class PurchaseAPI {
       if (onSubscriptionUpdated != null) {
         onSubscriptionUpdated();
       }
-    });
-  }
 
-  Future<void> _handleSubscriptionUpdate(CustomerInfo customerInfo) async {
-    try {
-      if (customerInfo.entitlements.active.isNotEmpty) {
-        // User has an active subscription
-        final entitlement = customerInfo.entitlements.active.values.first;
-        await _firestore
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.email)
-            .update({
-          'isSubscribed': true,
-          'subscription_expiry': entitlement.expirationDate,
-        });
-      } else if (customerInfo.entitlements.active.isEmpty) {
-        await _firestore
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.email)
-            .update({
-          'isSubscribed': false,
-          'subscription_expiry': FieldValue.delete(),
-        });
+      // Eğer aktif abonelik varsa uygulamayı yeniden başlat
+      if (isSubscribed) {
+        await Future.delayed(const Duration(seconds: 1));
+        Phoenix.rebirth(Get.context!);
       }
-    } catch (e) {
-      log("Error updating Firestore: $e");
-    }
+    });
   }
 
   Future<bool> handleSinglePurchase() async {

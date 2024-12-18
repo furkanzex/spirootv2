@@ -1,4 +1,4 @@
-import 'package:device_preview/device_preview.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/auth/splash_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -88,16 +88,12 @@ Future<void> main() async {
   }
 
   runApp(
-    EasyLocalization(
-      supportedLocales: const [
-        Locale('tr', 'TR'),
-        Locale('en', 'US'),
-      ],
-      path: 'assets/translations',
-      fallbackLocale: const Locale('tr', 'TR'),
-      child: DevicePreview(
-        enabled: false,
-        builder: (context) => const MyApp(),
+    Phoenix(
+      child: EasyLocalization(
+        supportedLocales: const [Locale('tr', 'TR'), Locale('en', 'US')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('tr', 'TR'),
+        child: const MyApp(),
       ),
     ),
   );
