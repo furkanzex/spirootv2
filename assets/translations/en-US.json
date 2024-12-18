@@ -206,6 +206,8 @@
     "prophecy": "Prophecy"
   },
   "profile": {
+    "profile_not_completed": "Profile Not Completed",
+    "profile_not_completed_desc": "This action cannot be performed without completing the profile.",
     "continue": "Continue",
     "complete_profile": "Complete Profile",
     "female": "Female",

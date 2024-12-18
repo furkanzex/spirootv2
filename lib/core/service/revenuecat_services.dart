@@ -74,8 +74,9 @@ class PurchaseAPI {
         onSubscriptionUpdated();
       }
 
-      // Eğer aktif abonelik varsa uygulamayı yeniden başlat
-      if (isSubscribed) {
+      // Sadece abonelik satın alındığında uygulamayı yeniden başlat
+      if (isSubscribed &&
+          customerInfo.entitlements.active.containsKey('premium')) {
         await Future.delayed(const Duration(seconds: 1));
         Phoenix.rebirth(Get.context!);
       }

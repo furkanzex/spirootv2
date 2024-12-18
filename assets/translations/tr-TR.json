@@ -206,6 +206,8 @@
     "prophecy": "Kehanet"
   },
   "profile": {
+    "profile_not_completed": "Profil Tamamlanmamış",
+    "profile_not_completed_desc": "Bu işlemi gerçekleştirmek için önce profilinizi tamamlamalısınız.",
     "continue": "Devam",
     "complete_profile": "Profili Tamamla",
     "female": "Kadın",
