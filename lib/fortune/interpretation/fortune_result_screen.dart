@@ -18,6 +18,8 @@ import 'package:spirootv2/profile/user_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/astrology/astrology_controller.dart';
+import 'package:spirootv2/core/widget/popup/premium_popup.dart';
 
 class FortuneResultScreen extends StatefulWidget {
   final List<File> images;
@@ -42,6 +44,8 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
   bool _isForSelf = false;
   bool _hasProfile = false;
   bool _isInterpreting = false;
+  final AstrologyController _astrologyController =
+      Get.find<AstrologyController>();
 
   @override
   void initState() {
@@ -370,7 +374,66 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
   }
 
   Future<void> _sendFortune() async {
-    // Form validasyonu
+    // Abonelik kontrolü
+    if (!_astrologyController.isSubscribed.value) {
+      Get.dialog(
+        PremiumPopup(
+          onSingleUse: () async {
+            // Form validasyonu
+            if (_nameController.text.trim().isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(easy.tr('fortune.please_fill_name_field')),
+                  backgroundColor: Colors.red.withOpacity(0.8),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+              return;
+            }
+
+            if (_birthDateController.text.trim().isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(easy.tr('fortune.please_select_birth_date')),
+                  backgroundColor: Colors.red.withOpacity(0.8),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+              return;
+            }
+
+            if (_relationshipController.text.trim().isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(easy.tr('fortune.please_select_relationship')),
+                  backgroundColor: Colors.red.withOpacity(0.8),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+              return;
+            }
+
+            await _processFortune();
+          },
+        ),
+      );
+      return;
+    }
+
+    // Form validasyonu ve fal gönderme işlemi
+    await _processFortune();
+  }
+
+  Future<void> _processFortune() async {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

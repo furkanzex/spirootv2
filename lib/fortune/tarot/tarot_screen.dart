@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
@@ -15,6 +16,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'package:spirootv2/astrology/astrology_controller.dart';
+import 'package:spirootv2/core/widget/popup/premium_popup.dart';
 
 class TarotScreen extends StatefulWidget {
   final String fortuneType; // 'tarot', 'katina', 'angel'
@@ -40,6 +43,8 @@ class _TarotScreenState extends State<TarotScreen>
   bool _isInterpreting = false;
   Timer? _interpretationTimer;
   bool _isLoading = true;
+  final AstrologyController _astrologyController =
+      Get.find<AstrologyController>();
 
   @override
   void initState() {
@@ -87,6 +92,30 @@ class _TarotScreenState extends State<TarotScreen>
   }
 
   Future<void> _interpretCards() async {
+    // Abonelik kontrolü
+    if (!_astrologyController.isSubscribed.value) {
+      Get.dialog(
+        PremiumPopup(
+          onSingleUse: () async {
+            if (_selectedCards.any((card) => card == null)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(easy.tr('fortune.please_select_3_cards')),
+                  backgroundColor: Colors.red.withOpacity(0.8),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+              );
+              return;
+            }
+            await _processInterpretation();
+          },
+        ),
+      );
+      return;
+    }
+
     if (_selectedCards.any((card) => card == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -100,6 +129,10 @@ class _TarotScreenState extends State<TarotScreen>
       return;
     }
 
+    await _processInterpretation();
+  }
+
+  Future<void> _processInterpretation() async {
     setState(() {
       _isInterpreting = true;
     });

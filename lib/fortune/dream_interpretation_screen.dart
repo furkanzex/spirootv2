@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
 import 'package:share_plus/share_plus.dart';
@@ -10,6 +11,8 @@ import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/astrology/astrology_controller.dart';
+import 'package:spirootv2/core/widget/popup/premium_popup.dart';
 
 class DreamInterpretationScreen extends StatefulWidget {
   const DreamInterpretationScreen({super.key});
@@ -24,15 +27,39 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
   final GeminiService _geminiService = GeminiService();
   bool _isLoading = false;
   String? _interpretation;
+  final AstrologyController _astrologyController =
+      Get.find<AstrologyController>();
 
   Future<void> _interpretDream() async {
-    if (_dreamController.text.isEmpty) {
+    if (!_astrologyController.isSubscribed.value) {
+      Get.dialog(
+        PremiumPopup(
+          onSingleUse: () async {
+            if (_dreamController.text.trim().isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(easy.tr('fortune.please_fill_dream_field'))),
+              );
+              return;
+            }
+            await _processInterpretation();
+          },
+        ),
+      );
+      return;
+    }
+
+    if (_dreamController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(easy.tr('fortune.please_fill_dream_field'))),
       );
       return;
     }
 
+    await _processInterpretation();
+  }
+
+  Future<void> _processInterpretation() async {
     setState(() {
       _isLoading = true;
       _interpretation = null;

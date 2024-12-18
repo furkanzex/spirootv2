@@ -15,7 +15,9 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/paywall/paywall_screen.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
-import 'create_blog_post_screen.dart';
+import 'package:get/get.dart';
+import 'package:spirootv2/profile/user_controller.dart';
+import 'package:spirootv2/astrology/astrology_controller.dart';
 
 class BlogListScreen extends StatefulWidget {
   const BlogListScreen({super.key});
@@ -27,43 +29,225 @@ class BlogListScreen extends StatefulWidget {
 class _BlogListScreenState extends State<BlogListScreen> {
   final BlogService _blogService = BlogService();
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+  final TextEditingController _imageUrlController = TextEditingController();
+  final _userController = Get.find<UserController>();
+  final _astrologyController = Get.find<AstrologyController>();
   String _searchQuery = '';
+  bool _isLoading = false;
 
-  Future<void> _checkAndNavigateToCreate(BuildContext context) async {
-    try {
-      await _blogService.checkUserEligibility();
-      // Kontroller başarılı, blog oluşturma sayfasına git
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => CreateBlogPostScreen()),
+  Future<bool> _checkUserStatusAndRedirect() async {
+    if (_userController.userName.isEmpty) {
+      Get.to(() => const ProfileOnboarding());
+      return false;
+    }
+
+    if (!_astrologyController.isSubscribed.value) {
+      Get.to(() => const PaywallScreen());
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> _submitPost() async {
+    if (_titleController.text.trim().isEmpty ||
+        _contentController.text.trim().isEmpty ||
+        _imageUrlController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(easy.tr("blog.fill_all_fields")),
+          backgroundColor: Colors.red,
+        ),
       );
-    } catch (e) {
-      String errorMessage = e.toString();
+      return;
+    }
 
-      if (errorMessage.contains('profile_incomplete')) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ProfileOnboarding()),
+    if (_contentController.text.trim().length < 500) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(easy.tr("blog.content_min_length")),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      if (await _checkUserStatusAndRedirect()) {
+        await _blogService.createBlogPost(
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+          imageUrl: _imageUrlController.text.trim(),
         );
-      } else if (errorMessage.contains('subscription_required')) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PaywallScreen()),
-        );
-      } else {
+
+        _titleController.clear();
+        _contentController.clear();
+        _imageUrlController.clear();
+
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(easy.tr("blog.post_created")),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(errorMessage),
+            content: Text(e.toString()),
             backgroundColor: Colors.red,
           ),
         );
       }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showCreateBlogSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: MyColor.primaryDarkColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              MySize.defaultPadding,
+              MySize.defaultPadding,
+              MySize.defaultPadding,
+              MediaQuery.of(context).viewInsets.bottom + MySize.defaultPadding,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  easy.tr("blog.new_post"),
+                  style: MyStyle.b4.copyWith(color: MyColor.white),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                TextField(
+                  controller: _titleController,
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  decoration: InputDecoration(
+                    labelText: easy.tr("blog.title"),
+                    labelStyle:
+                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
+                    ),
+                  ),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                TextField(
+                  controller: _contentController,
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  maxLines: 10,
+                  decoration: InputDecoration(
+                    labelText: easy.tr("blog.content"),
+                    labelStyle:
+                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
+                    ),
+                  ),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                TextField(
+                  controller: _imageUrlController,
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  decoration: InputDecoration(
+                    labelText: easy.tr("blog.image_url"),
+                    labelStyle:
+                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
+                    ),
+                  ),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        _titleController.clear();
+                        _contentController.clear();
+                        _imageUrlController.clear();
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        easy.tr("common.cancel"),
+                        style:
+                            MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                      ),
+                    ),
+                    SizedBox(width: MySize.defaultPadding),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _submitPost,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MyColor.primaryPurpleColor,
+                      ),
+                      child: _isLoading
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: MyColor.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              easy.tr("blog.publish"),
+                              style: MyStyle.s2.copyWith(color: MyColor.white),
+                            ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _titleController.dispose();
+    _contentController.dispose();
+    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -161,7 +345,7 @@ class _BlogListScreenState extends State<BlogListScreen> {
           backgroundColor: MyColor.transparent,
           elevation: 0,
           title: Text(
-            easy.tr("Blog"),
+            "Blog",
             style: MyStyle.b4.copyWith(color: MyColor.white),
           ),
           centerTitle: true,
@@ -174,7 +358,7 @@ class _BlogListScreenState extends State<BlogListScreen> {
           actions: [
             IconButton(
               icon: Icon(Icons.add, color: MyColor.white),
-              onPressed: () => _checkAndNavigateToCreate(context),
+              onPressed: () => _showCreateBlogSheet(),
             ),
             IconButton(
               icon: Icon(Icons.bookmark, color: MyColor.white),
@@ -266,8 +450,9 @@ class _BlogListScreenState extends State<BlogListScreen> {
                                           MyColor.primaryColor.withOpacity(0.2),
                                       child: Center(
                                         child: Icon(
-                                          Icons.error,
-                                          color: MyColor.white,
+                                          Icons.image_not_supported_outlined,
+                                          color: MyColor.white.withOpacity(0.5),
+                                          size: MySize.iconSizeBig,
                                         ),
                                       ),
                                     );

@@ -162,7 +162,7 @@ class MyBlogPostsScreen extends StatelessWidget {
             return Center(
               child: Text(
                 easy.tr('blog.error_occurred'),
-                style: MyStyle.b4.copyWith(color: MyColor.white),
+                style: MyStyle.s3.copyWith(color: MyColor.white),
               ),
             );
           }
@@ -181,7 +181,7 @@ class MyBlogPostsScreen extends StatelessWidget {
             return Center(
               child: Text(
                 easy.tr('blog.no_posts'),
-                style: MyStyle.b4.copyWith(color: MyColor.white),
+                style: MyStyle.s3.copyWith(color: MyColor.white),
               ),
             );
           }
