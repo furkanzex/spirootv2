@@ -5,6 +5,8 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/paywall/paywall_screen.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class PremiumPopup extends StatelessWidget {
   final VoidCallback onSingleUse;
@@ -31,7 +33,6 @@ class PremiumPopup extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Premium İkonu
             Container(
               padding: const EdgeInsets.all(MySize.defaultPadding),
               decoration: BoxDecoration(
@@ -45,20 +46,16 @@ class PremiumPopup extends StatelessWidget {
               ),
             ),
             verticalGap(MySize.defaultPadding),
-
-            // Başlık
             Text(
-              "Premium İçerik",
+              easy.tr("premium.title"),
               style: MyStyle.s1.copyWith(
                 color: MyColor.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
             verticalGap(MySize.halfPadding),
-
-            // Açıklama
             Text(
-              "Bu özelliği kullanmak için Premium'a yükseltebilir veya tek seferlik erişim sağlayabilirsiniz.",
+              easy.tr("premium.description"),
               textAlign: TextAlign.center,
               style: MyStyle.s2.copyWith(
                 color: MyColor.textGreyColor,
@@ -66,8 +63,6 @@ class PremiumPopup extends StatelessWidget {
               ),
             ),
             verticalGap(MySize.doublePadding),
-
-            // Sınırsız Erişim Butonu
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -84,7 +79,7 @@ class PremiumPopup extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  "SINIRSIZ ERİŞİM",
+                  easy.tr("premium.unlimited"),
                   style: MyStyle.s2.copyWith(
                     color: MyColor.white,
                     fontWeight: FontWeight.bold,
@@ -94,21 +89,38 @@ class PremiumPopup extends StatelessWidget {
               ),
             ),
             verticalGap(MySize.defaultPadding),
-
-            // Tek Seferlik Erişim Butonu
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: () {
-                  Get.back();
-                  onSingleUse();
+                onPressed: () async {
+                  try {
+                    final success = await PurchaseAPI().handleSinglePurchase();
+                    if (success) {
+                      Get.back();
+                      onSingleUse();
+                    } else {
+                      Get.snackbar(
+                        easy.tr("errors.error"),
+                        easy.tr("errors.purchase_failed"),
+                        backgroundColor: MyColor.errorColor,
+                        colorText: MyColor.white,
+                      );
+                    }
+                  } catch (e) {
+                    Get.snackbar(
+                      easy.tr("errors.error"),
+                      easy.tr("errors.purchase_failed"),
+                      backgroundColor: MyColor.errorColor,
+                      colorText: MyColor.white,
+                    );
+                  }
                 },
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                       vertical: MySize.defaultPadding),
                 ),
                 child: Text(
-                  "TEK SEFERLİK AÇ",
+                  easy.tr("premium.single_use"),
                   style: MyStyle.s2.copyWith(
                     color: MyColor.primaryLightColor,
                     fontWeight: FontWeight.w500,

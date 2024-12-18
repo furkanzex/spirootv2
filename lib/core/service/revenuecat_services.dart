@@ -91,4 +91,26 @@ class PurchaseAPI {
       log("Error updating Firestore: $e");
     }
   }
+
+  Future<bool> handleSinglePurchase() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      final offering = offerings.getOffering("one-time");
+
+      if (offering == null) {
+        return false;
+      }
+
+      final package = offering.availablePackages.firstWhere(
+        (package) => package.identifier == "spiroot.one.time",
+        orElse: () => throw Exception("Ürün bulunamadı"),
+      );
+
+      final purchaseResult = await Purchases.purchasePackage(package);
+      return purchaseResult.entitlements.active.containsKey("one.time");
+    } catch (e) {
+      log("Error during single purchase: $e");
+      return false;
+    }
+  }
 }
