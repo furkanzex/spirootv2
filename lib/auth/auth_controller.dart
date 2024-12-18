@@ -1,3 +1,4 @@
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/auth/welcome_screen.dart';
@@ -178,11 +179,7 @@ class AuthController extends GetxController {
   // Aktif abonelik kontrolü
   Future<bool> hasActiveSubscription() async {
     try {
-      final user = _auth.currentUser;
-      if (user == null) return false;
-
-      final userData = await _firestore.collection('users').doc(user.uid).get();
-      return userData.data()?['isSubscribed'] ?? false;
+      return await PurchaseAPI.checkSubscriptionStatus();
     } catch (e) {
       return false;
     }

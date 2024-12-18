@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/service/ephemeris_service.dart';
 import 'package:spirootv2/astrology/compatibility_result_screen.dart';
@@ -1355,12 +1356,7 @@ class AstrologyController extends GetxController {
 
   Future<void> _checkSubscriptionStatus() async {
     try {
-      final userDoc = await _firestore
-          .collection('users')
-          .doc(_userController.userId.value)
-          .get();
-
-      isSubscribed.value = userDoc.data()?['isSubscribed'] ?? false;
+      isSubscribed.value = await PurchaseAPI.checkSubscriptionStatus();
     } catch (e) {
       isSubscribed.value = false;
     }

@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/profile/user_controller.dart';
-import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:spirootv2/paywall/paywall_screen.dart';
 import '../models/post_model.dart';
@@ -15,14 +15,14 @@ class SocialService {
 
   static Future<bool> _checkUserEligibility() async {
     final userController = Get.find<UserController>();
-    final astrologyController = Get.find<AstrologyController>();
 
     if (userController.userName.isEmpty) {
       Get.to(() => const ProfileOnboarding());
       return false;
     }
 
-    if (!astrologyController.isSubscribed.value) {
+    final isSubscribed = await PurchaseAPI.checkSubscriptionStatus();
+    if (!isSubscribed) {
       paywall();
       return false;
     }

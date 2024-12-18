@@ -24,6 +24,16 @@ class PurchaseAPI {
     }
     if (configuration != null) {
       await Purchases.configure(configuration);
+
+      // Firebase kullanıcısını RevenueCat ile senkronize et
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await Purchases.logIn(user.uid);
+        log("RevenueCat user logged in with ID: ${user.uid}");
+      }
+
+      // Abonelik değişikliklerini dinle
+      setupSubscriptionListener();
     }
   }
 
@@ -59,7 +69,9 @@ class PurchaseAPI {
 
   void setupSubscriptionListener({Function? onSubscriptionUpdated}) {
     Purchases.addCustomerInfoUpdateListener((customerInfo) async {
-      await _handleSubscriptionUpdate(customerInfo);
+      final isSubscribed = customerInfo.entitlements.active.isNotEmpty;
+      log("Subscription status changed: $isSubscribed");
+
       if (onSubscriptionUpdated != null) {
         onSubscriptionUpdated();
       }
@@ -106,6 +118,16 @@ class PurchaseAPI {
       return customerInfo.entitlements.active.isNotEmpty;
     } catch (e) {
       log("Error during single purchase: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> checkSubscriptionStatus() async {
+    try {
+      final customerInfo = await Purchases.getCustomerInfo();
+      return customerInfo.entitlements.active.isNotEmpty;
+    } catch (e) {
+      log("Error checking subscription status: $e");
       return false;
     }
   }
