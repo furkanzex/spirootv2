@@ -575,7 +575,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       null) ...[
                     // Aşk Yorumu
                     _buildDetailSection(
-                      easy.tr("astrology.love_and_relationships"),
+                      easy.tr("astrology.horoscope.love_and_relationships"),
                       _astrologyController.selectedHoroscope.value
                           .details!['love']['prediction'],
                       _astrologyController
@@ -585,7 +585,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Kariyer Yorumu
                     _buildDetailSection(
-                      easy.tr("astrology.career"),
+                      easy.tr("astrology.horoscope.career"),
                       _astrologyController.selectedHoroscope.value
                           .details!['career']['prediction'],
                       _astrologyController
@@ -595,7 +595,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Para Yorumu
                     _buildDetailSection(
-                      easy.tr("astrology.financial"),
+                      easy.tr("astrology.horoscope.financial"),
                       _astrologyController.selectedHoroscope.value
                           .details!['money']['prediction'],
                       _astrologyController
@@ -607,7 +607,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Şanslı Bilgiler
                     Text(
-                      easy.tr("astrology.lucky_details"),
+                      easy.tr("astrology.horoscope.lucky_details"),
                       style: MyStyle.s2.copyWith(
                         color: MyColor.white,
                         fontWeight: FontWeight.w500,
@@ -617,7 +617,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Şanslı Sayılar
                     _buildLuckyItem(
-                      easy.tr("astrology.lucky_numbers"),
+                      easy.tr("astrology.horoscope.lucky_numbers"),
                       _astrologyController
                           .selectedHoroscope.value.details!['lucky']['numbers']
                           .join(', '),
@@ -626,7 +626,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Şanslı Renkler
                     _buildLuckyItem(
-                      easy.tr("astrology.lucky_colors"),
+                      easy.tr("astrology.horoscope.lucky_colors"),
                       _astrologyController
                           .selectedHoroscope.value.details!['lucky']['colors']
                           .join(', '),

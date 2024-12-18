@@ -27,7 +27,7 @@ Widget luckSection(BuildContext context) {
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/globe.png",
-      title: easy.tr("fortune.orb"),
+      title: easy.tr("fortune.magic_orb"),
       color: MyColor.primaryLightColor,
       onTap: () {
         Navigator.push(
@@ -40,7 +40,7 @@ Widget luckSection(BuildContext context) {
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/lamp.png",
-      title: easy.tr("fortune.lamp"),
+      title: easy.tr("fortune.magic_lamp"),
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(
