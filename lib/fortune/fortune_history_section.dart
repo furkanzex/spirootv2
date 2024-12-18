@@ -565,7 +565,33 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
         overflow: TextOverflow.ellipsis,
       );
 
+    case 'tarot':
+      if (interpretation is Map<String, dynamic>) {
+        return Text(
+          '${interpretation['past'] ?? ''}\n${interpretation['present'] ?? ''}\n${interpretation['future'] ?? ''}',
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+          ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        );
+      }
+      break;
+
     case 'angel':
+      if (interpretation is Map<String, dynamic>) {
+        return Text(
+          '${interpretation['past'] ?? ''}\n${interpretation['present'] ?? ''}\n${interpretation['future'] ?? ''}',
+          style: MyStyle.s3.copyWith(
+            color: MyColor.textGreyColor,
+          ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        );
+      }
+      break;
+
+    case 'katina':
       if (interpretation is Map<String, dynamic>) {
         return Text(
           '${interpretation['past'] ?? ''}\n${interpretation['present'] ?? ''}\n${interpretation['future'] ?? ''}',
@@ -663,11 +689,13 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Genel Yorum
-        _buildFortuneSection(
-          '🔮 ${easy.tr("fortune.general_analysis")}',
-          content['general'] ?? '',
-        ),
-        verticalGap(MySize.doublePadding),
+        if (item.type == 'face' || item.type == 'coffee' || item.type == 'palm')
+          _buildFortuneSection(
+            '🔮 ${easy.tr("fortune.general_analysis")}',
+            content['general'] ?? '',
+          ),
+        if (item.type == 'face' || item.type == 'coffee' || item.type == 'palm')
+          verticalGap(MySize.doublePadding),
 
         if (item.type == 'coffee') ...[
           // Kahve Falı - Semboller Bölümü
@@ -831,41 +859,163 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
               },
             ),
           ],
+        ] else if (item.type == 'tarot') ...[
+          // Tarot Falı Bölümü
+          Text(
+            '🎴 ${easy.tr("fortune.past")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['past'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
+          verticalGap(MySize.doublePadding),
+          Text(
+            '📍 ${easy.tr("fortune.present")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['present'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
+          verticalGap(MySize.doublePadding),
+          Text(
+            '🔮 ${easy.tr("fortune.future")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['future'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
+        ] else if (item.type == 'katina') ...[
+          // Katina Falı Bölümü
+          Text(
+            '🎴 ${easy.tr("fortune.past")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['past'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
+          verticalGap(MySize.doublePadding),
+          Text(
+            '📍 ${easy.tr("fortune.present")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['present'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
+          verticalGap(MySize.doublePadding),
+          Text(
+            '🔮 ${easy.tr("fortune.future")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['future'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
+        ] else if (item.type == 'angel') ...[
+          // Melek Falı Bölümü
+          Text(
+            '🎴 ${easy.tr("fortune.past")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['past'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
+          verticalGap(MySize.doublePadding),
+          Text(
+            '📍 ${easy.tr("fortune.present")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['present'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
+          verticalGap(MySize.doublePadding),
+          Text(
+            '🔮 ${easy.tr("fortune.future")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          verticalGap(MySize.defaultPadding),
+          Text(
+            content['future'] ?? '',
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+          ),
         ],
 
         verticalGap(MySize.doublePadding),
-
-        // Zamanlama/Öngörüler Bölümü
-        Text(
-          '⏰ ${item.type == 'face' ? 'Öngörüler' : 'Kehanet'}',
-          style: MyStyle.s1.copyWith(
-            color: MyColor.primaryPurpleColor,
-            fontWeight: FontWeight.bold,
+        if (item.type == 'face' || item.type == 'coffee' || item.type == 'palm')
+          // Zamanlama/Öngörüler Bölümü
+          Text(
+            '⏰ ${easy.tr("fortune.prophecy")}',
+            style: MyStyle.s1.copyWith(
+              color: MyColor.primaryPurpleColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        verticalGap(MySize.defaultPadding),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTimingSection(
-                '${easy.tr("fortune.short_term")} (1-3 ay):',
-                content['timing']?['short_term'] ??
-                    content['predictions']?['short_term'] ??
-                    ''),
-            verticalGap(12),
-            _buildTimingSection(
-                '${easy.tr("fortune.mid_term")} (3-6 ay):',
-                content['timing']?['mid_term'] ??
-                    content['predictions']?['mid_term'] ??
-                    ''),
-            verticalGap(12),
-            _buildTimingSection(
-                '${easy.tr("fortune.long_term")} (6+ ay):',
-                content['timing']?['long_term'] ??
-                    content['predictions']?['long_term'] ??
-                    ''),
-          ],
-        ),
+        if (item.type == 'face' || item.type == 'coffee' || item.type == 'palm')
+          verticalGap(MySize.defaultPadding),
+        if (item.type == 'face' || item.type == 'coffee' || item.type == 'palm')
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTimingSection(
+                  '${easy.tr("fortune.short_term")}:',
+                  content['timing']?['short_term'] ??
+                      content['predictions']?['short_term'] ??
+                      ''),
+              verticalGap(12),
+              _buildTimingSection(
+                  '${easy.tr("fortune.mid_term")}:',
+                  content['timing']?['mid_term'] ??
+                      content['predictions']?['mid_term'] ??
+                      ''),
+              verticalGap(12),
+              _buildTimingSection(
+                  '${easy.tr("fortune.long_term")}:',
+                  content['timing']?['long_term'] ??
+                      content['predictions']?['long_term'] ??
+                      ''),
+            ],
+          ),
 
         // Yüz Falı için Ek Yaşam Yolu Bölümü
         if (item.type == 'face' && content['life_path'] != null) ...[
