@@ -95,19 +95,15 @@ class PurchaseAPI {
   Future<bool> handleSinglePurchase() async {
     try {
       final offerings = await Purchases.getOfferings();
-      final offering = offerings.getOffering("one-time");
 
-      if (offering == null) {
-        return false;
-      }
+      // "one-time" teklifini göster
+      await RevenueCatUI.presentPaywall(
+          offering: offerings.getOffering('one-time'),
+          displayCloseButton: true);
 
-      final package = offering.availablePackages.firstWhere(
-        (package) => package.identifier == "spiroot.one.time",
-        orElse: () => throw Exception("Ürün bulunamadı"),
-      );
-
-      final purchaseResult = await Purchases.purchasePackage(package);
-      return purchaseResult.entitlements.active.containsKey("one.time");
+      // Satın alma durumunu kontrol et
+      final customerInfo = await Purchases.getCustomerInfo();
+      return customerInfo.entitlements.active.isNotEmpty;
     } catch (e) {
       log("Error during single purchase: $e");
       return false;
