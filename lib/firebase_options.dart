@@ -59,12 +59,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD0YRbgwcE2x3MLngpLQrDQAEkzAdw3agk',
-    appId: '1:121839034936:ios:25e08087450faf41bd7ccd',
+    appId: '1:121839034936:ios:4af00b6e605e9509bd7ccd',
     messagingSenderId: '121839034936',
     projectId: 'spirootv2',
+    databaseURL: 'https://spirootv2-default-rtdb.firebaseio.com',
     storageBucket: 'spirootv2.firebasestorage.app',
-    iosClientId: '121839034936-u5fsali0um0kgheihgpm1qh292pi2k05.apps.googleusercontent.com',
-    iosBundleId: 'com.apptoic.spiroot',
+    iosClientId: '121839034936-02h7rv3qshotp9qrhers72mkmom42i99.apps.googleusercontent.com',
+    iosBundleId: 'com.apptoic.spiroot1',
   );
 
 }

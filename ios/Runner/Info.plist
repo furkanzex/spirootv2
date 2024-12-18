@@ -28,12 +28,12 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>For coffee fortune telling we need access to a camera to take photos of the cups.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Access to photo gallery required to select cup photos for coffee fortune telling.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Access required to save coffee horoscope photos taken</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access required for camera use</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Access required to save coffee horoscope photos taken</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Access to photo gallery required to select cup photos for coffee fortune telling.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -53,4 +53,3 @@
 	<false/>
 </dict>
 </plist>
-
