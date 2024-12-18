@@ -640,8 +640,9 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
               ),
               verticalGap(MySize.defaultPadding),
               Text(
-                easy.tr('fortune.fortune_finishing_time',
-                    args: [DateFormat('HH:mm').format(item.revealAt!)]),
+                easy.tr('fortune.fortune_finishing_time', namedArgs: {
+                  'time': DateFormat('HH:mm').format(item.revealAt!)
+                }),
                 style: MyStyle.s3.copyWith(
                   color: MyColor.textGreyColor,
                 ),

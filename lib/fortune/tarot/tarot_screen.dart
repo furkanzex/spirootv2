@@ -278,9 +278,9 @@ class _TarotScreenState extends State<TarotScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(3, (index) {
                     final labels = [
-                      easy.tr('past'),
-                      easy.tr('present'),
-                      easy.tr('future')
+                      easy.tr('fortune.past'),
+                      easy.tr('fortune.present'),
+                      easy.tr('fortune.future')
                     ];
                     return Column(
                       children: [

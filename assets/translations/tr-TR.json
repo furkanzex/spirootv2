@@ -587,7 +587,15 @@
     "general_evaluation": "Genel Değerlendirme",
     "common_values": "Ortak Değerler",
     "check_love_compatibility": "Aşk Uyumunu Kontrol Et",
-    "check_friendship_compatibility": "Arkadaşlık Uyumunu Kontrol Et"
+    "check_friendship_compatibility": "Arkadaşlık Uyumunu Kontrol Et",
+    "sun_horoscope": "Güneş Burcu",
+    "moon_horoscope": "Ay Burcu",
+    "ascendant_horoscope": "Yükselen Burcu",
+    "element": "Element",
+    "quality": "Nitelik",
+    "ruler": "Yönetici Gezegen",
+    "characteristics": "Karakteristik",
+    "money": "Para"
   },
   "shop": {
     "review": {

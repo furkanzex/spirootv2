@@ -5,11 +5,15 @@ import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/astrology/astrology_controller.dart';
+import 'package:spirootv2/paywall/paywall_screen.dart';
 
 class SpiritualChatController extends GetxController {
   final UserController _userController = Get.find<UserController>();
   final GeminiService _geminiService = Get.find<GeminiService>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final AstrologyController _astrologyController =
+      Get.find<AstrologyController>();
 
   final RxList<SpiritualChatMessage> messages = <SpiritualChatMessage>[].obs;
   final RxBool isLoading = false.obs;
@@ -133,6 +137,12 @@ class SpiritualChatController extends GetxController {
     }
 
     if (text.trim().isEmpty) return;
+
+    // Abonelik kontrolü
+    if (!_astrologyController.isSubscribed.value) {
+      Get.to(() => const PaywallScreen());
+      return;
+    }
 
     try {
       final userId = _userController.userId.value;

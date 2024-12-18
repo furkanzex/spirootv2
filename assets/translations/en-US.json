@@ -590,8 +590,15 @@
     "general_evaluation": "General Evaluation",
     "common_values": "Common Values",
     "check_love_compatibility": "Check Love Compatibility",
-    "check_friendship_compatibility": "Check Friendship Compatibility"
-
+    "check_friendship_compatibility": "Check Friendship Compatibility",
+    "sun_horoscope": "Sun Horoscope",
+    "moon_horoscope": "Moon Horoscope",
+    "ascendant_horoscope": "Ascendant Horoscope",
+    "element": "Element",
+    "quality": "Quality",
+    "ruler": "Ruler",
+    "characteristics": "Characteristics",
+    "money": "Money"
   },
   "shop": {
     "review": {

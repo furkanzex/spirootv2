@@ -10,6 +10,8 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/core/constant/my_text.dart';
 import 'package:spirootv2/spiritual/spiritual_chat_controller.dart';
+import 'package:spirootv2/astrology/astrology_controller.dart';
+import 'package:spirootv2/paywall/paywall_screen.dart';
 
 class SpiritualChatScreen extends StatefulWidget {
   const SpiritualChatScreen({super.key});
@@ -22,6 +24,8 @@ class _SpiritualChatScreenState extends State<SpiritualChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final SpiritualChatController _chatController =
       Get.put(SpiritualChatController());
+  final AstrologyController _astrologyController =
+      Get.find<AstrologyController>();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -136,18 +140,34 @@ class _SpiritualChatScreenState extends State<SpiritualChatScreen> {
                               : _sendMessage(),
                         )),
                   ),
-                  Obx(() => IconButton(
-                        onPressed: _chatController.isThinking.value
-                            ? null
-                            : _sendMessage,
-                        icon: Icon(
-                          MingCute.send_plane_fill,
-                          color: _chatController.isThinking.value
-                              ? MyColor.primaryLightColor.withOpacity(0.3)
-                              : MyColor.primaryLightColor,
-                          size: MySize.iconSizeSmall,
-                        ),
-                      )),
+                  Obx(() {
+                    final bool isSubscribed =
+                        _astrologyController.isSubscribed.value;
+                    final bool isThinking = _chatController.isThinking.value;
+
+                    return IconButton(
+                      onPressed: isThinking
+                          ? null
+                          : () {
+                              if (!isSubscribed) {
+                                Get.to(() => const PaywallScreen());
+                                return;
+                              }
+                              _sendMessage();
+                            },
+                      icon: Icon(
+                        isSubscribed
+                            ? MingCute.send_plane_fill
+                            : MingCute.lock_line,
+                        color: isThinking
+                            ? MyColor.primaryLightColor.withOpacity(0.3)
+                            : isSubscribed
+                                ? MyColor.primaryLightColor
+                                : MyColor.primaryLightColor.withOpacity(0.5),
+                        size: MySize.iconSizeSmall,
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
