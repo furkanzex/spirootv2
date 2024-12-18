@@ -8,6 +8,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/home/homepage.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/paywall/paywall_screen.dart';
 
 class ProfileLoadingScreen extends StatefulWidget {
   final Future<void> Function() onLoadComplete;
@@ -64,10 +65,10 @@ class _ProfileLoadingScreenState extends State<ProfileLoadingScreen>
       await widget.onLoadComplete();
 
       if (mounted) {
+        paywall();
         Get.offAll(() => const HomePage());
       }
     } catch (e) {
-      print('Loading sequence hatası: $e');
       Get.snackbar(
         easy.tr("errors.error"),
         easy.tr("profile.profile_loading.error"),
