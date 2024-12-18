@@ -23,7 +23,7 @@ class ProfilePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Profilim',
+          easy.tr("profile.profile_title"),
           style: MyStyle.s1.copyWith(
             color: MyColor.white,
             fontWeight: FontWeight.bold,
@@ -46,16 +46,18 @@ class ProfilePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Kullanıcı ID'si
-              _buildReadOnlyField('Kullanıcı ID', _userController.userId.value),
+              _buildReadOnlyField(
+                  easy.tr("profile.user_id"), _userController.userId.value),
               verticalGap(MySize.defaultPadding),
 
               // İsim
-              _buildReadOnlyField('İsim', _userController.nameController.text),
+              _buildReadOnlyField(
+                  easy.tr("profile.name"), _userController.nameController.text),
               verticalGap(MySize.defaultPadding),
 
               // Doğum Tarihi
               _buildReadOnlyField(
-                'Doğum Tarihi',
+                easy.tr("profile.birth_date"),
                 DateFormat('MMMM d, yyyy')
                     .format(_userController.selectedBirthDateTime.value),
               ),
@@ -63,29 +65,29 @@ class ProfilePage extends StatelessWidget {
 
               // Doğum Saati
               _buildReadOnlyField(
-                'Doğum Saati',
+                easy.tr("profile.birth_time"),
                 '${_userController.selectedHour.value}:${_userController.selectedMinute.value}',
               ),
               verticalGap(MySize.defaultPadding),
 
               // Doğum Yeri
-              _buildReadOnlyField(
-                  'Doğum Yeri', _userController.birthPlaceController.text),
+              _buildReadOnlyField(easy.tr("profile.birth_place"),
+                  _userController.birthPlaceController.text),
               verticalGap(MySize.defaultPadding),
 
               // Cinsiyet
-              _buildReadOnlyField(
-                  'Cinsiyet', easy.tr(_userController.selectedGender.value)),
+              _buildReadOnlyField(easy.tr("profile.gender"),
+                  easy.tr(_userController.selectedGender.value)),
               verticalGap(MySize.defaultPadding),
 
               // İlişki Durumu
-              _buildReadOnlyField('İlişki Durumu',
+              _buildReadOnlyField(easy.tr("profile.relationship_status"),
                   easy.tr(_userController.selectedRelationshipStatus.value)),
               verticalGap(MySize.defaultPadding),
 
               // İlgi Alanları
               Text(
-                'İlgi Alanları',
+                easy.tr("profile.interests"),
                 style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
               ),
               verticalGap(MySize.halfPadding),

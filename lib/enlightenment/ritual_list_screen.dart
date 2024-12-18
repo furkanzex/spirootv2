@@ -47,7 +47,7 @@ class _RitualListScreenState extends State<RitualListScreen> {
       _allRituals = List<Map<String, dynamic>>.from(rituals);
       _filterRituals();
     } catch (e) {
-      debugPrint('Error loading rituals: $e');
+      throw Exception(easy.tr('errors.data_not_loaded'));
     }
 
     setState(() => _isLoading = false);
@@ -85,7 +85,7 @@ class _RitualListScreenState extends State<RitualListScreen> {
         controller: _searchController,
         style: MyStyle.s2.copyWith(color: MyColor.white),
         decoration: InputDecoration(
-          hintText: easy.tr('Ritüel veya malzeme ara...'),
+          hintText: easy.tr('enlightenment.ritual.search'),
           hintStyle: MyStyle.s2.copyWith(color: MyColor.white.withOpacity(0.5)),
           prefixIcon: Icon(Icons.search, color: MyColor.white),
           suffixIcon: _searchQuery.isNotEmpty
@@ -240,7 +240,7 @@ class _RitualListScreenState extends State<RitualListScreen> {
                     Expanded(
                       child: Center(
                         child: Text(
-                          easy.tr('Sonuç bulunamadı'),
+                          easy.tr('errors.no_results_found'),
                           style: MyStyle.s1.copyWith(color: MyColor.white),
                         ),
                       ),

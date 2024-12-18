@@ -29,10 +29,9 @@ void _changeLanguage(BuildContext context, Locale newLocale) async {
       Navigator.pop(context); // Settings modalını kapat
     }
   } catch (e) {
-    print('Dil değiştirme hatası: $e');
     Get.snackbar(
-      'Hata',
-      'Dil değiştirilirken bir hata oluştu',
+      easy.tr("errors.error"),
+      easy.tr("settings.app.language.change_error"),
       backgroundColor: MyColor.errorColor,
       colorText: MyColor.white,
       duration: const Duration(seconds: 2),
@@ -78,7 +77,7 @@ void _showLanguageSelectionModal(BuildContext context) {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Dil Seçin',
+              easy.tr("settings.app.language.title"),
               style: MyStyle.s1.copyWith(
                 color: MyColor.white,
                 fontWeight: FontWeight.bold,

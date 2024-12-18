@@ -74,14 +74,13 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       final hours = difference.inHours % 24;
 
       if (days > 0) {
-        return "$days gün kaldı";
+        return "$days ${easy.tr("astrology.days_left")}";
       } else if (hours > 0) {
-        return "$hours saat kaldı";
+        return "$hours ${easy.tr("astrology.hours_left")}";
       } else {
-        return "Son gün";
+        return easy.tr("astrology.last_day");
       }
     } catch (e) {
-      print('Tarih hesaplama hatası: $e');
       return "";
     }
   }
@@ -132,8 +131,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
           // Alt Başlık
           Text(
-            easy.tr(
-                "Kişiselleştirilmiş astrolojik içgörülerle\nhayatını aydınlat"),
+            easy.tr("astrology.personalized_horoscope"),
             textAlign: TextAlign.center,
             style: MyStyle.s2.copyWith(
               color: MyColor.textGreyColor,
@@ -192,35 +190,39 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             alignment: WrapAlignment.center,
             children: [
               _buildFeatureCard(
-                icon: "🌌",
-                title: "Burç Kartı",
-                subtitle: "Kişisel burç kartını gör",
+                icon: easy.tr("astrology.feature_cards.birth_chart.icon"),
+                title: easy.tr("astrology.feature_cards.birth_chart.title"),
+                subtitle:
+                    easy.tr("astrology.feature_cards.birth_chart.subtitle"),
               ),
               _buildFeatureCard(
-                icon: "🌠",
-                title: "Doğum Haritası",
-                subtitle: "Kişisel astrolojik haritanı gör",
+                icon: easy.tr("astrology.feature_cards.horoscope.icon"),
+                title: easy.tr("astrology.feature_cards.horoscope.title"),
+                subtitle: easy.tr("astrology.feature_cards.horoscope.subtitle"),
               ),
               _buildFeatureCard(
-                icon: "🎯",
-                title: "Öngörü ve Tavsiyeler",
-                subtitle: "Günlük öngörüler ve tavsiyeler al",
+                icon: easy.tr("astrology.feature_cards.natal_chart.icon"),
+                title: easy.tr("astrology.feature_cards.natal_chart.title"),
+                subtitle:
+                    easy.tr("astrology.feature_cards.natal_chart.subtitle"),
               ),
               _buildFeatureCard(
-                icon: "💫",
-                title: "Uyumluluk",
-                subtitle: "İlişki ve uyum analizleri yaptır",
+                icon: easy.tr("astrology.feature_cards.predictions.icon"),
+                title: easy.tr("astrology.feature_cards.predictions.title"),
+                subtitle:
+                    easy.tr("astrology.feature_cards.predictions.subtitle"),
               ),
               _buildFeatureCard(
-                icon: "📈",
-                title: "Biyoritim Analizi",
-                subtitle: "Kişisel biyoritim analizini ve tablonu gör",
+                icon: easy.tr("astrology.feature_cards.compatibility.icon"),
+                title: easy.tr("astrology.feature_cards.compatibility.title"),
+                subtitle:
+                    easy.tr("astrology.feature_cards.compatibility.subtitle"),
               ),
-              /*_buildFeatureCard(
-                icon: "🌘",
-                title: "Ay Takvimi",
-                subtitle: "Kişisel ay takvimini gör",
-              ),*/
+              _buildFeatureCard(
+                icon: easy.tr("astrology.feature_cards.biorhythm.icon"),
+                title: easy.tr("astrology.feature_cards.biorhythm.title"),
+                subtitle: easy.tr("astrology.feature_cards.biorhythm.subtitle"),
+              ),
             ],
           ),
           verticalGap(MySize.doublePadding * 2),
@@ -278,17 +280,17 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildAstroDetail(
-                      "Güneş Burcu",
+                      easy.tr("astrology.sun_horoscope"),
                       zodiacDetails['name'] ?? '',
                       zodiacDetails['symbol'] ?? '',
                     ),
                     _buildAstroDetail(
-                      "Ay Burcu",
+                      easy.tr("astrology.moon_horoscope"),
                       moonDetails['name'] ?? '',
                       moonDetails['symbol'] ?? '',
                     ),
                     _buildAstroDetail(
-                      "Yükselen",
+                      easy.tr("astrology.ascendant_horoscope"),
                       ascendantDetails['name'] ?? '',
                       ascendantDetails['symbol'] ?? '',
                     ),
@@ -333,17 +335,17 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildAstroDetail(
-                      "Element",
+                      easy.tr("astrology.element"),
                       zodiacDetails['element'] ?? '',
                       _getElementEmoji(zodiacDetails['element'] ?? ''),
                     ),
                     _buildAstroDetail(
-                      "Nitelik",
+                      easy.tr("astrology.quality"),
                       zodiacDetails['quality'] ?? '',
                       _getQualityEmoji(zodiacDetails['quality'] ?? ''),
                     ),
                     _buildAstroDetail(
-                      "Yönetici",
+                      easy.tr("astrology.ruler"),
                       zodiacDetails['ruler'] ?? '',
                       "⭐",
                     ),
@@ -459,7 +461,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "Karakteristik",
+              easy.tr("astrology.characteristics"),
               style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
             ),
             verticalGap(4),
@@ -509,8 +511,8 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 IconButton(
                   onPressed: () {
                     Share.share(
-                      'SPIROOT uygulamasından paylaşıldı.\n\n${_astrologyController.selectedHoroscope.value.horoscopeText}',
-                      subject: 'Astroloji Yorumum',
+                      '${easy.tr("astrology.share_info")}\n\n${_astrologyController.selectedHoroscope.value.horoscopeText}',
+                      subject: easy.tr("astrology.share_subject"),
                     );
                   },
                   icon: const Icon(
@@ -522,7 +524,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                     minWidth: 44,
                     minHeight: 44,
                   ),
-                  tooltip: "Paylaş",
+                  tooltip: easy.tr("astrology.share"),
                 ),
             ],
           ),
@@ -533,7 +535,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 const CircularProgressIndicator(),
                 verticalGap(MySize.defaultPadding),
                 Text(
-                  "✨ Yıldızlar sizin için konuşuyor...",
+                  easy.tr("astrology.loading"),
                   style: MyStyle.s3.copyWith(
                     color: MyColor.textGreyColor,
                     fontWeight: FontWeight.w500,
@@ -573,7 +575,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       null) ...[
                     // Aşk Yorumu
                     _buildDetailSection(
-                      "💝 Aşk & İlişkiler",
+                      easy.tr("astrology.love_and_relationships"),
                       _astrologyController.selectedHoroscope.value
                           .details!['love']['prediction'],
                       _astrologyController
@@ -583,7 +585,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Kariyer Yorumu
                     _buildDetailSection(
-                      "💼 Kariyer",
+                      easy.tr("astrology.career"),
                       _astrologyController.selectedHoroscope.value
                           .details!['career']['prediction'],
                       _astrologyController
@@ -593,7 +595,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Para Yorumu
                     _buildDetailSection(
-                      "💰 Finansal",
+                      easy.tr("astrology.financial"),
                       _astrologyController.selectedHoroscope.value
                           .details!['money']['prediction'],
                       _astrologyController
@@ -605,7 +607,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Şanslı Bilgiler
                     Text(
-                      "✨ Şanslı Detaylar",
+                      easy.tr("astrology.lucky_details"),
                       style: MyStyle.s2.copyWith(
                         color: MyColor.white,
                         fontWeight: FontWeight.w500,
@@ -615,7 +617,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Şanslı Sayılar
                     _buildLuckyItem(
-                      "🔢 Şanslı Sayılar:",
+                      easy.tr("astrology.lucky_numbers"),
                       _astrologyController
                           .selectedHoroscope.value.details!['lucky']['numbers']
                           .join(', '),
@@ -624,7 +626,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
                     // Şanslı Renkler
                     _buildLuckyItem(
-                      "🎨 Şanslı Renkler:",
+                      easy.tr("astrology.lucky_colors"),
                       _astrologyController
                           .selectedHoroscope.value.details!['lucky']['colors']
                           .join(', '),
@@ -637,7 +639,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                             .join(', ') !=
                         "")
                       _buildLuckyItem(
-                        "📅 Şanslı Günler:",
+                        easy.tr("astrology.lucky_days"),
                         _astrologyController
                             .selectedHoroscope.value.details!['lucky']['days']
                             .join(', '),
@@ -721,8 +723,10 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       ),
                       children: [
                         TextSpan(
-                          text:
-                              "✨ Merhaba değerli ${easy.tr("astrology.zodiac.${_userController.currentUser.value!.zodiacSign}.name")} burcu,\nyıldızlar senin için özel mesajlar hazırladı!",
+                          text: easy.tr("astrology.hello_zodiac", namedArgs: {
+                            "zodiac": easy.tr(
+                                "astrology.zodiac.${_userController.currentUser.value!.zodiacSign}.name")
+                          }),
                           style: MyStyle.s2.copyWith(
                             color: MyColor.white,
                             fontWeight: FontWeight.w500,
@@ -756,7 +760,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                             ? const CircularProgressIndicator(
                                 color: MyColor.white)
                             : Text(
-                                easy.tr("Kozmik Mesajı Gör"),
+                                easy.tr("astrology.see_cosmic_message"),
                                 style:
                                     MyStyle.s2.copyWith(color: MyColor.white),
                               ),
@@ -795,7 +799,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                easy.tr("Biyoritim Tablosu"),
+                easy.tr("astrology.biorythym"),
                 style: MyStyle.s2.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.w500,
@@ -972,14 +976,20 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           // Grafik açıklamaları
           Column(
             children: [
-              _buildLegendItemDetailed(MyColor.primaryLightColor, "Fiziksel",
-                  "${(weeklyBiorhythm[0]['physical']! * 100).toInt()}% - 23 günlük döngü - Enerji, güç ve dayanıklılık"),
+              _buildLegendItemDetailed(
+                  MyColor.primaryLightColor,
+                  easy.tr("astrology.physical"),
+                  "${(weeklyBiorhythm[0]['physical']! * 100).toInt()}% - ${easy.tr("astrology.physical_cycle")}"),
               verticalGap(8),
-              _buildLegendItemDetailed(MyColor.secondaryColor, "Duygusal",
-                  "${(weeklyBiorhythm[0]['emotional']! * 100).toInt()}% - 28 günlük döngü - Duygu durumu ve hassasiyet"),
+              _buildLegendItemDetailed(
+                  MyColor.secondaryColor,
+                  easy.tr("astrology.emotional"),
+                  "${(weeklyBiorhythm[0]['emotional']! * 100).toInt()}% - ${easy.tr("astrology.emotional_cycle")}"),
               verticalGap(8),
-              _buildLegendItemDetailed(Colors.green, "Entelektüel",
-                  "${(weeklyBiorhythm[0]['intellectual']! * 100).toInt()}% - 33 günlük döngü - Zihinsel performans ve yaratıcılık"),
+              _buildLegendItemDetailed(
+                  Colors.green,
+                  easy.tr("astrology.intellectual"),
+                  "${(weeklyBiorhythm[0]['intellectual']! * 100).toInt()}% - ${easy.tr("astrology.intellectual_cycle")}"),
             ],
           ),
         ],
@@ -1051,7 +1061,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Günlük Biyoritim Analizi",
+                easy.tr("astrology.daily_biorhythm_analysis"),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -1070,7 +1080,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 if (!_astrologyController.isBiorhythmAvailable.value) {
                   return Center(
                     child: Text(
-                      "Biyoritim yorumu henüz oluşturulmadı.",
+                      easy.tr("astrology.biorhythm_not_created"),
                       style: MyStyle.s2.copyWith(
                         color: MyColor.white,
                       ),
@@ -1099,7 +1109,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     if (reading.isEmpty) {
       return Center(
         child: Text(
-          "Biyoritim yorumu bulunamadı.",
+          easy.tr("astrology.biorhythm_not_found"),
           style: MyStyle.s2.copyWith(
             color: MyColor.white,
           ),
@@ -1118,10 +1128,14 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           ),
         ),
         verticalGap(MySize.defaultPadding),
-        _buildBiorhythmSection("Fiziksel", reading['physical']),
-        _buildBiorhythmSection("Duygusal", reading['emotional']),
-        _buildBiorhythmSection("Zihinsel", reading['intellectual']),
-        _buildBiorhythmSection("Sezgisel", reading['intuitive']),
+        _buildBiorhythmSection(
+            easy.tr("astrology.physical"), reading['physical']),
+        _buildBiorhythmSection(
+            easy.tr("astrology.emotional"), reading['emotional']),
+        _buildBiorhythmSection(
+            easy.tr("astrology.intellectual"), reading['intellectual']),
+        _buildBiorhythmSection(
+            easy.tr("astrology.intuitive"), reading['intuitive']),
       ],
     );
   }
@@ -1165,7 +1179,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          easy.tr("Natal Grafik"),
+          easy.tr("astrology.natal_chart"),
           style: MyStyle.s2.copyWith(
             color: MyColor.white,
             fontWeight: FontWeight.w500,
@@ -1207,7 +1221,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                               ),
                               verticalGap(MySize.defaultPadding),
                               Text(
-                                'Natal Chart Hazırlanıyor...',
+                                easy.tr("astrology.natal_chart_preparing"),
                                 style: MyStyle.s3.copyWith(
                                   color: MyColor.white.withOpacity(0.7),
                                 ),
@@ -1262,7 +1276,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       }
     }
 
-    throw Exception('Natal chart hesaplanamadı');
+    throw Exception(easy.tr("astrology.natal_chart_not_calculated"));
   }
 
   Widget _buildTransits() {
@@ -1279,7 +1293,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Haftalık Transit Tablosu",
+              easy.tr("astrology.weekly_transit_table"),
               style: MyStyle.s2.copyWith(
                 color: MyColor.white,
                 fontWeight: FontWeight.w500,
@@ -1327,9 +1341,9 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   color: MyColor.primaryLightColor,
                 ),
                 children: [
-                  _buildTableHeader("Gezegen"),
-                  _buildTableHeader("Konum"),
-                  _buildTableHeader("Açılar"),
+                  _buildTableHeader(easy.tr("astrology.planet")),
+                  _buildTableHeader(easy.tr("astrology.position")),
+                  _buildTableHeader(easy.tr("astrology.aspects")),
                 ],
               ),
               // Gezegen Satırları
@@ -1469,7 +1483,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       const SizedBox(width: MySize.defaultPadding),
                       Expanded(
                         child: Text(
-                          easy.tr("Uyum Testi"),
+                          easy.tr("astrology.compatibility_test"),
                           style: MyStyle.s2.copyWith(
                             color: MyColor.white,
                             fontWeight: FontWeight.bold,
@@ -1486,7 +1500,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                     children: [
                       Expanded(
                         child: _buildTestButton(
-                          "Aşk",
+                          easy.tr("astrology.love"),
                           () => Get.to(() => CompatibilityScreen(type: "love")),
                           MingCute.heart_line,
                         ),
@@ -1494,7 +1508,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                       horizontalGap(MySize.defaultPadding),
                       Expanded(
                         child: _buildTestButton(
-                          "Arkadaşlık",
+                          easy.tr("astrology.friendship"),
                           () => Get.to(
                               () => CompatibilityScreen(type: "friendship")),
                           MingCute.group_line,
@@ -1710,7 +1724,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Numeroloji",
+          easy.tr("astrology.numerology"),
           style: MyStyle.s2.copyWith(
             color: MyColor.white,
             fontWeight: FontWeight.w500,
@@ -1789,7 +1803,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "Haftalık Numeroloji Analizi",
+                            easy.tr("astrology.weekly_numerology"),
                             style: MyStyle.s2.copyWith(
                               color: MyColor.white,
                               fontWeight: FontWeight.normal,
@@ -1883,7 +1897,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             ),
             verticalGap(MySize.defaultPadding),
             Text(
-              'Natal Chart Hazırlanıyor...',
+              easy.tr("astrology.natal_chart_preparing"),
               style: MyStyle.s3.copyWith(
                 color: MyColor.white.withOpacity(0.7),
               ),
@@ -1908,7 +1922,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             ),
             verticalGap(MySize.defaultPadding),
             Text(
-              'Natal Chart Yüklenirken Hata Oluştu\nYeniden Deneniyor...',
+              easy.tr("astrology.natal_chart_error"),
               textAlign: TextAlign.center,
               style: MyStyle.s3.copyWith(
                 color: MyColor.white,
@@ -2052,7 +2066,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   ),
                   verticalGap(MySize.defaultPadding),
                   Text(
-                    "Şu anda retroda gezegen bulunmuyor!",
+                    easy.tr("astrology.retro_no_planet"),
                     style: MyStyle.s2.copyWith(
                       color: MyColor.white,
                       fontWeight: FontWeight.w500,
@@ -2060,7 +2074,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   ),
                   verticalGap(MySize.halfPadding),
                   Text(
-                    "Tüm gezegenler direkt hareketlerine devam ediyor.",
+                    easy.tr("astrology.retro_all_planets_moving"),
                     style: MyStyle.s3.copyWith(
                       color: MyColor.textGreyColor,
                     ),
@@ -2178,7 +2192,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                                 ),
                                 horizontalGap(4),
                                 Text(
-                                  "Gölge Periyodu",
+                                  easy.tr("astrology.shadow_period"),
                                   style: MyStyle.s3.copyWith(
                                     color: MyColor.primaryLightColor,
                                   ),
@@ -2213,7 +2227,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                                 ),
                                 horizontalGap(4),
                                 Text(
-                                  "Natal açılar: ${(retro['natalAspects'] as List).length}",
+                                  "${easy.tr("astrology.natal_aspects")}: ${(retro['natalAspects'] as List).length}",
                                   style: MyStyle.s3.copyWith(
                                     color: MyColor.primaryLightColor,
                                   ),
@@ -2308,7 +2322,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                           ),
                           horizontalGap(MySize.halfPadding),
                           Text(
-                            "Gölge Periyodu:",
+                            "${easy.tr("astrology.shadow_period")}:",
                             style: MyStyle.s3.copyWith(
                               color: MyColor.primaryLightColor,
                             ),
@@ -2339,7 +2353,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
 
               // Etki ve tavsiyeler
               Text(
-                "Etkileri",
+                easy.tr("astrology.impact"),
                 style: MyStyle.s2.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -2358,7 +2372,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               // Natal açılar
               if (retro['natalAspects']?.isNotEmpty == true) ...[
                 Text(
-                  "Natal Açılar",
+                  easy.tr("astrology.natal_aspects"),
                   style: MyStyle.s2.copyWith(
                     color: MyColor.white,
                     fontWeight: FontWeight.bold,
@@ -2415,7 +2429,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Tavsiyeler",
+                      easy.tr("astrology.advice"),
                       style: MyStyle.s2.copyWith(
                         color: MyColor.primaryLightColor,
                         fontWeight: FontWeight.w500,
@@ -2522,14 +2536,15 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Haftalık Natal Analizi",
+                                easy.tr("astrology.weekly_natal_reading"),
                                 style: MyStyle.s2.copyWith(
                                   color: MyColor.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
-                                "Gezegensel hareketlerin hayatına etkileri",
+                                easy.tr(
+                                    "astrology.weekly_natal_reading_description"),
                                 style: MyStyle.s3.copyWith(
                                   color: MyColor.textGreyColor,
                                 ),
@@ -2580,14 +2595,14 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Haftalık Natal Analizi",
+                        easy.tr("astrology.weekly_natal_reading"),
                         style: MyStyle.s2.copyWith(
                           color: MyColor.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        "Gezegensel hareketlerin hayatına etkileri",
+                        easy.tr("astrology.weekly_natal_reading_description"),
                         style: MyStyle.s3.copyWith(
                           color: MyColor.textGreyColor,
                         ),
@@ -2608,7 +2623,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             if (reading['aspects'] != null) ...[
               verticalGap(MySize.defaultPadding),
               Text(
-                "Önemli Açılar",
+                easy.tr("astrology.important_aspects"),
                 style: MyStyle.s2.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -2626,7 +2641,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             if (reading['advice'] != null) ...[
               verticalGap(MySize.defaultPadding),
               Text(
-                "Tavsiyeler",
+                easy.tr("astrology.advice"),
                 style: MyStyle.s2.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -2678,7 +2693,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Haftalık Numeroloji Yorumunuz",
+                easy.tr("astrology.weekly_numerology_reading"),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -2697,7 +2712,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
                 if (!_astrologyController.isNumerologyAvailable.value) {
                   return Center(
                     child: Text(
-                      "Numeroloji yorumu henüz oluşturulmadı.",
+                      easy.tr("astrology.numerology_not_created"),
                       style: MyStyle.s2.copyWith(
                         color: MyColor.white,
                       ),
@@ -2727,7 +2742,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     if (reading.isEmpty) {
       return Center(
         child: Text(
-          "Numeroloji yorumu bulunamadı.",
+          easy.tr("astrology.numerology_not_found"),
           style: MyStyle.s2.copyWith(
             color: MyColor.white,
           ),

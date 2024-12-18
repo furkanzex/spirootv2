@@ -5,8 +5,8 @@ import 'package:spirootv2/core/helper/local_storage.dart';
 import 'package:spirootv2/home/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -47,8 +47,8 @@ class AuthController extends GetxController {
         navigateUser();
       }
     } catch (e) {
-      debugPrint('Anonim giriş hatası: $e');
-      Get.snackbar('Hata', 'Anonim giriş yapılamadı: $e');
+      Get.snackbar(
+          easy.tr('error.error'), easy.tr('error.anonymous_login_failed'));
     }
   }
 
@@ -68,8 +68,7 @@ class AuthController extends GetxController {
         });
       }
     } catch (e) {
-      debugPrint('Firestore kullanıcı kaydı hatası: $e');
-      Get.snackbar('Hata', 'Kullanıcı kaydedilemedi: $e');
+      Get.snackbar(easy.tr('error.error'), easy.tr('error.user_not_saved'));
     }
   }
 
@@ -78,7 +77,6 @@ class AuthController extends GetxController {
       final userDoc = await _firestore.collection('users').doc(uid).get();
       return userDoc.exists;
     } catch (e) {
-      debugPrint('Firestore kontrol hatası: $e');
       return false;
     }
   }
@@ -98,8 +96,7 @@ class AuthController extends GetxController {
       isLogin.value = false;
       signInAnonymously();
     } catch (e) {
-      debugPrint('Çıkış yapma hatası: $e');
-      Get.snackbar('Hata', 'Çıkış yapılamadı: $e');
+      Get.snackbar(easy.tr('error.error'), easy.tr('error.logout_failed'));
     }
   }
 
@@ -141,11 +138,10 @@ class AuthController extends GetxController {
         // Welcome sayfasına yönlendir ve geri dönüşü engelle
         Get.offAll(() => WelcomeScreen(), predicate: (_) => false);
       } else {
-        throw Exception('Kullanıcı bulunamadı');
+        throw Exception(easy.tr('error.user_not_found'));
       }
     } catch (e) {
-      debugPrint('Hesap silme hatası: $e');
-      throw Exception('Hesap silinemedi: $e');
+      throw Exception(easy.tr('error.account_not_deleted'));
     }
   }
 
@@ -157,8 +153,8 @@ class AuthController extends GetxController {
       await signInAnonymously();
     } catch (e) {
       Get.snackbar(
-        'Hata',
-        'Giriş yapılırken bir hata oluştu: $e',
+        easy.tr('error.error'),
+        easy.tr('error.error_auth'),
         backgroundColor: MyColor.darkBackgroundColor,
         colorText: MyColor.white,
       );
@@ -188,7 +184,6 @@ class AuthController extends GetxController {
       final userData = await _firestore.collection('users').doc(user.uid).get();
       return userData.data()?['isSubscribed'] ?? false;
     } catch (e) {
-      print('Subscription check error: $e');
       return false;
     }
   }

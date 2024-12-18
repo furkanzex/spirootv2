@@ -3,19 +3,40 @@
   "locale": "en-US",
   "lang": "English",
   "errors": {
+    "name_empty": "Name cannot be empty",
+    "no_results_found": "No results found",
+    "error": "An error occurred.",
+    "anonymous_login_failed": "Anonymous login failed!",
+    "user_not_saved": "User could not be saved!",
+    "logout_failed": "Logout failed!",
+    "user_not_found": "User not found!",
+    "account_not_deleted": "Account could not be deleted!",
+    "error_auth": "An error occurred during login!",
+    "data_not_loaded": "Data could not be loaded",
+    "profile_not_completed": "An error occurred while completing the profile",
     "auth": {
-      "user_not_found": "User not found: No account exists with the specified email or username.",
-      "wrong_password": "Wrong password: The entered password is incorrect.",
-      "invalid_email": "Invalid email: Please enter a valid email address.",
-      "too_many_requests": "Too many attempts: Login has been blocked due to multiple failed login attempts. Please try again later.",
+      "user_not_found": "User not found: No account found with the specified email or username.",
+      "wrong_password": "Wrong password: The password entered is incorrect.",
+      "invalid_email": "Invalid email address: Please enter a valid email address.",
+      "too_many_requests": "Too many login attempts: Login has been blocked due to too many incorrect login attempts. Please try again later.",
       "user_disabled": "User disabled: This account has been disabled.",
-      "email_already_in_use": "Email already in use: An account already exists with this email address.",
+      "email_already_in_use": "Email already in use: An account with this email address already exists.",
       "default": "An error occurred."
+    },
+    "astrology": {
+      "error": "An error occurred while loading the astrology page",
+      "user_not_found": "User information not found",
+      "interpretation_error": "An error occurred while generating the interpretation",
+      "couldnt_save_interpretation": "Interpretation could not be saved",
+      "couldnt_get_coordinates": "Birthplace coordinates could not be found",
+      "retro_record_error": "An error occurred while recording the retrograde status",
+      "compatibility_error": "An error occurred during compatibility analysis",
+      "user_not_logged_in": "User not logged in"
     }
   },
   "internet": {
     "title": "Oops...",
-    "desc": "It seems there's an issue with your internet connection. You can continue using our app once the connection is restored!"
+    "desc": "It seems there's a problem with your internet connection. You can continue using our app after the connection is established!"
   },
   "text_field_label": {
     "email": "Email",
@@ -30,41 +51,47 @@
     "home": "Home",
     "fortune": "Fortune",
     "astrology": "Astrology",
-    "shops": "Shops",
+    "social": "Social",
     "explore": "Explore",
-    "enlightenment": "Enlightenment",
+    "enlightenment": "Enlighten",
     "rest_ur_spirit": "Rest Your Spirit",
-    "luck": "Mystical Luck Path",
-    "top_rated_shops": "Top-Rated Shops",
-    "guide": "Your Spiritual Guide"
+    "luck": "Mysterious Path of Luck",
+    "top_rated_shops": "Top Rated Shops",
+    "guide": "Spiritual Guide",
+    "blog": "Blog",
+    "ritual": "Rituals"
   },
   "home": {
     "greeting": "Welcome",
     "greeting_subtitle": "Let's discover what's in store for you today!",
     "see_all": "see all",
     "spiritual_advisor": {
-      "title": "Welcome. I've been waiting for you. What are you curious about?",
+      "title": "Welcome. I've been expecting you. What are you curious about?",
       "ask_now": "ask now"
     },
     "astrology": {
-      "message": "The universe sent you a message...Are you ready to open it?",
+      "message": "The universe has sent you a message...\nAre you ready to open it?",
       "start_journey": "Start Your Astrology Journey Now",
       "features": {
         "birth_chart": "Birth Chart",
-        "natal_chart": "Natal Chart"
+        "natal_chart": "Natal Chart",
+        "fortune": "Daily Horoscope",
+        "natal": "Natal Chart",
+        "compatibility": "Compatibility Analysis",
+        "transit": "Transit Analysis"
       }
     },
     "fortune": {
       "title": "Get Your Fortune Told",
       "subtitle": "Coffee, tarot and more...",
-      "history": "My Fortune History"
+      "history": "Fortune History"
     },
     "shops": {
-      "title": "Featured Shops",
+      "title": "Top Rated Shops",
       "subtitle": "Discover spiritual shops"
     },
     "luck": {
-      "title": "Mystical Luck Path",
+      "title": "Mysterious Path of Luck",
       "subtitle": "Daily luck rituals"
     },
     "enlightenment": {
@@ -77,29 +104,165 @@
     }
   },
   "fortune": {
-    "fortune_history": "My Fortune History",
-    "fortune_history_button": "my fortune history",
-    "coffee": "Coffee Reading",
+    "fortune_history": "Fortune History",
+    "fortune_history_button": "fortune history",
+    "coffee": "Coffee Fortune",
     "tarot": "Tarot Reading",
     "palm": "Palm Reading",
-    "katina": "Katina Reading",
+    "katina": "Katina Fortune",
     "face": "Face Reading",
-    "angel": "Angel Reading",
+    "angel": "Angel Card Reading",
     "dream": "Dream Interpretation",
-    "no_fortune_history": "You haven't had a fortune reading yet...",
-    "no_fortune_history_desc": "We've taken the place of the fortune teller auntie. Come and see what's in store for you!"
+    "no_fortune_history": "You haven't had your fortune told yet...",
+    "no_fortune_history_desc": "We've replaced the fortune teller, come see what's in store for you!",
+    "fortune_message": "May your fortune always be with you!",
+    "fortune_cookie": "Fortune Cookie",
+    "tap_to_break_cookie": "Tap to break the cookie ({count} taps left)",
+    "coffee_fortune": "Coffee Fortune Telling",
+    "palm_fortune": "Palm Reading",
+    "face_fortune": "Face Reading",
+    "coffee_instruction": "Take a picture of your cup from 4 different angles",
+    "palm_instruction": "Take a clear picture of your palm",
+    "face_instruction": "Take a clear picture of your face",
+    "camera_not_found": "Camera not found",
+    "camera_not_ready": "Camera not ready",
+    "image_quality_low": "Image quality is too low",
+    "image_not_taken": "Photo could not be taken",
+    "image_not_selected": "Photo could not be selected",
+    "camera_not_changed": "Camera could not be changed",
+    "flash_not_changed": "Flash could not be changed",
+    "coffee_count": "Take a picture of your cup from {count} different angles",
+    "image_count": "{count} Photos",
+    "select_topic": "Select Topic",
+    "select_relationship": "Select Relationship",
+    "please_fill_name_field": "Please fill the name field",
+    "please_select_birth_date": "Please select birth date",
+    "please_select_relationship": "Please select relationship status",
+    "fortune_will_be_ready_in": "Your fortune will be ready in approximately {minutes} minutes",
+    "interested_topics": "Topics you're interested in",
+    "topic_1": "Topic 1",
+    "topic_2": "Topic 2",
+    "for_whom": "For Whom?",
+    "for_myself": "For Myself",
+    "for_someone_else": "For Someone Else",
+    "profile_not_completed": "Profile Not Completed",
+    "profile_not_completed_desc": "You must complete your profile to have your fortune told for yourself.",
+    "name": "Name",
+    "birth_date": "Birth Date",
+    "relationship": "Relationship Status",
+    "comment": "Comment",
+    "start_magic_lamp": "Start rubbing the magic lamp!",
+    "magic_lamp": "Magic Lamp",
+    "start_magic_orb": "Start rubbing the magic orb!",
+    "magic_orb": "Magic Orb",
+    "cookie": "Fortune Cookie",
+    "failed_to_load_fortunes": "Failed to load fortunes",
+    "please_select_3_cards": "Please select 3 cards",
+    "failed_to_load_tarot_cards": "Failed to load tarot cards",
+    "invalid_fortune_type": "Invalid fortune type",
+    "select_3_cards_for_past_present_future": "Select 3 cards for Past, Present and Future",
+    "past": "Past",
+    "present": "Present",
+    "future": "Future",
+    "interpret_cards": "Interpret Cards",
+    "please_fill_dream_field": "Please describe your dream",
+    "dream_interpretation": "Dream Interpretation",
+    "please_fill_dream_detailed": "Please describe your dream in detail",
+    "here_is_your_interpretation": "Here is your interpretation...",
+    "shared_from_spiroot": "Shared from SPIROOT app",
+    "share": "Share",
+    "date_not_found": "Date not found",
+    "not_have_history": "You don't have any fortune history yet",
+    "delete_fortune": "Delete Fortune",
+    "delete_fortune_confirmation": "Are you sure you want to delete this interpretation?",
+    "general_analysis": "General Analysis",
+    "no_interpretation": "No fortune interpretation found.",
+    "share_error": "An error occurred during sharing",
+    "fortune_is_being_interpreted": "Your fortune is being interpreted",
+    "remaining_time": "Remaining Time",
+    "fortune_is_being_prepared": "Your fortune is being prepared",
+    "hours": "hours",
+    "minutes": "minutes",
+    "seconds": "seconds",
+    "fortune_finishing_time": "Your fortune will be ready at {time}",
+    "seen_symbols": "Seen Symbols",
+    "meaning": "Meaning",
+    "place": "Place",
+    "lines": "Palm Lines",
+    "analysis": "Analysis",
+    "prediction": "Prediction",
+    "features": "Facial Features",
+    "indication": "Indication",
+    "short_term": "Short Term (1-3 months)",
+    "mid_term": "Mid Term (3-6 months)",
+    "long_term": "Long Term (6+ months)",
+    "character": "Character",
+    "potential": "Potential",
+    "challenges": "Challenges",
+    "advice": "Advice",
+    "life_path": "Life Path",
+    "interpret_dream": "Interpret Dream"
   },
   "profile": {
+    "continue": "Continue",
+    "complete_profile": "Complete Profile",
+    "female": "Female",
+    "male": "Male",
+    "other": "Other",
+    "minute": "Minute",
+    "hour": "Hour",
+    "horoscope": "Horoscope",
+    "element": "Element",
+    "quality": "Quality",
+    "ruler": "Ruling Planet",
+    "date_range": "Date Range",
+    "profile_title": "My Profile",
+    "birth_time": "Birth Time",
+    "birth_place": "Birth Place",
+    "user_id": "User ID",
+    "name": "Name",
+    "birth_date": "Birth Date",
+    "pages": {
+      "0": {
+        "title": "Let's get to know you",
+        "label": "What's your name?"
+      },
+      "1": {
+        "title": "Your birth date",
+        "label": "What's your birth date?"
+      },
+      "2": {
+        "title": "Your birth time",
+        "label": "What's your birth time?"
+      },
+      "3": {
+        "title": "Your birth place",
+        "label": "Where were you born?"
+      },
+      "4": {
+        "title": "Your gender",
+        "label": "What's your gender?"
+      },
+      "5": {
+        "title": "Your relationship status",
+        "label": "What's your relationship status?"
+      },
+      "6": {
+        "title": "Your interests",
+        "label": "What are your interests?"
+      }
+    },
     "profile_loading": {
-      "0": "Cosmic energies are converging, your data is being evaluated...",
-      "1": "The stars are aligning, your destiny is being analyzed...",
-      "2": "Universal forces are coming together, your profile is being created..."
+      "0": "Cosmic energies are merging, your information is being evaluated...",
+      "1": "Stars are aligning, your destiny is being analyzed...",
+      "2": "Universal forces are coming together, your profile is being created...",
+      "error": "An error occurred while loading the profile"
     },
     "explanations": {
-      "birth_time": "Your birth time completes your astrological chart by determining your rising and moon signs.",
-      "birth_place": "Your birthplace increases the accuracy of your astrological interpretations by defining the exact sky positions.",
+      "birth_time": "Your birth time determines your rising sign and moon sign, completing your astrological chart.",
+      "birth_place": "Your birth place determines the exact position of the sky, increasing the accuracy of your astrological interpretations.",
       "gender": "Your gender energy shapes your astrological compatibility analyses and planetary interactions.",
-      "interests": "Your interests focus astrological insights on the important areas of your life."
+      "interests": "Your interests focus your astrological insights on the important areas of your life."
     },
     "gender": {
       "female": "Female",
@@ -108,12 +271,12 @@
     },
     "relationship_status": {
       "single": "Single",
-      "in_relationship": "In a Relationship",
+      "in_relationship": "In a relationship",
       "engaged": "Engaged",
       "married": "Married",
       "divorced": "Divorced",
       "widowed": "Widowed",
-      "complicated": "It's Complicated"
+      "complicated": "Complicated"
     },
     "interests": {
       "money": "Money",
@@ -121,10 +284,13 @@
       "friendship": "Friendship",
       "love": "Love",
       "family": "Family",
-      "career": "Career"
+      "career": "Career",
+      "education": "Education",
+      "travel": "Travel"
     }
   },
   "settings": {
+    "share": "Share",
     "account": {
       "title": "Account",
       "guest_user": "Guest User",
@@ -133,7 +299,7 @@
       "delete": "Delete Account",
       "delete_confirmation": {
         "title": "Delete Account",
-        "message": "Your account will be permanently deleted. This action cannot be undone. Do you wish to continue?",
+        "message": "Your account will be permanently deleted. This action cannot be undone. Do you want to continue?",
         "cancel": "Cancel",
         "confirm": "Delete Account"
       }
@@ -142,12 +308,13 @@
       "title": "App",
       "notifications": "Notification Settings",
       "language": {
-        "title": "Language",
-        "current": "English"
+        "title": "Select Language",
+        "current": "English",
+        "change_error": "An error occurred while changing the language"
       }
     },
     "support": {
-      "title": "Support & Info",
+      "title": "Support & Information",
       "help_center": "Help Center"
     },
     "legal": {
@@ -156,7 +323,11 @@
     }
   },
   "astrology": {
-    "see_details": "view all details",
+    "personalized_horoscope": "Illuminate your life with\npersonalized astrological insights",
+    "last_day": "Last day",
+    "days_left": "days left",
+    "hours_left": "hours left",
+    "see_details": "see all details",
     "horoscope": {
       "dates": {
         "today": "Today",
@@ -169,18 +340,35 @@
         "month": "For This Month"
       },
       "essential": {
-        "today": "Daily energies and opportunities",
+        "today": "Daily energy and opportunities",
         "week": "Weekly flows and potentials",
         "month": "Monthly cycles and transformations",
         "default": "Astrological influences"
       },
       "affirmation": {
-        "today": "Every moment is filled with new opportunities",
-        "week": "Each week brings new beginnings",
-        "month": "This month, I achieve all my goals",
+        "today": "Every moment is full of new opportunities",
+        "week": "Every week brings new beginnings",
+        "month": "This month I am achieving all my goals",
         "default": "I am in harmony with the universe"
-      }
+      },
+      "sun_horoscope": "Sun Sign",
+      "moon_horoscope": "Moon Sign",
+      "ascendant_horoscope": "Rising Sign",
+      "element": "Element",
+      "quality": "Quality",
+      "ruler": "Ruler",
+      "characteristics": "Characteristics",
+      "share_info": "Shared from SPIROOT app.",
+      "share_subject": "My Astrology Reading",
+      "lucky_days": "Lucky Days",
+      "lucky_numbers": "Lucky Numbers",
+      "lucky_colors": "Lucky Colors",
+      "lucky_details": "Lucky Details",
+      "love_and_relationships": "💝 Love & Relationships",
+      "career": "💼 Career",
+      "financial": "💰 Financial"
     },
+
     "zodiac": {
       "aries": {
         "name": "Aries",
@@ -189,7 +377,7 @@
         "ruler": "Mars",
         "symbol": "♈️",
         "dateRange": "March 21 - April 19",
-        "characteristics": "Leader, Energetic, Brave",
+        "characteristics": "Leader, Energetic, Courageous",
         "color": "Red"
       },
       "taurus": {
@@ -249,7 +437,7 @@
         "ruler": "Venus",
         "symbol": "♎",
         "dateRange": "September 23 - October 22",
-        "characteristics": "Diplomatic, Fair, Sociable",
+        "characteristics": "Diplomatic, Fair, Social",
         "color": "Pink"
       },
       "scorpio": {
@@ -260,7 +448,7 @@
         "symbol": "♏",
         "dateRange": "October 23 - November 21",
         "characteristics": "Passionate, Determined, Mysterious",
-        "color": "Maroon"
+        "color": "Burgundy"
       },
       "sagittarius": {
         "name": "Sagittarius",
@@ -289,7 +477,7 @@
         "ruler": "Uranus",
         "symbol": "♒",
         "dateRange": "January 20 - February 18",
-        "characteristics": "Innovative, Independent, Visionary",
+        "characteristics": "Innovative, Original, Humanitarian",
         "color": "Blue"
       },
       "pisces": {
@@ -299,15 +487,41 @@
         "ruler": "Neptune",
         "symbol": "♓",
         "dateRange": "February 19 - March 20",
-        "characteristics": "Empathetic, Artistic, Dreamy",
-        "color": "Aqua"
+        "characteristics": "Intuitive, Artistic, Compassionate",
+        "color": "Turquoise"
       }
     },
     "start_journey": "Start Journey",
     "feature_cards": {
       "birth_chart": {
+        "icon": "🌌",
         "title": "Birth Chart",
-        "subtitle": "View your personal birth chart"
+        "subtitle": "See your personal birth chart"
+      },
+      "horoscope": {
+        "icon": "🌘",
+        "title": "Horoscopes",
+        "subtitle": "See your personalized horoscopes"
+      },
+      "natal_chart": {
+        "icon": "🌠",
+        "title": "Natal Chart",
+        "subtitle": "See your personal astrological chart"
+      },
+      "predictions": {
+        "icon": "🎯",
+        "title": "Predictions and Advice",
+        "subtitle": "Get daily predictions and advice"
+      },
+      "compatibility": {
+        "icon": "💫",
+        "title": "Compatibility",
+        "subtitle": "Get relationship and compatibility analyses"
+      },
+      "biorhythm": {
+        "icon": "📈",
+        "title": "Biorhythm Analysis",
+        "subtitle": "See your personal biorhythm analysis and chart"
       }
     },
     "loading": "✨ The stars are speaking for you...",
@@ -318,14 +532,70 @@
     "discover_stars": "Don't go out without reading your horoscope,\nyou might get caught in a retrograde!",
     "weekly_natal": {
       "title": "Weekly Natal Analysis",
-      "subtitle": "Effects of planetary movements on your life",
+      "subtitle": "The effects of planetary movements on your life",
       "important_aspects": "Important Aspects",
       "advice": "Advice"
-    }
+    },
+    "hello_zodiac": "✨ Hello dear {zodiac},\nthe stars have prepared special messages for you!",
+    "see_cosmic_message": "See Cosmic Message",
+
+
+    "biorythym": "Biorhythm Chart",
+    "daily_biorhythm_analysis": "Daily Biorhythm Analysis",
+    "biorhythm_not_created": "Biorhythm interpretation has not been created yet.",
+    "biorhythm_not_found": "Biorhythm interpretation not found.",
+    "physical": "Physical",
+    "emotional": "Emotional",
+    "intellectual": "Intellectual",
+    "intuitive": "Intuitive",
+    "physical_cycle": "23-day cycle - Energy, strength and endurance",
+    "emotional_cycle": "28-day cycle - Mood and sensitivity",
+    "intellectual_cycle": "33-day cycle - Mental performance and creativity",
+    "natal_chart": "Natal Chart",
+    "natal_chart_preparing": "Natal chart is being prepared...",
+    "natal_chart_not_calculated": "Natal chart could not be calculated",
+    "weekly_transit_table": "Weekly Transit Table",
+    "planet": "Planet",
+    "position": "Position",
+    "aspects": "Aspects",
+    "natal_aspects": "Natal Aspects",
+    "compatibility_test": "Compatibility Test",
+    "love_compatibility": "Love Compatibility",
+    "friendship_compatibility": "Friendship Compatibility",
+    "love": "Love",
+    "sex": "Passion",
+    "friendship": "Friendship",
+    "family": "Family",
+    "trust": "Trust",
+    "communication": "Communication",
+    "business": "Business",
+    "career": "Career",
+    "education": "Education",
+    "travel": "Travel",
+    "numerology": "Numerology",
+    "weekly_numerology": "Weekly Numerology Analysis",
+    "natal_chart_error": "Error Loading Natal Chart\nRetrying...",
+    "retro_no_planet": "There are currently no planets in retrograde!",
+    "retro_all_planets_moving": "All planets are moving direct.",
+    "shadow_period": "Shadow Period",
+    "impact": "Impact",
+    "advice": "Advice",
+    "weekly_natal_reading": "Weekly Natal Reading",
+    "weekly_natal_reading_description": "The effects of planetary movements on your life",
+    "important_aspects": "Important Aspects",
+    "weekly_numerology_reading": "Your Weekly Numerology Reading",
+    "numerology_not_created": "Numerology interpretation has not been created yet.",
+    "numerology_not_found": "Numerology interpretation not found.",
+    "cosmic_connection": "Cosmic Connection",
+    "general_evaluation": "General Evaluation",
+    "common_values": "Common Values",
+    "check_love_compatibility": "Check Love Compatibility",
+    "check_friendship_compatibility": "Check Friendship Compatibility"
+
   },
   "shop": {
     "review": {
-      "title": "Write a Review",
+      "title": "Leave a Review",
       "hint": "Share your experience..."
     },
     "send": "Send"
@@ -333,13 +603,172 @@
   "common": {
     "today": "Today",
     "yesterday": "Yesterday",
-    "days_ago": "{} days ago"
+    "days_ago": "{} days ago",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "delete": "Delete",
+    "try_again": "Try Again",
+    "success": "Success",
+    "error": "Error",
+    "clear": "Clear"
   },
   "spiritual_chat": {
-    "welcome_message": "Peace to your soul, light to your heart. How may I guide you today?",
+    "welcome_message": "Wishing peace to your soul and light to your heart. How can I guide you today?",
     "empty_state": {
       "title": "Start chatting with your spiritual guide",
       "subtitle": "Ask your questions for personalized advice and guidance"
+    },
+    "error_occurred": "An error occurred while launching the app",
+    "error_chat_has_not_started": "The app has not started yet. Please wait.",
+    "error_occurred_chat": "User information could not be loaded. Please restart the app.",
+    "error_occurred_messages": "An error occurred while loading messages",
+    "error_chat_no_session": "User session not found",
+    "error_occurred_send_message": "An error occurred while sending the message",
+    "error_occurred_save_message": "An error occurred while saving the message",
+    "success_clear_chat": "Chat history cleared",
+    "error_occurred_clear_chat": "An error occurred while clearing the chat history",
+    "thinking_message": "Your spiritual guide is thinking...",
+    "ask_message": "Ask your spiritual guide a question...",
+    "clear_chat": "Clear Chat",
+    "clear_chat_dialog": {
+      "content": "All chat history will be deleted. Are you sure?"
     }
+  },
+  "ritual": "en_rituals.json",
+  "fortunes": "en_fortunes.json",
+  "affirmations": "en_affirmations.json",
+  "social": {
+    "title": "Spiroot Social",
+    "subtitle": "Stay connected with the community",
+    "posts": "Posts",
+    "events": "Events",
+    "comments": "Comments",
+    "new_post": "New Post",
+    "new_event": "New Event",
+    "what_thinking": "What are you thinking?",
+    "share": "Share",
+    "cancel": "Cancel",
+    "no_posts": "No posts yet",
+    "no_events": "No events yet",
+    "error_occurred": "An error occurred",
+    "event": {
+      "title": "Title",
+      "description": "Description",
+      "location": "Location",
+      "image_url": "Image URL",
+      "select_date": "Select Date",
+      "select_time": "Select Time",
+      "create": "Create",
+      "participants": "participants",
+      "join": "Join",
+      "leave": "Leave",
+      "selected_date": "Selected Date",
+      "selected_time": "Selected Time"
+    },
+    "my_posts": "My Posts",
+    "my_events": "My Events",
+    "my_content": "My Content",
+    "no_shared_posts": "You haven't shared any posts yet",
+    "no_shared_events": "You haven't created any events yet",
+    "delete_post": "Delete Post",
+    "delete_post_confirmation": "Are you sure you want to delete this post?",
+    "error_occurred_events": "An error occurred while loading your events",
+    "delete_event": "Delete Event",
+    "delete_event_confirmation": "Are you sure you want to delete this event?",
+    "report": "Report",
+    "unreport": "Unreport",
+    "show_more": "Show More",
+    "show_less": "Show Less",
+    "already_reported": "You have already reported this comment",
+    "comment_placeholder": "Write a comment..."
+  },
+  "blog": {
+    "title": "Blog Post",
+    "search": "Search blog post...",
+    "now": "Now",
+    "minutes_ago": "minutes ago",
+    "hours_ago": "hours ago",
+    "days_ago": "days ago",
+    "no_posts": "No blog posts yet",
+    "no_results": "No search results found",
+    "post_created": "Your blog post has been successfully created",
+    "new_post": "New Blog Post",
+    "create_title": "Title",
+    "title_required": "Title is required",
+    "image_url": "Image URL",
+    "image_url_required": "Image URL is required",
+    "invalid_url": "Enter a valid URL",
+    "invalid_image_format": "Supported image formats: JPG, JPEG, PNG, GIF, WEBP",
+    "content": "Content",
+    "content_required": "Content is required",
+    "content_min_length": "Content must be at least 500 characters",
+    "publish": "Publish",
+    "post_updated": "Your blog post has been successfully updated",
+    "edit_post": "Edit Blog Post",
+    "update": "Update",
+    "delete_post": "Delete Blog Post",
+    "delete_post_confirmation": "Are you sure you want to delete this blog post?",
+    "post_deleted": "Blog post successfully deleted",
+    "post_deletion_error": "An error occurred while deleting the blog post",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "my_posts": "My Blog Posts",
+    "error_occurred": "An error occurred",
+    "user_not_logged_in": "User not logged in.",
+    "profile_incomplete": "Profile incomplete.",
+    "subscription_required": "Subscription required.",
+    "content_not_appropriate": "Content was found inappropriate and rejected.",
+    "anonymous": "Anonymous"
+  },
+  "chat": {
+    "compatibility": "Compatibility",
+    "match_made_by_zodiac": "This chat was matched based on zodiac compatibility",
+    "write_your_message": "Write your message..."
+  },
+  "enlightenment": {
+    "failed_to_load_rituals": "An error occurred while loading rituals",
+    "ritual": {
+      "materials": "Required Materials",
+      "steps": "Ritual Steps",
+      "search": "Search for rituals or materials...",
+      "title": "Rituals"
+    }
+  },
+  "explore": {
+    "error_occurred": "An error occurred while starting the match",
+    "canceled": "Canceled",
+    "search_canceled": "Match search canceled",
+    "title": "Explore",
+    "continue_chat": "Continue Chat",
+    "search": "Search for Match",
+    "searching": "Searching for your cosmic match...",
+    "searching_description": "Finding the most compatible person based on zodiac compatibility",
+    "ready_for_new_matches": "Ready for new matches",
+    "cosmic_match": "Cosmic Match",
+    "cosmic_match_description": "Match and chat with the person most compatible with you based on zodiac compatibility",
+    "chat_is_temporary": "Note: Chats are temporary and not saved"
+  },
+  "rest": {
+    "affirmation": "Affirmation Exercise",
+    "meditation": "Meditation Exercise",
+    "affirmation_default": "Everything will be alright!",
+    "congratulations": "Congratulations! You’ve completed today’s affirmations! 🎉",
+    "tap_count": "{x} repetitions left for this affirmation",
+    "stress": "Stress",
+    "gratitude": "Gratitude",
+    "anxiety": "Anxiety",
+    "sadness": "Sadness",
+    "happiness": "Happiness",
+    "anger": "Anger",
+    "min": "min",
+    "meditation_step_1": "Relax your shoulders and let go...",
+    "meditation_step_2": "Empty your mind and enjoy the moment...",
+    "meditation_step_3": "Close your eyes and take a deep breath...",
+    "meditation_feeling": "How do you feel? (This information helps choose a more effective meditation exercise.)",
+    "meditation_duration": "How much time can you spare? (This information helps determine the length of the meditation exercise.)",
+    "start_meditation": "Start Meditation",
+    "end_meditation": "End Meditation",
+    "breath_in": "Breathe In",
+    "breath_out": "Breathe Out"
   }
 }

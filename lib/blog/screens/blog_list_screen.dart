@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
@@ -93,7 +95,7 @@ class _BlogListScreenState extends State<BlogListScreen> {
         controller: _searchController,
         style: MyStyle.s2.copyWith(color: MyColor.white),
         decoration: InputDecoration(
-          hintText: easy.tr("Blog yazısı ara..."),
+          hintText: easy.tr("blog.search"),
           hintStyle: MyStyle.s2.copyWith(color: MyColor.white.withOpacity(0.5)),
           prefixIcon: Icon(Icons.search, color: MyColor.white),
           suffixIcon: _searchQuery.isNotEmpty
@@ -129,13 +131,13 @@ class _BlogListScreenState extends State<BlogListScreen> {
     if (difference.inDays == 0) {
       if (difference.inHours == 0) {
         if (difference.inMinutes == 0) {
-          return easy.tr("Şimdi");
+          return easy.tr("blog.now");
         }
-        return "${difference.inMinutes} ${easy.tr("dakika önce")}";
+        return "${difference.inMinutes} ${easy.tr("blog.minutes_ago")}";
       }
-      return "${difference.inHours} ${easy.tr("saat önce")}";
+      return "${difference.inHours} ${easy.tr("blog.hours_ago")}";
     } else if (difference.inDays < 7) {
-      return "${difference.inDays} ${easy.tr("gün önce")}";
+      return "${difference.inDays} ${easy.tr("blog.days_ago")}";
     } else {
       return DateFormat('dd.MM.yyyy').format(date);
     }
@@ -197,8 +199,8 @@ class _BlogListScreenState extends State<BlogListScreen> {
                   if (snapshot.hasError) {
                     return Center(
                       child: Text(
-                        'Bir hata oluştu: ${snapshot.error}',
-                        style: MyStyle.b4.copyWith(color: MyColor.white),
+                        easy.tr('errors.error'),
+                        style: MyStyle.s3.copyWith(color: MyColor.white),
                       ),
                     );
                   }
@@ -218,9 +220,9 @@ class _BlogListScreenState extends State<BlogListScreen> {
                     return Center(
                       child: Text(
                         _searchQuery.isEmpty
-                            ? easy.tr('Henüz blog yazısı yok')
-                            : easy.tr('Arama sonucu bulunamadı'),
-                        style: MyStyle.b4.copyWith(color: MyColor.white),
+                            ? easy.tr('blog.no_posts')
+                            : easy.tr('blog.no_results'),
+                        style: MyStyle.s3.copyWith(color: MyColor.white),
                       ),
                     );
                   }

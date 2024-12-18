@@ -76,8 +76,7 @@ class _MagicLampScreenState extends State<MagicLampScreen>
       final messages = await FortuneService.loadFortunes(context);
       return messages[Random().nextInt(messages.length)];
     } catch (e) {
-      debugPrint('Fortune message error: $e');
-      return 'Şansınız her zaman sizinle olsun!';
+      return easy.tr('fortune.fortune_message');
     }
   }
 
@@ -153,7 +152,7 @@ class _MagicLampScreenState extends State<MagicLampScreen>
           icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(easy.tr("Sihirli Lamba"),
+        title: Text(easy.tr('fortune.magic_lamp'),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
         centerTitle: true,
       ),
@@ -215,7 +214,7 @@ class _MagicLampScreenState extends State<MagicLampScreen>
                 left: MySize.defaultPadding,
                 right: MySize.defaultPadding,
                 child: Text(
-                  easy.tr("Sihirli lambayı ovalamaya başla!"),
+                  easy.tr('fortune.start_magic_lamp'),
                   style: MyStyle.s2.copyWith(
                     color: MyColor.whiteTintColor,
                   ),

@@ -6,6 +6,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/explore/explore_controller.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class ChatScreen extends StatelessWidget {
   final String chatId;
@@ -79,7 +80,7 @@ class ChatScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    "${match.matchScore.toInt()}% Uyum",
+                    "${match.matchScore.toInt()}% ${easy.tr('chat.compatibility')}",
                     style: MyStyle.s3.copyWith(
                       color: MyColor.primaryColor,
                       fontWeight: FontWeight.bold,
@@ -113,7 +114,7 @@ class ChatScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Bu sohbet burç uyumunuza göre eşleştirilmiştir",
+                      easy.tr('chat.match_made_by_zodiac'),
                       style: MyStyle.s3.copyWith(
                         color: MyColor.primaryColor,
                       ),
@@ -199,7 +200,7 @@ class ChatScreen extends StatelessWidget {
               controller: _messageController,
               style: MyStyle.s2.copyWith(color: MyColor.white),
               decoration: InputDecoration(
-                hintText: "Mesajınızı yazın...",
+                hintText: easy.tr('chat.write_your_message'),
                 hintStyle: MyStyle.s2.copyWith(
                   color: MyColor.textGreyColor,
                 ),

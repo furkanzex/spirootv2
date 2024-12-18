@@ -68,7 +68,7 @@ class _TarotScreenState extends State<TarotScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Kartlar yüklenirken bir hata oluştu: $e'),
+            content: Text(easy.tr('fortune.failed_to_load_tarot_cards')),
             backgroundColor: Colors.red.withOpacity(0.8),
             behavior: SnackBarBehavior.floating,
             shape:
@@ -90,7 +90,7 @@ class _TarotScreenState extends State<TarotScreen>
     if (_selectedCards.any((card) => card == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lütfen 3 kart seçin'.tr()),
+          content: Text(easy.tr('fortune.please_select_3_cards')),
           backgroundColor: Colors.red.withOpacity(0.8),
           behavior: SnackBarBehavior.floating,
           shape:
@@ -133,7 +133,7 @@ class _TarotScreenState extends State<TarotScreen>
               _selectedCards.whereType<TarotCard>().toList());
           break;
         default:
-          throw Exception('Geçersiz fal tipi');
+          throw Exception(easy.tr('fortune.invalid_fortune_type'));
       }
 
       await FirebaseFirestore.instance
@@ -152,8 +152,8 @@ class _TarotScreenState extends State<TarotScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Falınız ortalama ${waitTime.inMinutes} dakika içinde hazır olacak'
-                  .tr(),
+              easy.tr('fortune.fortune_will_be_ready_in',
+                  namedArgs: {'minutes': waitTime.inMinutes.toString()}),
             ),
             backgroundColor: MyColor.primaryLightColor.withOpacity(0.8),
             behavior: SnackBarBehavior.floating,
@@ -167,7 +167,7 @@ class _TarotScreenState extends State<TarotScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Bir hata oluştu: $e'.tr()),
+            content: Text(easy.tr('errors.error')),
             backgroundColor: Colors.red.withOpacity(0.8),
             behavior: SnackBarBehavior.floating,
             shape:
@@ -263,7 +263,7 @@ class _TarotScreenState extends State<TarotScreen>
           children: [
             const SizedBox(height: MySize.defaultPadding),
             Text(
-              'Geçmiş, Şimdi ve Gelecek için 3 kart seçin'.tr(),
+              easy.tr('fortune.select_3_cards_for_past_present_future'),
               style: TextStyle(
                 color: MyColor.white.withOpacity(0.9),
                 fontSize: 16,
@@ -278,9 +278,9 @@ class _TarotScreenState extends State<TarotScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(3, (index) {
                     final labels = [
-                      'Geçmiş'.tr(),
-                      'Şimdi'.tr(),
-                      'Gelecek'.tr()
+                      easy.tr('past'),
+                      easy.tr('present'),
+                      easy.tr('future')
                     ];
                     return Column(
                       children: [
@@ -402,7 +402,7 @@ class _TarotScreenState extends State<TarotScreen>
                           ),
                         )
                       : Text(
-                          'Kartları Yorumla'.tr(),
+                          easy.tr('fortune.interpret_cards'),
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

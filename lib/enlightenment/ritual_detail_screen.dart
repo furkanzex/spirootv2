@@ -85,7 +85,7 @@ class RitualDetailScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildSection(
-                  title: 'Gerekli Malzemeler',
+                  title: easy.tr('enlightenment.ritual.materials'),
                   icon: Icons.workspaces,
                   child: Column(
                     children: List.generate(5, (index) => _buildShimmerItem()),
@@ -93,7 +93,7 @@ class RitualDetailScreen extends StatelessWidget {
                 ),
                 SizedBox(height: MySize.defaultPadding),
                 _buildSection(
-                  title: 'Ritüel Adımları',
+                  title: easy.tr('enlightenment.ritual.steps'),
                   icon: Icons.format_list_numbered,
                   child: Column(
                     children: List.generate(7, (index) => _buildShimmerItem()),
@@ -124,7 +124,7 @@ class RitualDetailScreen extends StatelessWidget {
             backgroundColor: MyColor.darkBackgroundColor,
             body: Center(
               child: Text(
-                'Veri yüklenemedi',
+                easy.tr('errors.data_not_loaded'),
                 style: MyStyle.s1.copyWith(color: MyColor.white),
               ),
             ),
@@ -155,7 +155,7 @@ class RitualDetailScreen extends StatelessWidget {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     _buildSection(
-                      title: 'Gerekli Malzemeler',
+                      title: easy.tr('enlightenment.ritual.materials'),
                       icon: Icons.workspaces,
                       child: Column(
                         children: (translatedRitual['materials'] as List)
@@ -168,7 +168,7 @@ class RitualDetailScreen extends StatelessWidget {
                     ),
                     SizedBox(height: MySize.defaultPadding),
                     _buildSection(
-                      title: 'Ritüel Adımları',
+                      title: easy.tr('enlightenment.ritual.steps'),
                       icon: Icons.format_list_numbered,
                       child: Column(
                         children: List.generate(

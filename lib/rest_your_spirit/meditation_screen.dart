@@ -29,37 +29,37 @@ class _MeditationScreenState extends State<MeditationScreen>
 
   final List<Map<String, dynamic>> _feelings = [
     {
-      'name': 'Stress',
+      'name': easy.tr("rest.stress"),
       'icon': '🌊',
       'color': Color(0xFF7B8FF7),
       'sound': 'https://apptoic.com/spiroot/sounds/1.mp3',
     },
     {
-      'name': 'Gratitude',
+      'name': easy.tr("rest.gratitude"),
       'icon': '🌟',
       'color': Color(0xFF9D7BF7),
       'sound': 'https://apptoic.com/spiroot/sounds/2.mp3',
     },
     {
-      'name': 'Anxiety',
+      'name': easy.tr("rest.anxiety"),
       'icon': '🌀',
       'color': Color(0xFF7B8FF7),
       'sound': 'https://apptoic.com/spiroot/sounds/3.mp3',
     },
     {
-      'name': 'Sadness',
+      'name': easy.tr("rest.sadness"),
       'icon': '💧',
       'color': Color(0xFF9D7BF7),
       'sound': 'https://apptoic.com/spiroot/sounds/4.mp3',
     },
     {
-      'name': 'Happiness',
+      'name': easy.tr("rest.happiness"),
       'icon': '✨',
       'color': Color(0xFF7B8FF7),
       'sound': 'https://apptoic.com/spiroot/sounds/5.mp3',
     },
     {
-      'name': 'Anger',
+      'name': easy.tr("rest.anger"),
       'icon': '🔥',
       'color': Color(0xFF9D7BF7),
       'sound': 'https://apptoic.com/spiroot/sounds/6.mp3',
@@ -67,15 +67,15 @@ class _MeditationScreenState extends State<MeditationScreen>
   ];
 
   final List<Map<String, dynamic>> _durations = [
-    {'minutes': 5, 'text': '5 min'},
-    {'minutes': 10, 'text': '10 min'},
-    {'minutes': 15, 'text': '15 min'},
+    {'minutes': 5, 'text': '5 ${easy.tr("rest.min")}'},
+    {'minutes': 10, 'text': '10 ${easy.tr("rest.min")}'},
+    {'minutes': 15, 'text': '15 ${easy.tr("rest.min")}'},
   ];
 
   final List<String> _relaxationSteps = [
-    'Gözlerinizi kapatın ve derin bir nefes alın...',
-    'Omuzlarınızı gevşetin ve rahatlayın...',
-    'Zihninizi boşaltın ve anın tadını çıkarın...',
+    easy.tr("rest.meditation_step_1"),
+    easy.tr("rest.meditation_step_2"),
+    easy.tr("rest.meditation_step_3"),
   ];
 
   @override
@@ -132,7 +132,7 @@ class _MeditationScreenState extends State<MeditationScreen>
               child: Column(
                 children: [
                   Text(
-                    'Nasıl hissediyorsun? ( Bu bilgi, daha etkili bir meditasyon egzersizi seçmek için gerekli. )',
+                    easy.tr("rest.meditation_feeling"),
                     style: MyStyle.s2.copyWith(color: MyColor.whiteTintColor),
                   ),
                   SizedBox(height: MySize.defaultPadding),
@@ -194,7 +194,7 @@ class _MeditationScreenState extends State<MeditationScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Ne kadar zaman ayırabilirsin? ( Bu bilgi, ne kadar uzunlukta bir meditasyon egzersizi yapacağınızı belirlemek için gerekli. )',
+                        easy.tr("rest.meditation_duration"),
                         style:
                             MyStyle.s2.copyWith(color: MyColor.whiteTintColor),
                       ),
@@ -247,7 +247,7 @@ class _MeditationScreenState extends State<MeditationScreen>
                               ),
                             ),
                             child: Text(
-                              'Start Meditation',
+                              easy.tr("rest.start_meditation"),
                               style: MyStyle.s1.copyWith(color: MyColor.white),
                             ),
                           ),
@@ -283,7 +283,7 @@ class _MeditationScreenState extends State<MeditationScreen>
           icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(easy.tr("Meditasyon Egzersizi"),
+        title: Text(easy.tr("rest.meditation"),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
       ),
       body: SafeArea(
@@ -357,9 +357,8 @@ class _MeditationPageState extends State<_MeditationPage>
       // Rahatlama adımları
       _relaxationStep = 0;
       _startRelaxationSteps();
-    } catch (e) {
-      print('Preparation error: $e');
-    }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 
   void _startRelaxationSteps() {
@@ -492,8 +491,8 @@ class _MeditationPageState extends State<_MeditationPage>
                           builder: (context, child) {
                             return Text(
                               _breathingController.value < 0.5
-                                  ? 'Nefes Al'
-                                  : 'Nefes Ver',
+                                  ? easy.tr("rest.breath_in")
+                                  : easy.tr("rest.breath_out"),
                               style: MyStyle.s1.copyWith(
                                 color: MyColor.whiteTintColor,
                                 fontSize: 24,
@@ -526,7 +525,7 @@ class _MeditationPageState extends State<_MeditationPage>
                                 ),
                               ),
                               child: Text(
-                                'Meditasyonu Bitir',
+                                easy.tr("rest.end_meditation"),
                                 style:
                                     MyStyle.s2.copyWith(color: MyColor.white),
                               ),

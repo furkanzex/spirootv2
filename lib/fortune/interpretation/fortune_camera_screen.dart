@@ -11,6 +11,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/interpretation/fortune_result_screen.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 enum FortuneType { coffee, palm, face }
 
@@ -45,22 +46,22 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   String get screenTitle {
     switch (widget.fortuneType) {
       case FortuneType.coffee:
-        return 'Kahve Falı';
+        return easy.tr('fortune.coffee_fortune');
       case FortuneType.palm:
-        return 'El Falı';
+        return easy.tr('fortune.palm_fortune');
       case FortuneType.face:
-        return 'Yüz Falı';
+        return easy.tr('fortune.face_fortune');
     }
   }
 
   String get instructionText {
     switch (widget.fortuneType) {
       case FortuneType.coffee:
-        return 'Fincanınızın 4 farklı açıdan fotoğrafını çekin';
+        return easy.tr('fortune.coffee_instruction');
       case FortuneType.palm:
-        return 'Avuç içinizin net bir fotoğrafını çekin';
+        return easy.tr('fortune.palm_instruction');
       case FortuneType.face:
-        return 'Yüzünüzün net bir fotoğrafını çekin';
+        return easy.tr('fortune.face_instruction');
     }
   }
 
@@ -106,7 +107,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
     try {
       cameras = await availableCameras();
       if (cameras.isEmpty) {
-        _showError('Kamera bulunamadı');
+        _showError(easy.tr('fortune.camera_not_found'));
         return;
       }
 
@@ -144,7 +145,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         setState(() {});
       }
     } catch (e) {
-      _showError('Kamera başlatılamadı: $e');
+      _showError(easy.tr('fortune.camera_not_found'));
     }
   }
 
@@ -152,7 +153,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
     if (!mounted) return;
 
     Get.snackbar(
-      'Hata',
+      easy.tr('errors.error'),
       message,
       backgroundColor: MyColor.errorColor,
       colorText: MyColor.white,
@@ -172,7 +173,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
       }
 
       if (_controller == null || !_controller!.value.isInitialized) {
-        _showError('Kamera hazır değil');
+        _showError(easy.tr('fortune.camera_not_ready'));
         return;
       }
 
@@ -184,7 +185,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
       final imageBytes = await imageFile.readAsBytes();
 
       if (imageBytes.length < 1000) {
-        throw Exception('Fotoğraf kalitesi çok düşük');
+        throw Exception(easy.tr('fortune.image_quality_low'));
       }
 
       setState(() {
@@ -199,7 +200,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         _navigateToResult();
       }
     } catch (e) {
-      _showError('Fotoğraf çekilemedi: $e');
+      _showError(easy.tr('fortune.image_not_taken'));
     } finally {
       setState(() => _isProcessing = false);
     }
@@ -228,7 +229,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         final imageBytes = await imageFile.readAsBytes();
 
         if (imageBytes.length < 1000) {
-          throw Exception('Seçilen fotoğrafın kalitesi çok düşük');
+          throw Exception(easy.tr('fortune.image_quality_low'));
         }
 
         setState(() {
@@ -241,7 +242,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         }
       }
     } catch (e) {
-      _showError('Fotoğraf seçilemedi: $e');
+      _showError(easy.tr('fortune.image_not_selected'));
     } finally {
       setState(() => _isProcessing = false);
     }
@@ -270,7 +271,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
 
       await _initializeCamera();
     } catch (e) {
-      _showError('Kamera değiştirilemedi: $e');
+      _showError(easy.tr('fortune.camera_not_changed'));
     }
   }
 
@@ -285,7 +286,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         _flashMode = newMode;
       });
     } catch (e) {
-      _showError('Flaş değiştirilemedi');
+      _showError(easy.tr('fortune.flash_not_changed'));
     }
   }
 
@@ -366,10 +367,12 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
                         children: [
                           Text(
                             widget.fortuneType == FortuneType.coffee
-                                ? 'Fincanınızın $requiredImageCount farklı açıdan fotoğrafını çekin'
+                                ? easy.tr('fortune.coffee_count', namedArgs: {
+                                    'count': requiredImageCount.toString()
+                                  })
                                 : widget.fortuneType == FortuneType.face
-                                    ? 'Yüzünüzün net bir fotoğrafını çekin'
-                                    : 'Avuç içinizin net bir fotoğrafını çekin',
+                                    ? easy.tr('fortune.face_instruction')
+                                    : easy.tr('fortune.palm_instruction'),
                             style: MyStyle.s2.copyWith(
                               color: MyColor.white,
                             ),
@@ -380,7 +383,9 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
                               : SizedBox.shrink(),
                           widget.fortuneType == FortuneType.coffee
                               ? Text(
-                                  '$currentImageIndex/$requiredImageCount Fotoğraf',
+                                  '$currentImageIndex/$requiredImageCount ${easy.tr('fortune.image_count', namedArgs: {
+                                        'count': requiredImageCount.toString()
+                                      })}',
                                   style: MyStyle.s3
                                       .copyWith(color: MyColor.textGreyColor),
                                 )

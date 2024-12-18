@@ -14,7 +14,7 @@ Widget luckSection(BuildContext context) {
   final List<FortuneCard> fortuneCards = [
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/cookie.png",
-      title: "Şans Kurabiyesi",
+      title: easy.tr("fortune.cookie"),
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(
@@ -27,7 +27,7 @@ Widget luckSection(BuildContext context) {
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/globe.png",
-      title: "Sihirli Küre",
+      title: easy.tr("fortune.orb"),
       color: MyColor.primaryLightColor,
       onTap: () {
         Navigator.push(
@@ -40,7 +40,7 @@ Widget luckSection(BuildContext context) {
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/lamp.png",
-      title: "Sihirli Lamba",
+      title: easy.tr("fortune.lamp"),
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(

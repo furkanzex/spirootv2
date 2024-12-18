@@ -36,7 +36,7 @@ class BlogDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          easy.tr("Blog Yazısı"),
+          easy.tr("blog.title"),
           style: MyStyle.b4.copyWith(color: MyColor.white),
         ),
       ),

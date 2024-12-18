@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/auth/auth_controller.dart';
 import '../models/blog_post.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class BlogService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -14,18 +15,18 @@ class BlogService {
   // Kullanıcı kontrolü
   Future<void> checkUserEligibility() async {
     final user = _auth.currentUser;
-    if (user == null) throw Exception('Kullanıcı oturum açmamış.');
+    if (user == null) throw Exception(easy.tr('blog.user_not_logged_in'));
 
     // Profil kontrolü
     final isProfileComplete = await _authController.isProfileComplete();
     if (!isProfileComplete) {
-      throw Exception('profile_incomplete');
+      throw Exception(easy.tr('blog.profile_incomplete'));
     }
 
     // Abonelik kontrolü
     final hasActiveSubscription = await _authController.hasActiveSubscription();
     if (!hasActiveSubscription) {
-      throw Exception('subscription_required');
+      throw Exception(easy.tr('blog.subscription_required'));
     }
   }
 
@@ -36,19 +37,17 @@ class BlogService {
     required String imageUrl,
   }) async {
     try {
-      print('Blog yazısı oluşturma başladı');
-
       // Kullanıcı uygunluk kontrolü
       await checkUserEligibility();
 
       // İçerik uzunluğunu kontrol et
       if (content.length < 500) {
-        throw Exception('İçerik en az 500 karakter olmalıdır.');
+        throw Exception(easy.tr('blog.content_min_length'));
       }
 
       // Görsel URL'sini kontrol et
       if (imageUrl.isEmpty) {
-        throw Exception('Görsel URL\'si zorunludur.');
+        throw Exception(easy.tr('blog.image_url_required'));
       }
 
       // URL formatını kontrol et
@@ -63,25 +62,17 @@ class BlogService {
           validExtensions.any((ext) => imageUrl.toLowerCase().endsWith(ext));
 
       if (!hasValidExtension) {
-        throw Exception(
-            'Desteklenen görsel formatları: JPG, JPEG, PNG, GIF, WEBP');
+        throw Exception(easy.tr('blog.invalid_image_format'));
       }
-
-      print('İçerik kontrolleri tamamlandı, moderasyon başlıyor');
-
       // AI moderasyon kontrolü
       final bool isAppropriate =
           await _geminiService.checkBlogContentModeration(title, content);
       if (!isAppropriate) {
-        throw Exception('İçerik uygunsuz bulundu ve reddedildi.');
+        throw Exception(easy.tr('blog.content_not_appropriate'));
       }
 
-      print('Moderasyon tamamlandı, kullanıcı kontrolü yapılıyor');
-
       final user = _auth.currentUser;
-      if (user == null) throw Exception('Kullanıcı oturum açmamış.');
-
-      print('Kullanıcı doğrulandı, Firestore\'a yazılıyor');
+      if (user == null) throw Exception(easy.tr('blog.user_not_logged_in'));
 
       final docRef = _firestore.collection('blog_posts').doc();
       final blogPost = BlogPost(
@@ -90,16 +81,14 @@ class BlogService {
         content: content,
         imageUrl: imageUrl,
         authorId: user.uid,
-        authorName: user.displayName ?? 'Anonim',
+        authorName: user.displayName ?? easy.tr('blog.anonymous'),
         createdAt: DateTime.now(),
         isApproved: true,
       );
 
       await docRef.set(blogPost.toMap());
-      print('Blog yazısı başarıyla oluşturuldu: ${docRef.id}');
       return true;
     } catch (e) {
-      print('Blog yazısı oluşturma hatası: $e');
       rethrow;
     }
   }
@@ -112,8 +101,6 @@ class BlogService {
     required String imageUrl,
   }) async {
     try {
-      print('Blog yazısı güncelleme başladı');
-
       // Kullanıcı uygunluk kontrolü
       await checkUserEligibility();
 
@@ -124,13 +111,13 @@ class BlogService {
 
       // Görsel URL'sini kontrol et
       if (imageUrl.isEmpty) {
-        throw Exception('Görsel URL\'si zorunludur.');
+        throw Exception(easy.tr('blog.image_url_required'));
       }
 
       // URL formatını kontrol et
       final uri = Uri.tryParse(imageUrl);
       if (uri == null || !uri.isAbsolute) {
-        throw Exception('Geçerli bir görsel URL\'si giriniz.');
+        throw Exception(easy.tr('blog.invalid_url'));
       }
 
       // Desteklenen görsel formatlarını kontrol et
@@ -139,25 +126,18 @@ class BlogService {
           validExtensions.any((ext) => imageUrl.toLowerCase().endsWith(ext));
 
       if (!hasValidExtension) {
-        throw Exception(
-            'Desteklenen görsel formatları: JPG, JPEG, PNG, GIF, WEBP');
+        throw Exception(easy.tr('blog.invalid_image_format'));
       }
-
-      print('İçerik kontrolleri tamamlandı, moderasyon başlıyor');
 
       // AI moderasyon kontrolü
       final bool isAppropriate =
           await _geminiService.checkBlogContentModeration(title, content);
       if (!isAppropriate) {
-        throw Exception('İçerik uygunsuz bulundu ve reddedildi.');
+        throw Exception(easy.tr('blog.content_not_appropriate'));
       }
 
-      print('Moderasyon tamamlandı, kullanıcı kontrolü yapılıyor');
-
       final user = _auth.currentUser;
-      if (user == null) throw Exception('Kullanıcı oturum açmamış.');
-
-      print('Kullanıcı doğrulandı, Firestore\'a yazılıyor');
+      if (user == null) throw Exception(easy.tr('blog.user_not_logged_in'));
 
       await _firestore.collection('blog_posts').doc(postId).update({
         'title': title,
@@ -166,29 +146,21 @@ class BlogService {
         'updatedAt': DateTime.now(),
       });
 
-      print('Blog yazısı başarıyla güncellendi: $postId');
       return true;
     } catch (e) {
-      print('Blog yazısı güncelleme hatası: $e');
       rethrow;
     }
   }
 
   // Tüm onaylanmış blog yazılarını getir
   Stream<List<BlogPost>> getApprovedBlogPosts() {
-    print('Blog yazıları stream başlatıldı');
-
     return _firestore
         .collection('blog_posts')
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      print(
-          'Blog yazıları snapshot alındı. Doküman sayısı: ${snapshot.docs.length}');
-
       final posts = snapshot.docs
           .map((doc) {
-            print('Doküman verisi: ${doc.data()}');
             try {
               final post = BlogPost.fromMap(doc.data());
               if (post.isApproved) {
@@ -196,7 +168,6 @@ class BlogService {
               }
               return null;
             } catch (e) {
-              print('Blog post dönüştürme hatası: $e');
               return null;
             }
           })
@@ -204,7 +175,6 @@ class BlogService {
           .cast<BlogPost>()
           .toList();
 
-      print('Dönüştürülen blog yazısı sayısı: ${posts.length}');
       return posts;
     });
   }
@@ -231,7 +201,6 @@ class BlogService {
     try {
       await _firestore.collection('blog_posts').doc(postId).delete();
     } catch (e) {
-      print('Blog silme hatası: $e');
       rethrow;
     }
   }

@@ -3,6 +3,17 @@
   "locale": "tr-TR",
   "lang": "Türkçe",
   "errors": {
+    "name_empty": "İsim alanı boş bırakılamaz",
+    "no_results_found": "Sonuç bulunamadı",
+    "error": "Bir hata oluştu.",
+    "anonymous_login_failed": "Anonim giriş yapılamadı!",
+    "user_not_saved": "Kullanıcı kaydedilemedi!",
+    "logout_failed": "Çıkış yapılamadı!",
+    "user_not_found": "Kullanıcı bulunamadı!",
+    "account_not_deleted": "Hesap silinemedi!",
+    "error_auth": "Giriş yapılırken bir hata oluştu!",
+    "data_not_loaded": "Veri yüklenemedi",
+    "profile_not_completed": "Profil tamamlanırken bir hata oluştu",
     "auth": {
       "user_not_found": "Kullanıcı bulunamadı: Belirtilen e-posta veya kullanıcı adı ile hesap bulunamadı.",
       "wrong_password": "Yanlış şifre: Girilen şifre yanlış.",
@@ -11,6 +22,16 @@
       "user_disabled": "Kullanıcı devre dışı bırakıldı: Bu hesap devre dışı bırakıldı.",
       "email_already_in_use": "Mail adresi kullanımda: Bu mail adresi ile daha önce kayıt yapılmış.",
       "default": "Bir hata oluştu."
+    },
+    "astrology": {
+      "error": "Astroloji sayfası yüklenirken bir hata oluştu",
+      "user_not_found": "Kullanıcı bilgisi bulunamadı",
+      "interpretation_error": "Yorumu oluşturulurken bir hata oluştu",
+      "couldnt_save_interpretation": "Yorum kaydedilemedi",
+      "couldnt_get_coordinates": "Doğum yeri koordinatları bulunamadı",
+      "retro_record_error": "Retrograde durumunu kaydederken bir hata oluştu",
+      "compatibility_error": "Uyumluluk analizi yapılırken bir hata oluştu",
+      "user_not_logged_in": "Kullanıcı girişi yapılmamış"
     }
   },
   "internet": {
@@ -36,7 +57,9 @@
     "rest_ur_spirit": "Ruhunu Dinlendir",
     "luck": "Gizemli Şans Yolu",
     "top_rated_shops": "Öne Çıkan Mekanlar",
-    "guide": "Spiritüel Rehberin"
+    "guide": "Spiritüel Rehberin",
+    "blog": "Blog",
+    "ritual": "Ritüeller"
   },
   "home": { 
     "greeting": "Hoş Geldin",
@@ -91,13 +114,149 @@
     "angel": "Melek Falı",
     "dream": "Rüya Tabiri",
     "no_fortune_history": "Daha önce hiç fal baktırmamışsın...",
-    "no_fortune_history_desc": "Falcı teyzenin yerini aldık, gel bir bak neler varmış kısmetinde!"
+    "no_fortune_history_desc": "Falcı teyzenin yerini aldık, gel bir bak neler varmış kısmetinde!",
+    "fortune_message": "Şansınız her zaman sizinle olsun!",
+    "fortune_cookie": "Şans Kurabiyesi",
+    "tap_to_break_cookie": "Kurabiyeyi kırmak için ekrana dokun ({count} dokunuş kaldı)",
+    "coffee_fortune": "Kahve Falı",
+    "palm_fortune": "El Falı",
+    "face_fortune": "Yüz Falı",
+    "coffee_instruction": "Fincanınızın 4 farklı açıdan fotoğrafını çekin",
+    "palm_instruction": "Avuç içinizin net bir fotoğrafını çekin",
+    "face_instruction": "Yüzünüzün net bir fotoğrafını çekin",
+    "camera_not_found": "Kamera bulunamadı",
+    "camera_not_ready": "Kamera hazır değil",
+    "image_quality_low": "Fotoğraf kalitesi çok düşük",
+    "image_not_taken": "Fotoğraf çekilemedi",
+    "image_not_selected": "Fotoğraf seçilemedi",
+    "camera_not_changed": "Kamera değiştirilemedi",
+    "flash_not_changed": "Flaş değiştirilemedi",
+    "coffee_count": "Fincanınızın {count} farklı açıdan fotoğrafını çekin",
+    "image_count": "{count} Fotoğraf",
+    "select_topic": "Konu Seç",
+    "select_relationship": "İlişki Seç",
+    "please_fill_name_field": "Lütfen isim alanını doldurun",
+    "please_select_birth_date": "Lütfen doğum günü seçin",
+    "please_select_relationship": "Lütfen ilişki durumunu seçin",
+    "fortune_will_be_ready_in": "Falınız ortalama {minutes} dakika içinde hazır olacak",
+    "interested_topics": "Merak ettiğin konular",
+    "topic_1": "1. Konu",
+    "topic_2": "2. Konu",
+    "for_whom": "Kimin İçin?",
+    "for_myself": "Kendim İçin",
+    "for_someone_else": "Başkası İçin",
+    "profile_not_completed": "Profil Tamamlanmamış",
+    "profile_not_completed_desc": "Kendiniz için fal baktırmak için önce profilinizi tamamlamalısınız.",
+    "name": "İsim",
+    "birth_date": "Doğum Günü",
+    "relationship": "İlişki Durumu",
+    "comment": "Yorumla",
+    "start_magic_lamp": "Sihirli lambayı ovalamaya başla!",
+    "magic_lamp": "Sihirli Lamba",
+    "start_magic_orb": "Sihirli küreyi ovalamaya başla!",
+    "magic_orb": "Sihirli Küre",
+    "cookie": "Şans Kurabiyesi",
+    "failed_to_load_fortunes": "Fal yüklenirken bir hata oluştu",
+    "please_select_3_cards": "Lütfen 3 kart seçin",
+    "failed_to_load_tarot_cards": "Kartlar yüklenirken bir hata oluştu",
+    "invalid_fortune_type": "Geçersiz fal tipi",
+    "select_3_cards_for_past_present_future": "Geçmiş, Şimdi ve Gelecek için 3 kart seçin",
+    "past": "Geçmiş",
+    "present": "Şimdi",
+    "future": "Gelecek",
+    "interpret_cards": "Kartları Yorumla",
+    "please_fill_dream_field": "Lütfen rüyanızı anlatın",
+    "dream_interpretation": "Rüya Yorumu",
+    "please_fill_dream_detailed": "Lütfen rüyanızı detaylı bir şekilde anlatın",
+    "here_is_your_interpretation": "İşte yorumun...",
+    "shared_from_spiroot": "SPIROOT uygulamasından paylaşıldı",
+    "share": "Paylaş",
+    "date_not_found": "Tarih bilgisi yok",
+    "not_have_history": "Henüz fal geçmişiniz bulunmuyor",
+    "delete_fortune": "Falı Sil",
+    "delete_fortune_confirmation": "Bu yorumu silmek istediğinizden emin misiniz?",
+    "general_analysis": "Genel Yorum",
+    "no_interpretation": "Fal yorumu bulunamadı.",
+    "share_error": "Paylaşım sırasında bir hata oluştu",
+    "fortune_is_being_interpreted": "Falınız bakılıyor",
+    "remaining_time": "Kalan Süre",
+    "fortune_is_being_prepared": "Falınız hazırlanıyor",
+    "hours": "saat",
+    "minutes": "dakika",
+    "seconds": "saniye",
+    "fortune_finishing_time": "Falınız {time} saatinde hazır olacak",
+    "seen_symbols": "Görülen Semboller",
+    "meaning": "Anlamı",
+    "place": "Konum",
+    "lines": "El Çizgileri",
+    "analysis": "Analiz",
+    "prediction": "Öngörü",
+    "features": "Yüz Özellikleri",
+    "indication": "İşaret",
+    "short_term": "Kısa Vadede (1-3 ay)",
+    "mid_term": "Orta Vadede (3-6 ay)",
+    "long_term": "Uzun Vadede (6+ ay)",
+    "character": "Karakter",
+    "potential": "Potansiyel",
+    "challenges": "Zorluklar",
+    "advice": "Öneriler",
+    "life_path": "Yaşam Yolu",
+    "interpret_dream": "Rüyanı Yorumla"
   },
   "profile": {
+    "continue": "Devam",
+    "complete_profile": "Profili Tamamla",
+    "female": "Kadın",
+    "male": "Erkek",
+    "other": "Diğer",
+    "minute": "Dakika",
+    "hour": "Saat",
+    "horoscope": "Burç",
+    "element": "Element",
+    "quality": "Nitelik",
+    "ruler": "Yönetici Gezegen",
+    "date_range": "Tarih Aralığı",
+    "profile_title": "Profilim",
+    "birth_time": "Doğum Saati",
+    "birth_place": "Doğum Yeri",
+    "user_id": "Kullanıcı ID",
+    "name": "İsim",
+    "birth_date": "Doğum Tarihi",
+    "pages": {
+      "0": {
+        "title": "Seni tanıyalım",  
+        "label": "İsmin nedir?"
+      },
+      "1": {
+        "title": "Doğum tarihin",
+        "label": "Doğum tarihin ne?"
+      },
+      "2": {
+        "title": "Doğum saatin",
+        "label": "Doğum saatin ne?"
+      },
+      "3": {
+        "title": "Doğum yerin",
+        "label": "Doğum yerin ne?"
+      },
+      "4": {
+        "title": "Cinsiyetin",
+        "label": "Cinsiyetin ne?"
+      },
+      "5": {
+        "title": "İlişki durumun",
+        "label": "İlişki durumun ne?"
+      },
+      "6": {
+        "title": "İlgi alanların",
+        "label": "İlgi alanların ne?"
+      }
+    },
     "profile_loading": {
       "0": "Kozmik enerjiler birleşiyor, bilgileriniz değerlendiriliyor...",
       "1": "Yıldızlar hizalanıyor, kaderiniz analiz ediliyor...",
-      "2": "Evrensel güçler bir araya geliyor, profiliniz oluşturuluyor..."
+      "2": "Evrensel güçler bir araya geliyor, profiliniz oluşturuluyor...",
+      "error": "Profil yüklenirken bir hata oluştu"
     },
     "explanations": {
       "birth_time": "Doğum saatiniz, yükselen burcunuzu ve ay burcunuzu belirleyerek astrolojik haritanızı tamamlar.",
@@ -131,6 +290,7 @@
     }
   },
   "settings": {
+    "share": "Paylaş",
     "account": {
       "title": "Hesap",
       "guest_user": "Misafir Kullanıcı",
@@ -148,8 +308,9 @@
       "title": "Uygulama",
       "notifications": "Bildirim Ayarları",
       "language": {
-        "title": "Dil",
-        "current": "Türkçe"
+        "title": "Dil Seçin",
+        "current": "Türkçe",
+        "change_error": "Dil değiştirilirken bir hata oluştu"
       }
     },
     "support": {
@@ -162,6 +323,10 @@
     }
   },
   "astrology": {
+    "personalized_horoscope": "Kişiselleştirilmiş astrolojik içgörülerle\nhayatını aydınlat",
+    "last_day": "Son gün",
+    "days_left": "gün kaldı",
+    "hours_left": "saat kaldı",
     "see_details": "tüm detayları gör",
     "horoscope": {
       "dates": {
@@ -185,7 +350,23 @@
         "week": "Her hafta yeni başlangıçlar getiriyor",
         "month": "Bu ay tüm hedeflerime ulaşıyorum",
         "default": "Evrenle uyum içindeyim"
-      }
+      },
+      "sun_horoscope": "Güneş Burcu",
+      "moon_horoscope": "Ay Burcu",
+      "ascendant_horoscope": "Yükselen Burcu",
+      "element": "Element",
+      "quality": "Nitelik",
+      "ruler": "Yönetici",
+      "characteristics": "Karakteristik",
+      "share_info": "SPIROOT uygulamasından paylaşıldı.",
+      "share_subject": "Astroloji Yorumum",
+      "lucky_days": "Şanslı Günler",
+      "lucky_numbers": "Şanslı Sayılar",
+      "lucky_colors": "Şanslı Renkler",
+      "lucky_details": "Şanslı Detaylar",
+      "love_and_relationships": "💝 Aşk & İlişkiler",
+      "career": "💼 Kariyer",
+      "financial": "💰 Finansal"
     },
     "zodiac": {
       "aries": {
@@ -312,8 +493,34 @@
     "start_journey": "Yolculuğa Başla",
     "feature_cards": {
       "birth_chart": {
+        "icon": "🌌",
         "title": "Burç Kartı",
         "subtitle": "Kişisel burç kartını gör"
+      },
+      "horoscope": {
+        "icon": "🌘",
+        "title": "Burç Yorumları",
+        "subtitle": "Kişisel burç yorumlarını gör"
+      },
+      "natal_chart": {
+        "icon": "🌠",
+        "title": "Doğum Haritası",
+        "subtitle": "Kişisel astrolojik haritanı gör"
+      },
+      "predictions": {
+        "icon": "🎯",
+        "title": "Öngörü ve Tavsiyeler",
+        "subtitle": "Günlük öngörüler ve tavsiyeler al"
+      },
+      "compatibility": {
+        "icon": "💫",
+        "title": "Uyumluluk",
+        "subtitle": "İlişki ve uyum analizleri yaptır"
+      },
+      "biorhythm": {
+        "icon": "📈",
+        "title": "Biyoritim Analizi",
+        "subtitle": "Kişisel biyoritim analizini ve tablonu gör"
       }
     },
     "loading": "✨ Yıldızlar sizin için konuşuyor...",
@@ -327,7 +534,60 @@
       "subtitle": "Gezegensel hareketlerin hayatına etkileri",
       "important_aspects": "Önemli Açılar",
       "advice": "Tavsiyeler"
-    }
+    },
+    "hello_zodiac": "✨ Merhaba değerli {zodiac} burcu,\nyıldızlar senin için özel mesajlar hazırladı!",
+    "see_cosmic_message": "Kozmik Mesajı Gör",
+    "biorythym": "Biyoritim Tablosu",
+    "daily_biorhythm_analysis": "Günlük Biyoritim Analizi",
+    "biorhythm_not_created": "Biyoritim yorumu henüz oluşturulmadı.",
+    "biorhythm_not_found": "Biyoritim yorumu bulunamadı.",
+    "physical": "Fiziksel",
+    "emotional": "Duygusal",
+    "intellectual": "Entelektüel",
+    "intuitive": "Sezgisel",
+    "physical_cycle": "23 günlük döngü - Enerji, güç ve dayanıklılık",
+    "emotional_cycle": "28 günlük döngü - Duygu durumu ve hassasiyet",
+    "intellectual_cycle": "33 günlük döngü - Zihinsel performans ve yaratıcılık",
+    "natal_chart": "Natal Grafik",
+    "natal_chart_preparing": "Natal grafik oluşturuluyor...",
+    "natal_chart_not_calculated": "Natal grafik hesaplanamadı",
+    "weekly_transit_table": "Haftalık Transit Tablosu",
+    "planet": "Gezegen",
+    "position": "Konum",
+    "aspects": "Açılar",
+    "natal_aspects": "Natal açılar",
+    "compatibility_test": "Uyum Testi",
+    "love_compatibility": "Aşk Uyumu",
+    "friendship_compatibility": "Arkadaşlık Uyumu",
+    "love": "Aşk",
+    "sex": "Tutku",
+    "friendship": "Arkadaşlık",
+    "family": "Aile",
+    "trust": "Güven",
+    "communication": "İletişim",
+    "business": "İş",
+    "career": "Kariyer",
+    "education": "Eğitim",
+    "travel": "Seyahat",
+    "numerology": "Numeroloji",
+    "weekly_numerology": "Haftalık Numeroloji Analizi",
+    "natal_chart_error": "Natal Chart Yüklenirken Hata Oluştu\nYeniden Deneniyor...",
+    "retro_no_planet": "Şu anda retroda gezegen bulunmuyor!",
+    "retro_all_planets_moving": "Tüm gezegenler direkt hareketlerine devam ediyor.",
+    "shadow_period": "Gölge Periyodu",
+    "impact": "Etkileri",
+    "advice": "Tavsiyeler",
+    "weekly_natal_reading": "Haftalık Natal Analizi",
+    "weekly_natal_reading_description": "Gezegensel hareketlerin hayatına etkileri",
+    "important_aspects": "Önemli Açılar",
+    "weekly_numerology_reading": "Haftalık Numeroloji Yorumunuz",
+    "numerology_not_created": "Numeroloji yorumu henüz oluşturulmadı.",
+    "numerology_not_found": "Numeroloji yorumu bulunamadı.",
+    "cosmic_connection": "Kozmik Bağlantı",
+    "general_evaluation": "Genel Değerlendirme",
+    "common_values": "Ortak Değerler",
+    "check_love_compatibility": "Aşk Uyumunu Kontrol Et",
+    "check_friendship_compatibility": "Arkadaşlık Uyumunu Kontrol Et"
   },
   "shop": {
     "review": {
@@ -339,13 +599,35 @@
   "common": {
     "today": "Bugün",
     "yesterday": "Dün",
-    "days_ago": "{} gün önce"
+    "days_ago": "{} gün önce",
+    "cancel": "İptal",
+    "ok": "Tamam",
+    "delete": "Sil",
+    "try_again": "Tekrar Dene",
+    "success": "Başarılı",
+    "error": "Hata",
+    "clear": "Temizle"
   },
   "spiritual_chat": {
     "welcome_message": "Ruhunuza huzur, kalbinize ışık diliyorum. Bugün size nasıl rehberlik edebilirim?",
     "empty_state": {
       "title": "Spiritüel rehberinizle sohbete başlayın",
       "subtitle": "Size özel tavsiyeler ve rehberlik için\nsorularınızı sorabilirsiniz"
+    },
+    "error_occurred": "Uygulama başlatılırken bir hata oluştu",
+    "error_chat_has_not_started": "Uygulama henüz başlatılmadı. Lütfen bekleyin.",
+    "error_occurred_chat": "Kullanıcı bilgileri yüklenemedi. Lütfen uygulamayı yeniden başlatın.",
+    "error_occurred_messages": "Mesajlar yüklenirken bir hata oluştu",
+    "error_chat_no_session": "Kullanıcı oturumu bulunamadı",
+    "error_occurred_send_message": "Mesaj gönderilirken bir hata oluştu",
+    "error_occurred_save_message": "Mesaj kaydedilirken bir hata oluştu",
+    "success_clear_chat": "Sohbet geçmişi temizlendi",
+    "error_occurred_clear_chat": "Sohbet geçmişi temizlenirken bir hata oluştu",
+    "thinking_message": "Spiritüel rehberiniz düşünüyor...",
+    "ask_message": "Spiritüel rehberinize bir soru sorun...",
+    "clear_chat": "Sohbeti Temizle",
+    "clear_chat_dialog": {
+      "content": "Tüm sohbet geçmişi silinecek. Emin misiniz?"
     }
   },
   "ritual": "tr_rituals.json",
@@ -375,7 +657,117 @@
       "create": "Oluştur",
       "participants": "katılımcı",
       "join": "Katıl",
-      "leave": "Vazgeç"
+      "leave": "Vazgeç",
+      "selected_date": "Seçilen Tarih",
+      "selected_time": "Seçilen Saat"
+    },
+    "my_posts": "Gönderilerim",
+    "my_events": "Etkinliklerim",
+    "my_content": "İçeriklerim",
+    "no_shared_posts": "Henüz gönderi paylaşmadınız",
+    "no_shared_events": "Henüz etkinlik oluşturmadınız",
+    "delete_post": "Gönderiyi Sil",
+    "delete_post_confirmation": "Bu gönderiyi silmek istediğinize emin misiniz?",
+    "error_occurred_events": "Etkinlikleriniz yüklenirken bir hata oluştu",
+    "delete_event": "Etkinliği Sil",
+    "delete_event_confirmation": "Bu etkinliği silmek istediğinize emin misiniz?",
+    "report": "Şikayet Et",
+    "unreport": "Şikayeti Geri Al",
+    "show_more": "Devamını göster",
+    "show_less": "Daha az göster",
+    "participants": "katılımcı",
+    "join": "Katıl",
+    "leave": "Vazgeç",
+    "already_reported": "Bu yorumu zaten şikayet ettiniz",
+    "comment_placeholder": "Yorum yaz..."
+  },
+  "blog": {
+    "title": "Blog Yazısı",
+    "search": "Blog yazısı ara...",
+    "now": "Şimdi",
+    "minutes_ago": "dakika önce",
+    "hours_ago": "saat önce",
+    "days_ago": "gün önce",
+    "no_posts": "Henüz blog yazısı yok",
+    "no_results": "Arama sonucu bulunamadı",
+    "post_created": "Blog yazınız başarıyla oluşturuldu",
+    "new_post": "Yeni Blog Yazısı",
+    "create_title": "Başlık",
+    "title_required": "Başlık zorunludur",
+    "image_url": "Görsel URL",
+    "image_url_required": "Görsel URL zorunludur",
+    "invalid_url": "Geçerli bir URL giriniz",
+    "invalid_image_format": "Desteklenen görsel formatları: JPG, JPEG, PNG, GIF, WEBP",
+    "content": "İçerik",
+    "content_required": "İçerik zorunludur",
+    "content_min_length": "İçerik en az 500 karakter olmalıdır",
+    "publish": "Yayınla",
+    "post_updated": "Blog yazınız başarıyla güncellendi",
+    "edit_post": "Blog Yazısını Düzenle",
+    "update": "Güncelle",
+    "delete_post": "Blog Yazısını Sil",
+    "delete_post_confirmation": "Bu blog yazısını silmek istediğinizden emin misiniz?",
+    "post_deleted": "Blog yazısı başarıyla silindi",
+    "post_deletion_error": "Blog yazısı silinirken bir hata oluştu",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "my_posts": "Blog Yazılarım",
+    "error_occurred": "Bir hata oluştu",
+    "user_not_logged_in": "Kullanıcı oturum açmamış.",
+    "profile_incomplete": "Profil tamamlanmamış.",
+    "subscription_required": "Abonelik gereklidir.",
+    "content_not_appropriate": "İçerik uygunsuz bulundu ve reddedildi.",
+    "anonymous": "Anonim"
+  },
+  "chat": {
+    "compatibility": "Uyum",
+    "match_made_by_zodiac": "Bu sohbet burç uyumunuza göre eşleştirilmiştir",
+    "write_your_message": "Mesajınızı yazın..."
+  },
+  "enlightenment": {
+    "failed_to_load_rituals": "Ritüaller yüklenirken bir hata oluştu",
+    "ritual": {
+      "materials": "Gerekli Malzemeler",
+      "steps": "Ritüel Adımları",
+      "search": "Ritüel veya malzeme ara...",
+      "title": "Ritüeller"
     }
+  },
+  "explore": {
+    "error_occurred": "Eşleşme başlatılırken bir hata oluştu",
+    "canceled": "İptal Edildi",
+    "search_canceled": "Eşleşme araması iptal edildi",
+    "title": "Keşfet",
+    "continue_chat": "Sohbete Devam Et",
+    "search": "Eşleşme Ara",
+    "searching": "Kozmik eşin aranıyor...",
+    "searching_description": "Burç uyumuna göre en uygun kişi bulunuyor",
+    "ready_for_new_matches": "Yeni eşleşmeler için hazır",
+    "cosmic_match": "Kozmik Eşleşme",
+    "cosmic_match_description": "Burç uyumuna göre sana en uygun kişiyle eşleş ve sohbet et",
+    "chat_is_temporary": "Not: Sohbetler geçicidir ve kaydedilmez"
+  },
+  "rest": {
+    "affirmation": "Olumlama Egzersizi",
+    "meditation": "Meditasyon Egzersizi",
+    "affirmation_default": "Her şey yolunda gidecek!",
+    "congratulations": "Tebrikler! Bugünkü olumlamalarınızı tamamladınız! 🎉",
+    "tap_count": "Bu olumlama için {x} tekrar kaldı",
+    "stress": "Stress",
+    "gratitude": "Gratitude",
+    "anxiety": "Anxiety",
+    "sadness": "Sadness",
+    "happiness": "Happiness",
+    "anger": "Anger",
+    "min": "min",
+    "meditation_step_1": "Omuzlarınızı gevşetin ve rahatlayın...",
+    "meditation_step_2": "Zihninizi boşaltın ve anın tadını çıkarın...",
+    "meditation_step_3": "Gözlerinizi kapatın ve derin bir nefes alın...",
+    "meditation_feeling": "Nasıl hissediyorsun? ( Bu bilgi, daha etkili bir meditasyon egzersizi seçmek için gerekli. )",
+    "meditation_duration": "Ne kadar zaman ayırabilirsin? ( Bu bilgi, ne kadar uzunlukta bir meditasyon egzersizi yapacağınızı belirlemek için gerekli. )",
+    "start_meditation": "Meditasyonu Başlat",
+    "end_meditation": "Meditasyonu Bitir",
+    "breath_in": "Nefes Al",
+    "breath_out": "Nefes Ver"
   }
 }

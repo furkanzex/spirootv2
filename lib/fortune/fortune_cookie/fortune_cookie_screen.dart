@@ -32,8 +32,7 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
       final messages = await FortuneService.loadFortunes(context);
       return messages[Random().nextInt(messages.length)];
     } catch (e) {
-      debugPrint('Fortune message error: $e');
-      return 'Şansınız her zaman sizinle olsun!';
+      return easy.tr('fortune.fortune_message');
     }
   }
 
@@ -135,7 +134,7 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
           icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(easy.tr("Şans Kurabiyesi"),
+        title: Text(easy.tr("fortune.fortune_cookie"),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
       ),
       body: GestureDetector(
@@ -246,7 +245,8 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
                 left: MySize.defaultPadding,
                 right: MySize.defaultPadding,
                 child: Text(
-                  'Kurabiyeyi kırmak için ekrana dokun (${10 - _tapCount} dokunuş kaldı)',
+                  easy.tr('fortune.tap_to_break_cookie',
+                      namedArgs: {'count': (10 - _tapCount).toString()}),
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   textAlign: TextAlign.center,
                 ),

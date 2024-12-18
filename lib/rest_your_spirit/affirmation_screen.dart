@@ -91,9 +91,9 @@ class _AffirmationScreenState extends State<AffirmationScreen>
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading affirmations: $e');
       setState(() {
-        _selectedAffirmations = List.filled(5, 'Her şey yolunda gidecek!');
+        _selectedAffirmations =
+            List.filled(5, easy.tr("rest.affirmation_default"));
         _isLoading = false;
       });
     }
@@ -145,7 +145,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
           icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(easy.tr("Olumlama Egzersizi"),
+        title: Text(easy.tr("rest.affirmation"),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
       ),
       body: Stack(
@@ -240,7 +240,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
           icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(easy.tr("Olumlama Egzersizi"),
+        title: Text(easy.tr("rest.affirmation"),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
       ),
       body: Stack(
@@ -307,7 +307,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
                               ),
                               child: Text(
                                 _isCompleted
-                                    ? "Tebrikler! Bugünkü olumlamalarınızı tamamladınız! 🎉"
+                                    ? easy.tr("rest.congratulations")
                                     : _selectedAffirmations[
                                         _currentAffirmationIndex],
                                 style: MyStyle.s1.copyWith(
@@ -332,7 +332,8 @@ class _AffirmationScreenState extends State<AffirmationScreen>
                     left: MySize.defaultPadding,
                     right: MySize.defaultPadding,
                     child: Text(
-                      'Bu olumlama için ${7 - _tapCount} tekrar kaldı',
+                      easy.tr("rest.tap_count",
+                          namedArgs: {"x": (7 - _tapCount).toString()}),
                       style: MyStyle.s2.copyWith(color: MyColor.white),
                       textAlign: TextAlign.center,
                     ),

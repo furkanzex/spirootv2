@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:spirootv2/blog/services/blog_service.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
@@ -7,9 +9,10 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:spirootv2/paywall/paywall_screen.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class CreateBlogPostScreen extends StatefulWidget {
-  const CreateBlogPostScreen({Key? key}) : super(key: key);
+  const CreateBlogPostScreen({super.key});
 
   @override
   State<CreateBlogPostScreen> createState() => _CreateBlogPostScreenState();
@@ -46,7 +49,7 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(tr('Blog yazınız başarıyla oluşturuldu')),
+            content: Text(easy.tr('blog.post_created')),
             backgroundColor: Colors.green,
           ),
         );
@@ -88,7 +91,7 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
         backgroundColor: MyColor.transparent,
         elevation: 0,
         title: Text(
-          tr("Yeni Blog Yazısı"),
+          easy.tr("blog.new_post"),
           style: MyStyle.b4.copyWith(color: MyColor.white),
         ),
         automaticallyImplyLeading: false,
@@ -109,7 +112,7 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
                 controller: _titleController,
                 style: TextStyle(color: MyColor.white),
                 decoration: InputDecoration(
-                  labelText: tr("Başlık"),
+                  labelText: easy.tr("blog.create_title"),
                   labelStyle: TextStyle(color: MyColor.white),
                   border: OutlineInputBorder(),
                   enabledBorder: OutlineInputBorder(
@@ -122,7 +125,7 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return tr("Başlık zorunludur");
+                    return easy.tr("blog.title_required");
                   }
                   return null;
                 },
@@ -164,8 +167,7 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
                       .any((ext) => value.toLowerCase().endsWith(ext));
 
                   if (!hasValidExtension) {
-                    return tr(
-                        "Desteklenen görsel formatları: JPG, JPEG, PNG, GIF, WEBP");
+                    return easy.tr("blog.invalid_image_format");
                   }
 
                   return null;
@@ -177,7 +179,7 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
                 style: TextStyle(color: MyColor.white),
                 maxLines: 10,
                 decoration: InputDecoration(
-                  labelText: tr("İçerik"),
+                  labelText: easy.tr("blog.content"),
                   labelStyle: TextStyle(color: MyColor.white),
                   border: OutlineInputBorder(),
                   enabledBorder: OutlineInputBorder(
@@ -190,10 +192,10 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return tr("İçerik zorunludur");
+                    return easy.tr("blog.content_required");
                   }
                   if (value.length < 500) {
-                    return tr("İçerik en az 500 karakter olmalıdır");
+                    return easy.tr("blog.content_min_length");
                   }
                   return null;
                 },
@@ -212,7 +214,7 @@ class _CreateBlogPostScreenState extends State<CreateBlogPostScreen> {
                 child: _isLoading
                     ? CircularProgressIndicator(color: MyColor.white)
                     : Text(
-                        tr("Yayınla"),
+                        easy.tr("blog.publish"),
                         style: MyStyle.b4.copyWith(color: MyColor.white),
                       ),
               ),

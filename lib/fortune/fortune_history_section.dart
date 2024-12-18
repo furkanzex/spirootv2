@@ -29,7 +29,7 @@ String getInterpretationText(Map<String, dynamic> data) {
 
 Widget fortuneHistorySection(BuildContext context) {
   String formatDate(DateTime? date) {
-    if (date == null) return 'Tarih bilgisi yok'.tr();
+    if (date == null) return easy.tr('fortune.date_not_found');
     return DateFormat('dd MMMM yyyy, HH:mm').format(date);
   }
 
@@ -48,7 +48,7 @@ Widget fortuneHistorySection(BuildContext context) {
       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
         return Center(
           child: Text(
-            'Henüz fal geçmişiniz bulunmuyor'.tr(),
+            easy.tr('fortune.not_have_history'),
             style: const TextStyle(color: MyColor.white),
           ),
         );
@@ -163,14 +163,16 @@ Widget fortuneHistorySection(BuildContext context) {
                                                     backgroundColor: MyColor
                                                         .darkBackgroundColor,
                                                     title: Text(
-                                                      'Yorumu Sil',
+                                                      easy.tr(
+                                                          'fortune.delete_fortune'),
                                                       style: MyStyle.s1
                                                           .copyWith(
                                                               color: MyColor
                                                                   .white),
                                                     ),
                                                     content: Text(
-                                                      'Bu yorumu silmek istediğinizden emin misiniz?',
+                                                      easy.tr(
+                                                          'fortune.delete_fortune_confirmation'),
                                                       style: MyStyle.s2
                                                           .copyWith(
                                                               color: MyColor
@@ -182,7 +184,8 @@ Widget fortuneHistorySection(BuildContext context) {
                                                             Navigator.pop(
                                                                 context, false),
                                                         child: Text(
-                                                          'İptal',
+                                                          easy.tr(
+                                                              'common.cancel'),
                                                           style: MyStyle.s2
                                                               .copyWith(
                                                                   color: MyColor
@@ -194,7 +197,8 @@ Widget fortuneHistorySection(BuildContext context) {
                                                             Navigator.pop(
                                                                 context, true),
                                                         child: Text(
-                                                          'Sil',
+                                                          easy.tr(
+                                                              'common.delete'),
                                                           style: MyStyle.s2
                                                               .copyWith(
                                                                   color: Colors
@@ -349,150 +353,105 @@ void _shareFortune(BuildContext context, FortuneHistoryItem item) async {
     switch (item.type) {
       case 'coffee':
         shareText = '''
-    🔮 Kahve Falı
+${easy.tr('fortune.shared_from_spiroot')}
+
+    🔮 ${easy.tr("fortune.${item.type}")}
     📅 ${item.date}
 
     ${content['general']}
-
-    ⏰ Kehanet:
-    📅 Kısa Vade (1-3 ay): ${content['timing']['short_term']}
-    📅 Orta Vade (3-6 ay): ${content['timing']['mid_term']}
-    📅 Uzun Vade (6+ ay): ${content['timing']['long_term']}
-
-    🎯 Görülen Semboller:
-    ${(content['symbols'] as List).map((symbol) => '''
-    • ${symbol['name']}
-      ${symbol['meaning']}
-      ${symbol['quote']}
-    ''').join('\n')}
-
-    Spiroot ile falına baktır! 🔮✨
+    
     ''';
         break;
 
       case 'tarot':
         shareText = '''
-    🎴 Tarot Falı
+${easy.tr('fortune.shared_from_spiroot')}
+
+    🎴 ${easy.tr("fortune.${item.type}")}
     📅 ${item.date}
 
-    ⏳ Geçmiş:
+    ⏳ ${easy.tr("fortune.past")}:
     ${content['past']}
 
-    📍 Şimdi:
+    📍 ${easy.tr("fortune.present")}:
     ${content['present']}
 
-    🔮 Gelecek:
+    🔮 ${easy.tr("fortune.future")}:
     ${content['future']}
-
-    Spiroot ile falına baktır! 🔮✨
     ''';
         break;
 
       case 'katina':
         shareText = '''
-    💝 Katina Aşk Falı
+${easy.tr('fortune.shared_from_spiroot')}
+
+    💝 ${easy.tr("fortune.${item.type}")}
     📅 ${item.date}
 
-    ⏳ Geçmiş:
+    ⏳ ${easy.tr("fortune.past")}:
     ${content['past']}
 
-    📍 Şimdi:
+    📍 ${easy.tr("fortune.present")}:
     ${content['present']}
 
-    🔮 Gelecek:
+    🔮 ${easy.tr("fortune.future")}:
     ${content['future']}
 
-    Spiroot ile falına baktır! 🔮✨
     ''';
         break;
 
       case 'angel':
         shareText = '''
-    👼 Melek Kartı
+${easy.tr('fortune.shared_from_spiroot')}
+    👼 ${easy.tr("fortune.${item.type}")}
     📅 ${item.date}
 
-    ⏳ Geçmiş:
+    ⏳ ${easy.tr("fortune.past")}:
     ${content['past']}
 
-    📍 Şimdi:
+    📍 ${easy.tr("fortune.present")}:
     ${content['present']}
 
-    🔮 Gelecek:
+    🔮 ${easy.tr("fortune.future")}:
     ${content['future']}
 
-    Spiroot ile falına baktır! 🔮✨
     ''';
         break;
 
       case 'palm':
         shareText = '''
-    🖐️ El Falı
+${easy.tr('fortune.shared_from_spiroot')}
+    🖐️ ${easy.tr("fortune.${item.type}")}
     📅 ${item.date}
 
-    📝 Genel Analiz:
+    📝 ${easy.tr("fortune.general_analysis")}:
     ${content['general']}
 
-    📍 El Çizgileri:
-    ${(content['lines'] as List).map((line) => '''
-    • ${line['name']}
-      ${line['analysis']}
-      Öngörü: ${line['prediction']}
-    ''').join('\n')}
-
-    ✨ Özel İşaretler:
-    ${(content['special_markings'] as List).map((marking) => '''
-    • ${marking['name']}
-      ${marking['meaning']}
-      Konum: ${marking['location']}
-    ''').join('\n')}
-
-    ⏰ Öngörüler:
-    📅 Kısa Vade (1-3 ay): ${content['timing']['short_term']}
-    📅 Orta Vade (3-6 ay): ${content['timing']['mid_term']}
-    📅 Uzun Vade (6+ ay): ${content['timing']['long_term']}
-
-    Spiroot ile falına baktır! 🔮✨
+    
     ''';
         break;
 
       case 'face':
         shareText = '''
-    👤 Yüz Falı
+${easy.tr('fortune.shared_from_spiroot')}
+    👤 ${easy.tr("fortune.${item.type}")}
     📅 ${item.date}
 
-    📝 Genel Analiz:
+    📝 ${easy.tr("fortune.general_analysis")}:
     ${content['general']}
 
-    📍 Yüz Özellikleri:
-    ${(content['features'] as List).map((feature) => '''
-    • ${feature['name']}
-      ${feature['analysis']}
-      İşaret ettiği özellikler: ${feature['indication']}
-    ''').join('\n')}
-
-    🌟 Yaşam Yolu:
-    • Karakter: ${content['life_path']['character']}
-    • Potansiyel: ${content['life_path']['potential']}
-    • Zorluklar: ${content['life_path']['challenges']}
-    • Öneriler: ${content['life_path']['advice']}
-
-    ⏰ Öngörüler:
-    📅 Kısa Vade (1-3 ay): ${content['predictions']['short_term']}
-    📅 Orta Vade (3-6 ay): ${content['predictions']['mid_term']}
-    📅 Uzun Vade (6+ ay): ${content['predictions']['long_term']}
-
-    Spiroot ile falına baktır! 🔮✨
+    
     ''';
         break;
 
       default:
         shareText = '''
+${easy.tr('fortune.shared_from_spiroot')}
     🔮 ${easy.tr("fortune.${item.type}")}
     📅 ${item.date}
 
-    ${content['general'] ?? content['interpretation'] ?? 'Fal yorumu bulunamadı.'}
+    ${content['general'] ?? content['interpretation'] ?? easy.tr('fortune.no_interpretation')}
 
-    Spiroot ile falına baktır! 🔮✨
     ''';
     }
 
@@ -501,10 +460,11 @@ void _shareFortune(BuildContext context, FortuneHistoryItem item) async {
       subject: '${easy.tr("fortune.${item.type}")} - Spiroot',
     );
   } catch (e) {
-    print('Paylaşım hatası: $e');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Paylaşım sırasında bir hata oluştu: ${e.toString()}'),
+        content: Text(
+          easy.tr('fortune.share_error'),
+        ),
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -549,7 +509,7 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
             ),
             horizontalGap(4),
             Text(
-              'Falınız Bakılıyor',
+              easy.tr('fortune.fortune_is_being_interpreted'),
               style: MyStyle.s3.copyWith(
                 color: MyColor.primaryPurpleColor,
                 fontWeight: FontWeight.bold,
@@ -559,7 +519,7 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
         ),
         verticalGap(4),
         Text(
-          'Kalan Süre: ${_formatDuration(revealAt.difference(DateTime.now()))}',
+          '${easy.tr("fortune.remaining_time")}: ${_formatDuration(revealAt.difference(DateTime.now()))}',
           style: MyStyle.s3.copyWith(
             color: MyColor.textGreyColor,
           ),
@@ -636,11 +596,11 @@ Widget _buildInterpretationText(Map<String, dynamic> data) {
 
 String _formatDuration(Duration duration) {
   if (duration.inHours > 0) {
-    return '${duration.inHours} saat ${duration.inMinutes.remainder(60)} dakika';
+    return '${duration.inHours} ${easy.tr("fortune.hours")} ${duration.inMinutes.remainder(60)} ${easy.tr("fortune.minutes")}';
   } else if (duration.inMinutes > 0) {
-    return '${duration.inMinutes} dakika';
+    return '${duration.inMinutes} ${easy.tr("fortune.minutes")}';
   } else {
-    return '${duration.inSeconds} saniye';
+    return '${duration.inSeconds} ${easy.tr("fortune.seconds")}';
   }
 }
 
@@ -664,7 +624,7 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
               ),
               verticalGap(MySize.defaultPadding),
               Text(
-                'Falınız Hazırlanıyor',
+                easy.tr('fortune.fortune_is_being_prepared'),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.primaryPurpleColor,
                   fontWeight: FontWeight.bold,
@@ -672,7 +632,7 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
               ),
               verticalGap(MySize.halfPadding),
               Text(
-                'Kalan Süre: ${_formatDuration(item.revealAt!.difference(DateTime.now()))}',
+                '${easy.tr("fortune.remaining_time")}: ${_formatDuration(item.revealAt!.difference(DateTime.now()))}',
                 style: MyStyle.s2.copyWith(
                   color: MyColor.white,
                 ),
@@ -680,7 +640,8 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
               ),
               verticalGap(MySize.defaultPadding),
               Text(
-                'Falınız ${DateFormat('HH:mm').format(item.revealAt!)} saatinde hazır olacak',
+                easy.tr('fortune.fortune_finishing_time',
+                    args: [DateFormat('HH:mm').format(item.revealAt!)]),
                 style: MyStyle.s3.copyWith(
                   color: MyColor.textGreyColor,
                 ),
@@ -702,7 +663,7 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
       children: [
         // Genel Yorum
         _buildFortuneSection(
-          '🔮 Genel Yorum',
+          '🔮 ${easy.tr("fortune.general_analysis")}',
           content['general'] ?? '',
         ),
         verticalGap(MySize.doublePadding),
@@ -711,7 +672,7 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
           // Kahve Falı - Semboller Bölümü
           if ((content['symbols'] as List?)?.isNotEmpty ?? false) ...[
             Text(
-              '🎯 Görülen Semboller',
+              '🎯 ${easy.tr("fortune.seen_symbols")}',
               style: MyStyle.s1.copyWith(
                 color: MyColor.primaryPurpleColor,
                 fontWeight: FontWeight.bold,
@@ -743,12 +704,12 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
                       ),
                       verticalGap(8),
                       Text(
-                        'Anlamı: ${symbol['meaning'] ?? ''}',
+                        '${easy.tr("fortune.meaning")}: ${symbol['meaning'] ?? ''}',
                         style: MyStyle.s3.copyWith(color: MyColor.white),
                       ),
                       verticalGap(4),
                       Text(
-                        'Konum: ${symbol['location'] ?? ''}',
+                        '${easy.tr("fortune.place")}: ${symbol['location'] ?? ''}',
                         style: MyStyle.s3.copyWith(color: MyColor.white),
                       ),
                       if (symbol['quote'] != null) ...[
@@ -771,7 +732,7 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
           // El Falı - Çizgiler Bölümü
           if ((content['lines'] as List?)?.isNotEmpty ?? false) ...[
             Text(
-              '✋ El Çizgileri',
+              '✋ ${easy.tr("fortune.lines")}',
               style: MyStyle.s1.copyWith(
                 color: MyColor.primaryPurpleColor,
                 fontWeight: FontWeight.bold,
@@ -803,12 +764,12 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
                       ),
                       verticalGap(8),
                       Text(
-                        'Analiz: ${line['analysis'] ?? ''}',
+                        '${easy.tr("fortune.analysis")}: ${line['analysis'] ?? ''}',
                         style: MyStyle.s3.copyWith(color: MyColor.white),
                       ),
                       verticalGap(8),
                       Text(
-                        'Öngörü: ${line['prediction'] ?? ''}',
+                        '${easy.tr("fortune.prediction")}: ${line['prediction'] ?? ''}',
                         style:
                             MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                       ),
@@ -822,7 +783,7 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
           // Yüz Falı - Özellikler Bölümü
           if ((content['features'] as List?)?.isNotEmpty ?? false) ...[
             Text(
-              '👤 Yüz Özellikleri',
+              '👤 ${easy.tr("fortune.features")}',
               style: MyStyle.s1.copyWith(
                 color: MyColor.primaryPurpleColor,
                 fontWeight: FontWeight.bold,
@@ -854,12 +815,12 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
                       ),
                       verticalGap(8),
                       Text(
-                        'Analiz: ${feature['analysis'] ?? ''}',
+                        '${easy.tr("fortune.analysis")}: ${feature['analysis'] ?? ''}',
                         style: MyStyle.s3.copyWith(color: MyColor.white),
                       ),
                       verticalGap(8),
                       Text(
-                        'İşaret: ${feature['indication'] ?? ''}',
+                        '${easy.tr("fortune.indication")}: ${feature['indication'] ?? ''}',
                         style:
                             MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                       ),
@@ -886,19 +847,19 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildTimingSection(
-                'Kısa Vadede (1-3 ay):',
+                '${easy.tr("fortune.short_term")} (1-3 ay):',
                 content['timing']?['short_term'] ??
                     content['predictions']?['short_term'] ??
                     ''),
             verticalGap(12),
             _buildTimingSection(
-                'Orta Vadede (3-6 ay):',
+                '${easy.tr("fortune.mid_term")} (3-6 ay):',
                 content['timing']?['mid_term'] ??
                     content['predictions']?['mid_term'] ??
                     ''),
             verticalGap(12),
             _buildTimingSection(
-                'Uzun Vadede (6+ ay):',
+                '${easy.tr("fortune.long_term")} (6+ ay):',
                 content['timing']?['long_term'] ??
                     content['predictions']?['long_term'] ??
                     ''),
@@ -909,24 +870,24 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
         if (item.type == 'face' && content['life_path'] != null) ...[
           verticalGap(MySize.doublePadding),
           Text(
-            '🛣️ Yaşam Yolu',
+            '🛣️ ${easy.tr("fortune.life_path")}',
             style: MyStyle.s1.copyWith(
               color: MyColor.primaryPurpleColor,
               fontWeight: FontWeight.bold,
             ),
           ),
           verticalGap(MySize.defaultPadding),
-          _buildFortuneSection(
-              'Karakter:', content['life_path']['character'] ?? ''),
+          _buildFortuneSection('${easy.tr("fortune.character")}:',
+              content['life_path']['character'] ?? ''),
           verticalGap(8),
-          _buildFortuneSection(
-              'Potansiyel:', content['life_path']['potential'] ?? ''),
+          _buildFortuneSection('${easy.tr("fortune.potential")}:',
+              content['life_path']['potential'] ?? ''),
           verticalGap(8),
-          _buildFortuneSection(
-              'Zorluklar:', content['life_path']['challenges'] ?? ''),
+          _buildFortuneSection('${easy.tr("fortune.challenges")}:',
+              content['life_path']['challenges'] ?? ''),
           verticalGap(8),
-          _buildFortuneSection(
-              'Öneriler:', content['life_path']['advice'] ?? ''),
+          _buildFortuneSection('${easy.tr("fortune.advice")}:',
+              content['life_path']['advice'] ?? ''),
         ],
       ],
     ),

@@ -9,7 +9,7 @@ import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class DreamInterpretationScreen extends StatefulWidget {
   const DreamInterpretationScreen({super.key});
@@ -28,7 +28,7 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
   Future<void> _interpretDream() async {
     if (_dreamController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lütfen rüyanızı anlatın'.tr())),
+        SnackBar(content: Text(easy.tr('fortune.please_fill_dream_field'))),
       );
       return;
     }
@@ -59,7 +59,7 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Bir hata oluştu: $e'.tr()),
+          content: Text(easy.tr('errors.error')),
           backgroundColor: Colors.red,
         ),
       );
@@ -86,7 +86,7 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
         appBar: AppBar(
           backgroundColor: MyColor.transparent,
           title: Text(
-            'Rüya Yorumu'.tr(),
+            easy.tr('fortune.dream_interpretation'),
             style: MyStyle.b4.copyWith(color: MyColor.white),
           ),
           elevation: 0,
@@ -110,7 +110,7 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
                       fontSize: 16,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Rüyanızı detaylı bir şekilde anlatın...'.tr(),
+                      hintText: easy.tr('fortune.please_fill_dream_detailed'),
                       hintStyle: TextStyle(
                         color: MyColor.white.withOpacity(0.5),
                         fontSize: 16,
@@ -162,7 +162,7 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
                           ),
                         )
                       : Text(
-                          'Rüyayı Yorumla'.tr(),
+                          easy.tr('fortune.interpret_dream'),
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -196,7 +196,7 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'İşte yorumun...'.tr(),
+                            easy.tr('fortune.here_is_your_interpretation'),
                             style: MyStyle.s1.copyWith(
                               color: MyColor.primaryPurpleColor,
                               fontWeight: FontWeight.bold,
@@ -205,8 +205,9 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
                           IconButton(
                             onPressed: () {
                               Share.share(
-                                'SPIROOT uygulamasından paylaşıldı.\n\n$_interpretation',
-                                subject: 'Rüya Yorumun',
+                                '${easy.tr("fortune.shared_from_spiroot")}\n\n$_interpretation',
+                                subject:
+                                    easy.tr('fortune.dream_interpretation'),
                               );
                             },
                             icon: const Icon(
@@ -218,7 +219,7 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
                               minWidth: MySize.iconSizeSmall,
                               minHeight: MySize.iconSizeSmall,
                             ),
-                            tooltip: "Paylaş",
+                            tooltip: easy.tr('fortune.share'),
                           ),
                         ],
                       ),

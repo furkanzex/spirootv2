@@ -73,8 +73,8 @@ class _SocialScreenState extends State<SocialScreen> {
             });
           },
           tabs: [
-            Tab(text: easy.tr('Gönderiler')),
-            Tab(text: easy.tr('Etkinlikler')),
+            Tab(text: easy.tr('social.posts')),
+            Tab(text: easy.tr('social.events')),
           ],
         ),
         body: TabBarView(
@@ -120,7 +120,7 @@ class _SocialScreenState extends State<SocialScreen> {
                 ),
                 SizedBox(width: MySize.quarterPadding),
                 Text(
-                  'Gönderilerim',
+                  easy.tr('social.my_posts'),
                   style: MyStyle.s3.copyWith(color: MyColor.primaryPurpleColor),
                 ),
               ],
@@ -134,7 +134,7 @@ class _SocialScreenState extends State<SocialScreen> {
               if (snapshot.hasError) {
                 return Center(
                   child: Text(
-                    'Bir hata oluştu',
+                    easy.tr("social.error_occurred"),
                     style: MyStyle.s2.copyWith(color: MyColor.white),
                   ),
                 );
@@ -148,7 +148,7 @@ class _SocialScreenState extends State<SocialScreen> {
               if (posts.isEmpty) {
                 return Center(
                   child: Text(
-                    'Henüz gönderi yok',
+                    easy.tr("social.no_posts"),
                     style: MyStyle.s2.copyWith(color: MyColor.white),
                   ),
                 );
@@ -187,7 +187,7 @@ class _SocialScreenState extends State<SocialScreen> {
                 ),
                 SizedBox(width: MySize.quarterPadding),
                 Text(
-                  'Etkinliklerim',
+                  easy.tr('social.my_events'),
                   style: MyStyle.s3.copyWith(color: MyColor.primaryPurpleColor),
                 ),
               ],
@@ -201,7 +201,7 @@ class _SocialScreenState extends State<SocialScreen> {
               if (snapshot.hasError) {
                 return Center(
                   child: Text(
-                    'Bir hata oluştu',
+                    easy.tr("social.error_occurred"),
                     style: MyStyle.s2.copyWith(color: MyColor.white),
                   ),
                 );
@@ -215,7 +215,7 @@ class _SocialScreenState extends State<SocialScreen> {
               if (events.isEmpty) {
                 return Center(
                   child: Text(
-                    'Henüz etkinlik yok',
+                    easy.tr("social.no_events"),
                     style: MyStyle.s2.copyWith(color: MyColor.white),
                   ),
                 );
@@ -294,7 +294,9 @@ class _SocialScreenState extends State<SocialScreen> {
                             ),
                             SizedBox(width: MySize.defaultPadding),
                             Text(
-                              hasReported ? 'Şikayeti Geri Al' : 'Şikayet Et',
+                              hasReported
+                                  ? easy.tr("social.unreport")
+                                  : easy.tr("social.report"),
                               style: MyStyle.s2.copyWith(color: MyColor.white),
                             ),
                           ],
@@ -360,8 +362,8 @@ class _SocialScreenState extends State<SocialScreen> {
                           children: [
                             Text(
                               _expandedPosts[post.id] == true
-                                  ? 'Daha az göster'
-                                  : 'Devamını göster',
+                                  ? easy.tr("social.show_less")
+                                  : easy.tr("social.show_more"),
                               style: MyStyle.s3
                                   .copyWith(color: MyColor.primaryPurpleColor),
                             ),
@@ -492,8 +494,8 @@ class _SocialScreenState extends State<SocialScreen> {
                                 SizedBox(width: MySize.defaultPadding),
                                 Text(
                                   hasReported
-                                      ? 'Şikayeti Geri Al'
-                                      : 'Şikayet Et',
+                                      ? easy.tr("social.unreport")
+                                      : easy.tr("social.report"),
                                   style:
                                       MyStyle.s2.copyWith(color: MyColor.white),
                                 ),
@@ -567,8 +569,8 @@ class _SocialScreenState extends State<SocialScreen> {
                               children: [
                                 Text(
                                   _expandedEvents[event.id] == true
-                                      ? 'Daha az göster'
-                                      : 'Devamını göster',
+                                      ? easy.tr("social.show_less")
+                                      : easy.tr("social.show_more"),
                                   style: MyStyle.s3.copyWith(
                                       color: MyColor.primaryPurpleColor),
                                 ),
@@ -617,7 +619,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${event.participants.length} katılımcı',
+                      '${event.participants.length} ${easy.tr("social.participants")}',
                       style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                     ),
                     Row(
@@ -645,8 +647,8 @@ class _SocialScreenState extends State<SocialScreen> {
                           child: Text(
                             event.participants.contains(
                                     FirebaseAuth.instance.currentUser?.uid)
-                                ? 'Vazgeç'
-                                : 'Katıl',
+                                ? easy.tr("social.leave")
+                                : easy.tr("social.join"),
                             style: MyStyle.s3.copyWith(color: MyColor.white),
                           ),
                         ),
@@ -690,7 +692,7 @@ class _SocialScreenState extends State<SocialScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Yeni Gönderi',
+                  easy.tr("social.new_post"),
                   style: MyStyle.b4.copyWith(color: MyColor.white),
                 ),
                 SizedBox(height: MySize.defaultPadding),
@@ -699,7 +701,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   maxLines: 5,
                   decoration: InputDecoration(
-                    hintText: 'Ne düşünüyorsun?',
+                    hintText: easy.tr("social.what_thinking"),
                     hintStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                     border: OutlineInputBorder(),
@@ -718,7 +720,7 @@ class _SocialScreenState extends State<SocialScreen> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        'İptal',
+                        easy.tr("common.cancel"),
                         style:
                             MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                       ),
@@ -739,7 +741,7 @@ class _SocialScreenState extends State<SocialScreen> {
                         backgroundColor: MyColor.primaryPurpleColor,
                       ),
                       child: Text(
-                        'Paylaş',
+                        easy.tr("social.share"),
                         style: MyStyle.s2.copyWith(color: MyColor.white),
                       ),
                     ),
@@ -789,7 +791,7 @@ class _SocialScreenState extends State<SocialScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Yeni Etkinlik',
+                  easy.tr("social.new_event"),
                   style: MyStyle.b4.copyWith(color: MyColor.white),
                 ),
                 SizedBox(height: MySize.defaultPadding),
@@ -797,7 +799,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   controller: titleController,
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   decoration: InputDecoration(
-                    labelText: 'Başlık',
+                    labelText: easy.tr("social.event.title"),
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                   ),
@@ -808,7 +810,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   maxLines: 3,
                   decoration: InputDecoration(
-                    labelText: 'Açıklama',
+                    labelText: easy.tr("social.event.description"),
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                   ),
@@ -818,7 +820,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   controller: locationController,
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   decoration: InputDecoration(
-                    labelText: 'Konum',
+                    labelText: easy.tr("social.event.location"),
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                   ),
@@ -828,7 +830,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   controller: imageUrlController,
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   decoration: InputDecoration(
-                    labelText: 'Görsel URL',
+                    labelText: easy.tr("social.event.image_url"),
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                   ),
@@ -844,7 +846,7 @@ class _SocialScreenState extends State<SocialScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Etkinlik Tarihi ve Saati',
+                        easy.tr("social.event.select_date"),
                         style: MyStyle.s2.copyWith(color: MyColor.white),
                       ),
                       SizedBox(height: MySize.defaultPadding),
@@ -880,12 +882,12 @@ class _SocialScreenState extends State<SocialScreen> {
                       ),
                       SizedBox(height: MySize.defaultPadding),
                       Text(
-                        'Seçilen Tarih: ${DateFormat('dd.MM.yyyy').format(selectedDate)}',
+                        '${easy.tr("social.event.selected_date")}: ${DateFormat('dd.MM.yyyy').format(selectedDate)}',
                         style:
                             MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                       ),
                       Text(
-                        'Seçilen Saat: ${selectedTime.format(context)}',
+                        '${easy.tr("social.event.selected_time")}: ${selectedTime.format(context)}',
                         style:
                             MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                       ),
@@ -899,7 +901,7 @@ class _SocialScreenState extends State<SocialScreen> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        'İptal',
+                        easy.tr("common.cancel"),
                         style:
                             MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                       ),
@@ -934,7 +936,7 @@ class _SocialScreenState extends State<SocialScreen> {
                         backgroundColor: MyColor.primaryPurpleColor,
                       ),
                       child: Text(
-                        'Oluştur',
+                        easy.tr("social.event.create"),
                         style: MyStyle.s2.copyWith(color: MyColor.white),
                       ),
                     ),
@@ -975,7 +977,7 @@ class _SocialScreenState extends State<SocialScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Yorumlar',
+                easy.tr("social.comments"),
                 style: MyStyle.b4.copyWith(color: MyColor.white),
               ),
               SizedBox(height: MySize.defaultPadding),
@@ -1037,7 +1039,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                         color: MyColor.errorColor),
                                     SizedBox(width: MySize.defaultPadding),
                                     Text(
-                                      'Şikayet Et',
+                                      easy.tr("social.report"),
                                       style: MyStyle.s2
                                           .copyWith(color: MyColor.white),
                                     ),
@@ -1059,7 +1061,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                          'Bu yorumu zaten şikayet ettiniz'),
+                                          easy.tr("social.already_reported")),
                                       backgroundColor: MyColor.errorColor,
                                     ),
                                   );
@@ -1082,7 +1084,7 @@ class _SocialScreenState extends State<SocialScreen> {
                         controller: commentController,
                         style: MyStyle.s2.copyWith(color: MyColor.white),
                         decoration: InputDecoration(
-                          hintText: 'Yorum yaz...',
+                          hintText: easy.tr("social.comment_placeholder"),
                           hintStyle:
                               MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                           border: OutlineInputBorder(
@@ -1155,7 +1157,7 @@ class _SocialScreenState extends State<SocialScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Yorumlar',
+                easy.tr("social.comments"),
                 style: MyStyle.b4.copyWith(color: MyColor.white),
               ),
               SizedBox(height: MySize.defaultPadding),
@@ -1217,7 +1219,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                         color: MyColor.errorColor),
                                     SizedBox(width: MySize.defaultPadding),
                                     Text(
-                                      'Şikayet Et',
+                                      easy.tr("social.report"),
                                       style: MyStyle.s2
                                           .copyWith(color: MyColor.white),
                                     ),
@@ -1239,7 +1241,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                          'Bu yorumu zaten şikayet ettiniz'),
+                                          easy.tr("social.already_reported")),
                                       backgroundColor: MyColor.errorColor,
                                     ),
                                   );
@@ -1262,7 +1264,7 @@ class _SocialScreenState extends State<SocialScreen> {
                         controller: commentController,
                         style: MyStyle.s2.copyWith(color: MyColor.white),
                         decoration: InputDecoration(
-                          hintText: 'Yorum yaz...',
+                          hintText: easy.tr("social.comment_placeholder"),
                           hintStyle:
                               MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                           border: OutlineInputBorder(

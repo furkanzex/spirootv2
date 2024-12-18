@@ -4,6 +4,7 @@ import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 Widget loveCareerMoney() {
   final AstrologyController astrologyController =
@@ -16,7 +17,7 @@ Widget loveCareerMoney() {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Aşk",
+                easy.tr("astrology.love"),
                 style: TextStyle(
                   color: MyColor.white,
                   fontSize: 14,
@@ -56,7 +57,7 @@ Widget loveCareerMoney() {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Kariyer",
+                easy.tr("astrology.career"),
                 style: TextStyle(
                   color: MyColor.white,
                   fontSize: 14,
@@ -97,7 +98,7 @@ Widget loveCareerMoney() {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Para",
+                easy.tr("astrology.money"),
                 style: TextStyle(
                   color: MyColor.white,
                   fontSize: 14,

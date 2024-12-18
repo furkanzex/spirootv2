@@ -17,6 +17,7 @@ import 'package:spirootv2/home/home_controller.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class FortuneResultScreen extends StatefulWidget {
   final List<File> images;
@@ -86,7 +87,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Konu Seç',
+              easy.tr('fortune.select_topic'),
               style: MyStyle.s1.copyWith(
                 color: MyColor.white,
                 fontWeight: FontWeight.bold,
@@ -190,7 +191,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(
-                    'İptal',
+                    easy.tr('common.cancel'),
                     style: MyStyle.s2
                         .copyWith(color: MyColor.white.withOpacity(0.3)),
                   ),
@@ -198,7 +199,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(
-                    'Tamam',
+                    easy.tr('common.ok'),
                     style:
                         MyStyle.s2.copyWith(color: MyColor.primaryLightColor),
                   ),
@@ -251,7 +252,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'İlişki Durumu Seç',
+              easy.tr('fortune.select_relationship'),
               style: MyStyle.s1.copyWith(
                 color: MyColor.white,
                 fontWeight: FontWeight.bold,
@@ -373,7 +374,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lütfen isim alanını doldurun'),
+          content: Text(easy.tr('fortune.please_fill_name_field')),
           backgroundColor: Colors.red.withOpacity(0.8),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -387,7 +388,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
     if (_birthDateController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lütfen doğum günü seçin'),
+          content: Text(easy.tr('fortune.please_select_birth_date')),
           backgroundColor: Colors.red.withOpacity(0.8),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -401,7 +402,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
     if (_relationshipController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lütfen ilişki durumunu seçin'),
+          content: Text(easy.tr('fortune.please_select_relationship')),
           backgroundColor: Colors.red.withOpacity(0.8),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -482,7 +483,8 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Falınız ortalama ${waitTime.inMinutes} dakika içinde hazır olacak',
+              easy.tr('fortune.fortune_will_be_ready_in',
+                  namedArgs: {'minutes': waitTime.inMinutes.toString()}),
             ),
             backgroundColor: MyColor.primaryLightColor.withOpacity(0.8),
             behavior: SnackBarBehavior.floating,
@@ -497,7 +499,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Bir hata oluştu: $e'),
+            content: Text(easy.tr('errors.error')),
             backgroundColor: Colors.red.withOpacity(0.8),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -518,11 +520,11 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
   String get screenTitle {
     switch (widget.fortuneType) {
       case FortuneType.coffee:
-        return 'Kahve Falı';
+        return easy.tr('fortune.coffee');
       case FortuneType.palm:
-        return 'El Falı';
+        return easy.tr('fortune.palm');
       case FortuneType.face:
-        return 'Yüz Falı';
+        return easy.tr('fortune.face');
     }
   }
 
@@ -603,21 +605,21 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
 
               // Merak Edilen Konular
               Text(
-                'Merak ettiğin konular',
+                easy.tr('fortune.interested_topics'),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               verticalGap(MySize.defaultPadding),
-              _buildTopicItem('1. Konu', _topic1Controller),
+              _buildTopicItem(easy.tr('fortune.topic_1'), _topic1Controller),
               verticalGap(MySize.halfPadding),
-              _buildTopicItem('2. Konu', _topic2Controller),
+              _buildTopicItem(easy.tr('fortune.topic_2'), _topic2Controller),
               verticalGap(MySize.doublePadding),
 
               // Kimin İçin Bölümü
               Text(
-                'Kimin İçin?',
+                easy.tr('fortune.for_whom'),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.w600,
@@ -627,14 +629,14 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
               Row(
                 children: [
                   _buildSelectionButton(
-                    title: 'Kendim İçin',
+                    title: easy.tr('fortune.for_myself'),
                     icon: '👤',
                     isSelected: _isForSelf,
                     onTap: () {
                       if (!_hasProfile) {
                         Get.snackbar(
-                          'Profil Tamamlanmamış',
-                          'Kendiniz için fal baktırmak için önce profilinizi tamamlamalısınız.',
+                          easy.tr('profile.profile_not_completed'),
+                          easy.tr('profile.profile_not_completed_desc'),
                           backgroundColor:
                               MyColor.primaryPurpleColor.withOpacity(0.8),
                           colorText: MyColor.white,
@@ -654,7 +656,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
                   ),
                   SizedBox(width: MySize.halfPadding),
                   _buildSelectionButton(
-                    title: 'Başkası İçin',
+                    title: easy.tr('fortune.for_someone_else'),
                     icon: '👥',
                     isSelected: !_isForSelf,
                     onTap: () {
@@ -673,13 +675,13 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
               _buildTextField(
                 readOnly: _isForSelf,
                 controller: _nameController,
-                label: 'İsim',
+                label: easy.tr('fortune.name'),
                 icon: CupertinoIcons.person,
               ),
               verticalGap(MySize.halfPadding),
               _buildTextField(
                 controller: _birthDateController,
-                label: 'Doğum Günü',
+                label: easy.tr('fortune.birth_date'),
                 icon: CupertinoIcons.calendar,
                 readOnly: true,
                 onTap: _showDatePicker,
@@ -687,7 +689,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
               verticalGap(MySize.halfPadding),
               _buildTextField(
                 controller: _relationshipController,
-                label: 'İlişki Durumu',
+                label: easy.tr('fortune.relationship'),
                 icon: CupertinoIcons.heart,
                 readOnly: true,
                 onTap: _showRelationshipPicker,
@@ -712,7 +714,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
                           strokeWidth: 2,
                         )
                       : Text(
-                          'Yorumla',
+                          easy.tr('fortune.comment'),
                           style: MyStyle.s1.copyWith(
                             color: MyColor.white,
                             fontWeight: FontWeight.w600,

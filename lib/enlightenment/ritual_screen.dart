@@ -88,7 +88,7 @@ class _RitualScreenState extends State<RitualScreen> {
           icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(easy.tr("Ritüeller"),
+        title: Text(easy.tr("enlightenment.ritual.title"),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
       ),
       body: Stack(
@@ -116,7 +116,8 @@ class _RitualScreenState extends State<RitualScreen> {
                       }
 
                       if (!snapshot.hasData) {
-                        return Center(child: Text(easy.tr('Veri bulunamadı')));
+                        return Center(
+                            child: Text(easy.tr('errors.data_not_loaded')));
                       }
 
                       final categories = snapshot.data!;

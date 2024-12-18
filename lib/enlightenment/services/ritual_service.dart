@@ -39,10 +39,9 @@ class RitualService {
         _storage.write(cacheKey, data);
         return Map<String, dynamic>.from(data);
       } else {
-        throw Exception('Failed to load rituals');
+        throw Exception(easy.tr('enlightenment.failed_to_load_rituals'));
       }
     } catch (e) {
-      debugPrint('Error loading rituals: $e');
       rethrow;
     }
   }

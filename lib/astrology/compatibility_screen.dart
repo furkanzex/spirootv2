@@ -51,7 +51,9 @@ class CompatibilityScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          type == 'love' ? "Aşk Uyumu" : "Arkadaşlık Uyumu",
+          type == 'love'
+              ? easy.tr("astrology.love_compatibility")
+              : easy.tr("astrology.friendship_compatibility"),
           style: MyStyle.s1.copyWith(
             color: MyColor.white,
             fontWeight: FontWeight.bold,
@@ -342,8 +344,8 @@ class CompatibilityScreen extends StatelessWidget {
                 ),
                 child: Text(
                   type == 'love'
-                      ? "AŞK UYUMUNU KONTROL ET"
-                      : "ARKADAŞLIK UYUMUNU KONTROL ET",
+                      ? easy.tr("astrology.check_love_compatibility")
+                      : easy.tr("astrology.check_friendship_compatibility"),
                   style: MyStyle.s2.copyWith(
                     color: MyColor.white,
                     fontWeight: FontWeight.bold,

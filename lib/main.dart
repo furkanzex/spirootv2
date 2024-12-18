@@ -50,7 +50,6 @@ Future<void> main() async {
     // Ephe yolunu ayarla
     Sweph.swe_set_ephe_path(ephePath);
   } catch (e) {
-    print('Sweph initialization error in main: $e');
     // Hata durumunda alternatif yol dene
     try {
       final appDir = await getApplicationDocumentsDirectory();
@@ -62,9 +61,8 @@ Future<void> main() async {
       }
 
       Sweph.swe_set_ephe_path(altEphePath);
-    } catch (e2) {
-      print('Alternative path also failed: $e2');
-    }
+      // ignore: empty_catches
+    } catch (e2) {}
   }
 
   await Firebase.initializeApp(

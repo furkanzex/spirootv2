@@ -15,11 +15,11 @@ import 'package:spirootv2/blog/screens/blog_list_screen.dart';
 Widget enlightenmentSection() {
   final List<Map<String, String>> items = [
     {
-      "title": "Blog Yazıları",
+      "title": easy.tr("navigation.blog"),
       "image": "https://apptoic.com/spiroot/images/blog.png"
     },
     {
-      "title": "Ritüeller",
+      "title": easy.tr("navigation.ritual"),
       "image": "https://apptoic.com/spiroot/images/ritual.png"
     },
   ];
@@ -44,14 +44,14 @@ Widget enlightenmentSection() {
         itemBuilder: (context, index, realIdx) {
           return GestureDetector(
             onTap: () {
-              if (items[index]["title"] == "Ritüeller") {
+              if (items[index]["title"] == easy.tr("navigation.ritual")) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const RitualScreen(),
                   ),
                 );
-              } else if (items[index]["title"] == "Blog Yazıları") {
+              } else if (items[index]["title"] == easy.tr("navigation.blog")) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(

@@ -30,18 +30,18 @@ class MyBlogPostsScreen extends StatelessWidget {
         return AlertDialog(
           backgroundColor: MyColor.darkBackgroundColor,
           title: Text(
-            easy.tr('Blog Yazısını Sil'),
+            easy.tr('blog.delete_post'),
             style: MyStyle.b4.copyWith(color: MyColor.white),
           ),
           content: Text(
-            easy.tr('Bu blog yazısını silmek istediğinizden emin misiniz?'),
+            easy.tr('blog.delete_post_confirmation'),
             style: MyStyle.s2.copyWith(color: MyColor.white),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                easy.tr('İptal'),
+                easy.tr('blog.cancel'),
                 style: MyStyle.s2.copyWith(color: MyColor.white),
               ),
             ),
@@ -52,7 +52,7 @@ class MyBlogPostsScreen extends StatelessWidget {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(easy.tr('Blog yazısı başarıyla silindi')),
+                      content: Text(easy.tr('blog.post_deleted')),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -60,15 +60,14 @@ class MyBlogPostsScreen extends StatelessWidget {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(
-                          easy.tr('Blog yazısı silinirken bir hata oluştu')),
+                      content: Text(easy.tr('blog.post_deletion_error')),
                       backgroundColor: Colors.red,
                     ),
                   );
                 }
               },
               child: Text(
-                easy.tr('Sil'),
+                easy.tr('blog.delete'),
                 style: MyStyle.s2.copyWith(color: Colors.red),
               ),
             ),
@@ -152,7 +151,7 @@ class MyBlogPostsScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          easy.tr("Blog Yazılarım"),
+          easy.tr("blog.my_posts"),
           style: MyStyle.b4.copyWith(color: MyColor.white),
         ),
       ),
@@ -162,7 +161,7 @@ class MyBlogPostsScreen extends StatelessWidget {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Bir hata oluştu: ${snapshot.error}',
+                easy.tr('blog.error_occurred'),
                 style: MyStyle.b4.copyWith(color: MyColor.white),
               ),
             );
@@ -181,7 +180,7 @@ class MyBlogPostsScreen extends StatelessWidget {
           if (posts.isEmpty) {
             return Center(
               child: Text(
-                easy.tr('Henüz blog yazınız bulunmuyor'),
+                easy.tr('blog.no_posts'),
                 style: MyStyle.b4.copyWith(color: MyColor.white),
               ),
             );

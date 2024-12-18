@@ -69,8 +69,8 @@ class _ProfileLoadingScreenState extends State<ProfileLoadingScreen>
     } catch (e) {
       print('Loading sequence hatası: $e');
       Get.snackbar(
-        'Hata',
-        'Profil yüklenirken bir hata oluştu',
+        easy.tr("errors.error"),
+        easy.tr("profile.profile_loading.error"),
         backgroundColor: MyColor.errorColor,
         colorText: MyColor.white,
       );

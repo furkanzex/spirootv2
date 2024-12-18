@@ -7,6 +7,7 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:lottie/lottie.dart';
 import 'package:spirootv2/explore/explore_controller.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class ExploreScreen extends StatelessWidget {
   ExploreScreen({super.key});
@@ -21,7 +22,7 @@ class ExploreScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          "Keşfet",
+          easy.tr('explore.title'),
           style: MyStyle.s1.copyWith(
             color: MyColor.white,
             fontWeight: FontWeight.bold,
@@ -51,7 +52,7 @@ class ExploreScreen extends StatelessWidget {
                 const Icon(MingCute.chat_3_line, color: MyColor.white),
                 const SizedBox(width: 8),
                 Text(
-                  "Sohbete Devam Et",
+                  easy.tr('explore.continue_chat'),
                   style: MyStyle.s2.copyWith(
                     color: MyColor.white,
                     fontWeight: FontWeight.bold,
@@ -68,7 +69,7 @@ class ExploreScreen extends StatelessWidget {
           backgroundColor: MyColor.primaryColor,
           icon: const Icon(MingCute.search_3_line, color: MyColor.white),
           label: Text(
-            "Eşleşme Ara",
+            easy.tr('explore.search'),
             style: MyStyle.s2.copyWith(
               color: MyColor.white,
               fontWeight: FontWeight.bold,
@@ -96,7 +97,7 @@ class ExploreScreen extends StatelessWidget {
               ),
               const SizedBox(height: MySize.defaultPadding),
               Text(
-                "Kozmik eşin aranıyor...",
+                easy.tr('explore.searching'),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -104,7 +105,7 @@ class ExploreScreen extends StatelessWidget {
               ),
               const SizedBox(height: MySize.halfPadding),
               Text(
-                "Burç uyumuna göre en uygun kişi bulunuyor",
+                easy.tr('explore.searching_description'),
                 style: MyStyle.s3.copyWith(
                   color: MyColor.textGreyColor,
                 ),
@@ -168,7 +169,7 @@ class ExploreScreen extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                "Yeni eşleşmeler için hazır",
+                easy.tr('explore.ready_for_new_matches'),
                 style: MyStyle.s3.copyWith(
                   color: MyColor.white,
                 ),
@@ -204,7 +205,7 @@ class ExploreScreen extends StatelessWidget {
                         height: 200,
                       ),
                       Text(
-                        "Kozmik Eşleşme",
+                        easy.tr('explore.cosmic_match'),
                         style: MyStyle.s1.copyWith(
                           color: MyColor.white,
                           fontWeight: FontWeight.bold,
@@ -212,7 +213,7 @@ class ExploreScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Burç uyumuna göre sana en uygun kişiyle eşleş ve sohbet et",
+                        easy.tr('explore.cosmic_match_description'),
                         textAlign: TextAlign.center,
                         style: MyStyle.s2.copyWith(
                           color: MyColor.white.withOpacity(0.8),
@@ -220,7 +221,7 @@ class ExploreScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: MySize.defaultPadding),
                       Text(
-                        "Not: Sohbetler geçicidir ve kaydedilmez",
+                        easy.tr('explore.chat_is_temporary'),
                         textAlign: TextAlign.center,
                         style: MyStyle.s3.copyWith(
                           color: MyColor.textGreyColor,

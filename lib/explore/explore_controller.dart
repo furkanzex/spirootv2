@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/chat/chat_screen.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class ExploreController extends GetxController {
   // Aktif eşleşme durumu
@@ -55,11 +56,10 @@ class ExploreController extends GetxController {
         }
       });
     } catch (e) {
-      print('Matching error: $e');
       isSearching.value = false;
       Get.snackbar(
-        'Hata',
-        'Eşleşme başlatılırken bir hata oluştu',
+        easy.tr('errors.error'),
+        easy.tr('explore.error_occurred'),
         backgroundColor: MyColor.errorColor,
         colorText: MyColor.white,
       );
@@ -137,14 +137,13 @@ class ExploreController extends GetxController {
       isSearching.value = false;
       Get.back(); // Eğer dialog açıksa kapat
       Get.snackbar(
-        'İptal Edildi',
-        'Eşleşme araması iptal edildi',
+        easy.tr('explore.canceled'),
+        easy.tr('explore.search_canceled'),
         backgroundColor: MyColor.primaryColor.withOpacity(0.1),
         colorText: MyColor.white,
       );
-    } catch (e) {
-      print('Cancel search error: $e');
-    }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 
   @override

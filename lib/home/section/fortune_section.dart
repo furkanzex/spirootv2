@@ -23,7 +23,7 @@ Widget fortuneSection(
   final List<FortuneCard> fortuneCards = [
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/coffee.png",
-      title: "Kahve Falı",
+      title: easy.tr("fortune.coffee"),
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(
@@ -38,7 +38,7 @@ Widget fortuneSection(
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/tarot.png",
-      title: "Tarot Falı",
+      title: easy.tr("fortune.tarot"),
       color: MyColor.primaryLightColor,
       onTap: () {
         _navigateToFortune(context, 'tarot');
@@ -46,7 +46,7 @@ Widget fortuneSection(
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/palm.png",
-      title: "El Falı",
+      title: easy.tr("fortune.palm"),
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(
@@ -61,7 +61,7 @@ Widget fortuneSection(
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/katina.png",
-      title: "Katina Falı",
+      title: easy.tr("fortune.katina"),
       color: MyColor.primaryLightColor,
       onTap: () {
         _navigateToFortune(context, 'katina');
@@ -69,7 +69,7 @@ Widget fortuneSection(
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/face.png",
-      title: "Yüz Falı",
+      title: easy.tr("fortune.face"),
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(
@@ -84,7 +84,7 @@ Widget fortuneSection(
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/angel.png",
-      title: "Melek Falı",
+      title: easy.tr("fortune.angel"),
       color: MyColor.primaryLightColor,
       onTap: () {
         _navigateToFortune(context, 'angel');
@@ -204,7 +204,7 @@ Widget fortuneSection(
                   horizontalGap(MySize.defaultPadding),
                   Expanded(
                     child: Text(
-                      "Rüyanı Yorumla",
+                      easy.tr("fortune.interpret_dream"),
                       style: MyStyle.s1.copyWith(
                         fontWeight: FontWeight.bold,
                         color: MyColor.white,
@@ -233,10 +233,10 @@ void _navigateToFortune(BuildContext context, String type) {
       builder: (context) => TarotScreen(
         fortuneType: type,
         title: type == 'tarot'
-            ? 'Tarot Falı'
+            ? easy.tr("fortune.tarot")
             : type == 'katina'
-                ? 'Katina Falı'
-                : 'Melek Falı',
+                ? easy.tr("fortune.katina")
+                : easy.tr("fortune.angel"),
         cardBackImage:
             'assets/images/${type == 'tarot' ? 'tarot' : type == 'katina' ? 'katina' : 'angel'}.png',
       ),

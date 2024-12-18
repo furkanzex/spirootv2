@@ -34,7 +34,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
             icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
             onPressed: () => Navigator.pop(context),
           ),
-          title: Text(easy.tr("Gönderilerim"),
+          title: Text(easy.tr("social.my_content"),
               style: MyStyle.b4.copyWith(color: MyColor.white)),
           bottom: TabBar(
             labelColor: MyColor.white,
@@ -44,9 +44,9 @@ class _MyContentScreenState extends State<MyContentScreen> {
             onTap: (index) {
               setState(() {});
             },
-            tabs: const [
-              Tab(text: 'Gönderilerim'),
-              Tab(text: 'Etkinliklerim'),
+            tabs: [
+              Tab(text: easy.tr("social.my_posts")),
+              Tab(text: easy.tr("social.my_events")),
             ],
           ),
         ),
@@ -67,7 +67,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
         if (snapshot.hasError) {
           return Center(
             child: Text(
-              'Bir hata oluştu',
+              easy.tr("errors.error"),
               style: MyStyle.s2.copyWith(color: MyColor.white),
             ),
           );
@@ -81,7 +81,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
         if (posts.isEmpty) {
           return Center(
             child: Text(
-              'Henüz gönderi paylaşmadınız',
+              easy.tr("social.no_shared_posts"),
               style: MyStyle.s2.copyWith(color: MyColor.white),
             ),
           );
@@ -115,18 +115,18 @@ class _MyContentScreenState extends State<MyContentScreen> {
                       builder: (context) => AlertDialog(
                         backgroundColor: MyColor.darkBackgroundColor,
                         title: Text(
-                          'Gönderiyi Sil',
+                          easy.tr("social.delete_post"),
                           style: MyStyle.s2.copyWith(color: MyColor.white),
                         ),
                         content: Text(
-                          'Bu gönderiyi silmek istediğinize emin misiniz?',
+                          easy.tr("social.delete_post_confirmation"),
                           style: MyStyle.s2.copyWith(color: MyColor.white),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: Text(
-                              'İptal',
+                              easy.tr("common.cancel"),
                               style: MyStyle.s2
                                   .copyWith(color: MyColor.textGreyColor),
                             ),
@@ -137,7 +137,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
                               Navigator.pop(context);
                             },
                             child: Text(
-                              'Sil',
+                              easy.tr("common.delete"),
                               style: MyStyle.s2
                                   .copyWith(color: MyColor.errorColor),
                             ),
@@ -160,7 +160,6 @@ class _MyContentScreenState extends State<MyContentScreen> {
       stream: SocialService.getUserEvents(_userController.userName),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          print('Hata detayı: ${snapshot.error}');
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -168,14 +167,14 @@ class _MyContentScreenState extends State<MyContentScreen> {
                 Icon(Icons.error_outline, color: MyColor.errorColor, size: 48),
                 SizedBox(height: MySize.defaultPadding),
                 Text(
-                  'Etkinlikleriniz yüklenirken bir hata oluştu',
+                  easy.tr("social.error_occurred_events"),
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   textAlign: TextAlign.center,
                 ),
                 TextButton(
                   onPressed: () => setState(() {}),
                   child: Text(
-                    'Tekrar Dene',
+                    easy.tr("common.try_again"),
                     style:
                         MyStyle.s2.copyWith(color: MyColor.primaryPurpleColor),
                   ),
@@ -193,7 +192,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
         if (events.isEmpty) {
           return Center(
             child: Text(
-              'Henüz etkinlik oluşturmadınız',
+              easy.tr("social.no_shared_events"),
               style: MyStyle.s2.copyWith(color: MyColor.white),
             ),
           );
@@ -265,18 +264,18 @@ class _MyContentScreenState extends State<MyContentScreen> {
                       builder: (context) => AlertDialog(
                         backgroundColor: MyColor.darkBackgroundColor,
                         title: Text(
-                          'Etkinliği Sil',
+                          easy.tr("social.delete_event"),
                           style: MyStyle.s2.copyWith(color: MyColor.white),
                         ),
                         content: Text(
-                          'Bu etkinliği silmek istediğinize emin misiniz?',
+                          easy.tr("social.delete_event_confirmation"),
                           style: MyStyle.s2.copyWith(color: MyColor.white),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: Text(
-                              'İptal',
+                              easy.tr("common.cancel"),
                               style: MyStyle.s2
                                   .copyWith(color: MyColor.textGreyColor),
                             ),
@@ -287,7 +286,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
                               Navigator.pop(context);
                             },
                             child: Text(
-                              'Sil',
+                              easy.tr("common.delete"),
                               style: MyStyle.s2
                                   .copyWith(color: MyColor.errorColor),
                             ),

@@ -92,31 +92,34 @@ Widget socialSection(BuildContext context) {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  context.tr('social.title'),
-                                  style: MyStyle.b4.copyWith(
-                                    color: MyColor.white,
-                                    fontSize: 24,
-                                    shadows: [
-                                      Shadow(
-                                        color: MyColor.black.withOpacity(0.3),
-                                        offset: const Offset(0, 2),
-                                        blurRadius: 4,
-                                      ),
-                                    ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    context.tr('social.title'),
+                                    style: MyStyle.b4.copyWith(
+                                      color: MyColor.white,
+                                      fontSize: 24,
+                                      shadows: [
+                                        Shadow(
+                                          color: MyColor.black.withOpacity(0.3),
+                                          offset: const Offset(0, 2),
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: MySize.quarterPadding),
-                                Text(
-                                  context.tr('social.subtitle'),
-                                  style: MyStyle.s2.copyWith(
-                                    color: MyColor.white.withOpacity(0.9),
+                                  SizedBox(height: MySize.quarterPadding),
+                                  Text(
+                                    context.tr('social.subtitle'),
+                                    style: MyStyle.s2.copyWith(
+                                      color: MyColor.white.withOpacity(0.9),
+                                    ),
+                                    softWrap: true,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             Container(
                               padding: EdgeInsets.all(MySize.defaultPadding),

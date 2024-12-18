@@ -44,8 +44,7 @@ class SpiritualChatController extends GetxController {
         await _waitForUser();
       }
     } catch (e) {
-      print('Initialize controller error: $e');
-      _handleError('Uygulama başlatılırken bir hata oluştu');
+      _handleError(easy.tr("spiritual_chat.error_occurred"));
     }
   }
 
@@ -63,20 +62,18 @@ class SpiritualChatController extends GetxController {
         }
         await Future.delayed(retryDelay);
         attempts++;
-      } catch (e) {
-        print('Wait for user error: $e');
-      }
+        // ignore: empty_catches
+      } catch (e) {}
     }
 
     if (!isInitialized.value) {
-      _handleError(
-          'Kullanıcı bilgileri yüklenemedi. Lütfen uygulamayı yeniden başlatın.');
+      _handleError(easy.tr("spiritual_chat.error_occurred_chat"));
     }
   }
 
   void _handleError(String message) {
     Get.snackbar(
-      'Hata',
+      easy.tr("errors.error"),
       message,
       backgroundColor: MyColor.errorColor,
       colorText: MyColor.white,
@@ -118,10 +115,9 @@ class SpiritualChatController extends GetxController {
             .toList();
       }
     } catch (e) {
-      print('Load messages error: $e');
       Get.snackbar(
-        'Hata',
-        'Mesajlar yüklenirken bir hata oluştu',
+        easy.tr("errors.error"),
+        easy.tr("spiritual_chat.error_occurred_messages"),
         backgroundColor: MyColor.errorColor,
         colorText: MyColor.white,
       );
@@ -132,7 +128,7 @@ class SpiritualChatController extends GetxController {
 
   Future<void> sendMessage(String text) async {
     if (!isInitialized.value) {
-      _handleError('Uygulama henüz başlatılmadı. Lütfen bekleyin.');
+      _handleError(easy.tr("spiritual_chat.error_chat_has_not_started"));
       return;
     }
 
@@ -141,7 +137,7 @@ class SpiritualChatController extends GetxController {
     try {
       final userId = _userController.userId.value;
       if (userId.isEmpty) {
-        _handleError('Kullanıcı oturumu bulunamadı');
+        _handleError(easy.tr("spiritual_chat.error_chat_no_session"));
         return;
       }
 
@@ -182,8 +178,7 @@ class SpiritualChatController extends GetxController {
       messages.insert(0, aiMessage);
       await _saveMessage(aiMessage);
     } catch (e) {
-      print('Send message error: $e');
-      _handleError('Mesaj gönderilirken bir hata oluştu');
+      _handleError(easy.tr("spiritual_chat.error_occurred_send_message"));
     }
   }
 
@@ -192,7 +187,6 @@ class SpiritualChatController extends GetxController {
       final userId = _userController.userId.value;
 
       if (userId.isEmpty) {
-        print('User ID is empty');
         return;
       }
 
@@ -238,14 +232,12 @@ class SpiritualChatController extends GetxController {
         }
       });
     } catch (e) {
-      print('Save message error: $e');
       Get.snackbar(
-        'Hata',
-        'Mesaj kaydedilemedi',
+        easy.tr("errors.error"),
+        easy.tr("spiritual_chat.error_occurred_save_message"),
         backgroundColor: MyColor.errorColor,
         colorText: MyColor.white,
       );
-      throw Exception('Message could not be saved');
     }
   }
 
@@ -254,7 +246,6 @@ class SpiritualChatController extends GetxController {
       final userId = _userController.userId.value;
 
       if (userId.isEmpty) {
-        print('User ID is empty');
         return;
       }
 
@@ -280,16 +271,15 @@ class SpiritualChatController extends GetxController {
       await _saveMessage(welcomeMessage);
 
       Get.snackbar(
-        'Başarılı',
-        'Sohbet geçmişi temizlendi',
+        easy.tr("common.success"),
+        easy.tr("spiritual_chat.success_clear_chat"),
         backgroundColor: MyColor.successColor,
         colorText: MyColor.white,
       );
     } catch (e) {
-      print('Clear chat error: $e');
       Get.snackbar(
-        'Hata',
-        'Sohbet geçmişi temizlenirken bir hata oluştu',
+        easy.tr("common.error"),
+        easy.tr("spiritual_chat.error_occurred_clear_chat"),
         backgroundColor: MyColor.errorColor,
         colorText: MyColor.white,
       );

@@ -76,8 +76,7 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
       final messages = await FortuneService.loadFortunes(context);
       return messages[Random().nextInt(messages.length)];
     } catch (e) {
-      debugPrint('Fortune message error: $e');
-      return 'Şansınız her zaman sizinle olsun!';
+      return easy.tr('fortune.fortune_message');
     }
   }
 
@@ -153,7 +152,7 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
           icon: Icon(Icons.arrow_back_ios, color: MyColor.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(easy.tr("Sihirli Küre"),
+        title: Text(easy.tr('fortune.magic_orb'),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
         centerTitle: true,
       ),
@@ -225,7 +224,7 @@ class _MagicOrbScreenState extends State<MagicOrbScreen>
                 left: MySize.defaultPadding,
                 right: MySize.defaultPadding,
                 child: Text(
-                  easy.tr("Sihirli küreyi ovalamaya başla!"),
+                  easy.tr('fortune.start_magic_orb'),
                   style: MyStyle.s2.copyWith(
                     color: MyColor.whiteTintColor,
                   ),

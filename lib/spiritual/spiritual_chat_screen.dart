@@ -116,8 +116,8 @@ class _SpiritualChatScreenState extends State<SpiritualChatScreen> {
                           ),
                           decoration: InputDecoration(
                             hintText: _chatController.isThinking.value
-                                ? "Spiritüel rehberiniz düşünüyor..."
-                                : "Spiritüel rehberinize bir soru sorun...",
+                                ? easy.tr("spiritual_chat.thinking_message")
+                                : easy.tr("spiritual_chat.ask_message"),
                             hintStyle: MyStyle.s2.copyWith(
                               color: MyColor.textGreyColor.withOpacity(
                                 _chatController.isThinking.value ? 0.5 : 0.7,
@@ -197,18 +197,18 @@ class _SpiritualChatScreenState extends State<SpiritualChatScreen> {
       AlertDialog(
         backgroundColor: MyColor.darkBackgroundColor,
         title: Text(
-          "Sohbeti Temizle",
+          easy.tr("spiritual_chat.clear_chat"),
           style: MyStyle.s1.copyWith(color: MyColor.white),
         ),
         content: Text(
-          "Tüm sohbet geçmişi silinecek. Emin misiniz?",
+          easy.tr("spiritual_chat.clear_chat_dialog.content"),
           style: MyStyle.s2.copyWith(color: MyColor.white),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text(
-              "İptal",
+              easy.tr("common.cancel"),
               style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
             ),
           ),
@@ -218,7 +218,7 @@ class _SpiritualChatScreenState extends State<SpiritualChatScreen> {
               Get.back();
             },
             child: Text(
-              "Temizle",
+              easy.tr("common.clear"),
               style: MyStyle.s2.copyWith(color: MyColor.errorColor),
             ),
           ),

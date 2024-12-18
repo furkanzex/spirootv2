@@ -132,19 +132,19 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
   String _getPageTitle(int page) {
     switch (page) {
       case 0:
-        return 'Seni tanıyalım';
+        return easy.tr("profile.pages.0.title");
       case 1:
-        return 'Doğum tarihin';
+        return easy.tr("profile.pages.1.title");
       case 2:
-        return 'Doğum saatin';
+        return easy.tr("profile.pages.2.title");
       case 3:
-        return 'Doğum yerin';
+        return easy.tr("profile.pages.3.title");
       case 4:
-        return 'Cinsiyetin';
+        return easy.tr("profile.pages.4.title");
       case 5:
-        return 'İlişki durumun';
+        return easy.tr("profile.pages.5.title");
       case 6:
-        return 'İlgi alanların';
+        return easy.tr("profile.pages.6.title");
       default:
         return '';
     }
@@ -176,7 +176,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               },
               style: MyStyle.s2.copyWith(color: MyColor.white),
               decoration: InputDecoration(
-                labelText: 'İsmin nedir?',
+                labelText: easy.tr("profile.pages.0.label"),
                 labelStyle: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                 filled: true,
                 fillColor: MyColor.white.withOpacity(0.1),
@@ -186,7 +186,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                 ),
                 contentPadding: const EdgeInsets.all(MySize.defaultPadding),
                 errorText: _userController.showNameError.value
-                    ? 'İsim alanı boş bırakılamaz'
+                    ? easy.tr("errors.name_empty")
                     : null,
               ),
             ),
@@ -266,29 +266,29 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Burç: ${zodiacDetails['name']} ${zodiacDetails['symbol']}',
+                                '${easy.tr("profile.horoscope")}: ${zodiacDetails['name']} ${zodiacDetails['symbol']}',
                                 style:
                                     MyStyle.s2.copyWith(color: MyColor.white),
                               ),
                               verticalGap(MySize.halfPadding),
                               Text(
-                                'Element: ${zodiacDetails['element']}',
+                                '${easy.tr("profile.element")}: ${zodiacDetails['element']}',
                                 style: MyStyle.s3
                                     .copyWith(color: MyColor.textGreyColor),
                               ),
                               Text(
-                                'Nitelik: ${zodiacDetails['quality']}',
+                                '${easy.tr("profile.quality")}: ${zodiacDetails['quality']}',
                                 style: MyStyle.s3
                                     .copyWith(color: MyColor.textGreyColor),
                               ),
                               Text(
-                                'Yönetici Gezegen: ${zodiacDetails['ruler']}',
+                                '${easy.tr("profile.ruler")}: ${zodiacDetails['ruler']}',
                                 style: MyStyle.s3
                                     .copyWith(color: MyColor.textGreyColor),
                               ),
                               verticalGap(MySize.defaultPadding),
                               Text(
-                                'Tarih Aralığı: ${zodiacDetails['dateRange']}',
+                                '${easy.tr("profile.date_range")}: ${zodiacDetails['dateRange']}',
                                 style: MyStyle.s3
                                     .copyWith(color: MyColor.primaryLightColor),
                               ),
@@ -454,12 +454,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Text(
-                                  "Saat",
+                                  easy.tr("profile.hour"),
                                   style:
                                       MyStyle.s2.copyWith(color: MyColor.white),
                                 ),
                                 Text(
-                                  "Dakika",
+                                  easy.tr("profile.minute"),
                                   style:
                                       MyStyle.s2.copyWith(color: MyColor.white),
                                 ),
@@ -574,7 +574,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Bir hata oluştu: $e'),
+                      content: Text(easy.tr("errors.error")),
                       backgroundColor: MyColor.errorColor,
                     ),
                   );
@@ -702,9 +702,12 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildGenderBox('Kadın', 'female', _userController),
-                    _buildGenderBox('Erkek', 'male', _userController),
-                    _buildGenderBox('Diğer', 'other', _userController),
+                    _buildGenderBox(
+                        easy.tr("profile.female"), 'female', _userController),
+                    _buildGenderBox(
+                        easy.tr("profile.male"), 'male', _userController),
+                    _buildGenderBox(
+                        easy.tr("profile.other"), 'other', _userController),
                   ],
                 ),
                 const Spacer(),
@@ -713,7 +716,6 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                     try {
                       return _userController.validateGenderPage();
                     } catch (e) {
-                      print('Cinsiyet sayfası validasyon hatası: $e');
                       return false;
                     }
                   },
@@ -752,9 +754,8 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               onTap: () {
                 try {
                   controller.validateGender(gender);
-                } catch (e) {
-                  print('Cinsiyet seçim hatası: $e');
-                }
+                  // ignore: empty_catches
+                } catch (e) {}
               },
               child: Container(
                 width: 100,
@@ -792,8 +793,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
           ],
         );
       } catch (e) {
-        print('Gender box build hatası: $e');
-        return const SizedBox(); // Hata durumunda boş widget döndür
+        return const SizedBox();
       }
     });
   }
@@ -994,8 +994,8 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                               astrologyController.onInit();
                             } catch (e) {
                               Get.snackbar(
-                                'Hata',
-                                'Profil kaydedilirken bir hata oluştu',
+                                easy.tr("errors.error"),
+                                easy.tr("errors.profile_not_completed"),
                                 backgroundColor: MyColor.errorColor,
                                 colorText: MyColor.white,
                               );
@@ -1015,7 +1015,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                     ),
                   ),
                   child: Text(
-                    'Profili Tamamla',
+                    easy.tr("profile.complete_profile"),
                     style: MyStyle.s2.copyWith(
                       color: MyColor.white,
                       fontWeight: FontWeight.bold,
@@ -1104,7 +1104,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
             ),
           ),
           child: Text(
-            'Devam',
+            easy.tr("profile.continue"),
             style: MyStyle.s2.copyWith(color: MyColor.white),
           ),
         ),

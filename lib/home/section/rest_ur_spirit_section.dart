@@ -13,7 +13,7 @@ Widget restUrSpiritSection(BuildContext context) {
   final List<FortuneCard> fortuneCards = [
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/affirmation.png",
-      title: "Olumlama Egzersizi",
+      title: easy.tr("rest.affirmation"),
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(
@@ -24,7 +24,7 @@ Widget restUrSpiritSection(BuildContext context) {
     ),
     FortuneCard(
       image: "https://apptoic.com/spiroot/images/meditation.png",
-      title: "Meditasyon Egzersizi",
+      title: easy.tr("rest.meditation"),
       color: MyColor.white.withOpacity(0.1),
       onTap: () {
         Navigator.push(

@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class CompatibilityResultScreen extends StatelessWidget {
   final Map<String, dynamic> result;
@@ -29,16 +30,23 @@ class CompatibilityResultScreen extends StatelessWidget {
 
     final Map<String, int> percentages = isLoveType
         ? {
-            'Aşk': (result['lovePercentage'] as num).toInt(),
-            'Tutku': (result['sexPercentage'] as num).toInt(),
-            'Aile': (result['familyPercentage'] as num).toInt(),
-            'Güven': (result['trustPercentage'] as num).toInt(),
+            easy.tr("astrology.love"):
+                (result['lovePercentage'] as num).toInt(),
+            easy.tr("astrology.sex"): (result['sexPercentage'] as num).toInt(),
+            easy.tr("astrology.family"):
+                (result['familyPercentage'] as num).toInt(),
+            easy.tr("astrology.trust"):
+                (result['trustPercentage'] as num).toInt(),
           }
         : {
-            'Arkadaşlık': (result['friendshipPercentage'] as num).toInt(),
-            'Güven': (result['trustPercentage'] as num).toInt(),
-            'İletişim': (result['communicationPercentage'] as num).toInt(),
-            'İş': (result['businessPercentage'] as num).toInt(),
+            easy.tr("astrology.friendship"):
+                (result['friendshipPercentage'] as num).toInt(),
+            easy.tr("astrology.trust"):
+                (result['trustPercentage'] as num).toInt(),
+            easy.tr("astrology.communication"):
+                (result['communicationPercentage'] as num).toInt(),
+            easy.tr("astrology.business"):
+                (result['businessPercentage'] as num).toInt(),
           };
 
     return Scaffold(
@@ -52,15 +60,19 @@ class CompatibilityResultScreen extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
         title: Text(
-          isLoveType ? "Aşk Uyumu" : "Arkadaşlık Uyumu",
+          isLoveType
+              ? easy.tr("astrology.love_compatibility")
+              : easy.tr("astrology.friendship_compatibility"),
           style: MyStyle.s1.copyWith(color: MyColor.white),
         ),
         actions: [
           IconButton(
             onPressed: () {
               Share.share(
-                'SPIROOT uygulamasından paylaşıldı.\n\n${result['overallDescription']}',
-                subject: isLoveType ? 'Aşk Uyumu' : 'Arkadaşlık Uyumu',
+                '${easy.tr("astrology.share_info")}\n\n${result['overallDescription']}',
+                subject: isLoveType
+                    ? easy.tr("astrology.love_compatibility")
+                    : easy.tr("astrology.friendship_compatibility"),
               );
             },
             icon: const Icon(
@@ -72,7 +84,7 @@ class CompatibilityResultScreen extends StatelessWidget {
               minWidth: 44,
               minHeight: 44,
             ),
-            tooltip: "Paylaş",
+            tooltip: easy.tr("astrology.share"),
           ),
         ],
       ),
@@ -113,7 +125,7 @@ class CompatibilityResultScreen extends StatelessWidget {
 
               // Başlık
               Text(
-                result['title'] ?? "Kozmik Bağlantı",
+                result['title'] ?? easy.tr("astrology.cosmic_connection"),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -162,7 +174,7 @@ class CompatibilityResultScreen extends StatelessWidget {
 
               // Overall açıklama
               Text(
-                "Genel Değerlendirme",
+                easy.tr("astrology.general_evaluation"),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -180,7 +192,7 @@ class CompatibilityResultScreen extends StatelessWidget {
 
               // Values açıklaması
               Text(
-                "Ortak Değerler",
+                easy.tr("astrology.common_values"),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
@@ -198,7 +210,9 @@ class CompatibilityResultScreen extends StatelessWidget {
 
               // Aşk ya da arkadaşlık açıklaması
               Text(
-                isLoveType ? "Aşk" : "Arkadaşlık",
+                isLoveType
+                    ? easy.tr("astrology.love")
+                    : easy.tr("astrology.friendship"),
                 style: MyStyle.s1.copyWith(
                   color: MyColor.white,
                   fontWeight: FontWeight.bold,
