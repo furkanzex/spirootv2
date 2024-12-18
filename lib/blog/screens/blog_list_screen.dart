@@ -34,6 +34,7 @@ class _BlogListScreenState extends State<BlogListScreen> {
   final TextEditingController _imageUrlController = TextEditingController();
   final _userController = Get.find<UserController>();
   final _astrologyController = Get.find<AstrologyController>();
+  final _formKey = GlobalKey<FormState>();
   String _searchQuery = '';
   bool _isLoading = false;
 
@@ -52,51 +53,31 @@ class _BlogListScreenState extends State<BlogListScreen> {
   }
 
   Future<void> _submitPost() async {
-    if (_titleController.text.trim().isEmpty ||
-        _contentController.text.trim().isEmpty ||
-        _imageUrlController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(easy.tr("blog.fill_all_fields")),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    if (_contentController.text.trim().length < 500) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(easy.tr("blog.content_min_length")),
-          backgroundColor: Colors.red,
-        ),
-      );
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      if (await _checkUserStatusAndRedirect()) {
-        await _blogService.createBlogPost(
-          title: _titleController.text.trim(),
-          content: _contentController.text.trim(),
-          imageUrl: _imageUrlController.text.trim(),
+      await _blogService.createBlogPost(
+        title: _titleController.text.trim(),
+        content: _contentController.text.trim(),
+        imageUrl: _imageUrlController.text.trim(),
+      );
+
+      _titleController.clear();
+      _contentController.clear();
+      _imageUrlController.clear();
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(easy.tr("blog.post_created")),
+            backgroundColor: Colors.green,
+          ),
         );
-
-        _titleController.clear();
-        _contentController.clear();
-        _imageUrlController.clear();
-
-        if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(easy.tr("blog.post_created")),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
       }
     } catch (e) {
       if (mounted) {
@@ -112,129 +93,193 @@ class _BlogListScreenState extends State<BlogListScreen> {
     }
   }
 
+  bool _isValidUrl(String url) {
+    if (url.isEmpty) return false;
+
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.isAbsolute) return false;
+
+    final validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    return validExtensions.any((ext) => url.toLowerCase().endsWith(ext));
+  }
+
   void _showCreateBlogSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      enableDrag: true,
+      isDismissible: true,
       backgroundColor: MyColor.primaryDarkColor,
       shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
       ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              MySize.defaultPadding,
-              MySize.defaultPadding,
-              MySize.defaultPadding,
-              MediaQuery.of(context).viewInsets.bottom + MySize.defaultPadding,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  easy.tr("blog.new_post"),
-                  style: MyStyle.b4.copyWith(color: MyColor.white),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                TextField(
-                  controller: _titleController,
-                  style: MyStyle.s2.copyWith(color: MyColor.white),
-                  decoration: InputDecoration(
-                    labelText: easy.tr("blog.title"),
-                    labelStyle:
-                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyColor.textGreyColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
-                    ),
-                  ),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                TextField(
-                  controller: _contentController,
-                  style: MyStyle.s2.copyWith(color: MyColor.white),
-                  maxLines: 10,
-                  decoration: InputDecoration(
-                    labelText: easy.tr("blog.content"),
-                    labelStyle:
-                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyColor.textGreyColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
-                    ),
-                  ),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                TextField(
-                  controller: _imageUrlController,
-                  style: MyStyle.s2.copyWith(color: MyColor.white),
-                  decoration: InputDecoration(
-                    labelText: easy.tr("blog.image_url"),
-                    labelStyle:
-                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyColor.textGreyColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
-                    ),
-                  ),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+      builder: (context) => WillPopScope(
+        onWillPop: () async {
+          _titleController.clear();
+          _contentController.clear();
+          _imageUrlController.clear();
+          return true;
+        },
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) => SingleChildScrollView(
+            controller: scrollController,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                MySize.defaultPadding,
+                MySize.defaultPadding,
+                MySize.defaultPadding,
+                MediaQuery.of(context).viewInsets.bottom +
+                    MySize.defaultPadding,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextButton(
-                      onPressed: () {
-                        _titleController.clear();
-                        _contentController.clear();
-                        _imageUrlController.clear();
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        easy.tr("common.cancel"),
-                        style:
-                            MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                      ),
+                    Text(
+                      easy.tr("blog.new_post"),
+                      style: MyStyle.b4.copyWith(color: MyColor.white),
                     ),
-                    SizedBox(width: MySize.defaultPadding),
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _submitPost,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MyColor.primaryPurpleColor,
+                    SizedBox(height: MySize.defaultPadding),
+                    TextFormField(
+                      controller: _titleController,
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                      decoration: InputDecoration(
+                        labelText: easy.tr("blog.title"),
+                        labelStyle:
+                            MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: MyColor.textGreyColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: MyColor.primaryPurpleColor),
+                        ),
+                        errorStyle:
+                            MyStyle.s3.copyWith(color: MyColor.errorColor),
                       ),
-                      child: _isLoading
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: MyColor.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Text(
-                              easy.tr("blog.publish"),
-                              style: MyStyle.s2.copyWith(color: MyColor.white),
-                            ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return easy.tr("blog.title_required");
+                        }
+                        if (value.trim().length < 10) {
+                          return easy.tr("blog.title_min_length");
+                        }
+                        if (value.trim().length > 100) {
+                          return easy.tr("blog.title_max_length");
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: MySize.defaultPadding),
+                    TextFormField(
+                      controller: _contentController,
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                      maxLines: 10,
+                      decoration: InputDecoration(
+                        labelText: easy.tr("blog.content"),
+                        labelStyle:
+                            MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: MyColor.textGreyColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: MyColor.primaryPurpleColor),
+                        ),
+                        errorStyle:
+                            MyStyle.s3.copyWith(color: MyColor.errorColor),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return easy.tr("blog.content_required");
+                        }
+                        if (value.trim().length < 500) {
+                          return easy.tr("blog.content_min_length");
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: MySize.defaultPadding),
+                    TextFormField(
+                      controller: _imageUrlController,
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                      decoration: InputDecoration(
+                        labelText: easy.tr("blog.image_url"),
+                        labelStyle:
+                            MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: MyColor.textGreyColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: MyColor.primaryPurpleColor),
+                        ),
+                        errorStyle:
+                            MyStyle.s3.copyWith(color: MyColor.errorColor),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return easy.tr("blog.image_url_required");
+                        }
+                        if (!_isValidUrl(value.trim())) {
+                          return easy.tr("blog.invalid_image_url");
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: MySize.defaultPadding),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            _titleController.clear();
+                            _contentController.clear();
+                            _imageUrlController.clear();
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            easy.tr("common.cancel"),
+                            style: MyStyle.s2
+                                .copyWith(color: MyColor.textGreyColor),
+                          ),
+                        ),
+                        SizedBox(width: MySize.defaultPadding),
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : _submitPost,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: MyColor.primaryPurpleColor,
+                          ),
+                          child: _isLoading
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: MyColor.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  easy.tr("blog.publish"),
+                                  style:
+                                      MyStyle.s2.copyWith(color: MyColor.white),
+                                ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -358,7 +403,11 @@ class _BlogListScreenState extends State<BlogListScreen> {
           actions: [
             IconButton(
               icon: Icon(Icons.add, color: MyColor.white),
-              onPressed: () => _showCreateBlogSheet(),
+              onPressed: () async {
+                if (await _checkUserStatusAndRedirect()) {
+                  _showCreateBlogSheet();
+                }
+              },
             ),
             IconButton(
               icon: Icon(Icons.bookmark, color: MyColor.white),
