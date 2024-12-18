@@ -150,7 +150,7 @@ class _SpiritualChatScreenState extends State<SpiritualChatScreen> {
                           ? null
                           : () {
                               if (!isSubscribed) {
-                                Get.to(() => const PaywallScreen());
+                                paywall();
                                 return;
                               }
                               _sendMessage();

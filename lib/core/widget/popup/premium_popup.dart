@@ -73,7 +73,7 @@ class PremiumPopup extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Get.back();
-                  Get.to(() => PaywallScreen());
+                  paywall();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: MyColor.primaryColor,

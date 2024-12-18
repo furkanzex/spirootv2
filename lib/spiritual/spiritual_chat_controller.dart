@@ -140,7 +140,7 @@ class SpiritualChatController extends GetxController {
 
     // Abonelik kontrolü
     if (!_astrologyController.isSubscribed.value) {
-      Get.to(() => const PaywallScreen());
+      paywall();
       return;
     }
 

@@ -45,7 +45,7 @@ class _BlogListScreenState extends State<BlogListScreen> {
     }
 
     if (!_astrologyController.isSubscribed.value) {
-      Get.to(() => const PaywallScreen());
+      paywall();
       return false;
     }
 

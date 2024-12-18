@@ -77,10 +77,7 @@ class _EditBlogPostScreenState extends State<EditBlogPostScreen> {
         );
       } else if (errorMessage.contains('subscription_required')) {
         // Abonelik ekranına yönlendir
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PaywallScreen()),
-        );
+        paywall();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

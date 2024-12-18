@@ -41,7 +41,7 @@ class _SocialScreenState extends State<SocialScreen> {
     }
 
     if (!_astrologyController.isSubscribed.value) {
-      Get.to(() => const PaywallScreen());
+      paywall();
       return false;
     }
 

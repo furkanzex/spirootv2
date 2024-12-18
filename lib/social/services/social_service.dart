@@ -23,7 +23,7 @@ class SocialService {
     }
 
     if (!astrologyController.isSubscribed.value) {
-      Get.to(() => const PaywallScreen());
+      paywall();
       return false;
     }
 
