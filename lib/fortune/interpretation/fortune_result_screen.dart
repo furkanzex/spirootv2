@@ -11,6 +11,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/interpretation/fortune_camera_screen.dart';
 import 'package:spirootv2/home/home_controller.dart';
@@ -18,7 +19,6 @@ import 'package:spirootv2/profile/user_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
-import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/core/widget/popup/premium_popup.dart';
 
 class FortuneResultScreen extends StatefulWidget {
@@ -44,8 +44,6 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
   bool _isForSelf = false;
   bool _hasProfile = false;
   bool _isInterpreting = false;
-  final AstrologyController _astrologyController =
-      Get.find<AstrologyController>();
 
   @override
   void initState() {
@@ -375,7 +373,8 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
 
   Future<void> _sendFortune() async {
     // Abonelik kontrolü
-    if (!_astrologyController.isSubscribed.value) {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) {
       Get.dialog(
         PremiumPopup(
           onSingleUse: () async {

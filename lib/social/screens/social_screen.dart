@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:intl/intl.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/social/screens/my_content_screen.dart';
 import 'dart:ui' as ui;
 import '../services/social_service.dart';
@@ -15,7 +16,6 @@ import 'package:get/get.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:spirootv2/paywall/paywall_screen.dart';
 import 'package:spirootv2/profile/user_controller.dart';
-import 'package:spirootv2/astrology/astrology_controller.dart';
 
 class SocialScreen extends StatefulWidget {
   const SocialScreen({super.key});
@@ -28,7 +28,6 @@ class _SocialScreenState extends State<SocialScreen> {
   final _postController = TextEditingController();
   bool _isPostsTab = true;
   final _userController = Get.find<UserController>();
-  final _astrologyController = Get.find<AstrologyController>();
   final Map<String, bool> _expandedPosts = {};
   final Map<String, bool> _expandedEvents = {};
   final _postsScrollController = ScrollController();
@@ -40,7 +39,8 @@ class _SocialScreenState extends State<SocialScreen> {
       return false;
     }
 
-    if (!_astrologyController.isSubscribed.value) {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) {
       paywall();
       return false;
     }

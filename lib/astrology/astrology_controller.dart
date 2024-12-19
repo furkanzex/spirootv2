@@ -1356,7 +1356,7 @@ class AstrologyController extends GetxController {
 
   Future<void> _checkSubscriptionStatus() async {
     try {
-      isSubscribed.value = await PurchaseAPI.checkSubscriptionStatus();
+      isSubscribed.value = await PurchaseAPI.isPremium();
     } catch (e) {
       isSubscribed.value = false;
     }

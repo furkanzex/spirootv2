@@ -9,6 +9,7 @@ import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/tarot/tarot_card_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +17,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/core/widget/popup/premium_popup.dart';
 
 class TarotScreen extends StatefulWidget {
@@ -43,8 +43,6 @@ class _TarotScreenState extends State<TarotScreen>
   bool _isInterpreting = false;
   Timer? _interpretationTimer;
   bool _isLoading = true;
-  final AstrologyController _astrologyController =
-      Get.find<AstrologyController>();
 
   @override
   void initState() {
@@ -93,7 +91,8 @@ class _TarotScreenState extends State<TarotScreen>
 
   Future<void> _interpretCards() async {
     // Abonelik kontrolü
-    if (!_astrologyController.isSubscribed.value) {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) {
       Get.dialog(
         PremiumPopup(
           onSingleUse: () async {

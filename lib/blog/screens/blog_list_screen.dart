@@ -13,11 +13,11 @@ import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/paywall/paywall_screen.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/profile/user_controller.dart';
-import 'package:spirootv2/astrology/astrology_controller.dart';
 
 class BlogListScreen extends StatefulWidget {
   const BlogListScreen({super.key});
@@ -33,7 +33,6 @@ class _BlogListScreenState extends State<BlogListScreen> {
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
   final _userController = Get.find<UserController>();
-  final _astrologyController = Get.find<AstrologyController>();
   final _formKey = GlobalKey<FormState>();
   String _searchQuery = '';
   bool _isLoading = false;
@@ -44,7 +43,8 @@ class _BlogListScreenState extends State<BlogListScreen> {
       return false;
     }
 
-    if (!_astrologyController.isSubscribed.value) {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) {
       paywall();
       return false;
     }

@@ -106,10 +106,17 @@ class PurchaseAPI {
   static Future<bool> checkSubscriptionStatus() async {
     try {
       final customerInfo = await Purchases.getCustomerInfo();
-      return customerInfo.entitlements.active.containsKey('spiroot.weekly') ||
-          customerInfo.entitlements.active.containsKey('spiroot.monthly');
+      return customerInfo.entitlements.active.containsKey('paywall');
     } catch (e) {
       log("Error checking subscription status: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> isPremium() async {
+    try {
+      return await checkSubscriptionStatus();
+    } catch (e) {
       return false;
     }
   }

@@ -27,6 +27,7 @@ import 'package:spirootv2/core/service/natal_chart_service.dart';
 import 'package:spirootv2/astrology/natal_chart.dart';
 import 'package:lottie/lottie.dart';
 import 'package:spirootv2/astrology/compatibility_screen.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 
 class AstrologyScreen extends StatefulWidget {
   const AstrologyScreen({super.key});
@@ -1845,22 +1846,19 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     );
   }
 
-  void _showCosmicMessage() {
-    if (_astrologyController.isSubscribed.value) {
-      // Mevcut kozmik mesaj gösterme fonksiyonu
+  void _showCosmicMessage() async {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (isPremium) {
       _showCosmicMessageContent();
     } else {
-      // Seçilen zaman dilimine göre premium kontrolü yap
       if (_astrologyController.selectedDay.value !=
           "astrology.horoscope.dates.today") {
-        // Haftalık ve aylık yorumlar için premium popup göster
         Get.dialog(
           PremiumPopup(
             onSingleUse: () => _showCosmicMessageContent(),
           ),
         );
       } else {
-        // Günlük yorum için direkt göster
         _showCosmicMessageContent();
       }
     }
@@ -2492,174 +2490,179 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
   }
 
   Widget _buildWeeklyNatalReading() {
-    return Obx(() {
-      // Premium kontrolü ekle
-      if (!_astrologyController.isSubscribed.value) {
-        return Container(
-          padding: const EdgeInsets.all(MySize.defaultPadding),
-          decoration: BoxDecoration(
-            color: MyColor.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(MySize.halfRadius),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Get.dialog(
-                PremiumPopup(
-                  onSingleUse: () {
-                    Get.back();
-                    _astrologyController.checkWeeklyNatalReading();
-                  },
-                ),
+    return FutureBuilder<bool>(
+        future: PurchaseAPI.isPremium(),
+        builder: (context, snapshot) {
+          final isPremium = snapshot.data ?? false;
+
+          if (!isPremium) {
+            return Container(
+              padding: const EdgeInsets.all(MySize.defaultPadding),
+              decoration: BoxDecoration(
+                color: MyColor.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(MySize.halfRadius),
               ),
-              borderRadius: BorderRadius.circular(MySize.halfRadius),
-              child: Padding(
-                padding: const EdgeInsets.all(MySize.halfPadding),
-                child: Column(
-                  children: [
-                    Row(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => Get.dialog(
+                    PremiumPopup(
+                      onSingleUse: () {
+                        Get.back();
+                        _astrologyController.checkWeeklyNatalReading();
+                      },
+                    ),
+                  ),
+                  borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  child: Padding(
+                    padding: const EdgeInsets.all(MySize.halfPadding),
+                    child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(MySize.halfPadding),
-                          decoration: BoxDecoration(
-                            color: MyColor.white.withOpacity(0.05),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.auto_graph,
-                            color: MyColor.white,
-                          ),
-                        ),
-                        horizontalGap(MySize.defaultPadding),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                easy.tr("astrology.weekly_natal_reading"),
-                                style: MyStyle.s2.copyWith(
-                                  color: MyColor.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(MySize.halfPadding),
+                              decoration: BoxDecoration(
+                                color: MyColor.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              Text(
-                                easy.tr(
-                                    "astrology.weekly_natal_reading_description"),
-                                style: MyStyle.s3.copyWith(
-                                  color: MyColor.textGreyColor,
-                                ),
+                              child: const Icon(
+                                Icons.auto_graph,
+                                color: MyColor.white,
                               ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.lock_outline,
-                          color: MyColor.white,
+                            ),
+                            horizontalGap(MySize.defaultPadding),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    easy.tr("astrology.weekly_natal_reading"),
+                                    style: MyStyle.s2.copyWith(
+                                      color: MyColor.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    easy.tr(
+                                        "astrology.weekly_natal_reading_description"),
+                                    style: MyStyle.s3.copyWith(
+                                      color: MyColor.textGreyColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.lock_outline,
+                              color: MyColor.white,
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          if (!_astrologyController.isWeeklyNatalAvailable.value) {
+            return const SizedBox.shrink();
+          }
+          final reading = _astrologyController.weeklyNatalReading;
+
+          return Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: MySize.defaultPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: MyColor.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.auto_graph,
+                        color: MyColor.white,
+                      ),
+                    ),
+                    horizontalGap(MySize.defaultPadding),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            easy.tr("astrology.weekly_natal_reading"),
+                            style: MyStyle.s2.copyWith(
+                              color: MyColor.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            easy.tr(
+                                "astrology.weekly_natal_reading_description"),
+                            style: MyStyle.s3.copyWith(
+                              color: MyColor.textGreyColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ),
-          ),
-        );
-      }
-
-      if (!_astrologyController.isWeeklyNatalAvailable.value) {
-        return const SizedBox.shrink();
-      }
-      final reading = _astrologyController.weeklyNatalReading;
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: MySize.defaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: MyColor.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.auto_graph,
+                verticalGap(MySize.defaultPadding),
+                Text(
+                  reading['overview'] ?? '',
+                  style: MyStyle.s3.copyWith(
                     color: MyColor.white,
+                    height: 1.5,
                   ),
                 ),
-                horizontalGap(MySize.defaultPadding),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        easy.tr("astrology.weekly_natal_reading"),
-                        style: MyStyle.s2.copyWith(
-                          color: MyColor.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        easy.tr("astrology.weekly_natal_reading_description"),
-                        style: MyStyle.s3.copyWith(
-                          color: MyColor.textGreyColor,
-                        ),
-                      ),
-                    ],
+                if (reading['aspects'] != null) ...[
+                  verticalGap(MySize.defaultPadding),
+                  Text(
+                    easy.tr("astrology.important_aspects"),
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                  verticalGap(MySize.halfPadding),
+                  Text(
+                    reading['aspects'],
+                    style: MyStyle.s3.copyWith(
+                      color: MyColor.white,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+                if (reading['advice'] != null) ...[
+                  verticalGap(MySize.defaultPadding),
+                  Text(
+                    easy.tr("astrology.advice"),
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  verticalGap(MySize.halfPadding),
+                  Text(
+                    reading['advice'],
+                    style: MyStyle.s3.copyWith(
+                      color: MyColor.white,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
               ],
             ),
-            verticalGap(MySize.defaultPadding),
-            Text(
-              reading['overview'] ?? '',
-              style: MyStyle.s3.copyWith(
-                color: MyColor.white,
-                height: 1.5,
-              ),
-            ),
-            if (reading['aspects'] != null) ...[
-              verticalGap(MySize.defaultPadding),
-              Text(
-                easy.tr("astrology.important_aspects"),
-                style: MyStyle.s2.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              verticalGap(MySize.halfPadding),
-              Text(
-                reading['aspects'],
-                style: MyStyle.s3.copyWith(
-                  color: MyColor.white,
-                  height: 1.5,
-                ),
-              ),
-            ],
-            if (reading['advice'] != null) ...[
-              verticalGap(MySize.defaultPadding),
-              Text(
-                easy.tr("astrology.advice"),
-                style: MyStyle.s2.copyWith(
-                  color: MyColor.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              verticalGap(MySize.halfPadding),
-              Text(
-                reading['advice'],
-                style: MyStyle.s3.copyWith(
-                  color: MyColor.white,
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
-    });
+          );
+        });
   }
 
   // Numeroloji içeriğini gösterme fonksiyonu
