@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:intl/intl.dart';
+import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/social/screens/my_content_screen.dart';
 import 'dart:ui' as ui;
@@ -60,43 +61,48 @@ class _SocialScreenState extends State<SocialScreen> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
-        backgroundColor: MyColor.transparent,
-        appBar: TabBar(
-          labelColor: MyColor.white,
-          unselectedLabelColor: MyColor.white.withOpacity(0.5),
-          dividerColor: MyColor.white.withOpacity(0.5),
-          indicatorColor: MyColor.transparent,
-          onTap: (index) {
-            setState(() {
-              _isPostsTab = index == 0;
-            });
-          },
-          tabs: [
-            Tab(text: easy.tr('social.posts')),
-            Tab(text: easy.tr('social.events')),
-          ],
-        ),
-        body: TabBarView(
-          children: [
-            _buildPostsTab(),
-            _buildEventsTab(),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            if (await _checkUserStatusAndRedirect()) {
-              if (_isPostsTab) {
-                _showCreatePostSheet();
-              } else {
-                _showCreateEventSheet();
+      child: GestureDetector(
+        onTap: () => DeviceHelper.hideKeyboard(),
+        child: Scaffold(
+          backgroundColor: MyColor.transparent,
+          appBar: TabBar(
+            labelColor: MyColor.white,
+            unselectedLabelColor: MyColor.white.withOpacity(0.5),
+            dividerColor: MyColor.white.withOpacity(0.5),
+            indicatorColor: MyColor.transparent,
+            onTap: (index) {
+              setState(() {
+                _isPostsTab = index == 0;
+              });
+            },
+            tabs: [
+              Tab(text: easy.tr('social.posts')),
+              Tab(text: easy.tr('social.events')),
+            ],
+          ),
+          body: TabBarView(
+            physics:
+                const NeverScrollableScrollPhysics(), // Yatay kaydırmayı devre dışı bırak
+            children: [
+              _buildPostsTab(),
+              _buildEventsTab(),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              if (await _checkUserStatusAndRedirect()) {
+                if (_isPostsTab) {
+                  _showCreatePostSheet();
+                } else {
+                  _showCreateEventSheet();
+                }
               }
-            }
-          },
-          backgroundColor: MyColor.primaryPurpleColor,
-          child: Icon(
-            _isPostsTab ? Icons.post_add : Icons.event_available,
-            color: MyColor.primaryDarkColor,
+            },
+            backgroundColor: MyColor.primaryPurpleColor,
+            child: Icon(
+              _isPostsTab ? Icons.post_add : Icons.event_available,
+              color: MyColor.primaryDarkColor,
+            ),
           ),
         ),
       ),
@@ -664,6 +670,224 @@ class _SocialScreenState extends State<SocialScreen> {
     );
   }
 
+  void _showCreateEventSheet() {
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+    final locationController = TextEditingController();
+    final imageUrlController = TextEditingController();
+    final now = DateTime.now();
+    DateTime selectedDate = now;
+    TimeOfDay selectedTime = TimeOfDay.fromDateTime(now);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: MyColor.primaryDarkColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              MySize.defaultPadding,
+              MySize.defaultPadding,
+              MySize.defaultPadding,
+              MediaQuery.of(context).viewInsets.bottom + MySize.defaultPadding,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Yeni Etkinlik',
+                  style: MyStyle.b4.copyWith(color: MyColor.white),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                TextField(
+                  controller: titleController,
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  decoration: InputDecoration(
+                    labelText: 'Başlık',
+                    labelStyle:
+                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
+                    ),
+                  ),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                TextField(
+                  controller: descriptionController,
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Açıklama',
+                    labelStyle:
+                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
+                    ),
+                  ),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                TextField(
+                  controller: locationController,
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  decoration: InputDecoration(
+                    labelText: 'Konum',
+                    labelStyle:
+                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
+                    ),
+                  ),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                TextField(
+                  controller: imageUrlController,
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  decoration: InputDecoration(
+                    labelText: 'Görsel URL',
+                    labelStyle:
+                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
+                    ),
+                  ),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                Container(
+                  padding: EdgeInsets.all(MySize.defaultPadding),
+                  decoration: BoxDecoration(
+                    color: MyColor.darkBackgroundColor,
+                    borderRadius: BorderRadius.circular(MySize.halfRadius),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Etkinlik Tarihi ve Saati',
+                        style: MyStyle.s2.copyWith(color: MyColor.white),
+                      ),
+                      SizedBox(height: MySize.defaultPadding),
+                      Container(
+                        height: 180,
+                        decoration: BoxDecoration(
+                          color: MyColor.transparent,
+                          borderRadius:
+                              BorderRadius.circular(MySize.quarterRadius),
+                        ),
+                        child: CupertinoTheme(
+                          data: CupertinoThemeData(
+                            textTheme: CupertinoTextThemeData(
+                              dateTimePickerTextStyle: MyStyle.s1.copyWith(
+                                color: MyColor.white,
+                                fontSize: 22,
+                              ),
+                            ),
+                          ),
+                          child: CupertinoDatePicker(
+                            itemExtent: MySize.tenQuartersPadding,
+                            mode: CupertinoDatePickerMode.dateAndTime,
+                            initialDateTime: DateTime.now(),
+                            maximumDate:
+                                DateTime.now().add(const Duration(days: 365)),
+                            onDateTimeChanged: (DateTime value) {
+                              selectedDate = value;
+                              selectedTime = TimeOfDay.fromDateTime(value);
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: MySize.defaultPadding),
+                      Text(
+                        'Seçilen Tarih: ${DateFormat('dd.MM.yyyy').format(selectedDate)}',
+                        style:
+                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                      ),
+                      Text(
+                        'Seçilen Saat: ${selectedTime.format(context)}',
+                        style:
+                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: MySize.defaultPadding),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'İptal',
+                        style:
+                            MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                      ),
+                    ),
+                    SizedBox(width: MySize.defaultPadding),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (titleController.text.trim().isNotEmpty &&
+                            descriptionController.text.trim().isNotEmpty &&
+                            locationController.text.trim().isNotEmpty) {
+                          final eventDate = DateTime(
+                            selectedDate.year,
+                            selectedDate.month,
+                            selectedDate.day,
+                            selectedTime.hour,
+                            selectedTime.minute,
+                          );
+
+                          await SocialService.createEvent(
+                            title: titleController.text.trim(),
+                            description: descriptionController.text.trim(),
+                            location: locationController.text.trim(),
+                            eventDate: eventDate,
+                            imageUrl: imageUrlController.text.trim(),
+                            creatorName: _userController.userName,
+                          );
+
+                          if (mounted) Navigator.pop(context);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MyColor.primaryPurpleColor,
+                      ),
+                      child: Text(
+                        'Oluştur',
+                        style: MyStyle.s2.copyWith(color: MyColor.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showCreatePostSheet() {
     showModalBottomSheet(
       context: context,
@@ -742,200 +966,6 @@ class _SocialScreenState extends State<SocialScreen> {
                       ),
                       child: Text(
                         easy.tr("social.share"),
-                        style: MyStyle.s2.copyWith(color: MyColor.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showCreateEventSheet() {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-    final locationController = TextEditingController();
-    final imageUrlController = TextEditingController();
-    final initialDate = DateTime.now();
-    DateTime selectedDate = initialDate;
-    TimeOfDay selectedTime = TimeOfDay.fromDateTime(initialDate);
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: MyColor.primaryDarkColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(MySize.halfRadius)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              MySize.defaultPadding,
-              MySize.defaultPadding,
-              MySize.defaultPadding,
-              MediaQuery.of(context).viewInsets.bottom + MySize.defaultPadding,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  easy.tr("social.new_event"),
-                  style: MyStyle.b4.copyWith(color: MyColor.white),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                TextField(
-                  controller: titleController,
-                  style: MyStyle.s2.copyWith(color: MyColor.white),
-                  decoration: InputDecoration(
-                    labelText: easy.tr("social.event.title"),
-                    labelStyle:
-                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                  ),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                TextField(
-                  controller: descriptionController,
-                  style: MyStyle.s2.copyWith(color: MyColor.white),
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    labelText: easy.tr("social.event.description"),
-                    labelStyle:
-                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                  ),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                TextField(
-                  controller: locationController,
-                  style: MyStyle.s2.copyWith(color: MyColor.white),
-                  decoration: InputDecoration(
-                    labelText: easy.tr("social.event.location"),
-                    labelStyle:
-                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                  ),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                TextField(
-                  controller: imageUrlController,
-                  style: MyStyle.s2.copyWith(color: MyColor.white),
-                  decoration: InputDecoration(
-                    labelText: easy.tr("social.event.image_url"),
-                    labelStyle:
-                        MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                  ),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                Container(
-                  padding: EdgeInsets.all(MySize.defaultPadding),
-                  decoration: BoxDecoration(
-                    color: MyColor.darkBackgroundColor,
-                    borderRadius: BorderRadius.circular(MySize.halfRadius),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        easy.tr("social.event.select_date"),
-                        style: MyStyle.s2.copyWith(color: MyColor.white),
-                      ),
-                      SizedBox(height: MySize.defaultPadding),
-                      Container(
-                        height: 180,
-                        decoration: BoxDecoration(
-                          color: MyColor.transparent,
-                          borderRadius:
-                              BorderRadius.circular(MySize.quarterRadius),
-                        ),
-                        child: CupertinoTheme(
-                          data: CupertinoThemeData(
-                            textTheme: CupertinoTextThemeData(
-                              dateTimePickerTextStyle: MyStyle.s1.copyWith(
-                                color: MyColor.white,
-                                fontSize: 22,
-                              ),
-                            ),
-                          ),
-                          child: CupertinoDatePicker(
-                            itemExtent: MySize.tenQuartersPadding,
-                            mode: CupertinoDatePickerMode.dateAndTime,
-                            initialDateTime: initialDate,
-                            maximumDate:
-                                initialDate.add(const Duration(days: 365)),
-                            onDateTimeChanged: (DateTime value) {
-                              selectedDate = value;
-                              selectedTime = TimeOfDay.fromDateTime(value);
-                            },
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: MySize.defaultPadding),
-                      Text(
-                        '${easy.tr("social.event.selected_date")}: ${DateFormat('dd.MM.yyyy').format(selectedDate)}',
-                        style:
-                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
-                      ),
-                      Text(
-                        '${easy.tr("social.event.selected_time")}: ${selectedTime.format(context)}',
-                        style:
-                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: MySize.defaultPadding),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        easy.tr("common.cancel"),
-                        style:
-                            MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                      ),
-                    ),
-                    SizedBox(width: MySize.defaultPadding),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (titleController.text.trim().isNotEmpty &&
-                            descriptionController.text.trim().isNotEmpty &&
-                            locationController.text.trim().isNotEmpty) {
-                          final eventDate = DateTime(
-                            selectedDate.year,
-                            selectedDate.month,
-                            selectedDate.day,
-                            selectedTime.hour,
-                            selectedTime.minute,
-                          );
-
-                          await SocialService.createEvent(
-                            title: titleController.text.trim(),
-                            description: descriptionController.text.trim(),
-                            location: locationController.text.trim(),
-                            eventDate: eventDate,
-                            imageUrl: imageUrlController.text.trim(),
-                            creatorName: _userController.userName,
-                          );
-
-                          if (mounted) Navigator.pop(context);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MyColor.primaryPurpleColor,
-                      ),
-                      child: Text(
-                        easy.tr("social.event.create"),
                         style: MyStyle.s2.copyWith(color: MyColor.white),
                       ),
                     ),
