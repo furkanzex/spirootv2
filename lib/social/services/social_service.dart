@@ -8,6 +8,7 @@ import 'package:spirootv2/paywall/paywall_screen.dart';
 import '../models/post_model.dart';
 import '../models/comment_model.dart';
 import '../models/event_model.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class SocialService {
   static final _firestore = FirebaseFirestore.instance;
@@ -390,6 +391,17 @@ class SocialService {
     if (!reports.contains(userId)) {
       reports.add(userId);
       await commentRef.update({'reports': reports});
+    }
+  }
+
+  Future<void> checkSubscriptionStatus() async {
+    try {
+      final isSubscribed = await PurchaseAPI.checkSubscriptionStatus();
+      if (!isSubscribed) {
+        throw Exception(easy.tr('blog.subscription_required'));
+      }
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 }

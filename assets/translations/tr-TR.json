@@ -206,6 +206,9 @@
     "prophecy": "Kehanet"
   },
   "profile": {
+    "gender_title": "Cinsiyet",
+    "interests_title": "İlgi Alanları",
+    "relationship_title": "İlişki Durumu",
     "profile_not_completed": "Profil Tamamlanmamış",
     "profile_not_completed_desc": "Bu işlemi gerçekleştirmek için önce profilinizi tamamlamalısınız.",
     "continue": "Devam",

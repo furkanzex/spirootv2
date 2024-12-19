@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'dart:developer';
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -179,8 +180,10 @@ class AuthController extends GetxController {
   // Aktif abonelik kontrolü
   Future<bool> hasActiveSubscription() async {
     try {
+      // RevenueCat'ten abonelik durumunu kontrol et
       return await PurchaseAPI.checkSubscriptionStatus();
     } catch (e) {
+      log("Error checking subscription status: $e");
       return false;
     }
   }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/auth/auth_controller.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import '../models/blog_post.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
@@ -24,9 +25,17 @@ class BlogService {
     }
 
     // Abonelik kontrolü
-    final hasActiveSubscription = await _authController.hasActiveSubscription();
-    if (!hasActiveSubscription) {
-      throw Exception(easy.tr('blog.subscription_required'));
+    await checkSubscriptionStatus();
+  }
+
+  Future<void> checkSubscriptionStatus() async {
+    try {
+      final hasActiveSubscription = await PurchaseAPI.checkSubscriptionStatus();
+      if (!hasActiveSubscription) {
+        throw Exception(easy.tr('blog.subscription_required'));
+      }
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 

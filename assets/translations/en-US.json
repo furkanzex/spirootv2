@@ -206,6 +206,9 @@
     "prophecy": "Prophecy"
   },
   "profile": {
+    "gender_title": "Gender",
+    "interests_title": "Interests",
+    "relationship_title": "Relationship Status",
     "profile_not_completed": "Profile Not Completed",
     "profile_not_completed_desc": "This action cannot be performed without completing the profile.",
     "continue": "Continue",

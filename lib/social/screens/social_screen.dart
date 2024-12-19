@@ -760,9 +760,9 @@ class _SocialScreenState extends State<SocialScreen> {
     final descriptionController = TextEditingController();
     final locationController = TextEditingController();
     final imageUrlController = TextEditingController();
-    final now = DateTime.now();
-    DateTime selectedDate = now;
-    TimeOfDay selectedTime = TimeOfDay.fromDateTime(now);
+    final initialDate = DateTime.now();
+    DateTime selectedDate = initialDate;
+    TimeOfDay selectedTime = TimeOfDay.fromDateTime(initialDate);
 
     showModalBottomSheet(
       context: context,
@@ -869,10 +869,9 @@ class _SocialScreenState extends State<SocialScreen> {
                           child: CupertinoDatePicker(
                             itemExtent: MySize.tenQuartersPadding,
                             mode: CupertinoDatePickerMode.dateAndTime,
-                            initialDateTime: DateTime.now(),
-                            minimumDate: DateTime.now(),
+                            initialDateTime: initialDate,
                             maximumDate:
-                                DateTime.now().add(const Duration(days: 365)),
+                                initialDate.add(const Duration(days: 365)),
                             onDateTimeChanged: (DateTime value) {
                               selectedDate = value;
                               selectedTime = TimeOfDay.fromDateTime(value);

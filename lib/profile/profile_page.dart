@@ -76,18 +76,18 @@ class ProfilePage extends StatelessWidget {
               verticalGap(MySize.defaultPadding),
 
               // Cinsiyet
-              _buildReadOnlyField(easy.tr("profile.gender"),
+              _buildReadOnlyField(easy.tr("profile.gender_title"),
                   easy.tr(_userController.selectedGender.value)),
               verticalGap(MySize.defaultPadding),
 
               // İlişki Durumu
-              _buildReadOnlyField(easy.tr("profile.relationship_status"),
+              _buildReadOnlyField(easy.tr("profile.relationship_title"),
                   easy.tr(_userController.selectedRelationshipStatus.value)),
               verticalGap(MySize.defaultPadding),
 
               // İlgi Alanları
               Text(
-                easy.tr("profile.interests"),
+                easy.tr("profile.interests_title"),
                 style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
               ),
               verticalGap(MySize.halfPadding),

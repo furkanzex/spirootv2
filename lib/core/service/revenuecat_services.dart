@@ -67,16 +67,18 @@ class PurchaseAPI {
 
   void setupSubscriptionListener({Function? onSubscriptionUpdated}) {
     Purchases.addCustomerInfoUpdateListener((customerInfo) async {
-      final isSubscribed = customerInfo.entitlements.active.isNotEmpty;
+      final isSubscribed =
+          customerInfo.entitlements.active.containsKey('spiroot.weekly') ||
+              customerInfo.entitlements.active.containsKey('spiroot.monthly');
       log("Subscription status changed: $isSubscribed");
 
       if (onSubscriptionUpdated != null) {
         onSubscriptionUpdated();
       }
 
-      // Sadece abonelik satın alındığında uygulamayı yeniden başlat
-      if (isSubscribed &&
-          customerInfo.entitlements.active.containsKey('premium')) {
+      // Sadece aylık veya haftalık abonelik paketleri için yeniden başlat
+      if (customerInfo.entitlements.active.containsKey('spiroot.weekly') ||
+          customerInfo.entitlements.active.containsKey('spiroot.monthly')) {
         await Future.delayed(const Duration(seconds: 1));
         Phoenix.rebirth(Get.context!);
       }
@@ -104,7 +106,8 @@ class PurchaseAPI {
   static Future<bool> checkSubscriptionStatus() async {
     try {
       final customerInfo = await Purchases.getCustomerInfo();
-      return customerInfo.entitlements.active.isNotEmpty;
+      return customerInfo.entitlements.active.containsKey('spiroot.weekly') ||
+          customerInfo.entitlements.active.containsKey('spiroot.monthly');
     } catch (e) {
       log("Error checking subscription status: $e");
       return false;
