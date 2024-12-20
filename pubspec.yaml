@@ -57,6 +57,7 @@ dependencies:
   envied: ^1.0.0
   flutter_phoenix: ^1.1.1
   flutter_google_places_sdk: ^0.3.8
+  in_app_review: ^2.0.10
 
 dev_dependencies:
   flutter_test:

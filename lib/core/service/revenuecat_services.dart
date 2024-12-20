@@ -68,8 +68,7 @@ class PurchaseAPI {
   void setupSubscriptionListener({Function? onSubscriptionUpdated}) {
     Purchases.addCustomerInfoUpdateListener((customerInfo) async {
       final isSubscribed =
-          customerInfo.entitlements.active.containsKey('spiroot.weekly') ||
-              customerInfo.entitlements.active.containsKey('spiroot.monthly');
+          customerInfo.entitlements.active.containsKey('paywall');
       log("Subscription status changed: $isSubscribed");
 
       if (onSubscriptionUpdated != null) {
@@ -77,8 +76,7 @@ class PurchaseAPI {
       }
 
       // Sadece aylık veya haftalık abonelik paketleri için yeniden başlat
-      if (customerInfo.entitlements.active.containsKey('spiroot.weekly') ||
-          customerInfo.entitlements.active.containsKey('spiroot.monthly')) {
+      if (customerInfo.entitlements.active.containsKey('paywall')) {
         await Future.delayed(const Duration(seconds: 1));
         Phoenix.rebirth(Get.context!);
       }

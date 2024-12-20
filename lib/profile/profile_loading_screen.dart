@@ -9,6 +9,7 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/home/homepage.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/paywall/paywall_screen.dart';
+import 'package:spirootv2/core/service/review_service.dart';
 
 class ProfileLoadingScreen extends StatefulWidget {
   final Future<void> Function() onLoadComplete;
@@ -65,7 +66,8 @@ class _ProfileLoadingScreenState extends State<ProfileLoadingScreen>
       await widget.onLoadComplete();
 
       if (mounted) {
-        paywall();
+        await paywall();
+        await ReviewService.requestReview();
         Get.offAll(() => const HomePage());
       }
     } catch (e) {

@@ -752,18 +752,15 @@ class _SocialScreenState extends State<SocialScreen> {
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
                       borderSide: BorderSide(color: MyColor.textGreyColor),
                     ),
                     disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
                       borderSide: BorderSide(color: MyColor.textGreyColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: MyColor.textGreyColor),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
                       borderSide: BorderSide(color: MyColor.primaryPurpleColor),
                     ),
                   ),
