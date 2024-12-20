@@ -624,7 +624,8 @@
     "try_again": "Tekrar Dene",
     "success": "Başarılı",
     "error": "Hata",
-    "clear": "Temizle"
+    "clear": "Temizle",
+    "create": "Oluştur"
   },
   "spiritual_chat": {
     "welcome_message": "Ruhunuza huzur, kalbinize ışık diliyorum. Bugün size nasıl rehberlik edebilirim?",
