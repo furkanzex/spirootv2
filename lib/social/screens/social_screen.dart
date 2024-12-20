@@ -21,6 +21,7 @@ import 'package:spirootv2/profile/user_controller.dart';
 
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'dart:async';
+import 'package:url_launcher/url_launcher.dart';
 
 class SocialScreen extends StatefulWidget {
   const SocialScreen({super.key});
@@ -605,19 +606,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   },
                 ),
                 SizedBox(height: MySize.halfPadding),
-                Row(
-                  children: [
-                    Icon(Icons.location_on, color: MyColor.primaryPurpleColor),
-                    SizedBox(width: MySize.quarterPadding),
-                    Expanded(
-                      child: Text(
-                        event.location,
-                        style: MyStyle.s3.copyWith(color: MyColor.white),
-                        overflow: TextOverflow.visible,
-                      ),
-                    ),
-                  ],
-                ),
+                _buildEventLocation(event.location),
                 SizedBox(height: MySize.quarterPadding),
                 Row(
                   children: [
@@ -1412,5 +1401,35 @@ class _SocialScreenState extends State<SocialScreen> {
         debugPrint('Error searching places: $e');
       }
     });
+  }
+
+  Future<void> _openMap(String address) async {
+    final url =
+        'https://www.google.com/maps/search/?api=1&query=${Uri.encodeFull(address)}';
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
+  }
+
+  Widget _buildEventLocation(String location) {
+    return InkWell(
+      onTap: () => _openMap(location),
+      child: Row(
+        children: [
+          Icon(Icons.location_on, color: MyColor.primaryPurpleColor),
+          SizedBox(width: MySize.quarterPadding),
+          Expanded(
+            child: Text(
+              location,
+              style: MyStyle.s3.copyWith(
+                color: MyColor.white,
+                decoration: TextDecoration.underline,
+              ),
+              overflow: TextOverflow.visible,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
