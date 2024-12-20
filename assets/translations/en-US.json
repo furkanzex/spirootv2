@@ -669,6 +669,7 @@
     "no_posts": "No posts yet",
     "no_events": "No events yet",
     "error_occurred": "An error occurred",
+    "event_location": "Location",
     "event": {
       "title": "Title",
       "description": "Description",
@@ -681,7 +682,8 @@
       "join": "Join",
       "leave": "Leave",
       "selected_date": "Selected Date",
-      "selected_time": "Selected Time"
+      "selected_time": "Selected Time",
+      "select_date_and_time": "Event Date and Time"
     },
     "my_posts": "My Posts",
     "my_events": "My Events",

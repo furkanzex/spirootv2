@@ -666,6 +666,7 @@
     "no_posts": "Henüz gönderi yok",
     "no_events": "Henüz etkinlik yok",
     "error_occurred": "Bir hata oluştu",
+    "event_location": "Konum",
     "event": {
       "title": "Başlık",
       "description": "Açıklama",
@@ -678,7 +679,9 @@
       "join": "Katıl",
       "leave": "Vazgeç",
       "selected_date": "Seçilen Tarih",
-      "selected_time": "Seçilen Saat"
+      "selected_time": "Seçilen Saat",
+      "select_date_and_time": "Etkinlik Tarihi ve Saati"
+
     },
     "my_posts": "Gönderilerim",
     "my_events": "Etkinliklerim",

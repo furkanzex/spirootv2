@@ -5,7 +5,6 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/revenuecat_services.dart';
-import 'package:spirootv2/core/widget/gap/horizontal_gap.dart';
 import 'package:spirootv2/social/screens/my_content_screen.dart';
 import 'dart:ui' as ui;
 import '../services/social_service.dart';
@@ -19,9 +18,9 @@ import 'package:get/get.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:spirootv2/paywall/paywall_screen.dart';
 import 'package:spirootv2/profile/user_controller.dart';
-import 'package:google_places_flutter/google_places_flutter.dart';
-import 'package:google_places_flutter/model/prediction.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+import 'dart:async';
 
 class SocialScreen extends StatefulWidget {
   const SocialScreen({super.key});
@@ -39,6 +38,9 @@ class _SocialScreenState extends State<SocialScreen> {
   final _postsScrollController = ScrollController();
   final _eventsScrollController = ScrollController();
   final FocusNode _locationFocusNode = FocusNode();
+  final _placesApi =
+      FlutterGooglePlacesSdk("AIzaSyDri3yUianYuZw3PfZlruuFLg196-UhXE8");
+  Timer? _debounce;
 
   Future<bool> _checkUserStatusAndRedirect() async {
     if (_userController.userName.isEmpty) {
@@ -57,9 +59,11 @@ class _SocialScreenState extends State<SocialScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _postController.dispose();
     _postsScrollController.dispose();
     _eventsScrollController.dispose();
+    _locationFocusNode.dispose();
     super.dispose();
   }
 
@@ -676,14 +680,6 @@ class _SocialScreenState extends State<SocialScreen> {
     );
   }
 
-  Future<void> _openMap(String address) async {
-    final url =
-        'https://www.google.com/maps/search/?api=1&query=${Uri.encodeFull(address)}';
-    if (await canLaunch(url)) {
-      await launch(url);
-    }
-  }
-
   void _showCreateEventSheet() {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -720,7 +716,7 @@ class _SocialScreenState extends State<SocialScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Yeni Etkinlik',
+                  easy.tr("social.new_event"),
                   style: MyStyle.b4.copyWith(color: MyColor.white),
                 ),
                 SizedBox(height: MySize.defaultPadding),
@@ -728,7 +724,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   controller: titleController,
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   decoration: InputDecoration(
-                    labelText: 'Başlık',
+                    labelText: easy.tr("social.event.title"),
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                     border: OutlineInputBorder(
@@ -745,7 +741,7 @@ class _SocialScreenState extends State<SocialScreen> {
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   maxLines: 3,
                   decoration: InputDecoration(
-                    labelText: 'Açıklama',
+                    labelText: easy.tr("social.event.description"),
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                     border: OutlineInputBorder(
@@ -757,123 +753,38 @@ class _SocialScreenState extends State<SocialScreen> {
                   ),
                 ),
                 SizedBox(height: MySize.defaultPadding),
-                GooglePlaceAutoCompleteTextField(
-                  textEditingController: locationController,
-                  googleAPIKey: "AIzaSyDri3yUianYuZw3PfZlruuFLg196-UhXE8",
-                  textStyle: MyStyle.s2.copyWith(color: MyColor.white),
+                TextField(
+                  controller: locationController,
                   focusNode: _locationFocusNode,
-                  inputDecoration: InputDecoration(
+                  style: MyStyle.s2.copyWith(color: MyColor.white),
+                  onChanged: (value) => _showLocationPicker(locationController),
+                  decoration: InputDecoration(
                     labelText: easy.tr('social.event_location'),
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-                    filled: false,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
                     ),
                     disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: MyColor.textGreyColor),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(MySize.quarterRadius),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.all(MySize.defaultPadding),
-                    prefixIcon: Icon(
-                      MingCute.search_2_line,
-                      color: MyColor.textGreyColor.withOpacity(0.5),
+                      borderSide: BorderSide(color: MyColor.primaryPurpleColor),
                     ),
                   ),
-                  debounceTime: 800,
-                  countries: const ["tr", "us", "gb"],
-                  isLatLngRequired: true,
-                  getPlaceDetailWithLatLng: (Prediction prediction) {
-                    locationController.text = prediction.description ?? '';
-                    _locationFocusNode.unfocus();
-                  },
-                  itemClick: (Prediction prediction) {
-                    locationController.text = prediction.description ?? '';
-                    _locationFocusNode.unfocus();
-                    // Kapanmayan itemBuilder'ı kapatmak için setState kullanıyoruz
-                    setState(() {});
-                  },
-                  seperatedBuilder: Divider(
-                    height: 1,
-                    color: MyColor.white.withOpacity(0.1),
-                  ),
-                  itemBuilder: (context, index, Prediction prediction) {
-                    return GestureDetector(
-                      onTap: () {
-                        locationController.text = prediction.description!;
-                        _locationFocusNode.unfocus();
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: MyColor.darkBackgroundColor,
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.all(MySize.defaultPadding),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  MingCute.location_2_line,
-                                  color: MyColor.textGreyColor,
-                                  size: 24,
-                                ),
-                                horizontalGap(MySize.defaultPadding),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        prediction.structuredFormatting
-                                                ?.mainText ??
-                                            '',
-                                        style: MyStyle.s2.copyWith(
-                                          color: MyColor.white,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      if (prediction.structuredFormatting
-                                              ?.secondaryText !=
-                                          null)
-                                        Text(
-                                          prediction.structuredFormatting!
-                                              .secondaryText!,
-                                          style: MyStyle.s3.copyWith(
-                                            color: MyColor.textGreyColor,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  isCrossBtnShown: true,
                 ),
                 SizedBox(height: MySize.defaultPadding),
                 TextField(
                   controller: imageUrlController,
                   style: MyStyle.s2.copyWith(color: MyColor.white),
                   decoration: InputDecoration(
-                    labelText: 'Görsel URL',
+                    labelText: easy.tr("social.event.image_url"),
                     labelStyle:
                         MyStyle.s2.copyWith(color: MyColor.textGreyColor),
                     border: OutlineInputBorder(
@@ -895,7 +806,7 @@ class _SocialScreenState extends State<SocialScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Etkinlik Tarihi ve Saati',
+                        easy.tr("social.event.select_date"),
                         style: MyStyle.s2.copyWith(color: MyColor.white),
                       ),
                       SizedBox(height: MySize.defaultPadding),
@@ -932,12 +843,12 @@ class _SocialScreenState extends State<SocialScreen> {
                       ),
                       SizedBox(height: MySize.defaultPadding),
                       Text(
-                        DateFormat('dd.MM.yyyy').format(selectedDate),
+                        '${easy.tr("social.event.selected_date")}: ${DateFormat('dd.MM.yyyy').format(selectedDate)}',
                         style:
                             MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                       ),
                       Text(
-                        selectedTime.format(context),
+                        '${easy.tr("social.event.selected_time")}: ${selectedTime.format(context)}',
                         style:
                             MyStyle.s3.copyWith(color: MyColor.textGreyColor),
                       ),
@@ -979,6 +890,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             creatorName: _userController.userName,
                           );
 
+                          // ignore: use_build_context_synchronously
                           if (mounted) Navigator.pop(context);
                         }
                       },
@@ -1070,6 +982,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             _userController.userName,
                           );
                           _postController.clear();
+                          // ignore: use_build_context_synchronously
                           if (mounted) Navigator.pop(context);
                         }
                       },
@@ -1451,30 +1364,53 @@ class _SocialScreenState extends State<SocialScreen> {
     );
   }
 
-  Widget _buildEventLocation(String location) {
-    return InkWell(
-      onTap: () => _openMap(location),
-      child: Row(
-        children: [
-          Icon(
-            MingCute.location_2_line,
-            color: MyColor.textGreyColor,
-            size: 16,
-          ),
-          horizontalGap(MySize.halfPadding),
-          Expanded(
-            child: Text(
-              location,
-              style: MyStyle.s3.copyWith(
-                color: MyColor.textGreyColor,
-                decoration: TextDecoration.underline,
+  Future<void> _showLocationPicker(
+      TextEditingController locationController) async {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 800), () async {
+      try {
+        if (locationController.text.length > 2) {
+          final predictions = await _placesApi.findAutocompletePredictions(
+            locationController.text,
+            countries: ['tr', 'us', 'gb'],
+          );
+
+          if (predictions.predictions.isNotEmpty && mounted) {
+            showModalBottomSheet(
+              context: context,
+              backgroundColor: MyColor.darkBackgroundColor,
+              builder: (context) => ListView.builder(
+                shrinkWrap: true,
+                itemCount: predictions.predictions.length,
+                itemBuilder: (context, index) {
+                  final place = predictions.predictions[index];
+                  return ListTile(
+                    leading: Icon(
+                      MingCute.location_2_line,
+                      color: MyColor.textGreyColor,
+                    ),
+                    title: Text(
+                      place.primaryText,
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                    ),
+                    subtitle: Text(
+                      place.secondaryText,
+                      style: MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                    ),
+                    onTap: () {
+                      locationController.text = place.fullText;
+                      Navigator.pop(context);
+                      _locationFocusNode.unfocus();
+                    },
+                  );
+                },
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
+            );
+          }
+        }
+      } catch (e) {
+        debugPrint('Error searching places: $e');
+      }
+    });
   }
 }
