@@ -14,6 +14,8 @@ class PurchaseAPI {
   final String apiKeyGoogle = Env.apiKeyGoogle;
   final String apiKeyApple = Env.apiKeyApple;
 
+  static bool _isInitialSetup = true;
+
   Future<void> init() async {
     await Purchases.setLogLevel(LogLevel.debug);
 
@@ -65,7 +67,9 @@ class PurchaseAPI {
     }
   }
 
-  void setupSubscriptionListener({Function? onSubscriptionUpdated}) {
+  static Future<void> setupSubscriptionListener({
+    Function? onSubscriptionUpdated,
+  }) async {
     Purchases.addCustomerInfoUpdateListener((customerInfo) async {
       final isSubscribed =
           customerInfo.entitlements.active.containsKey('paywall');
@@ -75,12 +79,14 @@ class PurchaseAPI {
         onSubscriptionUpdated();
       }
 
-      // Sadece abonelik (subscription) satın alımlarında uygulamayı yeniden başlat
-      if (customerInfo.entitlements.active.containsKey('paywall') &&
+      // Sadece ilk kurulum sırasında veya abonelik değişikliklerinde yeniden başlat
+      if (!_isInitialSetup &&
+          customerInfo.entitlements.active.containsKey('paywall') &&
           customerInfo.activeSubscriptions.isNotEmpty) {
         await Future.delayed(const Duration(seconds: 1));
         Phoenix.rebirth(Get.context!);
       }
+      _isInitialSetup = false;
     });
   }
 

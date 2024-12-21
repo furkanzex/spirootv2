@@ -1033,8 +1033,9 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     );
   }
 
-  void _showBiorhythmContent() {
-    if (_astrologyController.isSubscribed.value) {
+  void _showBiorhythmContent() async {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (isPremium) {
       // Premium kullanıcı için direkt göster
       _showBiorhythmDetails();
     } else {
@@ -2665,7 +2666,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         });
   }
 
-  // Numeroloji içeriğini gösterme fonksiyonu
   void _showNumerologyContent() {
     if (_astrologyController.isSubscribed.value) {
       // Premium kullanıcı için direkt göster
@@ -2680,7 +2680,6 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     }
   }
 
-  // Numeroloji detaylarını gösteren bottom sheet
   void _showNumerologyDetails() {
     Get.bottomSheet(
       Container(

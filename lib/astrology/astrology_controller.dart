@@ -349,7 +349,8 @@ class AstrologyController extends GetxController {
   }
 
   Future<void> generateNumerologyReading() async {
-    if (!isSubscribed.value) return;
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) return;
 
     try {
       isLoading.value = true;
@@ -527,9 +528,12 @@ class AstrologyController extends GetxController {
           selectedDay.value.replaceAll("astrology.horoscope.dates.", "");
 
       // Premium kontrolü - Günlük yorum değilse ve premium değilse oluşturma
-      if (currentTimeframe != "today" && !isSubscribed.value) {
-        isHoroscopeAvailable.value = false;
-        return;
+      if (currentTimeframe != "today") {
+        final isPremium = await PurchaseAPI.isPremium();
+        if (!isPremium) {
+          isHoroscopeAvailable.value = false;
+          return;
+        }
       }
 
       // Tarih aralığını belirle
@@ -1135,7 +1139,8 @@ class AstrologyController extends GetxController {
 
   Future<void> checkNumerologyReading() async {
     try {
-      if (!isSubscribed.value) {
+      final isPremium = await PurchaseAPI.isPremium();
+      if (!isPremium) {
         isNumerologyAvailable.value = false;
         numerologyReading.clear();
         return;
@@ -1182,7 +1187,8 @@ class AstrologyController extends GetxController {
       isLoading.value = true;
 
       // Premium kontrolü
-      if (!isSubscribed.value) {
+      final isPremium = await PurchaseAPI.isPremium();
+      if (!isPremium) {
         isWeeklyNatalAvailable.value = false;
         weeklyNatalReading.clear();
         return;
@@ -1366,8 +1372,9 @@ class AstrologyController extends GetxController {
     try {
       final userRef =
           _firestore.collection('users').doc(_userController.userId.value);
+      final isPremium = await PurchaseAPI.isPremium();
 
-      if (!isSubscribed.value) {
+      if (!isPremium) {
         // Premium içerikleri sil
         await _deletePremiumContent(userRef);
       } else {
@@ -1500,7 +1507,8 @@ class AstrologyController extends GetxController {
   }
 
   Future<void> loadPremiumContent() async {
-    if (!isSubscribed.value) return;
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) return;
 
     try {
       isLoading.value = true;
@@ -1642,6 +1650,9 @@ class AstrologyController extends GetxController {
   }
 
   Future<void> _generateAndSaveNatalReading(String timeframe) async {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) return;
+
     try {
       final user = _userController.currentUser.value!;
       final natalReading = await _geminiService.generateWeeklyNatalReading(
@@ -1752,6 +1763,12 @@ class AstrologyController extends GetxController {
 
   // Biyoritim yorumu oluşturma
   Future<void> generateBiorhythmReading() async {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) {
+      isBiorhythmAvailable.value = false;
+      return;
+    }
+
     try {
       isLoading.value = true;
       final user = _userController.currentUser.value!;

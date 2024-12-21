@@ -1,4 +1,10 @@
+import 'package:spirootv2/core/service/revenuecat_services.dart';
+
 class AstrologyService {
+  static Future<bool> checkPremiumFeatureAccess() async {
+    return await PurchaseAPI.isPremium();
+  }
+
   static String calculateZodiacSign(DateTime birthDate) {
     int month = birthDate.month;
     int day = birthDate.day;
