@@ -26,6 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   late AnimationController _controller;
   late Animation<double> animation1;
+  List<Timer> _timers = [];
 
   final AuthController controller = Get.put(AuthController());
   bool isLogin = false;
@@ -40,34 +41,43 @@ class _SplashScreenState extends State<SplashScreen>
     animation1 = Tween<double>(begin: 40, end: 20).animate(CurvedAnimation(
         parent: _controller, curve: Curves.fastLinearToSlowEaseIn))
       ..addListener(() {
-        setState(() {
-          _textOpacity = 1.0;
-        });
+        if (mounted) {
+          setState(() {
+            _textOpacity = 1.0;
+          });
+        }
       });
 
     _controller.forward();
 
-    Timer(const Duration(seconds: 2), () {
-      setState(() {
-        _fontSize = 1.06;
-      });
-    });
+    _timers.add(Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _fontSize = 1.06;
+        });
+      }
+    }));
 
-    Timer(const Duration(seconds: 2), () {
-      setState(() {
-        _containerSize = 2;
-        _containerOpacity = 1;
-      });
-    });
+    _timers.add(Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _containerSize = 2;
+          _containerOpacity = 1;
+        });
+      }
+    }));
 
     checkIfLogin();
 
-    Timer(const Duration(seconds: 4), () async {
+    _timers.add(Timer(const Duration(seconds: 4), () async {
+      if (!mounted) return;
+
       if (controller.isLogin.value) {
         isRegistered = await controller
             .checkUserInFirestore(FirebaseAuth.instance.currentUser!.uid);
       }
-      setState(() {
+
+      if (mounted) {
         Navigator.pushReplacement(
           context,
           PageTransition(
@@ -76,8 +86,8 @@ class _SplashScreenState extends State<SplashScreen>
                 : WelcomeScreen(),
           ),
         );
-      });
-    });
+      }
+    }));
   }
 
   void checkIfLogin() async {
@@ -93,6 +103,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _controller.dispose();
+    for (var timer in _timers) {
+      timer.cancel();
+    }
     super.dispose();
   }
 

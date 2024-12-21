@@ -75,8 +75,9 @@ class PurchaseAPI {
         onSubscriptionUpdated();
       }
 
-      // Sadece aylık veya haftalık abonelik paketleri için yeniden başlat
-      if (customerInfo.entitlements.active.containsKey('paywall')) {
+      // Sadece abonelik (subscription) satın alımlarında uygulamayı yeniden başlat
+      if (customerInfo.entitlements.active.containsKey('paywall') &&
+          customerInfo.activeSubscriptions.isNotEmpty) {
         await Future.delayed(const Duration(seconds: 1));
         Phoenix.rebirth(Get.context!);
       }
