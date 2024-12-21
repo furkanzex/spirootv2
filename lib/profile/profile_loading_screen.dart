@@ -9,7 +9,6 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/home/homepage.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/paywall/paywall_screen.dart';
-import 'package:spirootv2/core/service/review_service.dart';
 import 'package:spirootv2/home/home_controller.dart';
 import 'package:spirootv2/astrology/astrology_controller.dart';
 import 'package:spirootv2/profile/user_controller.dart';
