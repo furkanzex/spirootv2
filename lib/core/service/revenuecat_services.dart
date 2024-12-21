@@ -9,9 +9,6 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:spirootv2/core/env/env.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:spirootv2/home/home_screen.dart';
-import 'package:spirootv2/profile/user_controller.dart';
-import 'package:spirootv2/astrology/astrology_controller.dart';
 
 class PurchaseAPI {
   final String apiKeyGoogle = Env.apiKeyGoogle;
@@ -70,43 +67,12 @@ class PurchaseAPI {
       final customerInfo = await Purchases.getCustomerInfo();
       if (customerInfo.entitlements.active.containsKey('paywall') &&
           customerInfo.activeSubscriptions.isNotEmpty) {
-        // Controller'ları yeniden başlat
-        await _reinitializeControllers();
-
-        // Premium içeriklerin yüklenmesi için 3 saniye bekle
-        await Future.delayed(const Duration(seconds: 3));
-
-        // Ana sayfaya yönlendir ve tüm stack'i temizle
-        Get.offAll(() => const HomeScreen());
+        await Future.delayed(const Duration(seconds: 1));
+        Phoenix.rebirth(Get.context!);
       }
     } catch (e) {
       log("Error fetching or presenting paywall: $e");
-    }
-  }
-
-  // Controller'ları yeniden başlatma metodu
-  static Future<void> _reinitializeControllers() async {
-    try {
-      // UserController'ı yeniden başlat
-      if (Get.isRegistered<UserController>()) {
-        final userController = Get.find<UserController>();
-        userController.onInit();
-        log("UserController reinitialized");
-      }
-
-      // AstrologyController'ı yeniden başlat
-      if (Get.isRegistered<AstrologyController>()) {
-        final astrologyController = Get.find<AstrologyController>();
-        astrologyController.onInit();
-        log("AstrologyController reinitialized");
-      }
-
-      // Tüm GetX controller'ları yeniden başlat
-      Get.reset();
-      log("All GetX controllers reset");
-    } catch (e) {
-      log("Error reinitializing controllers: $e");
-    }
+    } finally {}
   }
 
   static Future<void> setupSubscriptionListener({

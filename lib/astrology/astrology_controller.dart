@@ -81,7 +81,7 @@ class AstrologyController extends GetxController {
   ];
 
   final RxBool isInitialized = false.obs;
-  final UserController _userController = Get.put(UserController());
+  final UserController _userController = Get.find<UserController>();
 
   // Biyoritim için yeni değişkenler ekleyelim
   final RxMap<String, dynamic> biorhythmReading = <String, dynamic>{}.obs;
@@ -1370,26 +1370,18 @@ class AstrologyController extends GetxController {
 
   Future<void> _managePremiumContent() async {
     try {
-      final isPremium = await PurchaseAPI.isPremium();
-      isSubscribed.value = isPremium;
-
       final userRef =
           _firestore.collection('users').doc(_userController.userId.value);
+      final isPremium = await PurchaseAPI.isPremium();
 
-      if (isPremium) {
-        // Premium içerikleri yükle
-        await Future.wait([
-          checkNumerologyReading(),
-          checkWeeklyNatalReading(),
-          checkBiorhythmReading(),
-        ]);
-      } else {
-        // Premium olmayan kullanıcılar için içerikleri temizle
+      if (!isPremium) {
+        // Premium içerikleri sil
         await _deletePremiumContent(userRef);
+      } else {
+        // Premium içerikleri yükle (eğer yoksa)
+        await loadPremiumContent();
       }
-    } catch (e) {
-      print('Error managing premium content: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _deletePremiumContent(DocumentReference userRef) async {
@@ -1424,9 +1416,7 @@ class AstrologyController extends GetxController {
       // Horoscope state'ini güncelle
       selectedDay.value = "astrology.horoscope.dates.today";
       await checkHoroscope(selectedDay.value);
-    } catch (e) {
-      print('Error deleting premium content: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadBasicAstrologyData() async {
@@ -1436,9 +1426,7 @@ class AstrologyController extends GetxController {
         _loadContentWithExpiry('current_transits', _loadCurrentTransits),
         _loadRetroReadings(),
       ]);
-    } catch (e) {
-      print('Error loading basic astrology data: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadDailyHoroscope() async {
@@ -1491,9 +1479,7 @@ class AstrologyController extends GetxController {
         user.birthPlace,
       );
       currentTransits.value = transits;
-    } catch (e) {
-      print('Error loading current transits: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadRetroReadings() async {
@@ -1517,9 +1503,7 @@ class AstrologyController extends GetxController {
       if (needsNewReadings) {
         await _generateAndSaveRetroReadings();
       }
-    } catch (e) {
-      print('Error loading retro readings: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> loadPremiumContent() async {
@@ -1538,7 +1522,6 @@ class AstrologyController extends GetxController {
         _loadRetroReadings(),
       ]);
     } catch (e) {
-      print('Error loading premium content: $e');
     } finally {
       isLoading.value = false;
     }
@@ -1553,9 +1536,7 @@ class AstrologyController extends GetxController {
       if (!isHoroscopeAvailable.value) {
         await generateHoroscope('weekly');
       }
-    } catch (e) {
-      print('Error loading weekly horoscope: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadMonthlyHoroscope() async {
@@ -1567,9 +1548,7 @@ class AstrologyController extends GetxController {
       if (!isHoroscopeAvailable.value) {
         await generateHoroscope('monthly');
       }
-    } catch (e) {
-      print('Error loading monthly horoscope: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadNumerologyReading() async {
@@ -1580,9 +1559,7 @@ class AstrologyController extends GetxController {
       if (!isNumerologyAvailable.value) {
         await generateNumerologyReading();
       }
-    } catch (e) {
-      print('Error loading numerology reading: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadWeeklyNatalReading() async {
@@ -1637,9 +1614,7 @@ class AstrologyController extends GetxController {
         // Yeni son kullanma tarihi ayarla
         await _updateExpiryDate(contentType);
       }
-    } catch (e) {
-      print('Error loading content with expiry: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _updateExpiryDate(String contentType) async {
@@ -1671,9 +1646,7 @@ class AstrologyController extends GetxController {
           .update({
         '$contentType.expiryDate': Timestamp.fromDate(expiryDate),
       });
-    } catch (e) {
-      print('Error updating expiry date: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _generateAndSaveNatalReading(String timeframe) async {
@@ -1963,9 +1936,7 @@ class AstrologyController extends GetxController {
       numerologyReading.clear();
       selectedDay.value = "astrology.horoscope.dates.today";
       isHoroscopeAvailable.value = false;
-    } catch (e) {
-      print('Error deleting premium content: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> refreshAstrology() async {
