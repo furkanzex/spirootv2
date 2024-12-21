@@ -120,6 +120,13 @@ class _SocialScreenState extends State<SocialScreen> {
     );
   }
 
+  Future<void> _refreshSocial() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      await _userController.loadUser(userId);
+    }
+  }
+
   Widget _buildPostsTab() {
     return Column(
       children: [
@@ -145,42 +152,47 @@ class _SocialScreenState extends State<SocialScreen> {
           ),
         ),
         Expanded(
-          child: StreamBuilder<List<Post>>(
-            stream: SocialService.getPosts(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text(
-                    easy.tr("social.error_occurred"),
-                    style: MyStyle.s2.copyWith(color: MyColor.white),
-                  ),
+          child: RefreshIndicator(
+            onRefresh: _refreshSocial,
+            backgroundColor: MyColor.darkBackgroundColor,
+            color: MyColor.primaryPurpleColor,
+            child: StreamBuilder<List<Post>>(
+              stream: SocialService.getPosts(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      easy.tr("social.error_occurred"),
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                    ),
+                  );
+                }
+
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final posts = snapshot.data!;
+                if (posts.isEmpty) {
+                  return Center(
+                    child: Text(
+                      easy.tr("social.no_posts"),
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  controller: _postsScrollController,
+                  padding: EdgeInsets.all(MySize.defaultPadding),
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    final post = posts[index];
+                    return _buildPostCard(post);
+                  },
                 );
-              }
-
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final posts = snapshot.data!;
-              if (posts.isEmpty) {
-                return Center(
-                  child: Text(
-                    easy.tr("social.no_posts"),
-                    style: MyStyle.s2.copyWith(color: MyColor.white),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                controller: _postsScrollController,
-                padding: EdgeInsets.all(MySize.defaultPadding),
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  final post = posts[index];
-                  return _buildPostCard(post);
-                },
-              );
-            },
+              },
+            ),
           ),
         ),
       ],
@@ -212,42 +224,47 @@ class _SocialScreenState extends State<SocialScreen> {
           ),
         ),
         Expanded(
-          child: StreamBuilder<List<Event>>(
-            stream: SocialService.getEvents(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text(
-                    easy.tr("social.error_occurred"),
-                    style: MyStyle.s2.copyWith(color: MyColor.white),
-                  ),
+          child: RefreshIndicator(
+            onRefresh: _refreshSocial,
+            backgroundColor: MyColor.darkBackgroundColor,
+            color: MyColor.primaryPurpleColor,
+            child: StreamBuilder<List<Event>>(
+              stream: SocialService.getEvents(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      easy.tr("social.error_occurred"),
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                    ),
+                  );
+                }
+
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final events = snapshot.data!;
+                if (events.isEmpty) {
+                  return Center(
+                    child: Text(
+                      easy.tr("social.no_events"),
+                      style: MyStyle.s2.copyWith(color: MyColor.white),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  controller: _eventsScrollController,
+                  padding: EdgeInsets.all(MySize.defaultPadding),
+                  itemCount: events.length,
+                  itemBuilder: (context, index) {
+                    final event = events[index];
+                    return _buildEventCard(event);
+                  },
                 );
-              }
-
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final events = snapshot.data!;
-              if (events.isEmpty) {
-                return Center(
-                  child: Text(
-                    easy.tr("social.no_events"),
-                    style: MyStyle.s2.copyWith(color: MyColor.white),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                controller: _eventsScrollController,
-                padding: EdgeInsets.all(MySize.defaultPadding),
-                itemCount: events.length,
-                itemBuilder: (context, index) {
-                  final event = events[index];
-                  return _buildEventCard(event);
-                },
-              );
-            },
+              },
+            ),
           ),
         ),
       ],

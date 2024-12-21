@@ -47,7 +47,11 @@ class _HomePageState extends State<HomePage> {
             future: PurchaseAPI.isPremium(),
             builder: (context, snapshot) {
               return snapshot.data == true
-                  ? SizedBox.shrink()
+                  ? SizedBox(
+                      height: MySize.iconSizeSmallMedium,
+                      width: MySize.iconSizeSmallMedium,
+                      child: LottieBuilder.asset("assets/lottie/premium.json"),
+                    )
                   : SizedBox(
                       height: MySize.iconSizeSmallMedium,
                       width: MySize.iconSizeSmallMedium,

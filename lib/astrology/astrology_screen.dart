@@ -28,6 +28,7 @@ import 'package:spirootv2/astrology/natal_chart.dart';
 import 'package:lottie/lottie.dart';
 import 'package:spirootv2/astrology/compatibility_screen.dart';
 import 'package:spirootv2/core/service/revenuecat_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AstrologyScreen extends StatefulWidget {
   const AstrologyScreen({super.key});
@@ -86,6 +87,13 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     }
   }
 
+  Future<void> _refreshAstrology() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      await _userController.loadUser(userId);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,7 +104,12 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               !_userController.currentUser.value!.isProfileComplete) {
             return _buildProfileIncomplete();
           }
-          return _buildAstrologyContent();
+          return RefreshIndicator(
+            onRefresh: _refreshAstrology,
+            backgroundColor: MyColor.darkBackgroundColor,
+            color: MyColor.primaryPurpleColor,
+            child: _buildAstrologyContent(),
+          );
         }),
       ),
     );

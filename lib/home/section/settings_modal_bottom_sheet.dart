@@ -2,6 +2,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/auth/auth_controller.dart';
+import 'package:spirootv2/paywall/paywall_screen.dart';
 import 'package:spirootv2/profile/user_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
@@ -256,7 +257,9 @@ void showSettingsBottomSheet(BuildContext context) {
                     _buildSettingsItem(
                       icon: MingCute.VIP_2_line,
                       title: easy.tr("settings.account.upgrade"),
-                      onTap: () {},
+                      onTap: () {
+                        paywall();
+                      },
                     ),
                   ],
                 ),
