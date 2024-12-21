@@ -11,7 +11,7 @@ import 'package:spirootv2/core/constant/my_image.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/widget/gap/horizontal_gap.dart';
-import 'package:spirootv2/core/widget/popup/premium_popup.dart';
+import 'package:spirootv2/paywall/paywall_screen.dart';
 import 'package:spirootv2/profile/profile_onboarding.dart';
 import 'package:spirootv2/astrology/love_career_money.dart';
 import 'package:spirootv2/core/widget/divider/divider.dart';
@@ -1063,11 +1063,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       _showBiorhythmDetails();
     } else {
       // Premium olmayan kullanıcı için popup göster
-      Get.dialog(
-        PremiumPopup(
-          onSingleUse: () => _showBiorhythmDetails(),
-        ),
-      );
+      paywall();
     }
   }
 
@@ -1877,11 +1873,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     } else {
       if (_astrologyController.selectedDay.value !=
           "astrology.horoscope.dates.today") {
-        Get.dialog(
-          PremiumPopup(
-            onSingleUse: () => _showCosmicMessageContent(),
-          ),
-        );
+        paywall();
       } else {
         _showCosmicMessageContent();
       }
@@ -2529,14 +2521,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () => Get.dialog(
-                    PremiumPopup(
-                      onSingleUse: () {
-                        Get.back();
-                        _astrologyController.checkWeeklyNatalReading();
-                      },
-                    ),
-                  ),
+                  onTap: () => paywall(),
                   borderRadius: BorderRadius.circular(MySize.halfRadius),
                   child: Padding(
                     padding: const EdgeInsets.all(MySize.halfPadding),
@@ -2689,21 +2674,25 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
         });
   }
 
-  void _showNumerologyContent() {
-    if (_astrologyController.isSubscribed.value) {
+  void _showNumerologyContent() async {
+    final isPremium = await PurchaseAPI.isPremium();
+    if (isPremium) {
       // Premium kullanıcı için direkt göster
       _showNumerologyDetails();
     } else {
       // Premium olmayan kullanıcı için popup göster
-      Get.dialog(
-        PremiumPopup(
-          onSingleUse: () => _showNumerologyDetails(),
-        ),
-      );
+      paywall();
     }
   }
 
-  void _showNumerologyDetails() {
+  void _showNumerologyDetails() async {
+    // Premium kontrolü yap
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) {
+      Get.back(); // Eğer premium değilse detay ekranını kapat
+      return;
+    }
+
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(MySize.doublePadding),
@@ -2753,7 +2742,7 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
       ),
     );
 
-    // Eğer numeroloji yorumu yoksa, oluştur
+    // Eğer numeroloji yorumu yoksa ve yükleme durumunda değilse, kontrol et
     if (!_astrologyController.isNumerologyAvailable.value &&
         !_astrologyController.isLoading.value) {
       _astrologyController.checkNumerologyReading();
