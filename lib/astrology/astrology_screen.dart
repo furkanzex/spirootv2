@@ -91,6 +91,16 @@ class _AstrologyScreenState extends State<AstrologyScreen> {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
       await _userController.loadUser(userId);
+      await _astrologyController.refreshAstrology();
+
+      // Premium kontrolü yap
+      final isPremium = await PurchaseAPI.isPremium();
+      if (!isPremium) {
+        // Premium değilse premium içeriği sil
+        await _astrologyController.deletePremiumContent();
+      }
+
+      await _astrologyController.refreshAstrology();
     }
   }
 

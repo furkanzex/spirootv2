@@ -1914,4 +1914,41 @@ class AstrologyController extends GetxController {
       throw Exception(easy.tr("errors.astrology.retro_record_error"));
     }
   }
+
+  Future<void> deletePremiumContent() async {
+    try {
+      final userId = _userController.userId.value;
+      if (userId.isEmpty) return;
+
+      final userRef = _firestore.collection('users').doc(userId);
+      final user = _userController.currentUser.value;
+      if (user == null) return;
+
+      // Haftalık ve aylık yorumları sil
+      await userRef.update({
+        'interpretations.${user.zodiacSign}.week': FieldValue.delete(),
+        'interpretations.${user.zodiacSign}.month': FieldValue.delete(),
+        'numerology': FieldValue.delete(),
+      });
+
+      // State'i güncelle
+      isNumerologyAvailable.value = false;
+      numerologyReading.clear();
+      selectedDay.value = "astrology.horoscope.dates.today";
+      isHoroscopeAvailable.value = false;
+    } catch (e) {}
+  }
+
+  Future<void> refreshAstrology() async {
+    try {
+      isLoading.value = true;
+      await checkHoroscope(selectedDay.value);
+      await checkNumerologyReading();
+      await checkWeeklyNatalReading();
+      await checkBiorhythmReading();
+      await checkRetrogrades();
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
