@@ -50,7 +50,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
     super.initState();
     _pageController = PageController();
     _userController = Get.find<UserController>();
-    _astrologyController = Get.find<AstrologyController>();
+    _astrologyController = Get.put(AstrologyController());
     _pageController.addListener(_onPageChanged);
   }
 
