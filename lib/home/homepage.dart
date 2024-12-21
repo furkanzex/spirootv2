@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:lottie/lottie.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/home/home_controller.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
@@ -10,6 +11,7 @@ import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_text.dart';
 import 'package:spirootv2/home/section/settings_modal_bottom_sheet.dart';
+import 'package:spirootv2/paywall/paywall_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,13 +43,23 @@ class _HomePageState extends State<HomePage> {
         ),
         centerTitle: false,
         actions: [
-          SizedBox(
-            height: MySize.iconSizeSmallMedium,
-            width: MySize.iconSizeSmallMedium,
-            child: GestureDetector(
-              onTap: () {},
-              child: LottieBuilder.asset("assets/lottie/gift_icon.json"),
-            ),
+          FutureBuilder<bool>(
+            future: PurchaseAPI.isPremium(),
+            builder: (context, snapshot) {
+              return snapshot.data == true
+                  ? SizedBox.shrink()
+                  : SizedBox(
+                      height: MySize.iconSizeSmallMedium,
+                      width: MySize.iconSizeSmallMedium,
+                      child: GestureDetector(
+                        onTap: () {
+                          paywall();
+                        },
+                        child:
+                            LottieBuilder.asset("assets/lottie/gift_icon.json"),
+                      ),
+                    );
+            },
           ),
           IconButton(
               onPressed: () {
