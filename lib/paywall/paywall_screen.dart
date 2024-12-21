@@ -3,5 +3,5 @@ import 'package:spirootv2/core/service/revenuecat_services.dart';
 
 paywall() async {
   PurchaseAPI.setupSubscriptionListener();
-  await RevenueCatUI.presentPaywall(displayCloseButton: true);
+  PurchaseAPI.fetchAndPresentPaywall('paywall');
 }

@@ -14,9 +14,6 @@ class PurchaseAPI {
   final String apiKeyGoogle = Env.apiKeyGoogle;
   final String apiKeyApple = Env.apiKeyApple;
 
-  static bool _isInitialSetup = true;
-  static bool _isFromPaywall = false;
-
   Future<void> init() async {
     await Purchases.setLogLevel(LogLevel.debug);
 
@@ -57,11 +54,12 @@ class PurchaseAPI {
     }
   }
 
-  Future<void> fetchAndPresentPaywall(String offerId) async {
+  static Future<void> fetchAndPresentPaywall(String offerId) async {
     try {
-      _isFromPaywall = true;
       final offerings = await Purchases.getOfferings();
       final offering = offerings.getOffering(offerId);
+
+      // Paywall'ı göster
       await RevenueCatUI.presentPaywall(
           offering: offering, displayCloseButton: true);
 
@@ -74,7 +72,7 @@ class PurchaseAPI {
       }
     } catch (e) {
       log("Error fetching or presenting paywall: $e");
-    }
+    } finally {}
   }
 
   static Future<void> setupSubscriptionListener({
@@ -88,17 +86,6 @@ class PurchaseAPI {
       if (onSubscriptionUpdated != null) {
         onSubscriptionUpdated();
       }
-
-      // Sadece paywall'dan yeni abonelik yapıldığında yeniden başlat
-      if (!_isInitialSetup &&
-          _isFromPaywall &&
-          customerInfo.entitlements.active.containsKey('paywall') &&
-          customerInfo.activeSubscriptions.isNotEmpty) {
-        await Future.delayed(const Duration(seconds: 1));
-        Phoenix.rebirth(Get.context!);
-      }
-      _isInitialSetup = false;
-      _isFromPaywall = false;
     });
   }
 
