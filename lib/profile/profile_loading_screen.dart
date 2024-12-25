@@ -68,13 +68,19 @@ class _ProfileLoadingScreenState extends State<ProfileLoadingScreen>
       await widget.onLoadComplete();
 
       if (mounted) {
+        Get.put(HomeController());
+        Get.put(AstrologyController());
+        Get.put(UserController());
+
+        await Future.delayed(const Duration(milliseconds: 100));
+
         await paywall();
-        Get.reset();
-        Get.offAll(() => const HomePage(), binding: BindingsBuilder(() {
-          Get.put(HomeController());
-          Get.put(AstrologyController());
-          Get.put(UserController());
-        }));
+
+        Get.offAll(
+          () => const HomePage(),
+          transition: Transition.fadeIn,
+          duration: const Duration(milliseconds: 500),
+        );
       }
     } catch (e) {
       Get.snackbar(
