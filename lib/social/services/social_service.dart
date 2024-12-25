@@ -40,20 +40,25 @@ class SocialService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .asyncMap((snapshot) async {
+      if (snapshot.docs.isEmpty) return [];
+
+      // Tüm içerikleri tek bir listede topla
+      final contents = snapshot.docs
+          .map((doc) => Post.fromMap(doc.data(), doc.id).content)
+          .toList();
+
+      // Toplu çeviri yap
+      final translatedContents = await Future.wait(contents.map(
+          (content) => _translationService.translateToAppLanguage(content)));
+
       final posts = <Post>[];
-
-      for (var doc in snapshot.docs) {
+      for (var i = 0; i < snapshot.docs.length; i++) {
         try {
-          final post = Post.fromMap(doc.data(), doc.id);
-
-          // İçeriği çevir
-          final translatedContent =
-              await _translationService.translateToAppLanguage(post.content);
-
-          // Yeni bir Post nesnesi oluştur
+          final post =
+              Post.fromMap(snapshot.docs[i].data(), snapshot.docs[i].id);
           posts.add(Post(
             id: post.id,
-            content: translatedContent,
+            content: translatedContents[i],
             creatorName: post.creatorName,
             creatorId: post.creatorId,
             createdAt: post.createdAt,
@@ -147,41 +152,46 @@ class SocialService {
         .orderBy('eventDate')
         .snapshots()
         .asyncMap((snapshot) async {
-      final events = <Event>[];
+      if (snapshot.docs.isEmpty) return [];
 
-      for (var doc in snapshot.docs) {
+      final events = snapshot.docs
+          .map((doc) => Event.fromMap(doc.data(), doc.id))
+          .toList();
+
+      // Tüm metinleri topla
+      final titles = events.map((e) => e.title).toList();
+      final descriptions = events.map((e) => e.description).toList();
+      final locations = events.map((e) => e.location).toList();
+
+      // Toplu çeviri yap
+      final translatedTitles = await Future.wait(titles
+          .map((title) => _translationService.translateToAppLanguage(title)));
+      final translatedDescriptions = await Future.wait(descriptions
+          .map((desc) => _translationService.translateToAppLanguage(desc)));
+      final translatedLocations = await Future.wait(locations
+          .map((loc) => _translationService.translateToAppLanguage(loc)));
+
+      return List.generate(events.length, (i) {
         try {
-          final event = Event.fromMap(doc.data(), doc.id);
-
-          // İçeriği çevir
-          final translatedTitle =
-              await _translationService.translateToAppLanguage(event.title);
-          final translatedDescription = await _translationService
-              .translateToAppLanguage(event.description);
-          final translatedLocation =
-              await _translationService.translateToAppLanguage(event.location);
-
-          // Yeni bir Event nesnesi oluştur
-          events.add(Event(
-            id: event.id,
-            title: translatedTitle,
-            description: translatedDescription,
-            location: translatedLocation,
-            imageUrl: event.imageUrl,
-            creatorName: event.creatorName,
-            creatorId: event.creatorId,
-            eventDate: event.eventDate,
-            createdAt: event.createdAt,
-            participants: event.participants,
-            reports: event.reports,
-            commentCount: event.commentCount,
-          ));
+          return Event(
+            id: events[i].id,
+            title: translatedTitles[i],
+            description: translatedDescriptions[i],
+            location: translatedLocations[i],
+            imageUrl: events[i].imageUrl,
+            creatorName: events[i].creatorName,
+            creatorId: events[i].creatorId,
+            eventDate: events[i].eventDate,
+            createdAt: events[i].createdAt,
+            participants: events[i].participants,
+            reports: events[i].reports,
+            commentCount: events[i].commentCount,
+          );
         } catch (e) {
           print('Etkinlik çevirme hatası: $e');
+          return events[i];
         }
-      }
-
-      return events;
+      });
     });
   }
 
@@ -407,20 +417,25 @@ class SocialService {
         .where('creatorId', isEqualTo: userId)
         .snapshots()
         .asyncMap((snapshot) async {
+      if (snapshot.docs.isEmpty) return [];
+
+      // Tüm içerikleri tek bir listede topla
+      final contents = snapshot.docs
+          .map((doc) => Post.fromMap(doc.data(), doc.id).content)
+          .toList();
+
+      // Toplu çeviri yap
+      final translatedContents = await Future.wait(contents.map(
+          (content) => _translationService.translateToAppLanguage(content)));
+
       final posts = <Post>[];
-
-      for (var doc in snapshot.docs) {
+      for (var i = 0; i < snapshot.docs.length; i++) {
         try {
-          final post = Post.fromMap(doc.data(), doc.id);
-
-          // İçeriği çevir
-          final translatedContent =
-              await _translationService.translateToAppLanguage(post.content);
-
-          // Yeni bir Post nesnesi oluştur
+          final post =
+              Post.fromMap(snapshot.docs[i].data(), snapshot.docs[i].id);
           posts.add(Post(
             id: post.id,
-            content: translatedContent,
+            content: translatedContents[i],
             creatorName: post.creatorName,
             creatorId: post.creatorId,
             createdAt: post.createdAt,
@@ -433,9 +448,7 @@ class SocialService {
         }
       }
 
-      // Client tarafında sıralama
       posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
       return posts;
     });
   }
@@ -447,44 +460,49 @@ class SocialService {
         .where('creatorId', isEqualTo: userId)
         .snapshots()
         .asyncMap((snapshot) async {
-      final events = <Event>[];
+      if (snapshot.docs.isEmpty) return [];
 
-      for (var doc in snapshot.docs) {
+      final events = snapshot.docs
+          .map((doc) => Event.fromMap(doc.data(), doc.id))
+          .toList();
+
+      // Tüm metinleri topla
+      final titles = events.map((e) => e.title).toList();
+      final descriptions = events.map((e) => e.description).toList();
+      final locations = events.map((e) => e.location).toList();
+
+      // Toplu çeviri yap
+      final translatedTitles = await Future.wait(titles
+          .map((title) => _translationService.translateToAppLanguage(title)));
+      final translatedDescriptions = await Future.wait(descriptions
+          .map((desc) => _translationService.translateToAppLanguage(desc)));
+      final translatedLocations = await Future.wait(locations
+          .map((loc) => _translationService.translateToAppLanguage(loc)));
+
+      final translatedEvents = List.generate(events.length, (i) {
         try {
-          final event = Event.fromMap(doc.data(), doc.id);
-
-          // İçeriği çevir
-          final translatedTitle =
-              await _translationService.translateToAppLanguage(event.title);
-          final translatedDescription = await _translationService
-              .translateToAppLanguage(event.description);
-          final translatedLocation =
-              await _translationService.translateToAppLanguage(event.location);
-
-          // Yeni bir Event nesnesi oluştur
-          events.add(Event(
-            id: event.id,
-            title: translatedTitle,
-            description: translatedDescription,
-            location: translatedLocation,
-            imageUrl: event.imageUrl,
-            creatorName: event.creatorName,
-            creatorId: event.creatorId,
-            eventDate: event.eventDate,
-            createdAt: event.createdAt,
-            participants: event.participants,
-            reports: event.reports,
-            commentCount: event.commentCount,
-          ));
+          return Event(
+            id: events[i].id,
+            title: translatedTitles[i],
+            description: translatedDescriptions[i],
+            location: translatedLocations[i],
+            imageUrl: events[i].imageUrl,
+            creatorName: events[i].creatorName,
+            creatorId: events[i].creatorId,
+            eventDate: events[i].eventDate,
+            createdAt: events[i].createdAt,
+            participants: events[i].participants,
+            reports: events[i].reports,
+            commentCount: events[i].commentCount,
+          );
         } catch (e) {
           print('Etkinlik çevirme hatası: $e');
+          return events[i];
         }
-      }
+      });
 
-      // Client tarafında sıralama
-      events.sort((a, b) => a.eventDate.compareTo(b.eventDate));
-
-      return events;
+      translatedEvents.sort((a, b) => a.eventDate.compareTo(b.eventDate));
+      return translatedEvents;
     });
   }
 
