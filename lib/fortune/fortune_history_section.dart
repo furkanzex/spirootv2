@@ -681,6 +681,16 @@ Widget _buildDetailContent(FortuneHistoryItem item) {
     );
   }
 
+  if (item.content is String) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(MySize.defaultPadding),
+      child: Text(
+        item.content as String,
+        style: MyStyle.s2.copyWith(color: MyColor.white),
+      ),
+    );
+  }
+
   final content = item.content as Map<String, dynamic>;
 
   return SingleChildScrollView(
