@@ -93,26 +93,10 @@ class PremiumPopup extends StatelessWidget {
               width: double.infinity,
               child: TextButton(
                 onPressed: () async {
-                  try {
-                    final success = await PurchaseAPI().handleSinglePurchase();
-                    if (success) {
-                      Get.back();
-                      onSingleUse();
-                    } else {
-                      Get.snackbar(
-                        easy.tr("errors.error"),
-                        easy.tr("errors.purchase_failed"),
-                        backgroundColor: MyColor.errorColor,
-                        colorText: MyColor.white,
-                      );
-                    }
-                  } catch (e) {
-                    Get.snackbar(
-                      easy.tr("errors.error"),
-                      easy.tr("errors.purchase_failed"),
-                      backgroundColor: MyColor.errorColor,
-                      colorText: MyColor.white,
-                    );
+                  final success = await PurchaseAPI().handleSinglePurchase();
+                  if (success) {
+                    Get.back();
+                    onSingleUse();
                   }
                 },
                 style: TextButton.styleFrom(

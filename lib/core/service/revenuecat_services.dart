@@ -92,15 +92,30 @@ class PurchaseAPI {
   Future<bool> handleSinglePurchase() async {
     try {
       final offerings = await Purchases.getOfferings();
+      final offering = offerings.getOffering('one-time');
 
-      // "one-time" teklifini göster
+      if (offering == null) {
+        log("One-time offering not found");
+        return false;
+      }
+
+      // Satın alma öncesi durumu kontrol et
+      final beforePurchase = await Purchases.getCustomerInfo();
+      final beforeNonSubscriptionPurchases =
+          beforePurchase.nonSubscriptionTransactions;
+
+      // Paywall'ı göster
       await RevenueCatUI.presentPaywall(
-          offering: offerings.getOffering('one-time'),
-          displayCloseButton: true);
+          offering: offering, displayCloseButton: true);
 
-      // Satın alma durumunu kontrol et
-      final customerInfo = await Purchases.getCustomerInfo();
-      return customerInfo.entitlements.active.isNotEmpty;
+      // Satın alma sonrası durumu kontrol et
+      final afterPurchase = await Purchases.getCustomerInfo();
+      final afterNonSubscriptionPurchases =
+          afterPurchase.nonSubscriptionTransactions;
+
+      // Yeni bir satın alma var mı kontrol et
+      return afterNonSubscriptionPurchases.length >
+          beforeNonSubscriptionPurchases.length;
     } catch (e) {
       log("Error during single purchase: $e");
       return false;
