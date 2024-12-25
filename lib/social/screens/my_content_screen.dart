@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
-import 'package:spirootv2/profile/user_controller.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
 import '../services/social_service.dart';
@@ -19,7 +18,7 @@ class MyContentScreen extends StatefulWidget {
 }
 
 class _MyContentScreenState extends State<MyContentScreen> {
-  final _userController = Get.find<UserController>();
+  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +61,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
 
   Widget _buildMyPosts() {
     return StreamBuilder<List<Post>>(
-      stream: SocialService.getUserPosts(_userController.userName),
+      stream: SocialService.getUserPosts(_auth.currentUser?.uid ?? ''),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -157,7 +156,7 @@ class _MyContentScreenState extends State<MyContentScreen> {
 
   Widget _buildMyEvents() {
     return StreamBuilder<List<Event>>(
-      stream: SocialService.getUserEvents(_userController.userName),
+      stream: SocialService.getUserEvents(_auth.currentUser?.uid ?? ''),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(

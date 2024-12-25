@@ -291,11 +291,11 @@ void showSettingsBottomSheet(BuildContext context) {
                 _buildSettingsGroup(
                   title: easy.tr("settings.app.title"),
                   items: [
-                    _buildSettingsItem(
+                    /*_buildSettingsItem(
                       icon: MingCute.notification_line,
                       title: easy.tr("settings.app.notifications"),
                       onTap: () {},
-                    ),
+                    ),*/
                     _buildSettingsItem(
                       icon: Icons.language,
                       title: easy.tr('settings.app.language.title'),

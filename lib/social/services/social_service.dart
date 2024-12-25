@@ -414,7 +414,7 @@ class SocialService {
     final _translationService = Get.find<TranslationService>();
     return _firestore
         .collection('posts')
-        .where('creatorId', isEqualTo: userId)
+        .where('creatorId', isEqualTo: _auth.currentUser?.uid)
         .snapshots()
         .asyncMap((snapshot) async {
       if (snapshot.docs.isEmpty) return [];
@@ -457,7 +457,7 @@ class SocialService {
     final _translationService = Get.find<TranslationService>();
     return _firestore
         .collection('events')
-        .where('creatorId', isEqualTo: userId)
+        .where('creatorId', isEqualTo: _auth.currentUser?.uid)
         .snapshots()
         .asyncMap((snapshot) async {
       if (snapshot.docs.isEmpty) return [];
