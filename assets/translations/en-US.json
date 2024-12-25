@@ -318,7 +318,9 @@
         "title": "Select Language",
         "current": "English",
         "change_error": "An error occurred while changing the language"
-      }
+      },
+      "auto_translate": "Auto Content Translation",
+      "auto_translate_desc": "Automatically translate content in posts and events to app language"
     },
     "support": {
       "title": "Support & Information",

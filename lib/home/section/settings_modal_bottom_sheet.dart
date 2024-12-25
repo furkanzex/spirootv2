@@ -1,6 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:spirootv2/auth/auth_controller.dart';
 import 'package:spirootv2/paywall/paywall_screen.dart';
 import 'package:spirootv2/profile/user_controller.dart';
@@ -15,6 +16,21 @@ import 'package:spirootv2/core/widget/divider/divider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:spirootv2/profile/profile_page.dart';
 import 'package:spirootv2/astrology/astrology_controller.dart';
+
+// Otomatik çeviri kontrolü için RxBool değişkeni
+final RxBool isAutoTranslateEnabled = false.obs;
+final storage = GetStorage();
+
+// Çeviri durumunu kontrol eden fonksiyon
+void toggleAutoTranslate(bool value) {
+  isAutoTranslateEnabled.value = value;
+  storage.write('auto_translate', value);
+}
+
+// Uygulama başladığında çeviri durumunu yükle
+void loadAutoTranslateState() {
+  isAutoTranslateEnabled.value = storage.read('auto_translate') ?? false;
+}
 
 // Dil değiştirme fonksiyonu
 void _changeLanguage(BuildContext context, Locale newLocale) async {
@@ -276,6 +292,34 @@ void showSettingsBottomSheet(BuildContext context) {
                       title: easy.tr('settings.app.language.title'),
                       trailing: easy.tr('settings.app.language.current'),
                       onTap: () => _showLanguageSelectionModal(context),
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(MySize.halfPadding),
+                        decoration: BoxDecoration(
+                          color: MyColor.white.withOpacity(0.1),
+                          borderRadius:
+                              BorderRadius.circular(MySize.quarterRadius),
+                        ),
+                        child: Icon(MingCute.translate_2_line,
+                            color: MyColor.white),
+                      ),
+                      title: Text(
+                        easy.tr('settings.app.auto_translate'),
+                        style: MyStyle.s2.copyWith(color: MyColor.white),
+                      ),
+                      subtitle: Text(
+                        easy.tr('settings.app.auto_translate_desc'),
+                        style:
+                            MyStyle.s3.copyWith(color: MyColor.textGreyColor),
+                      ),
+                      trailing: Obx(() => Switch(
+                            value: isAutoTranslateEnabled.value,
+                            onChanged: toggleAutoTranslate,
+                            activeColor: MyColor.primaryPurpleColor,
+                            inactiveTrackColor: MyColor.white.withOpacity(0.1),
+                          )),
                     ),
                   ],
                 ),

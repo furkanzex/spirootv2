@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/auth/auth_controller.dart';
 import 'package:spirootv2/core/service/revenuecat_services.dart';
+import 'package:spirootv2/profile/user_controller.dart';
+import 'package:spirootv2/core/service/translation_service.dart';
 import '../models/blog_post.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
@@ -12,6 +14,8 @@ class BlogService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GeminiService _geminiService = Get.find<GeminiService>();
   final AuthController _authController = Get.find<AuthController>();
+  final UserController _userController = Get.find<UserController>();
+  final TranslationService _translationService = Get.find<TranslationService>();
 
   // Kullanıcı kontrolü
   Future<void> checkUserEligibility() async {
@@ -90,7 +94,7 @@ class BlogService {
         content: content,
         imageUrl: imageUrl,
         authorId: user.uid,
-        authorName: user.displayName ?? easy.tr('blog.anonymous'),
+        authorName: _userController.userName,
         createdAt: DateTime.now(),
         isApproved: true,
       );
@@ -152,6 +156,7 @@ class BlogService {
         'title': title,
         'content': content,
         'imageUrl': imageUrl,
+        'authorName': _userController.userName,
         'updatedAt': DateTime.now(),
       });
 
@@ -167,22 +172,35 @@ class BlogService {
         .collection('blog_posts')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) {
-      final posts = snapshot.docs
-          .map((doc) {
-            try {
-              final post = BlogPost.fromMap(doc.data());
-              if (post.isApproved) {
-                return post;
-              }
-              return null;
-            } catch (e) {
-              return null;
-            }
-          })
-          .where((post) => post != null)
-          .cast<BlogPost>()
-          .toList();
+        .asyncMap((snapshot) async {
+      final posts = <BlogPost>[];
+
+      for (var doc in snapshot.docs) {
+        try {
+          final post = BlogPost.fromMap(doc.data());
+          if (post.isApproved) {
+            // İçeriği çevir
+            final translatedTitle =
+                await _translationService.translateToAppLanguage(post.title);
+            final translatedContent =
+                await _translationService.translateToAppLanguage(post.content);
+
+            // Yeni bir BlogPost nesnesi oluştur
+            posts.add(BlogPost(
+              id: post.id,
+              title: translatedTitle,
+              content: translatedContent,
+              imageUrl: post.imageUrl,
+              authorId: post.authorId,
+              authorName: post.authorName,
+              createdAt: post.createdAt,
+              isApproved: post.isApproved,
+            ));
+          }
+        } catch (e) {
+          print('Blog post çevirme hatası: $e');
+        }
+      }
 
       return posts;
     });
@@ -194,9 +212,34 @@ class BlogService {
         .collection('blog_posts')
         .where('authorId', isEqualTo: userId)
         .snapshots()
-        .map((snapshot) {
-      final posts =
-          snapshot.docs.map((doc) => BlogPost.fromMap(doc.data())).toList();
+        .asyncMap((snapshot) async {
+      final posts = <BlogPost>[];
+
+      for (var doc in snapshot.docs) {
+        try {
+          final post = BlogPost.fromMap(doc.data());
+
+          // İçeriği çevir
+          final translatedTitle =
+              await _translationService.translateToAppLanguage(post.title);
+          final translatedContent =
+              await _translationService.translateToAppLanguage(post.content);
+
+          // Yeni bir BlogPost nesnesi oluştur
+          posts.add(BlogPost(
+            id: post.id,
+            title: translatedTitle,
+            content: translatedContent,
+            imageUrl: post.imageUrl,
+            authorId: post.authorId,
+            authorName: post.authorName,
+            createdAt: post.createdAt,
+            isApproved: post.isApproved,
+          ));
+        } catch (e) {
+          print('Blog post çevirme hatası: $e');
+        }
+      }
 
       // Client tarafında sıralama
       posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));

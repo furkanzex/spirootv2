@@ -318,7 +318,9 @@
         "title": "Dil Seçin",
         "current": "Türkçe",
         "change_error": "Dil değiştirilirken bir hata oluştu"
-      }
+      },
+      "auto_translate": "Otomatik İçerik Çevirisi",
+      "auto_translate_desc": "Gönderi ve etkinliklerdeki içerikleri otomatik olarak uygulama diline çevir"
     },
     "support": {
       "title": "Destek & Bilgi",

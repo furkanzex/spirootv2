@@ -9,6 +9,7 @@ import '../models/post_model.dart';
 import '../models/comment_model.dart';
 import '../models/event_model.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:spirootv2/core/service/translation_service.dart';
 
 class SocialService {
   static final _firestore = FirebaseFirestore.instance;
@@ -33,21 +34,51 @@ class SocialService {
 
   // Post işlemleri
   static Stream<List<Post>> getPosts() {
+    final _translationService = Get.find<TranslationService>();
     return _firestore
         .collection('posts')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) =>
-                Post.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .asyncMap((snapshot) async {
+      final posts = <Post>[];
+
+      for (var doc in snapshot.docs) {
+        try {
+          final post = Post.fromMap(doc.data(), doc.id);
+
+          // İçeriği çevir
+          final translatedContent =
+              await _translationService.translateToAppLanguage(post.content);
+
+          // Yeni bir Post nesnesi oluştur
+          posts.add(Post(
+            id: post.id,
+            content: translatedContent,
+            creatorName: post.creatorName,
+            creatorId: post.creatorId,
+            createdAt: post.createdAt,
+            likes: post.likes,
+            commentCount: post.commentCount,
+            reports: post.reports,
+          ));
+        } catch (e) {
+          print('Post çevirme hatası: $e');
+        }
+      }
+
+      return posts;
+    });
   }
 
   static Future<void> createPost(String content, String creatorName) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
     final post = Post(
       id: '',
       content: content,
       creatorName: creatorName,
+      creatorId: userId,
       createdAt: DateTime.now(),
       likes: [],
       commentCount: 0,
@@ -110,11 +141,48 @@ class SocialService {
 
   // Event işlemleri
   static Stream<List<Event>> getEvents() {
-    return _firestore.collection('events').orderBy('eventDate').snapshots().map(
-        (snapshot) => snapshot.docs
-            .map((doc) =>
-                Event.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+    final _translationService = Get.find<TranslationService>();
+    return _firestore
+        .collection('events')
+        .orderBy('eventDate')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      final events = <Event>[];
+
+      for (var doc in snapshot.docs) {
+        try {
+          final event = Event.fromMap(doc.data(), doc.id);
+
+          // İçeriği çevir
+          final translatedTitle =
+              await _translationService.translateToAppLanguage(event.title);
+          final translatedDescription = await _translationService
+              .translateToAppLanguage(event.description);
+          final translatedLocation =
+              await _translationService.translateToAppLanguage(event.location);
+
+          // Yeni bir Event nesnesi oluştur
+          events.add(Event(
+            id: event.id,
+            title: translatedTitle,
+            description: translatedDescription,
+            location: translatedLocation,
+            imageUrl: event.imageUrl,
+            creatorName: event.creatorName,
+            creatorId: event.creatorId,
+            eventDate: event.eventDate,
+            createdAt: event.createdAt,
+            participants: event.participants,
+            reports: event.reports,
+            commentCount: event.commentCount,
+          ));
+        } catch (e) {
+          print('Etkinlik çevirme hatası: $e');
+        }
+      }
+
+      return events;
+    });
   }
 
   static Future<void> createEvent({
@@ -125,6 +193,9 @@ class SocialService {
     required String imageUrl,
     required String creatorName,
   }) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
     final event = Event(
       id: '',
       title: title,
@@ -132,10 +203,12 @@ class SocialService {
       location: location,
       imageUrl: imageUrl,
       creatorName: creatorName,
+      creatorId: userId,
       eventDate: eventDate,
       createdAt: DateTime.now(),
       participants: [],
       reports: [],
+      commentCount: 0,
     );
 
     await _firestore.collection('events').add(event.toMap());
@@ -327,26 +400,92 @@ class SocialService {
         .toList());
   }
 
-  static Stream<List<Post>> getUserPosts(String creatorName) {
+  static Stream<List<Post>> getUserPosts(String userId) {
+    final _translationService = Get.find<TranslationService>();
     return _firestore
         .collection('posts')
-        .where('creatorName', isEqualTo: creatorName)
+        .where('creatorId', isEqualTo: userId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) =>
-                Post.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .asyncMap((snapshot) async {
+      final posts = <Post>[];
+
+      for (var doc in snapshot.docs) {
+        try {
+          final post = Post.fromMap(doc.data(), doc.id);
+
+          // İçeriği çevir
+          final translatedContent =
+              await _translationService.translateToAppLanguage(post.content);
+
+          // Yeni bir Post nesnesi oluştur
+          posts.add(Post(
+            id: post.id,
+            content: translatedContent,
+            creatorName: post.creatorName,
+            creatorId: post.creatorId,
+            createdAt: post.createdAt,
+            likes: post.likes,
+            commentCount: post.commentCount,
+            reports: post.reports,
+          ));
+        } catch (e) {
+          print('Post çevirme hatası: $e');
+        }
+      }
+
+      // Client tarafında sıralama
+      posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      return posts;
+    });
   }
 
-  static Stream<List<Event>> getUserEvents(String creatorName) {
+  static Stream<List<Event>> getUserEvents(String userId) {
+    final _translationService = Get.find<TranslationService>();
     return _firestore
         .collection('events')
-        .where('creatorName', isEqualTo: creatorName)
+        .where('creatorId', isEqualTo: userId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) =>
-                Event.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .asyncMap((snapshot) async {
+      final events = <Event>[];
+
+      for (var doc in snapshot.docs) {
+        try {
+          final event = Event.fromMap(doc.data(), doc.id);
+
+          // İçeriği çevir
+          final translatedTitle =
+              await _translationService.translateToAppLanguage(event.title);
+          final translatedDescription = await _translationService
+              .translateToAppLanguage(event.description);
+          final translatedLocation =
+              await _translationService.translateToAppLanguage(event.location);
+
+          // Yeni bir Event nesnesi oluştur
+          events.add(Event(
+            id: event.id,
+            title: translatedTitle,
+            description: translatedDescription,
+            location: translatedLocation,
+            imageUrl: event.imageUrl,
+            creatorName: event.creatorName,
+            creatorId: event.creatorId,
+            eventDate: event.eventDate,
+            createdAt: event.createdAt,
+            participants: event.participants,
+            reports: event.reports,
+            commentCount: event.commentCount,
+          ));
+        } catch (e) {
+          print('Etkinlik çevirme hatası: $e');
+        }
+      }
+
+      // Client tarafında sıralama
+      events.sort((a, b) => a.eventDate.compareTo(b.eventDate));
+
+      return events;
+    });
   }
 
   static Future<void> addEventComment(

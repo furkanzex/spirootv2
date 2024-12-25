@@ -5,6 +5,7 @@ class Event {
   final String location;
   final String imageUrl;
   final String creatorName;
+  final String creatorId;
   final DateTime eventDate;
   final DateTime createdAt;
   final List<String> participants;
@@ -18,6 +19,7 @@ class Event {
     required this.location,
     required this.imageUrl,
     required this.creatorName,
+    required this.creatorId,
     required this.eventDate,
     required this.createdAt,
     required this.participants,
@@ -33,6 +35,7 @@ class Event {
       location: map['location'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
       creatorName: map['creatorName'] ?? 'Anonim',
+      creatorId: map['creatorId'] ?? '',
       eventDate:
           DateTime.parse(map['eventDate'] ?? DateTime.now().toIso8601String()),
       createdAt:
@@ -50,6 +53,7 @@ class Event {
       'location': location,
       'imageUrl': imageUrl,
       'creatorName': creatorName,
+      'creatorId': creatorId,
       'eventDate': eventDate.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'participants': participants,
@@ -65,6 +69,7 @@ class Event {
     String? location,
     String? imageUrl,
     String? creatorName,
+    String? creatorId,
     DateTime? eventDate,
     DateTime? createdAt,
     List<String>? participants,
@@ -78,6 +83,7 @@ class Event {
       location: location ?? this.location,
       imageUrl: imageUrl ?? this.imageUrl,
       creatorName: creatorName ?? this.creatorName,
+      creatorId: creatorId ?? this.creatorId,
       eventDate: eventDate ?? this.eventDate,
       createdAt: createdAt ?? this.createdAt,
       participants: participants ?? this.participants,

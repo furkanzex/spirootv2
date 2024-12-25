@@ -2,6 +2,7 @@ class Post {
   final String id;
   final String content;
   final String creatorName;
+  final String creatorId;
   final DateTime createdAt;
   final List<String> likes;
   final int commentCount;
@@ -11,6 +12,7 @@ class Post {
     required this.id,
     required this.content,
     required this.creatorName,
+    required this.creatorId,
     required this.createdAt,
     required this.likes,
     required this.commentCount,
@@ -22,6 +24,7 @@ class Post {
       id: id,
       content: map['content'] ?? '',
       creatorName: map['creatorName'] ?? 'Anonim',
+      creatorId: map['creatorId'] ?? '',
       createdAt:
           DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
       likes: List<String>.from(map['likes'] ?? []),
@@ -34,6 +37,7 @@ class Post {
     return {
       'content': content,
       'creatorName': creatorName,
+      'creatorId': creatorId,
       'createdAt': createdAt.toIso8601String(),
       'likes': likes,
       'commentCount': commentCount,
@@ -45,6 +49,7 @@ class Post {
     String? id,
     String? content,
     String? creatorName,
+    String? creatorId,
     DateTime? createdAt,
     List<String>? likes,
     int? commentCount,
@@ -54,6 +59,7 @@ class Post {
       id: id ?? this.id,
       content: content ?? this.content,
       creatorName: creatorName ?? this.creatorName,
+      creatorId: creatorId ?? this.creatorId,
       createdAt: createdAt ?? this.createdAt,
       likes: likes ?? this.likes,
       commentCount: commentCount ?? this.commentCount,

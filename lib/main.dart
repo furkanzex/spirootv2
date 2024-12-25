@@ -17,6 +17,8 @@ import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sweph/sweph.dart';
 import 'dart:io';
+import 'package:spirootv2/home/section/settings_modal_bottom_sheet.dart';
+import 'package:spirootv2/core/service/translation_service.dart';
 import 'controllers/connectivity_controller.dart';
 import 'widgets/no_internet_widget.dart';
 
@@ -25,6 +27,12 @@ Future<void> main() async {
 
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();
+
+  // Otomatik çeviri durumunu yükle
+  loadAutoTranslateState();
+
+  // Translation service'i başlat
+  await Get.putAsync(() => TranslationService().init());
 
   // Sweph'i başlat
   try {
