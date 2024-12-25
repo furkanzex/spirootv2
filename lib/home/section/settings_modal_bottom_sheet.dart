@@ -16,13 +16,22 @@ import 'package:spirootv2/core/widget/divider/divider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:spirootv2/profile/profile_page.dart';
 import 'package:spirootv2/astrology/astrology_controller.dart';
+import 'package:spirootv2/core/service/revenuecat_services.dart';
 
 // Otomatik çeviri kontrolü için RxBool değişkeni
 final RxBool isAutoTranslateEnabled = false.obs;
 final storage = GetStorage();
 
 // Çeviri durumunu kontrol eden fonksiyon
-void toggleAutoTranslate(bool value) {
+void toggleAutoTranslate(bool value) async {
+  if (value) {
+    final isSubscribed = await PurchaseAPI.checkSubscriptionStatus();
+    if (!isSubscribed) {
+      paywall();
+      return;
+    }
+  }
+
   isAutoTranslateEnabled.value = value;
   storage.write('auto_translate', value);
 }
