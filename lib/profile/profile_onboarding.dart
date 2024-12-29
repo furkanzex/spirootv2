@@ -541,7 +541,7 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
         children: [
           GooglePlaceAutoCompleteTextField(
             textEditingController: _birthPlaceController,
-            googleAPIKey: "AIzaSyB161zfco-9J5kSaF2gGd0i67a9BrQdYOs",
+            googleAPIKey: "AIzaSyDri3yUianYuZw3PfZlruuFLg196-UhXE8",
             textStyle: MyStyle.s2.copyWith(color: MyColor.white),
             focusNode: _birthPlaceFocusNode,
             inputDecoration: InputDecoration(
