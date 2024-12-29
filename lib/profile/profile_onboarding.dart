@@ -541,11 +541,11 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
         children: [
           GooglePlaceAutoCompleteTextField(
             textEditingController: _birthPlaceController,
-            googleAPIKey: "AIzaSyDri3yUianYuZw3PfZlruuFLg196-UhXE8",
+            googleAPIKey: "AIzaSyB161zfco-9J5kSaF2gGd0i67a9BrQdYOs",
             textStyle: MyStyle.s2.copyWith(color: MyColor.white),
             focusNode: _birthPlaceFocusNode,
             inputDecoration: InputDecoration(
-              labelText: 'Doğum yerini ara',
+              labelText: easy.tr("profile.birth_place"),
               labelStyle: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
               filled: false,
               border: OutlineInputBorder(
@@ -559,7 +559,6 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               ),
             ),
             debounceTime: 800,
-            countries: const ["tr", "us", "gb"],
             isLatLngRequired: true,
             getPlaceDetailWithLatLng: (Prediction prediction) async {
               if (!mounted) return;

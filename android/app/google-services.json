@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "121839034936",
+    "firebase_url": "https://spirootv2-default-rtdb.firebaseio.com",
     "project_id": "spirootv2",
     "storage_bucket": "spirootv2.firebasestorage.app"
   },
@@ -31,10 +32,10 @@
               "client_type": 3
             },
             {
-              "client_id": "121839034936-u5fsali0um0kgheihgpm1qh292pi2k05.apps.googleusercontent.com",
+              "client_id": "121839034936-02h7rv3qshotp9qrhers72mkmom42i99.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.apptoic.spiroot"
+                "bundle_id": "com.apptoic.spiroot1"
               }
             }
           ]

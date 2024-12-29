@@ -170,7 +170,7 @@ void _showLanguageSelectionModal(BuildContext context) {
 
 void showSettingsBottomSheet(BuildContext context) {
   final userController = Get.find<UserController>();
-  final astrologyController = Get.find<AstrologyController>();
+  final astrologyController = Get.put(AstrologyController());
 
   showModalBottomSheet(
     context: context,

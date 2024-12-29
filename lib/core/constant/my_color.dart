@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MyColor {
   //Main Colors
   static const Color primaryColor = Color(0xFF461493);
-  static const Color primaryLightColor = Color.fromRGBO(98, 28, 202, 1);
+  static const Color primaryLightColor = Color(0xFF621CCA);
   static const Color primaryDarkColor = Color(0xFF2A0B57);
   static const Color primaryPurpleColor = Color(0xFFC6A1FF);
 
@@ -18,7 +18,7 @@ class MyColor {
 
   //Helper Colors
   static const Color lightBackgroundColor = Color.fromRGBO(245, 245, 255, 1);
-  static const Color darkBackgroundColor = Color.fromRGBO(18, 18, 32, 1);
+  static const Color darkBackgroundColor = Color(0xFF121220);
   static const Color shadowColor = Colors.black12;
   static const Color whiteShadowColor = Colors.white10;
   static const Color whiteTintColor = Colors.white54;

@@ -38,7 +38,7 @@ class AstrologyScreen extends StatefulWidget {
 }
 
 class _AstrologyScreenState extends State<AstrologyScreen> {
-  final UserController _userController = Get.find<UserController>();
+  final UserController _userController = Get.put(UserController());
   final AstrologyController _astrologyController =
       Get.put(AstrologyController());
   Timer? _countdownTimer;

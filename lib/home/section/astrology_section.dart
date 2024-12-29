@@ -18,7 +18,7 @@ class AstrologySection extends StatelessWidget {
   const AstrologySection({Key? key}) : super(key: key);
 
   void _navigateToAstrology() {
-    final controller = Get.find<HomeController>();
+    final controller = Get.put(HomeController());
     controller.changePage(2);
   }
 

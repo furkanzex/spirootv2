@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:121839034936:android:5f3f7484bcfaf217bd7ccd',
     messagingSenderId: '121839034936',
     projectId: 'spirootv2',
+    databaseURL: 'https://spirootv2-default-rtdb.firebaseio.com',
     storageBucket: 'spirootv2.firebasestorage.app',
   );
 

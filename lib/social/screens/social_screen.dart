@@ -40,7 +40,7 @@ class _SocialScreenState extends State<SocialScreen> {
   final _eventsScrollController = ScrollController();
   final FocusNode _locationFocusNode = FocusNode();
   final _placesApi =
-      FlutterGooglePlacesSdk("AIzaSyDri3yUianYuZw3PfZlruuFLg196-UhXE8");
+      FlutterGooglePlacesSdk("AIzaSyB161zfco-9J5kSaF2gGd0i67a9BrQdYOs");
   Timer? _debounce;
 
   Future<bool> _checkUserStatusAndRedirect() async {
@@ -1375,7 +1375,6 @@ class _SocialScreenState extends State<SocialScreen> {
         if (locationController.text.length > 2) {
           final predictions = await _placesApi.findAutocompletePredictions(
             locationController.text,
-            countries: ['tr', 'us', 'gb'],
           );
 
           if (predictions.predictions.isNotEmpty && mounted) {
