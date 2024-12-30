@@ -27,6 +27,7 @@ void toggleAutoTranslate(bool value) async {
   if (value) {
     final isSubscribed = await PurchaseAPI.checkSubscriptionStatus();
     if (!isSubscribed) {
+      isAutoTranslateEnabled.value = false;
       paywall();
       return;
     }
