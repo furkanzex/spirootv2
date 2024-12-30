@@ -798,5 +798,11 @@
     "description": "This feature can be accessed by upgrading to Premium or by providing a single-time access.",
     "single_use": "SINGLE USE ACCESS",
     "unlimited": "UNLIMITED ACCESS"
+  },
+  "permissions": {
+    "title": "Permission Required",
+    "camera_required": "Camera and gallery permissions are required to use this feature.",
+    "understood": "I Understand",
+    "open_settings": "Open Settings"
   }
 }

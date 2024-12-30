@@ -287,11 +287,49 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
       (status) => status.isDenied || status.isPermanentlyDenied,
     );
 
-    if (needsPermissions) {
-      await openAppSettings();
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+    if (needsPermissions && mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: MyColor.darkBackgroundColor,
+            title: Text(
+              easy.tr('permissions.title'),
+              style: MyStyle.s1.copyWith(color: MyColor.white),
+            ),
+            content: Text(
+              easy.tr('permissions.camera_required'),
+              style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Dialog'u kapat
+                  Navigator.of(context).pop(); // Kamera ekranından çık
+                },
+                child: Text(
+                  easy.tr('permissions.understood'),
+                  style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // Dialog'u kapat
+                  await openAppSettings();
+                  if (mounted) {
+                    Navigator.of(context).pop(); // Kamera ekranından çık
+                  }
+                },
+                child: Text(
+                  easy.tr('permissions.open_settings'),
+                  style: MyStyle.s2.copyWith(color: MyColor.primaryColor),
+                ),
+              ),
+            ],
+          );
+        },
+      );
     } else {
       _initializeCamera();
     }

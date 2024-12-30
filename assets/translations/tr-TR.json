@@ -799,5 +799,11 @@
     "description": "Bu özelliği kullanmak için Premium'a yükseltebilir veya tek seferlik erişim sağlayabilirsiniz.",
     "single_use": "TEK SEFERLİK AÇ",
     "unlimited": "SINIRSIZ ERİŞİM"
+  },
+  "permissions": {
+    "title": "İzin Gerekli",
+    "camera_required": "Bu özelliği kullanabilmek için kamera ve galeri izinleri gereklidir.",
+    "understood": "Anladım",
+    "open_settings": "İzinleri Aç"
   }
 }
