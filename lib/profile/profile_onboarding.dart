@@ -92,6 +92,100 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          actions: _currentPage == 6
+              ? [
+                  TextButton(
+                    onPressed: () async {
+                      if (_userController.selectedInterests.isNotEmpty) {
+                        Get.to(
+                          () => ProfileLoadingScreen(
+                            onLoadComplete: () async {
+                              try {
+                                await _userController.saveUserProfile();
+                                final astrologyController =
+                                    Get.find<AstrologyController>();
+                                astrologyController.onInit();
+                              } catch (e) {
+                                Get.snackbar(
+                                  easy.tr("errors.error"),
+                                  easy.tr("errors.profile_not_completed"),
+                                  backgroundColor: MyColor.errorColor,
+                                  colorText: MyColor.white,
+                                );
+                                rethrow;
+                              }
+                            },
+                          ),
+                          fullscreenDialog: true,
+                        );
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          easy.tr("profile.complete_profile"),
+                          style: MyStyle.s2.copyWith(color: MyColor.white),
+                        ),
+                        horizontalGap(MySize.halfPadding),
+                        Icon(
+                          MingCute.user_follow_2_line,
+                          color: MyColor.white,
+                          size: MySize.iconSizeTiny,
+                        ),
+                      ],
+                    ),
+                  ),
+                ]
+              : _currentPage < 6 && _currentPage != 3
+                  ? [
+                      TextButton(
+                        onPressed: () {
+                          bool isValid = false;
+                          switch (_currentPage) {
+                            case 0:
+                              isValid = _userController.validateNamePage();
+                              break;
+                            case 1:
+                              isValid = _userController.validateDatePage();
+                              break;
+                            case 2:
+                              isValid = _userController.validateTimePage();
+                              break;
+                            case 3:
+                              isValid = _userController.validatePlacePage();
+                              break;
+                            case 4:
+                              isValid = _userController.validateGenderPage();
+                              break;
+                            case 5:
+                              isValid =
+                                  _userController.validateRelationshipPage();
+                              break;
+                          }
+                          if (isValid) {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              easy.tr("profile.continue"),
+                              style: MyStyle.s2.copyWith(
+                                  color: MyColor.white.withOpacity(0.7)),
+                            ),
+                            Icon(
+                              MyIcon.forward,
+                              color: MyColor.white.withOpacity(0.7),
+                              size: MySize.iconSizeTiny,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ]
+                  : null,
         ),
         body: SafeArea(
           child: Column(
@@ -190,13 +284,6 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                     : null,
               ),
             ),
-            const Spacer(),
-            _buildNavigationButtons(
-              onValidate: () {
-                _userController.nameController.text = _nameController.text;
-                return _userController.validateNamePage();
-              },
-            ),
           ],
         ),
       ),
@@ -207,46 +294,192 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
     return FadeInRight(
       child: Padding(
         padding: const EdgeInsets.all(MySize.defaultPadding),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Obx(() {
-              final zodiacDetails = _astrologyController.getZodiacDetails(
-                  _userController.selectedBirthDateTime.value);
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Obx(() {
+                final zodiacDetails = _astrologyController.getZodiacDetails(
+                    _userController.selectedBirthDateTime.value);
 
-              return Column(
+                return Column(
+                  children: [
+                    verticalGap(MySize.defaultPadding),
+                    SizedBox(
+                      height: 300,
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          // Burç çarkı arka planı
+                          TweenAnimationBuilder(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                            tween: Tween<double>(
+                              begin: _previousRotation,
+                              end: _astrologyController.calculateZodiacRotation(
+                                  _userController.selectedBirthDateTime.value),
+                            ),
+                            onEnd: () {
+                              _previousRotation = _astrologyController
+                                  .calculateZodiacRotation(_userController
+                                      .selectedBirthDateTime.value);
+                            },
+                            builder: (context, double angle, child) {
+                              return Transform.rotate(
+                                angle: angle,
+                                child: Image.asset(
+                                  'assets/images/zodiac_wheel.png',
+                                  width: 300,
+                                ),
+                              );
+                            },
+                          ),
+                          // Işık efekti
+                          Container(
+                            width: 300,
+                            height: 300,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.center,
+                                colors: [
+                                  MyColor.primaryDarkColor.withOpacity(0),
+                                  MyColor.primaryDarkColor,
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (zodiacDetails.isNotEmpty)
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${easy.tr("profile.horoscope")}: ${zodiacDetails['name']} ${zodiacDetails['symbol']}',
+                                  style:
+                                      MyStyle.s2.copyWith(color: MyColor.white),
+                                ),
+                                verticalGap(MySize.halfPadding),
+                                Text(
+                                  '${easy.tr("profile.element")}: ${zodiacDetails['element']}',
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
+                                ),
+                                Text(
+                                  '${easy.tr("profile.quality")}: ${zodiacDetails['quality']}',
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
+                                ),
+                                Text(
+                                  '${easy.tr("profile.ruler")}: ${zodiacDetails['ruler']}',
+                                  style: MyStyle.s3
+                                      .copyWith(color: MyColor.textGreyColor),
+                                ),
+                                verticalGap(MySize.defaultPadding),
+                                Text(
+                                  '${easy.tr("profile.date_range")}: ${zodiacDetails['dateRange']}',
+                                  style: MyStyle.s3.copyWith(
+                                      color: MyColor.primaryLightColor),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }),
+              verticalGap(MySize.doublePadding),
+              Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(MySize.defaultPadding),
+                    decoration: BoxDecoration(
+                      color: MyColor.darkBackgroundColor,
+                      borderRadius: BorderRadius.circular(MySize.halfRadius),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 180,
+                          decoration: BoxDecoration(
+                            color: MyColor.transparent,
+                            borderRadius:
+                                BorderRadius.circular(MySize.halfRadius),
+                          ),
+                          child: CupertinoTheme(
+                            data: CupertinoThemeData(
+                              textTheme: CupertinoTextThemeData(
+                                dateTimePickerTextStyle: MyStyle.s1.copyWith(
+                                  color: MyColor.white,
+                                  fontSize: 22,
+                                ),
+                              ),
+                            ),
+                            child: CupertinoDatePicker(
+                              itemExtent: MySize.tenQuartersPadding,
+                              mode: CupertinoDatePickerMode.date,
+                              initialDateTime:
+                                  _userController.selectedBirthDateTime.value,
+                              maximumDate: DateTime.now(),
+                              minimumDate: DateTime(1900),
+                              onDateTimeChanged: (DateTime value) {
+                                _userController.selectedBirthDateTime.value =
+                                    value;
+                                _userController.validateDate();
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBirthTimePage() {
+    final randomRotation = (Random().nextDouble() * 2 * pi) - pi;
+    return FadeInRight(
+      child: Padding(
+        padding: const EdgeInsets.all(MySize.defaultPadding),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Column(
                 children: [
                   verticalGap(MySize.defaultPadding),
                   SizedBox(
                     height: 300,
                     child: Stack(
-                      alignment: Alignment.bottomCenter,
+                      alignment: Alignment.center,
                       children: [
-                        // Burç çarkı arka planı
                         TweenAnimationBuilder(
-                          duration: const Duration(milliseconds: 500),
+                          duration: const Duration(seconds: 5),
                           curve: Curves.easeInOut,
                           tween: Tween<double>(
                             begin: _previousRotation,
-                            end: _astrologyController.calculateZodiacRotation(
-                                _userController.selectedBirthDateTime.value),
+                            end: randomRotation,
                           ),
                           onEnd: () {
-                            _previousRotation = _astrologyController
-                                .calculateZodiacRotation(_userController
-                                    .selectedBirthDateTime.value);
+                            setState(() {
+                              _previousRotation = randomRotation;
+                            });
                           },
                           builder: (context, double angle, child) {
                             return Transform.rotate(
                               angle: angle,
                               child: Image.asset(
-                                'assets/images/zodiac_wheel.png',
-                                width: 300,
+                                'assets/images/birth_time.png',
+                                width: 280,
                               ),
                             );
                           },
                         ),
-                        // Işık efekti
                         Container(
                           width: 300,
                           height: 300,
@@ -261,274 +494,128 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                             ),
                           ),
                         ),
-                        if (zodiacDetails.isNotEmpty)
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${easy.tr("profile.horoscope")}: ${zodiacDetails['name']} ${zodiacDetails['symbol']}',
-                                style:
-                                    MyStyle.s2.copyWith(color: MyColor.white),
-                              ),
-                              verticalGap(MySize.halfPadding),
-                              Text(
-                                '${easy.tr("profile.element")}: ${zodiacDetails['element']}',
-                                style: MyStyle.s3
-                                    .copyWith(color: MyColor.textGreyColor),
-                              ),
-                              Text(
-                                '${easy.tr("profile.quality")}: ${zodiacDetails['quality']}',
-                                style: MyStyle.s3
-                                    .copyWith(color: MyColor.textGreyColor),
-                              ),
-                              Text(
-                                '${easy.tr("profile.ruler")}: ${zodiacDetails['ruler']}',
-                                style: MyStyle.s3
-                                    .copyWith(color: MyColor.textGreyColor),
-                              ),
-                              verticalGap(MySize.defaultPadding),
-                              Text(
-                                '${easy.tr("profile.date_range")}: ${zodiacDetails['dateRange']}',
-                                style: MyStyle.s3
-                                    .copyWith(color: MyColor.primaryLightColor),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }),
-            verticalGap(MySize.doublePadding),
-            Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(MySize.defaultPadding),
-                  decoration: BoxDecoration(
-                    color: MyColor.darkBackgroundColor,
-                    borderRadius: BorderRadius.circular(MySize.halfRadius),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 180,
-                        decoration: BoxDecoration(
-                          color: MyColor.transparent,
-                          borderRadius:
-                              BorderRadius.circular(MySize.halfRadius),
-                        ),
-                        child: CupertinoTheme(
-                          data: CupertinoThemeData(
-                            textTheme: CupertinoTextThemeData(
-                              dateTimePickerTextStyle: MyStyle.s1.copyWith(
-                                color: MyColor.white,
-                                fontSize: 22,
-                              ),
-                            ),
-                          ),
-                          child: CupertinoDatePicker(
-                            itemExtent: MySize.tenQuartersPadding,
-                            mode: CupertinoDatePickerMode.date,
-                            initialDateTime:
-                                _userController.selectedBirthDateTime.value,
-                            maximumDate: DateTime.now(),
-                            minimumDate: DateTime(1900),
-                            onDateTimeChanged: (DateTime value) {
-                              _userController.selectedBirthDateTime.value =
-                                  value;
-                              _userController.validateDate();
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            _buildNavigationButtons(
-              onValidate: () => _userController.validateDatePage(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBirthTimePage() {
-    final randomRotation = (Random().nextDouble() * 2 * pi) - pi;
-    return FadeInRight(
-      child: Padding(
-        padding: const EdgeInsets.all(MySize.defaultPadding),
-        child: Column(
-          children: [
-            Column(
-              children: [
-                verticalGap(MySize.defaultPadding),
-                SizedBox(
-                  height: 300,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      TweenAnimationBuilder(
-                        duration: const Duration(seconds: 5),
-                        curve: Curves.easeInOut,
-                        tween: Tween<double>(
-                          begin: _previousRotation,
-                          end: randomRotation,
-                        ),
-                        onEnd: () {
-                          setState(() {
-                            _previousRotation = randomRotation;
-                          });
-                        },
-                        builder: (context, double angle, child) {
-                          return Transform.rotate(
-                            angle: angle,
-                            child: Image.asset(
-                              'assets/images/birth_time.png',
-                              width: 280,
-                            ),
-                          );
-                        },
-                      ),
-                      Container(
-                        width: 300,
-                        height: 300,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.center,
-                            colors: [
-                              MyColor.primaryDarkColor.withOpacity(0),
-                              MyColor.primaryDarkColor,
-                            ],
-                          ),
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Flexible(
-                            flex: 3,
-                            child: Container(),
-                          ),
-                          Flexible(
-                            flex: 2,
-                            child: Text(
-                              easy.tr("profile.explanations.birth_time"),
-                              textAlign: TextAlign.center,
-                              style: MyStyle.s3.copyWith(
-                                color: MyColor.textGreyColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(MySize.defaultPadding),
-                  decoration: BoxDecoration(
-                    color: MyColor.darkBackgroundColor,
-                    borderRadius: BorderRadius.circular(MySize.halfRadius),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 180,
-                        decoration: BoxDecoration(
-                          color: MyColor.transparent,
-                          borderRadius:
-                              BorderRadius.circular(MySize.halfRadius),
-                        ),
-                        child: Column(
+                        Column(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(
-                                  easy.tr("profile.hour"),
-                                  style:
-                                      MyStyle.s2.copyWith(color: MyColor.white),
-                                ),
-                                Text(
-                                  easy.tr("profile.minute"),
-                                  style:
-                                      MyStyle.s2.copyWith(color: MyColor.white),
-                                ),
-                              ],
+                            Flexible(
+                              flex: 3,
+                              child: Container(),
                             ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: CupertinoPicker(
-                                      itemExtent: MySize.doublePadding,
-                                      onSelectedItemChanged: (int index) {
-                                        _userController.selectedHour.value =
-                                            index.toString().padLeft(2, '0');
-                                        _userController.updateSelectedTime(
-                                            _userController.selectedHour.value,
-                                            _userController
-                                                .selectedMinute.value);
-                                      },
-                                      children: List<Widget>.generate(24,
-                                          (int index) {
-                                        return Center(
-                                          child: Text(
-                                            index.toString().padLeft(2, '0'),
-                                            style: MyStyle.s2
-                                                .copyWith(color: MyColor.white),
-                                          ),
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: CupertinoPicker(
-                                      itemExtent: MySize.doublePadding,
-                                      onSelectedItemChanged: (int index) {
-                                        _userController.selectedMinute.value =
-                                            index.toString().padLeft(2, '0');
-                                        _userController.updateSelectedTime(
-                                            _userController.selectedHour.value,
-                                            _userController
-                                                .selectedMinute.value);
-                                      },
-                                      children: List<Widget>.generate(60,
-                                          (int index) {
-                                        return Center(
-                                          child: Text(
-                                            index.toString().padLeft(2, '0'),
-                                            style: MyStyle.s2
-                                                .copyWith(color: MyColor.white),
-                                          ),
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                                ],
+                            Flexible(
+                              flex: 2,
+                              child: Text(
+                                easy.tr("profile.explanations.birth_time"),
+                                textAlign: TextAlign.center,
+                                style: MyStyle.s3.copyWith(
+                                  color: MyColor.textGreyColor,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            _buildNavigationButtons(
-                onValidate: _userController.validateTimePage),
-          ],
+                ],
+              ),
+              Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(MySize.defaultPadding),
+                    decoration: BoxDecoration(
+                      color: MyColor.darkBackgroundColor,
+                      borderRadius: BorderRadius.circular(MySize.halfRadius),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 180,
+                          decoration: BoxDecoration(
+                            color: MyColor.transparent,
+                            borderRadius:
+                                BorderRadius.circular(MySize.halfRadius),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    easy.tr("profile.hour"),
+                                    style: MyStyle.s2
+                                        .copyWith(color: MyColor.white),
+                                  ),
+                                  Text(
+                                    easy.tr("profile.minute"),
+                                    style: MyStyle.s2
+                                        .copyWith(color: MyColor.white),
+                                  ),
+                                ],
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: CupertinoPicker(
+                                        itemExtent: MySize.doublePadding,
+                                        onSelectedItemChanged: (int index) {
+                                          _userController.selectedHour.value =
+                                              index.toString().padLeft(2, '0');
+                                          _userController.updateSelectedTime(
+                                              _userController
+                                                  .selectedHour.value,
+                                              _userController
+                                                  .selectedMinute.value);
+                                        },
+                                        children: List<Widget>.generate(24,
+                                            (int index) {
+                                          return Center(
+                                            child: Text(
+                                              index.toString().padLeft(2, '0'),
+                                              style: MyStyle.s2.copyWith(
+                                                  color: MyColor.white),
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: CupertinoPicker(
+                                        itemExtent: MySize.doublePadding,
+                                        onSelectedItemChanged: (int index) {
+                                          _userController.selectedMinute.value =
+                                              index.toString().padLeft(2, '0');
+                                          _userController.updateSelectedTime(
+                                              _userController
+                                                  .selectedHour.value,
+                                              _userController
+                                                  .selectedMinute.value);
+                                        },
+                                        children: List<Widget>.generate(60,
+                                            (int index) {
+                                          return Center(
+                                            child: Text(
+                                              index.toString().padLeft(2, '0'),
+                                              style: MyStyle.s2.copyWith(
+                                                  color: MyColor.white),
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -710,15 +797,6 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
                   ],
                 ),
                 const Spacer(),
-                _buildNavigationButtons(
-                  onValidate: () {
-                    try {
-                      return _userController.validateGenderPage();
-                    } catch (e) {
-                      return false;
-                    }
-                  },
-                ),
               ],
             ),
           ],
@@ -804,56 +882,53 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            Column(
-              children: [
-                const Spacer(),
-                Wrap(
-                  spacing: MySize.defaultPadding,
-                  runSpacing: MySize.defaultPadding,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _buildRelationshipBox(
-                      _userController.relationshipStatuses[0],
-                      MingCute.user_2_line,
-                      _userController,
-                    ),
-                    _buildRelationshipBox(
-                      _userController.relationshipStatuses[1],
-                      MingCute.hand_heart_line,
-                      _userController,
-                    ),
-                    _buildRelationshipBox(
-                      _userController.relationshipStatuses[2],
-                      MingCute.heart_line,
-                      _userController,
-                    ),
-                    _buildRelationshipBox(
-                      _userController.relationshipStatuses[3],
-                      MingCute.love_line,
-                      _userController,
-                    ),
-                    _buildRelationshipBox(
-                      _userController.relationshipStatuses[4],
-                      MingCute.book_3_line,
-                      _userController,
-                    ),
-                    _buildRelationshipBox(
-                      _userController.relationshipStatuses[5],
-                      MingCute.heart_crack_line,
-                      _userController,
-                    ),
-                    _buildRelationshipBox(
-                      _userController.relationshipStatuses[6],
-                      MingCute.question_line,
-                      _userController,
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                _buildNavigationButtons(
-                  onValidate: _userController.validateRelationshipPage,
-                ),
-              ],
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  Wrap(
+                    spacing: MySize.defaultPadding,
+                    runSpacing: MySize.defaultPadding,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _buildRelationshipBox(
+                        _userController.relationshipStatuses[0],
+                        MingCute.user_2_line,
+                        _userController,
+                      ),
+                      _buildRelationshipBox(
+                        _userController.relationshipStatuses[1],
+                        MingCute.hand_heart_line,
+                        _userController,
+                      ),
+                      _buildRelationshipBox(
+                        _userController.relationshipStatuses[2],
+                        MingCute.heart_line,
+                        _userController,
+                      ),
+                      _buildRelationshipBox(
+                        _userController.relationshipStatuses[3],
+                        MingCute.love_line,
+                        _userController,
+                      ),
+                      _buildRelationshipBox(
+                        _userController.relationshipStatuses[4],
+                        MingCute.book_3_line,
+                        _userController,
+                      ),
+                      _buildRelationshipBox(
+                        _userController.relationshipStatuses[5],
+                        MingCute.heart_crack_line,
+                        _userController,
+                      ),
+                      _buildRelationshipBox(
+                        _userController.relationshipStatuses[6],
+                        MingCute.question_line,
+                        _userController,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -919,111 +994,70 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
     return FadeInRight(
       child: Padding(
         padding: const EdgeInsets.all(MySize.defaultPadding),
-        child: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            Text(
-              easy.tr("profile.explanations.interests"),
-              textAlign: TextAlign.center,
-              style: MyStyle.s3.copyWith(
-                color: MyColor.textGreyColor,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text(
+                easy.tr("profile.explanations.interests"),
+                textAlign: TextAlign.center,
+                style: MyStyle.s3.copyWith(
+                  color: MyColor.textGreyColor,
+                ),
               ),
-            ),
-            Column(
-              children: [
-                const Spacer(),
-                Wrap(
-                  spacing: MySize.defaultPadding,
-                  runSpacing: MySize.defaultPadding,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _buildInterestBox(
-                      _userController.interestStatuses[0],
-                      MingCute.currency_dollar_2_line,
-                      _userController,
-                    ),
-                    _buildInterestBox(
-                      _userController.interestStatuses[1],
-                      MingCute.briefcase_line,
-                      _userController,
-                    ),
-                    _buildInterestBox(
-                      _userController.interestStatuses[2],
-                      MingCute.group_line,
-                      _userController,
-                    ),
-                    _buildInterestBox(
-                      _userController.interestStatuses[3],
-                      MingCute.love_line,
-                      _userController,
-                    ),
-                    _buildInterestBox(
-                      _userController.interestStatuses[4],
-                      MingCute.home_3_line,
-                      _userController,
-                    ),
-                    _buildInterestBox(
-                      _userController.interestStatuses[5],
-                      MingCute.trending_up_line,
-                      _userController,
-                    ),
-                    _buildInterestBox(
-                      _userController.interestStatuses[6],
-                      MingCute.backpack_line,
-                      _userController,
-                    ),
-                    _buildInterestBox(
-                      _userController.interestStatuses[7],
-                      MingCute.airplane_line,
-                      _userController,
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_userController.selectedInterests.isNotEmpty) {
-                      Get.to(
-                        () => ProfileLoadingScreen(
-                          onLoadComplete: () async {
-                            try {
-                              await _userController.saveUserProfile();
-                              final astrologyController =
-                                  Get.find<AstrologyController>();
-                              astrologyController.onInit();
-                            } catch (e) {
-                              Get.snackbar(
-                                easy.tr("errors.error"),
-                                easy.tr("errors.profile_not_completed"),
-                                backgroundColor: MyColor.errorColor,
-                                colorText: MyColor.white,
-                              );
-                              rethrow;
-                            }
-                          },
-                        ),
-                        fullscreenDialog: true,
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: MyColor.primaryColor,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(MySize.halfRadius),
-                    ),
+              verticalGap(MySize.doublePadding),
+              Column(
+                children: [
+                  Wrap(
+                    spacing: MySize.defaultPadding,
+                    runSpacing: MySize.defaultPadding,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _buildInterestBox(
+                        _userController.interestStatuses[0],
+                        MingCute.currency_dollar_2_line,
+                        _userController,
+                      ),
+                      _buildInterestBox(
+                        _userController.interestStatuses[1],
+                        MingCute.briefcase_line,
+                        _userController,
+                      ),
+                      _buildInterestBox(
+                        _userController.interestStatuses[2],
+                        MingCute.group_line,
+                        _userController,
+                      ),
+                      _buildInterestBox(
+                        _userController.interestStatuses[3],
+                        MingCute.love_line,
+                        _userController,
+                      ),
+                      _buildInterestBox(
+                        _userController.interestStatuses[4],
+                        MingCute.home_3_line,
+                        _userController,
+                      ),
+                      _buildInterestBox(
+                        _userController.interestStatuses[5],
+                        MingCute.trending_up_line,
+                        _userController,
+                      ),
+                      _buildInterestBox(
+                        _userController.interestStatuses[6],
+                        MingCute.backpack_line,
+                        _userController,
+                      ),
+                      _buildInterestBox(
+                        _userController.interestStatuses[7],
+                        MingCute.airplane_line,
+                        _userController,
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    easy.tr("profile.complete_profile"),
-                    style: MyStyle.s2.copyWith(
-                      color: MyColor.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1078,37 +1112,6 @@ class _ProfileOnboardingState extends State<ProfileOnboarding> {
         ],
       );
     });
-  }
-
-  Widget _buildNavigationButtons({
-    required Function() onValidate,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Spacer(),
-        ElevatedButton(
-          onPressed: () {
-            if (onValidate()) {
-              _pageController.nextPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: MyColor.primaryLightColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(MySize.halfRadius),
-            ),
-          ),
-          child: Text(
-            easy.tr("profile.continue"),
-            style: MyStyle.s2.copyWith(color: MyColor.white),
-          ),
-        ),
-      ],
-    );
   }
 
   @override
