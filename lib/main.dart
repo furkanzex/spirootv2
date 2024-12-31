@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:spirootv2/auth/splash_screen.dart';
@@ -101,7 +102,10 @@ Future<void> main() async {
         supportedLocales: const [Locale('tr', 'TR'), Locale('en', 'US')],
         path: 'assets/translations',
         fallbackLocale: const Locale('en', 'US'),
-        child: const MyApp(),
+        child: DevicePreview(
+          enabled: true,
+          builder: (context) => MyApp(), // Wrap your app
+        ),
       ),
     ),
   );
