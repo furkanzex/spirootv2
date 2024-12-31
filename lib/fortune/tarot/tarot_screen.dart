@@ -501,7 +501,7 @@ class _TarotScreenState extends State<TarotScreen>
 
         return Positioned(
           left: x - cardWidth / 2,
-          top: y - cardHeight / 1.35,
+          top: y - cardHeight / 1.4,
           child: Transform.rotate(
             angle: rotationAngle,
             child: Draggable<TarotCard>(
