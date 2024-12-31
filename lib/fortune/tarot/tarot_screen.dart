@@ -8,6 +8,7 @@ import 'package:spirootv2/core/constant/my_color.dart';
 import 'package:spirootv2/core/constant/my_icon.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:spirootv2/core/constant/my_style.dart';
+import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/core/service/revenuecat_services.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
@@ -253,8 +254,8 @@ class _TarotScreenState extends State<TarotScreen>
       );
     }
 
-    final cardWidth = MySize.tarotCardWidth;
-    final cardHeight = MySize.tarotCardHeight;
+    final cardWidth = DeviceHelper.getScreenWidth(context) * 0.26;
+    final cardHeight = DeviceHelper.getScreenWidth(context) * 0.4;
 
     return ScaffoldGradientBackground(
       gradient: LinearGradient(
@@ -302,113 +303,107 @@ class _TarotScreenState extends State<TarotScreen>
               ),
               textAlign: TextAlign.center,
             ),
-            Expanded(
-              flex: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(MySize.defaultPadding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(3, (index) {
-                    final labels = [
-                      easy.tr('fortune.past'),
-                      easy.tr('fortune.present'),
-                      easy.tr('fortune.future')
-                    ];
-                    return Column(
-                      children: [
-                        Text(
-                          labels[index],
-                          style: TextStyle(
-                            color: MyColor.primaryPurpleColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+            Padding(
+              padding: const EdgeInsets.all(MySize.defaultPadding),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(3, (index) {
+                  final labels = [
+                    easy.tr('fortune.past'),
+                    easy.tr('fortune.present'),
+                    easy.tr('fortune.future')
+                  ];
+                  return Column(
+                    children: [
+                      Text(
+                        labels[index],
+                        style: TextStyle(
+                          color: MyColor.primaryPurpleColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                        verticalGap(MySize.defaultPadding),
-                        Stack(
-                          children: [
-                            Container(
-                              width: cardWidth / 1.5,
-                              height: cardHeight / 1.5,
-                            ),
-                            Positioned.fill(
-                              child: DragTarget<TarotCard>(
-                                onWillAccept: (card) {
-                                  if (card == null ||
-                                      _selectedCards[index] != null ||
-                                      card.isSelected) {
-                                    return false;
-                                  }
-                                  return true;
-                                },
-                                onAccept: (card) {
-                                  setState(() {
-                                    card.isSelected = true;
-                                    _selectedCards[index] = card;
-                                  });
-                                },
-                                onMove: (details) {
-                                  setState(() {});
-                                },
-                                builder:
-                                    (context, candidateData, rejectedData) {
-                                  return Container(
-                                    width: cardWidth / 1.5,
-                                    height: cardHeight / 1.5,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: candidateData.isNotEmpty
-                                            ? MyColor.primaryLightColor
-                                            : MyColor.primaryPurpleColor,
-                                        width: candidateData.isNotEmpty ? 2 : 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                          MySize.quarterRadius),
+                      ),
+                      verticalGap(MySize.defaultPadding),
+                      Stack(
+                        children: [
+                          SizedBox(
+                            width: cardWidth,
+                            height: cardHeight,
+                          ),
+                          Positioned.fill(
+                            child: DragTarget<TarotCard>(
+                              onWillAccept: (card) {
+                                if (card == null ||
+                                    _selectedCards[index] != null ||
+                                    card.isSelected) {
+                                  return false;
+                                }
+                                return true;
+                              },
+                              onAccept: (card) {
+                                setState(() {
+                                  card.isSelected = true;
+                                  _selectedCards[index] = card;
+                                });
+                              },
+                              onMove: (details) {
+                                setState(() {});
+                              },
+                              builder: (context, candidateData, rejectedData) {
+                                return Container(
+                                  width: cardWidth / 3,
+                                  height: cardHeight / 3,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
                                       color: candidateData.isNotEmpty
                                           ? MyColor.primaryLightColor
-                                              .withOpacity(0.1)
-                                          : Colors.transparent,
+                                          : MyColor.primaryPurpleColor,
+                                      width: candidateData.isNotEmpty ? 2 : 1,
                                     ),
-                                    child: _selectedCards[index] != null
-                                        ? _buildCard(_selectedCards[index]!,
-                                            width: cardWidth,
-                                            height: cardHeight)
-                                        : Center(
-                                            child: Icon(
-                                              MingCute.add_circle_line,
-                                              color: MyColor.primaryPurpleColor
-                                                  .withOpacity(0.5),
-                                              size: MySize.iconSizeSmall,
-                                            ),
+                                    borderRadius: BorderRadius.circular(
+                                        MySize.quarterRadius),
+                                    color: candidateData.isNotEmpty
+                                        ? MyColor.primaryLightColor
+                                            .withOpacity(0.1)
+                                        : Colors.transparent,
+                                  ),
+                                  child: _selectedCards[index] != null
+                                      ? _buildCard(_selectedCards[index]!,
+                                          width: cardWidth, height: cardHeight)
+                                      : Center(
+                                          child: Icon(
+                                            MingCute.add_circle_line,
+                                            color: MyColor.primaryPurpleColor
+                                                .withOpacity(0.5),
+                                            size: MySize.iconSizeSmall,
                                           ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        verticalGap(MySize.halfPadding),
-                        if (_selectedCards[index]?.isRevealed == true) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            _selectedCards[index]!.name,
-                            textAlign: TextAlign.center,
-                            style: MyStyle.s3.copyWith(
-                              color:
-                                  MyColor.primaryPurpleColor.withOpacity(0.5),
-                              fontStyle: FontStyle.italic,
+                                        ),
+                                );
+                              },
                             ),
                           ),
                         ],
+                      ),
+                      verticalGap(MySize.halfPadding),
+                      if (_selectedCards[index]?.isRevealed == true) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          _selectedCards[index]!.name,
+                          textAlign: TextAlign.center,
+                          style: MyStyle.s3.copyWith(
+                            color: MyColor.primaryPurpleColor.withOpacity(0.5),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
                       ],
-                    );
-                  }),
-                ),
+                    ],
+                  );
+                }),
               ),
             ),
             if (_selectedCards.any((card) => card == null))
               Expanded(
-                flex: 3,
+                flex: 5,
                 child: _buildTarotFan(),
               ),
             if (_selectedCards.every((card) => card != null))
@@ -482,8 +477,8 @@ class _TarotScreenState extends State<TarotScreen>
     }
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = MySize.tarotCardWidth;
-    final cardHeight = MySize.tarotCardHeight;
+    final cardWidth = DeviceHelper.getScreenWidth(context) * 0.26;
+    final cardHeight = DeviceHelper.getScreenWidth(context) * 0.4;
     final centerX = screenWidth / 2;
     final centerY = MediaQuery.of(context).size.height * 0.6;
     final radius = screenWidth * 0.8;
@@ -506,7 +501,7 @@ class _TarotScreenState extends State<TarotScreen>
 
         return Positioned(
           left: x - cardWidth / 2,
-          top: y - cardHeight / 1,
+          top: y - cardHeight / 1.35,
           child: Transform.rotate(
             angle: rotationAngle,
             child: Draggable<TarotCard>(
