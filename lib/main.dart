@@ -103,7 +103,7 @@ Future<void> main() async {
         path: 'assets/translations',
         fallbackLocale: const Locale('en', 'US'),
         child: DevicePreview(
-          enabled: true,
+          enabled: false,
           builder: (context) => MyApp(), // Wrap your app
         ),
       ),
