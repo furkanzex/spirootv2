@@ -42,6 +42,7 @@ class _SocialScreenState extends State<SocialScreen> {
   final _placesApi =
       FlutterGooglePlacesSdk("AIzaSyDri3yUianYuZw3PfZlruuFLg196-UhXE8");
   Timer? _debounce;
+  String _searchQuery = '';
 
   Future<bool> _checkUserStatusAndRedirect() async {
     if (_userController.userName.isEmpty) {
@@ -199,6 +200,25 @@ class _SocialScreenState extends State<SocialScreen> {
     );
   }
 
+  List<Event> _filterEvents(List<Event> events) {
+    if (_searchQuery.isEmpty) {
+      return events;
+    }
+
+    final query = _searchQuery.toLowerCase();
+    return events.where((event) {
+      final title = event.title.toLowerCase();
+      final description = event.description.toLowerCase();
+      final location = event.location.toLowerCase();
+      final creator = event.creatorName.toLowerCase();
+
+      return title.contains(query) ||
+          description.contains(query) ||
+          location.contains(query) ||
+          creator.contains(query);
+    }).toList();
+  }
+
   Widget _buildEventsTab() {
     return Column(
       children: [
@@ -223,6 +243,32 @@ class _SocialScreenState extends State<SocialScreen> {
             ),
           ),
         ),
+        Container(
+          margin: EdgeInsets.all(MySize.defaultPadding),
+          decoration: BoxDecoration(
+            color: MyColor.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(MySize.halfRadius),
+          ),
+          child: TextField(
+            style: MyStyle.s2.copyWith(color: MyColor.white),
+            decoration: InputDecoration(
+              hintText: easy.tr("social.search_events"),
+              hintStyle:
+                  MyStyle.s2.copyWith(color: MyColor.white.withOpacity(0.5)),
+              prefixIcon: Icon(Icons.search, color: MyColor.white),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: MySize.defaultPadding,
+                vertical: MySize.halfPadding,
+              ),
+            ),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+          ),
+        ),
         Expanded(
           child: RefreshIndicator(
             onRefresh: _refreshSocial,
@@ -244,11 +290,13 @@ class _SocialScreenState extends State<SocialScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                final events = snapshot.data!;
+                final events = _filterEvents(snapshot.data!);
                 if (events.isEmpty) {
                   return Center(
                     child: Text(
-                      easy.tr("social.no_events"),
+                      _searchQuery.isEmpty
+                          ? easy.tr("social.no_events")
+                          : easy.tr("social.no_events_found"),
                       style: MyStyle.s2.copyWith(color: MyColor.white),
                     ),
                   );

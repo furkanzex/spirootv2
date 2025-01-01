@@ -683,7 +683,6 @@
       "selected_date": "Seçilen Tarih",
       "selected_time": "Seçilen Saat",
       "select_date_and_time": "Etkinlik Tarihi ve Saati"
-
     },
     "my_posts": "Gönderilerim",
     "my_events": "Etkinliklerim",
@@ -703,7 +702,9 @@
     "join": "Katıl",
     "leave": "Vazgeç",
     "already_reported": "Bu yorumu zaten şikayet ettiniz",
-    "comment_placeholder": "Yorum yaz..."
+    "comment_placeholder": "Yorum yaz...",
+    "search_events": "Etkinlik ara...",
+    "no_events_found": "Arama sonucu bulunamadı"
   },
   "blog": {
     "title": "Blog Yazısı",

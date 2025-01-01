@@ -702,7 +702,9 @@
     "show_more": "Show More",
     "show_less": "Show Less",
     "already_reported": "You have already reported this comment",
-    "comment_placeholder": "Write a comment..."
+    "comment_placeholder": "Write a comment...",
+    "search_events": "Search events...",
+    "no_events_found": "No events found"
   },
   "blog": {
     "title": "Blog Post",
