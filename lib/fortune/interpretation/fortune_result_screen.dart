@@ -51,16 +51,16 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
     _topic1Controller.text = tr('profile.interests.money');
     _topic2Controller.text = tr('profile.interests.career');
     _checkProfile();
-    _isForSelf = _hasProfile ? true : false;
+    if (_isForSelf && _hasProfile) {
+      _loadUserData();
+    }
   }
 
   void _checkProfile() {
     final userController = Get.find<UserController>();
     setState(() {
       _hasProfile = userController.nameController.text.isNotEmpty;
-      if (_hasProfile) {
-        _loadUserData();
-      }
+      _isForSelf = _hasProfile;
     });
   }
 
@@ -372,67 +372,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
   }
 
   Future<void> _sendFortune() async {
-    // Abonelik kontrolü
-    final isPremium = await PurchaseAPI.isPremium();
-    if (!isPremium) {
-      Get.dialog(
-        PremiumPopup(
-          onSingleUse: () async {
-            // Form validasyonu
-            if (_nameController.text.trim().isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(easy.tr('fortune.please_fill_name_field')),
-                  backgroundColor: Colors.red.withOpacity(0.8),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              );
-              return;
-            }
-
-            if (_birthDateController.text.trim().isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(easy.tr('fortune.please_select_birth_date')),
-                  backgroundColor: Colors.red.withOpacity(0.8),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              );
-              return;
-            }
-
-            if (_relationshipController.text.trim().isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(easy.tr('fortune.please_select_relationship')),
-                  backgroundColor: Colors.red.withOpacity(0.8),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              );
-              return;
-            }
-
-            await _processFortune();
-          },
-        ),
-      );
-      return;
-    }
-
-    // Form validasyonu ve fal gönderme işlemi
-    await _processFortune();
-  }
-
-  Future<void> _processFortune() async {
+    // Form validasyonu
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -475,6 +415,23 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
       return;
     }
 
+    // Abonelik kontrolü
+    final isPremium = await PurchaseAPI.isPremium();
+    if (!isPremium) {
+      Get.dialog(
+        PremiumPopup(
+          onSingleUse: () async {
+            await _processFortune();
+          },
+        ),
+      );
+      return;
+    }
+
+    await _processFortune();
+  }
+
+  Future<void> _processFortune() async {
     setState(() {
       _isInterpreting = true;
     });

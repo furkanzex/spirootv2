@@ -1445,7 +1445,7 @@ Important: Write the response in $_currentLanguage
         "features": [
           {
             "name": "Yüz özelliği",
-            "analysis": "Özelliğin detaylı analizi ve karaktere etkisi (maksimum 300 karakter)",
+            "analysis": "Özelliğin detaylı analizi ve karaktere etkisi (maksimum 300 karakter). Don't say 'it cannot be predicted due to lack of information'. always speak convincingly and clearly on the result that best fits the data in the visual.",
             "indication": "Bu özelliğin işaret ettiği karakter özellikleri ve potansiyel"
           }
         ],

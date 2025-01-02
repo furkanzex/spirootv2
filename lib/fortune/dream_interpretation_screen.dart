@@ -29,28 +29,21 @@ class _DreamInterpretationScreenState extends State<DreamInterpretationScreen> {
   String? _interpretation;
 
   Future<void> _interpretDream() async {
+    if (_dreamController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(easy.tr('fortune.please_fill_dream_field'))),
+      );
+      return;
+    }
+
     final isPremium = await PurchaseAPI.isPremium();
     if (!isPremium) {
       Get.dialog(
         PremiumPopup(
           onSingleUse: () async {
-            if (_dreamController.text.trim().isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(easy.tr('fortune.please_fill_dream_field'))),
-              );
-              return;
-            }
             await _processInterpretation();
           },
         ),
-      );
-      return;
-    }
-
-    if (_dreamController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(easy.tr('fortune.please_fill_dream_field'))),
       );
       return;
     }
