@@ -479,8 +479,11 @@ class NotificationService {
         storage.read('daily_notification_time') ?? {'hour': 9, 'minute': 0};
     final notificationTime =
         TimeOfDay(hour: timeMap['hour'], minute: timeMap['minute']);
-    debugPrint(
-        '\nSeçili Bildirim Saati: ${notificationTime.format(Get.context!)}');
+
+    // Bildirim saatini formatlama
+    final formattedTime =
+        '${notificationTime.hour.toString().padLeft(2, '0')}:${notificationTime.minute.toString().padLeft(2, '0')}';
+    debugPrint('\nSeçili Bildirim Saati: $formattedTime');
 
     // Eksik günler için bildirimleri planla
     debugPrint('\nEksik Bildirimler Planlanıyor:');
@@ -567,17 +570,24 @@ class NotificationService {
         NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     try {
-      // Rastgele bir mesaj seç
-      final messages =
-          easy.tr('notifications.daily_horoscope_messages') as List<dynamic>;
+      // Dil dosyasından mesajları çek
+      final messages = easy.tr('notifications.daily_horoscope_messages');
+      if (messages.isEmpty) {
+        throw Exception('Bildirim mesajları bulunamadı');
+      }
+
+      // 0-24 arası rastgele bir sayı seç
+      final randomIndex = DateTime.now().microsecondsSinceEpoch % 25;
+
+      // Seçilen indekse göre mesajı al
       final randomMessage =
-          messages[DateTime.now().microsecondsSinceEpoch % messages.length];
+          easy.tr('notifications.daily_horoscope_messages.$randomIndex');
       debugPrint('Seçilen bildirim mesajı: $randomMessage');
 
       await _notificationsPlugin.zonedSchedule(
         id,
-        title,
-        randomMessage, // body yerine rastgele seçilen mesajı kullan
+        easy.tr('notifications.daily_horoscope_title'),
+        randomMessage,
         tz.TZDateTime.from(notificationDateTime, tz.local),
         details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
