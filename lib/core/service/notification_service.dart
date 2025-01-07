@@ -8,6 +8,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:get_storage/get_storage.dart';
 
 // Arka plan görevi için callback
 @pragma('vm:entry-point')
@@ -103,6 +104,14 @@ class NotificationService {
     // İzinleri kontrol et
     final granted = await requestPermissions();
     debugPrint('Bildirim İzinleri: $granted');
+
+    // İzinler verildiyse bildirimleri planla
+    if (granted) {
+      debugPrint('Bildirim izinleri onaylandı, bildirimler planlanıyor...');
+      await scheduleAstrologyNotifications();
+    } else {
+      debugPrint('Bildirim izinleri reddedildi, bildirimler planlanamıyor.');
+    }
   }
 
   // Bildirim planla
@@ -434,6 +443,152 @@ class NotificationService {
       } catch (retryError) {
         debugPrint('Alternatif bildirim de başarısız: $retryError');
       }
+    }
+  }
+
+  // Astroloji bildirimlerini planla
+  Future<void> scheduleAstrologyNotifications() async {
+    debugPrint('\n=== Astroloji Bildirimleri Kontrol Ediliyor ===');
+
+    // Mevcut bildirimleri kontrol et
+    final pendingNotifications =
+        await _notificationsPlugin.pendingNotificationRequests();
+    debugPrint(
+        '\nMevcut Planlanmış Bildirimler (${pendingNotifications.length}):');
+
+    // Astroloji bildirimlerini filtrele (ID: 1001-1003 arası)
+    final astrologyNotifications = pendingNotifications
+        .where((n) => n.id >= 1001 && n.id <= 1003)
+        .toList();
+    for (var notification in astrologyNotifications) {
+      debugPrint(
+          'ID: ${notification.id}, Başlık: ${notification.title}, İçerik: ${notification.body}');
+    }
+
+    // Eğer 3 günlük bildirim varsa işlem yapma
+    if (astrologyNotifications.length == 3) {
+      debugPrint('\nTüm bildirimler zaten planlanmış, işlem yapılmayacak.');
+      return;
+    }
+
+    // Mevcut bildirim ID'lerini al
+    final existingIds = astrologyNotifications.map((n) => n.id).toSet();
+
+    final storage = GetStorage();
+    final timeMap =
+        storage.read('daily_notification_time') ?? {'hour': 9, 'minute': 0};
+    final notificationTime =
+        TimeOfDay(hour: timeMap['hour'], minute: timeMap['minute']);
+    debugPrint(
+        '\nSeçili Bildirim Saati: ${notificationTime.format(Get.context!)}');
+
+    // Eksik günler için bildirimleri planla
+    debugPrint('\nEksik Bildirimler Planlanıyor:');
+    for (int i = 0; i < 3; i++) {
+      final notificationId = 1001 + i;
+
+      // Bu ID için bildirim zaten varsa atla
+      if (existingIds.contains(notificationId)) {
+        debugPrint(
+            'ID: $notificationId için bildirim zaten mevcut, atlanıyor.');
+        continue;
+      }
+
+      final scheduledDate = DateTime.now().add(Duration(days: i));
+      await _schedulePeriodicAstrologyNotification(
+        id: notificationId,
+        title: easy.tr('notifications.daily_horoscope_title'),
+        body: easy.tr('notifications.daily_horoscope_body'),
+        notificationTime: notificationTime,
+        scheduledDate: scheduledDate,
+      );
+      debugPrint(
+          '${i + 1}. gün için yeni bildirim planlandı: ${scheduledDate.toString()}');
+    }
+
+    // Güncel durumu kontrol et
+    final updatedNotifications =
+        await _notificationsPlugin.pendingNotificationRequests();
+    final updatedAstrologyNotifications = updatedNotifications
+        .where((n) => n.id >= 1001 && n.id <= 1003)
+        .toList();
+    debugPrint(
+        '\nGüncel Planlanmış Bildirimler (${updatedAstrologyNotifications.length}):');
+    for (var notification in updatedAstrologyNotifications) {
+      debugPrint(
+          'ID: ${notification.id}, Başlık: ${notification.title}, İçerik: ${notification.body}');
+    }
+
+    debugPrint('\n=== Bildirim Kontrolü Tamamlandı ===\n');
+  }
+
+  Future<void> _schedulePeriodicAstrologyNotification({
+    required int id,
+    required String title,
+    required String body,
+    required TimeOfDay notificationTime,
+    required DateTime scheduledDate,
+  }) async {
+    var notificationDateTime = DateTime(
+      scheduledDate.year,
+      scheduledDate.month,
+      scheduledDate.day,
+      notificationTime.hour,
+      notificationTime.minute,
+    );
+
+    // Eğer belirtilen saat geçmişse, bir sonraki güne planla
+    if (notificationDateTime.isBefore(DateTime.now())) {
+      notificationDateTime = notificationDateTime.add(const Duration(days: 1));
+      debugPrint(
+          'Geçmiş saat tespit edildi, bir sonraki güne planlanıyor: ${notificationDateTime.toString()}');
+    }
+
+    final androidDetails = const AndroidNotificationDetails(
+      'astrology_notifications',
+      'Astroloji Bildirimleri',
+      channelDescription: 'Günlük astroloji yorumları için bildirimler',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    final iosDetails = const DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      sound: 'default',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    );
+
+    final details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    try {
+      // Rastgele bir mesaj seç
+      final messages =
+          easy.tr('notifications.daily_horoscope_messages') as List<dynamic>;
+      final randomMessage =
+          messages[DateTime.now().microsecondsSinceEpoch % messages.length];
+      debugPrint('Seçilen bildirim mesajı: $randomMessage');
+
+      await _notificationsPlugin.zonedSchedule(
+        id,
+        title,
+        randomMessage, // body yerine rastgele seçilen mesajı kullan
+        tz.TZDateTime.from(notificationDateTime, tz.local),
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+      debugPrint(
+          'Bildirim başarıyla planlandı - ID: $id, Zaman: ${notificationDateTime.toString()}');
+    } catch (e) {
+      debugPrint('Bildirim planlanırken hata oluştu - ID: $id, Hata: $e');
     }
   }
 }

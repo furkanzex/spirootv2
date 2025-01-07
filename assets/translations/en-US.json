@@ -320,7 +320,8 @@
         "change_error": "An error occurred while changing the language"
       },
       "auto_translate": "Auto Content Translation",
-      "auto_translate_desc": "Automatically translate content in posts and events to app language"
+      "auto_translate_desc": "Automatically translate content in posts and events to app language",
+      "notifications_time": "Notification Time"
     },
     "support": {
       "title": "Support & Information",
@@ -821,6 +822,35 @@
     "katina_fortune_ready_title": "Your Katina Reading is Ready! 🎴",
     "katina_fortune_ready_body": "Your katina reading is ready. Tap to view now!",
     "fortune_ready_title": "Your Reading is Ready! ✨",
-    "fortune_ready_body": "Your fortune reading is ready. Tap to view now!"
+    "fortune_ready_body": "Your fortune reading is ready. Tap to view now!",
+    "daily_horoscope_title": "Your Daily Horoscope is Ready! 🌟",
+    "daily_horoscope_body": "What do the stars say about you today? Find out now!",
+    "daily_horoscope_messages": [
+      "The stars are dancing for you today! Want to see what's coming? 🌟",
+      "The planets have a surprise for you! Curious to know what it is? 🎁",
+      "Cosmic energies are winking at you! Check your daily reading! ✨",
+      "The Moon is on your side, stars align! What's in store today? 🌙",
+      "Luck is about to knock on your door! Your horoscope is ready! 🍀",
+      "Venus is smiling at you today! See what she brings! 💫",
+      "Jupiter might be ready to fill your pockets! Details in your reading! 💰",
+      "Mars is empowering you! See what you can achieve today! 💪",
+      "Mercury has a message for you! Wonder what it says? 📨",
+      "Saturn wants to teach you something! But it's a good lesson! 📚",
+      "Uranus is full of surprises! Let's see what today brings! 🎲",
+      "Neptune wants to inspire you! Check your reading! 🌊",
+      "Pluto promises transformation! Are you ready for change? 🦋",
+      "The stars are chatty today! What are they telling you? 🗣️",
+      "The sky is sparkling for you today! What could it mean? ⭐",
+      "So much happening in the zodiac today! Find out now! 🔮",
+      "Cosmic gossip is about you! What's being said? 👀",
+      "The stars are flirting with you! Or are they? 😉",
+      "The planets gathered for you! What are they planning? 🎯",
+      "Want to hear the astrological whispers? Your reading is ready! 👂",
+      "The zodiac is buzzing today! What does it mean for you? 🌠",
+      "Your cosmic coffee reading is... Just kidding, horoscope's ready! ☕",
+      "Stars are bringing luck today! How? Find out now! 🎰",
+      "The planets are sending their regards! They have messages! 👋",
+      "Breaking astro news! Your personal reading is ready! 📰"
+    ]
   }
 }

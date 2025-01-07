@@ -320,7 +320,8 @@
         "change_error": "Dil değiştirilirken bir hata oluştu"
       },
       "auto_translate": "Otomatik İçerik Çevirisi",
-      "auto_translate_desc": "Gönderi ve etkinliklerdeki içerikleri otomatik olarak uygulama diline çevir"
+      "auto_translate_desc": "Gönderi ve etkinliklerdeki içerikleri otomatik olarak uygulama diline çevir",
+      "notifications_time": "Bildirim Saati"
     },
     "support": {
       "title": "Destek & Bilgi",
@@ -821,6 +822,35 @@
     "katina_fortune_ready_title": "Katina Falınız Hazır! 🎴",
     "katina_fortune_ready_body": "Katina falınızın yorumu hazır. Hemen görmek için tıklayın!",
     "fortune_ready_title": "Falınız Hazır! ✨",
-    "fortune_ready_body": "Falınızın yorumu hazır. Hemen görmek için tıklayın!"
+    "fortune_ready_body": "Falınızın yorumu hazır. Hemen görmek için tıklayın!",
+    "daily_horoscope_title": "Günlük Burç Yorumunuz Hazır! 🌟",
+    "daily_horoscope_body": "Bugün yıldızlar sizin için neler söylüyor? Hemen öğrenin!",
+    "daily_horoscope_messages": [
+      "Bugün yıldızlar sizin için dans ediyor! Neler olacak, hemen öğrenin! 🌟",
+      "Gezegenlerin size bir sürprizi var! Merak ediyor musunuz? 🎁",
+      "Kozmik enerjiler size göz kırpıyor! Günlük yorumunuza göz atın! ✨",
+      "Ay sizden yana, yıldızlar sizinle! Bugün neler olacak? 🌙",
+      "Şans kapınızı çalmak üzere! Burç yorumunuz hazır! 🍀",
+      "Venüs bugün size gülümsüyor! Neler getirdiğini öğrenin! 💫",
+      "Jüpiter cebinizi doldurmaya hazırlanıyor olabilir! Detaylar yorumunuzda! 💰",
+      "Mars size güç veriyor! Bugün neler yapabileceğinizi görün! 💪",
+      "Merkür size mesaj gönderiyor! Acaba ne diyor? 📨",
+      "Satürn size ders vermek istiyor! Ama iyi bir ders bu! 📚",
+      "Uranüs sürprizlerle dolu! Bakalım bugün neler getirecek? 🎲",
+      "Neptün size ilham vermek istiyor! Yorumunuza göz atın! 🌊",
+      "Plüton size transformation vadediyor! Değişime hazır mısınız? 🦋",
+      "Yıldızlar bugün çok konuşkan! Size neler anlatıyorlar? 🗣️",
+      "Gökyüzü bugün sizin için parıldıyor! Neyin habercisi olabilir? ⭐",
+      "Burçlar aleminde bugün neler var neler! Hemen öğrenin! 🔮",
+      "Kozmik dedikodular sizinle ilgili! Neler konuşuluyor? 👀",
+      "Yıldızlar size göz kırpıyor! Flört mü ediyor yoksa? 😉",
+      "Gezegenler sizin için bir araya geldi! Ne planlıyorlar? 🎯",
+      "Astrolojik fısıltıları duymak ister misiniz? Yorumunuz hazır! 👂",
+      "Burçlar bugün çok hareketli! Sizin için ne anlama geliyor? 🌠",
+      "Kozmik kahve falınız hazır! Şaka şaka, burç yorumunuz hazır! ☕",
+      "Yıldızlar bugün size şans getiriyor! Nasıl mı? Hemen öğrenin! 🎰",
+      "Gezegenler size selam gönderiyor! Mesajları var! 👋",
+      "Astrolojik haberler var! Size özel yorumunuz hazır! 📰"
+    ]
   }
 }

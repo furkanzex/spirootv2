@@ -1,4 +1,5 @@
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -21,6 +22,26 @@ import 'package:spirootv2/core/service/revenuecat_services.dart';
 // Otomatik çeviri kontrolü için RxBool değişkeni
 final RxBool isAutoTranslateEnabled = false.obs;
 final storage = GetStorage();
+
+// Bildirim saati için GetStorage key'i
+final String notificationTimeKey = 'daily_notification_time';
+
+// Bildirim saatini kaydet
+void saveNotificationTime(TimeOfDay time) {
+  final storage = GetStorage();
+  storage
+      .write(notificationTimeKey, {'hour': time.hour, 'minute': time.minute});
+}
+
+// Bildirim saatini getir
+TimeOfDay getNotificationTime() {
+  final storage = GetStorage();
+  final timeMap = storage.read(notificationTimeKey);
+  if (timeMap != null) {
+    return TimeOfDay(hour: timeMap['hour'], minute: timeMap['minute']);
+  }
+  return const TimeOfDay(hour: 9, minute: 0); // Varsayılan saat 09:00
+}
 
 // Çeviri durumunu kontrol eden fonksiyon
 void toggleAutoTranslate(bool value) async {
@@ -169,6 +190,93 @@ void _showLanguageSelectionModal(BuildContext context) {
   );
 }
 
+// Bildirim saati seçme modalı
+void _showNotificationTimePicker(BuildContext context) {
+  final currentTime = getNotificationTime();
+  TimeOfDay selectedTime = currentTime;
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (context) => Container(
+      height: 380,
+      decoration: BoxDecoration(
+        color: MyColor.darkBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 12),
+            width: 45,
+            height: 5,
+            decoration: BoxDecoration(
+              color: MyColor.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              easy.tr("settings.app.notifications_time"),
+              style: MyStyle.s1.copyWith(
+                color: MyColor.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+            child: CupertinoTheme(
+              data: CupertinoThemeData(
+                textTheme: CupertinoTextThemeData(
+                  dateTimePickerTextStyle: TextStyle(
+                    color: MyColor.white,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                initialDateTime:
+                    DateTime(2024, 1, 1, currentTime.hour, currentTime.minute),
+                onDateTimeChanged: (DateTime value) {
+                  selectedTime = TimeOfDay.fromDateTime(value);
+                },
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MyColor.primaryColor,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () {
+                  saveNotificationTime(selectedTime);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  easy.tr('common.ok'),
+                  style: MyStyle.s2.copyWith(
+                    color: MyColor.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 void showSettingsBottomSheet(BuildContext context) {
   final userController = Get.find<UserController>();
   final astrologyController = Get.put(AstrologyController());
@@ -292,11 +400,12 @@ void showSettingsBottomSheet(BuildContext context) {
                 _buildSettingsGroup(
                   title: easy.tr("settings.app.title"),
                   items: [
-                    /*_buildSettingsItem(
+                    _buildSettingsItem(
                       icon: MingCute.notification_line,
                       title: easy.tr("settings.app.notifications"),
-                      onTap: () {},
-                    ),*/
+                      trailing: getNotificationTime().format(context),
+                      onTap: () => _showNotificationTimePicker(context),
+                    ),
                     _buildSettingsItem(
                       icon: Icons.language,
                       title: easy.tr('settings.app.language.title'),
