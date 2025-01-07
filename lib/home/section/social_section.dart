@@ -11,7 +11,7 @@ import 'package:spirootv2/home/home_controller.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
 Widget socialSection(BuildContext context) {
-  final controller = Get.find<HomeController>();
+  final controller = Get.put(HomeController());
   return GestureDetector(
     onTap: () {
       controller.changePage(3);
