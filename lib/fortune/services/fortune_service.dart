@@ -3,12 +3,49 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:spirootv2/core/service/notification_service.dart';
 
 class FortuneService {
   static final _storage = GetStorage();
   static const String _baseUrl = 'https://apptoic.com/spiroot/json';
   static const String _fortuneCachePrefix = 'fortune_data_';
   static const String _affirmationCachePrefix = 'affirmation_data_';
+  static final NotificationService _notificationService = NotificationService();
+
+  static Future<void> saveFortune({
+    required String fortuneType,
+    required String userId,
+    required Map<String, dynamic> interpretation,
+    required List<String> images,
+    required Map<String, dynamic> userInfo,
+    required DateTime revealAt,
+  }) async {
+    try {
+      // Firestore'a kaydet
+      final docRef = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('fortunes')
+          .add({
+        'type': fortuneType,
+        'images': images,
+        'interpretation': interpretation,
+        'timestamp': FieldValue.serverTimestamp(),
+        'revealAt': Timestamp.fromDate(revealAt),
+        'userInfo': userInfo,
+      });
+
+      // Bildirim planla
+      await _notificationService.scheduleFortuneReadyNotification(
+        fortuneId: docRef.id,
+        fortuneType: fortuneType,
+        revealAt: revealAt,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   static Future<List<String>> loadFortunes(BuildContext context) async {
     final locale = context.locale.languageCode;

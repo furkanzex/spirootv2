@@ -20,6 +20,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/core/widget/popup/premium_popup.dart';
+import 'package:spirootv2/core/service/notification_service.dart';
 
 class FortuneResultScreen extends StatefulWidget {
   final List<File> images;
@@ -480,7 +481,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
       }
 
       // Firestore'a kaydet
-      await FirebaseFirestore.instance
+      final docRef = await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .collection('fortunes')
@@ -498,6 +499,14 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
         },
       });
 
+      // Bildirim planla
+      final notificationService = Get.find<NotificationService>();
+      await notificationService.scheduleFortuneReadyNotification(
+        fortuneId: docRef.id,
+        fortuneType: widget.fortuneType.toString().split('.').last,
+        revealAt: DateTime.now().add(waitTime),
+      );
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -512,7 +521,7 @@ class _FortuneResultScreenState extends State<FortuneResultScreen> {
             ),
           ),
         );
-        Navigator.pop(context);
+        Get.back();
       }
     } catch (e) {
       if (mounted) {

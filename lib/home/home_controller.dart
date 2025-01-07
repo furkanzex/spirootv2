@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:spirootv2/astrology/astrology_screen.dart';
-import 'package:spirootv2/explore/explore_screen.dart';
 import 'package:spirootv2/fortune/fortune_screen.dart';
 import 'package:spirootv2/home/home_screen.dart';
 import 'package:spirootv2/social/screens/social_screen.dart';
@@ -18,7 +15,7 @@ class HomeController extends GetxController {
     const FortuneScreen(),
     AstrologyScreen(),
     const SocialScreen(),
-    if (Platform.isIOS) ExploreScreen(),
+    //ExploreScreen(),
   ];
 
   // Sayfa değiştirme fonksiyonu

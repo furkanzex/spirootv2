@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -106,11 +104,11 @@ class _HomePageState extends State<HomePage> {
                 icon: Icon(MingCute.group_line),
                 activeIcon: Icon(MingCute.group_fill),
                 label: easy.tr("navigation.social")),
-            if (Platform.isIOS)
+            /*
               BottomNavigationBarItem(
                   icon: Icon(MingCute.search_line),
                   activeIcon: Icon(MingCute.search_fill),
-                  label: easy.tr("navigation.explore")),
+                  label: easy.tr("navigation.explore")),*/
           ],
         ),
       ),

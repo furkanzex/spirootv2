@@ -20,14 +20,29 @@ import 'package:sweph/sweph.dart';
 import 'dart:io';
 import 'package:spirootv2/home/section/settings_modal_bottom_sheet.dart';
 import 'package:spirootv2/core/service/translation_service.dart';
+import 'package:spirootv2/core/service/notification_service.dart';
 import 'controllers/connectivity_controller.dart';
 import 'widgets/no_internet_widget.dart';
+import 'package:workmanager/workmanager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();
+
+  // Firebase'i başlat
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Workmanager'ı başlat
+  await Workmanager().initialize(callbackDispatcher);
+
+  // Bildirim servisini başlat ve Get ile kaydet
+  final notificationService = Get.put(NotificationService());
+  await notificationService.initialize();
+  await notificationService.requestPermissions();
 
   // Otomatik çeviri durumunu yükle
   loadAutoTranslateState();

@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>For coffee fortune telling we need access to a camera to take photos of the cups.</string>
+	<string>Fal yorumlaması için fotoğraf çekmek üzere kamera erişimi gereklidir.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access required for camera use</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -51,5 +51,23 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+		<string>processing</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	</array>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
+	<key>NSUserNotificationEnabled</key>
+	<true/>
+	<key>UILocalNotificationDefaultSoundName</key>
+	<string>default</string>
+	<key>UIUserNotificationEnabled</key>
+	<true/>
 </dict>
 </plist>

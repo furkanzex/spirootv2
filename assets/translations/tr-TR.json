@@ -806,5 +806,21 @@
     "camera_required": "Bu özelliği kullanabilmek için kamera ve galeri izinleri gereklidir.",
     "understood": "Anladım",
     "open_settings": "İzinleri Aç"
+  },
+  "notifications": {
+    "coffee_fortune_ready_title": "Kahve Falınız Hazır! ☕️",
+    "coffee_fortune_ready_body": "Kahve falınızın yorumu hazır. Hemen görmek için tıklayın!",
+    "tarot_fortune_ready_title": "Tarot Falınız Hazır! 🔮",
+    "tarot_fortune_ready_body": "Tarot falınızın yorumu hazır. Hemen görmek için tıklayın!",
+    "palm_fortune_ready_title": "El Falınız Hazır! 🖐️",
+    "palm_fortune_ready_body": "El falınızın yorumu hazır. Hemen görmek için tıklayın!",
+    "face_fortune_ready_title": "Yüz Falınız Hazır! 👤",
+    "face_fortune_ready_body": "Yüz falınızın yorumu hazır. Hemen görmek için tıklayın!",
+    "angel_fortune_ready_title": "Melek Falınız Hazır! 👼",
+    "angel_fortune_ready_body": "Melek falınızın yorumu hazır. Hemen görmek için tıklayın!",
+    "katina_fortune_ready_title": "Katina Falınız Hazır! 🎴",
+    "katina_fortune_ready_body": "Katina falınızın yorumu hazır. Hemen görmek için tıklayın!",
+    "fortune_ready_title": "Falınız Hazır! ✨",
+    "fortune_ready_body": "Falınızın yorumu hazır. Hemen görmek için tıklayın!"
   }
 }

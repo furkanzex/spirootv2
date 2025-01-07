@@ -806,5 +806,21 @@
     "camera_required": "Camera and gallery permissions are required to use this feature.",
     "understood": "I Understand",
     "open_settings": "Open Settings"
+  },
+  "notifications": {
+    "coffee_fortune_ready_title": "Your Coffee Reading is Ready! ☕️",
+    "coffee_fortune_ready_body": "Your coffee fortune reading is ready. Tap to view now!",
+    "tarot_fortune_ready_title": "Your Tarot Reading is Ready! 🔮",
+    "tarot_fortune_ready_body": "Your tarot reading is ready. Tap to view now!",
+    "palm_fortune_ready_title": "Your Palm Reading is Ready! 🖐️",
+    "palm_fortune_ready_body": "Your palm reading is ready. Tap to view now!",
+    "face_fortune_ready_title": "Your Face Reading is Ready! 👤",
+    "face_fortune_ready_body": "Your face reading is ready. Tap to view now!",
+    "angel_fortune_ready_title": "Your Angel Reading is Ready! 👼",
+    "angel_fortune_ready_body": "Your angel reading is ready. Tap to view now!",
+    "katina_fortune_ready_title": "Your Katina Reading is Ready! 🎴",
+    "katina_fortune_ready_body": "Your katina reading is ready. Tap to view now!",
+    "fortune_ready_title": "Your Reading is Ready! ✨",
+    "fortune_ready_body": "Your fortune reading is ready. Tap to view now!"
   }
 }

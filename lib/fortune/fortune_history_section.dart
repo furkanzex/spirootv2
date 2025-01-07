@@ -30,7 +30,7 @@ String getInterpretationText(Map<String, dynamic> data) {
 Widget fortuneHistorySection(BuildContext context) {
   String formatDate(DateTime? date) {
     if (date == null) return easy.tr('fortune.date_not_found');
-    return DateFormat('dd MMMM yyyy, HH:mm').format(date);
+    return DateFormat('dd MMMM yyyy\nHH:mm').format(date);
   }
 
   return StreamBuilder<QuerySnapshot>(
@@ -146,6 +146,7 @@ Widget fortuneHistorySection(BuildContext context) {
                                             style: MyStyle.s3.copyWith(
                                               color: MyColor.textGreyColor,
                                             ),
+                                            textAlign: TextAlign.end,
                                           ),
                                           horizontalGap(MySize.halfPadding),
                                           if (data['revealAt'] == null ||

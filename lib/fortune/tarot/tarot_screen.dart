@@ -11,6 +11,7 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/helper/device_helper.dart';
 import 'package:spirootv2/core/service/gemini_service.dart';
 import 'package:spirootv2/core/service/revenuecat_services.dart';
+import 'package:spirootv2/core/service/notification_service.dart';
 import 'package:spirootv2/core/widget/gap/vertical_gap.dart';
 import 'package:spirootv2/fortune/tarot/tarot_card_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -60,10 +61,20 @@ class _TarotScreenState extends State<TarotScreen>
       final String jsonString =
           await rootBundle.loadString('assets/json/tarot.json');
       final List<dynamic> jsonList = json.decode(jsonString);
+
+      // Kartları oluştur
+      List<TarotCard> allCards = jsonList
+          .map((json) => TarotCard.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      // Kartları karıştır
+      allCards.shuffle(Random());
+
+      // İlk 20 kartı al
+      final shuffledDeck = allCards.take(20).toList();
+
       setState(() {
-        _deck = jsonList
-            .map((json) => TarotCard.fromJson(json as Map<String, dynamic>))
-            .toList();
+        _deck = shuffledDeck;
         _isLoading = false;
       });
       _fanAnimationController.forward();
@@ -169,7 +180,8 @@ class _TarotScreenState extends State<TarotScreen>
           throw Exception(easy.tr('fortune.invalid_fortune_type'));
       }
 
-      await FirebaseFirestore.instance
+      // Firestore'a kaydet
+      final docRef = await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .collection('fortunes')
@@ -180,6 +192,14 @@ class _TarotScreenState extends State<TarotScreen>
         'timestamp': FieldValue.serverTimestamp(),
         'revealAt': Timestamp.fromDate(DateTime.now().add(waitTime)),
       });
+
+      // Bildirim planla
+      final notificationService = Get.find<NotificationService>();
+      await notificationService.scheduleFortuneReadyNotification(
+        fortuneId: docRef.id,
+        fortuneType: widget.fortuneType,
+        revealAt: DateTime.now().add(waitTime),
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -194,7 +214,7 @@ class _TarotScreenState extends State<TarotScreen>
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
-        Navigator.pop(context);
+        Get.back();
       }
     } catch (e) {
       if (mounted) {
