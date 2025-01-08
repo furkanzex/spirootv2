@@ -52,7 +52,7 @@ class AstrologySection extends StatelessWidget {
       onTap: _navigateToAstrology,
       child: Container(
         width: double.infinity,
-        height: 120,
+        height: 180,
         margin: const EdgeInsets.symmetric(horizontal: 5.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(MySize.halfRadius),

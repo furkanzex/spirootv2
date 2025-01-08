@@ -104,14 +104,6 @@ class NotificationService {
     // İzinleri kontrol et
     final granted = await requestPermissions();
     debugPrint('Bildirim İzinleri: $granted');
-
-    // İzinler verildiyse bildirimleri planla
-    if (granted) {
-      debugPrint('Bildirim izinleri onaylandı, bildirimler planlanıyor...');
-      await scheduleAstrologyNotifications();
-    } else {
-      debugPrint('Bildirim izinleri reddedildi, bildirimler planlanamıyor.');
-    }
   }
 
   // Bildirim planla
@@ -165,80 +157,23 @@ class NotificationService {
     );
 
     try {
-      final now = DateTime.now();
-      final difference = scheduledDate.difference(now);
-
-      if (difference.inSeconds <= 0) {
-        // Zaman geçmişse hemen gönder
-        await _notificationsPlugin.show(
-          fortuneId.hashCode,
-          title,
-          body,
-          details,
-          payload: '$fortuneType:$fortuneId',
-        );
-        debugPrint('Anlık bildirim gönderildi');
-      } else {
-        // iOS için anlık bildirim planla
-        if (Platform.isIOS) {
-          // Workmanager ile planla
-          await Workmanager().registerOneOffTask(
-            'fortune_$fortuneId',
-            'scheduleFortuneNotification',
-            initialDelay: difference,
-            inputData: {
-              'title': title,
-              'body': body,
-              'fortuneType': fortuneType,
-              'fortuneId': fortuneId,
-            },
-            existingWorkPolicy: ExistingWorkPolicy.replace,
-          );
-          debugPrint(
-              'iOS için workmanager görevi planlandı: ${difference.inSeconds} saniye sonra');
-        } else {
-          // Android için zamanlanmış bildirim
-          final scheduledTime = tz.TZDateTime.from(scheduledDate, tz.local);
-          await _notificationsPlugin.zonedSchedule(
-            fortuneId.hashCode,
-            title,
-            body,
-            scheduledTime,
-            details,
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
-            payload: '$fortuneType:$fortuneId',
-          );
-          debugPrint(
-              'Android için zamanlanmış bildirim planlandı: $scheduledTime');
-        }
-      }
+      // Hem iOS hem Android için zonedSchedule kullan
+      final scheduledTime = tz.TZDateTime.from(scheduledDate, tz.local);
+      await _notificationsPlugin.zonedSchedule(
+        fortuneId.hashCode,
+        title,
+        body,
+        scheduledTime,
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: '$fortuneType:$fortuneId',
+      );
+      debugPrint('Zamanlanmış bildirim planlandı: $scheduledTime');
     } catch (e, stackTrace) {
       debugPrint('Bildirim hatası: $e');
       debugPrint('Hata detayı: $stackTrace');
-
-      // Hata durumunda workmanager ile tekrar dene
-      try {
-        final delay = scheduledDate.difference(DateTime.now());
-        if (delay.inSeconds > 0) {
-          await Workmanager().registerOneOffTask(
-            'fortune_$fortuneId',
-            'scheduleFortuneNotification',
-            initialDelay: delay,
-            inputData: {
-              'title': title,
-              'body': body,
-              'fortuneType': fortuneType,
-              'fortuneId': fortuneId,
-            },
-            existingWorkPolicy: ExistingWorkPolicy.replace,
-          );
-          debugPrint('Bildirim workmanager ile yeniden planlandı');
-        }
-      } catch (retryError) {
-        debugPrint('Workmanager planlaması da başarısız: $retryError');
-      }
     }
   }
 
@@ -447,158 +382,84 @@ class NotificationService {
   }
 
   // Astroloji bildirimlerini planla
-  Future<void> scheduleAstrologyNotifications() async {
-    debugPrint('\n=== Astroloji Bildirimleri Kontrol Ediliyor ===');
-
-    // Mevcut bildirimleri kontrol et
-    final pendingNotifications =
-        await _notificationsPlugin.pendingNotificationRequests();
-    debugPrint(
-        '\nMevcut Planlanmış Bildirimler (${pendingNotifications.length}):');
-
-    // Astroloji bildirimlerini filtrele (ID: 1001-1003 arası)
-    final astrologyNotifications = pendingNotifications
-        .where((n) => n.id >= 1001 && n.id <= 1003)
-        .toList();
-    for (var notification in astrologyNotifications) {
-      debugPrint(
-          'ID: ${notification.id}, Başlık: ${notification.title}, İçerik: ${notification.body}');
-    }
-
-    // Eğer 3 günlük bildirim varsa işlem yapma
-    if (astrologyNotifications.length == 3) {
-      debugPrint('\nTüm bildirimler zaten planlanmış, işlem yapılmayacak.');
-      return;
-    }
-
-    // Mevcut bildirim ID'lerini al
-    final existingIds = astrologyNotifications.map((n) => n.id).toSet();
-
-    final storage = GetStorage();
-    final timeMap =
-        storage.read('daily_notification_time') ?? {'hour': 9, 'minute': 0};
-    final notificationTime =
-        TimeOfDay(hour: timeMap['hour'], minute: timeMap['minute']);
-
-    // Bildirim saatini formatlama
-    final formattedTime =
-        '${notificationTime.hour.toString().padLeft(2, '0')}:${notificationTime.minute.toString().padLeft(2, '0')}';
-    debugPrint('\nSeçili Bildirim Saati: $formattedTime');
-
-    // Eksik günler için bildirimleri planla
-    debugPrint('\nEksik Bildirimler Planlanıyor:');
-    for (int i = 0; i < 3; i++) {
-      final notificationId = 1001 + i;
-
-      // Bu ID için bildirim zaten varsa atla
-      if (existingIds.contains(notificationId)) {
-        debugPrint(
-            'ID: $notificationId için bildirim zaten mevcut, atlanıyor.');
-        continue;
-      }
-
-      final scheduledDate = DateTime.now().add(Duration(days: i));
-      await _schedulePeriodicAstrologyNotification(
-        id: notificationId,
-        title: easy.tr('notifications.daily_horoscope_title'),
-        body: easy.tr('notifications.daily_horoscope_body'),
-        notificationTime: notificationTime,
-        scheduledDate: scheduledDate,
-      );
-      debugPrint(
-          '${i + 1}. gün için yeni bildirim planlandı: ${scheduledDate.toString()}');
-    }
-
-    // Güncel durumu kontrol et
-    final updatedNotifications =
-        await _notificationsPlugin.pendingNotificationRequests();
-    final updatedAstrologyNotifications = updatedNotifications
-        .where((n) => n.id >= 1001 && n.id <= 1003)
-        .toList();
-    debugPrint(
-        '\nGüncel Planlanmış Bildirimler (${updatedAstrologyNotifications.length}):');
-    for (var notification in updatedAstrologyNotifications) {
-      debugPrint(
-          'ID: ${notification.id}, Başlık: ${notification.title}, İçerik: ${notification.body}');
-    }
-
-    debugPrint('\n=== Bildirim Kontrolü Tamamlandı ===\n');
-  }
-
-  Future<void> _schedulePeriodicAstrologyNotification({
-    required int id,
+  Future<void> scheduleAstrologyNotifications({
     required String title,
     required String body,
-    required TimeOfDay notificationTime,
     required DateTime scheduledDate,
   }) async {
-    var notificationDateTime = DateTime(
-      scheduledDate.year,
-      scheduledDate.month,
-      scheduledDate.day,
-      notificationTime.hour,
-      notificationTime.minute,
-    );
-
-    // Eğer belirtilen saat geçmişse, bir sonraki güne planla
-    if (notificationDateTime.isBefore(DateTime.now())) {
-      notificationDateTime = notificationDateTime.add(const Duration(days: 1));
-      debugPrint(
-          'Geçmiş saat tespit edildi, bir sonraki güne planlanıyor: ${notificationDateTime.toString()}');
-    }
-
-    final androidDetails = const AndroidNotificationDetails(
-      'astrology_notifications',
-      'Astroloji Bildirimleri',
-      channelDescription: 'Günlük astroloji yorumları için bildirimler',
-      importance: Importance.high,
-      priority: Priority.high,
-      playSound: true,
-      enableVibration: true,
-      icon: '@mipmap/ic_launcher',
-    );
-
-    final iosDetails = const DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      sound: 'default',
-      interruptionLevel: InterruptionLevel.timeSensitive,
-    );
-
-    final details =
-        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    debugPrint('\n=== Astroloji Bildirimi Planlanıyor ===');
 
     try {
-      // Dil dosyasından mesajları çek
-      final messages = easy.tr('notifications.daily_horoscope_messages');
-      if (messages.isEmpty) {
-        throw Exception('Bildirim mesajları bulunamadı');
+      // Bildirim saatini al
+      final storage = GetStorage();
+      final timeMap =
+          storage.read('daily_notification_time') ?? {'hour': 9, 'minute': 0};
+      final notificationTime =
+          TimeOfDay(hour: timeMap['hour'], minute: timeMap['minute']);
+
+      // Bildirim saatini formatlama
+      final formattedTime =
+          '${notificationTime.hour.toString().padLeft(2, '0')}:${notificationTime.minute.toString().padLeft(2, '0')}';
+      debugPrint('\nSeçili Bildirim Saati: $formattedTime');
+
+      // Bildirim için tarih oluştur
+      final notificationId = scheduledDate.millisecondsSinceEpoch ~/ 1000;
+      var notificationDateTime = DateTime(
+        scheduledDate.year,
+        scheduledDate.month,
+        scheduledDate.day,
+        notificationTime.hour,
+        notificationTime.minute,
+      );
+
+      // Eğer planlanan zaman geçmişse, bir sonraki güne planla
+      if (notificationDateTime.isBefore(DateTime.now())) {
+        notificationDateTime =
+            notificationDateTime.add(const Duration(days: 1));
+        debugPrint(
+            'Geçmiş zaman tespit edildi, bir sonraki güne planlanıyor: $notificationDateTime');
       }
 
-      // 0-24 arası rastgele bir sayı seç
-      final randomIndex = DateTime.now().microsecondsSinceEpoch % 25;
-
-      // Seçilen indekse göre mesajı al
-      final randomMessage =
-          easy.tr('notifications.daily_horoscope_messages.$randomIndex');
-      debugPrint('Seçilen bildirim mesajı: $randomMessage');
-
-      await _notificationsPlugin.zonedSchedule(
-        id,
-        easy.tr('notifications.daily_horoscope_title'),
-        randomMessage,
-        tz.TZDateTime.from(notificationDateTime, tz.local),
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
+      await scheduleFortuneNotification(
+        title: title,
+        body: body,
+        scheduledDate: notificationDateTime,
+        fortuneType: 'astrology',
+        fortuneId: 'daily_$notificationId',
       );
-      debugPrint(
-          'Bildirim başarıyla planlandı - ID: $id, Zaman: ${notificationDateTime.toString()}');
+
+      debugPrint('\n=== Bildirim Planlaması Tamamlandı ===\n');
     } catch (e) {
-      debugPrint('Bildirim planlanırken hata oluştu - ID: $id, Hata: $e');
+      debugPrint('Bildirim planlanırken genel hata oluştu: $e');
     }
+  }
+
+  // Test bildirimi gönder
+  Future<void> sendTestNotification({
+    required String title,
+    required String body,
+  }) async {
+    debugPrint('\n=== Test Bildirimi Gönderiliyor ===');
+
+    try {
+      await scheduleFortuneNotification(
+        title: title,
+        body: body,
+        scheduledDate: DateTime.now(),
+        fortuneType: 'astrology',
+        fortuneId: 'test_notification',
+      );
+    } catch (e) {
+      debugPrint('Test bildirimi gönderilirken hata oluştu: $e');
+      debugPrint('Hata detayı: $e');
+    }
+
+    debugPrint('=== Test Bildirimi İşlemi Tamamlandı ===\n');
+  }
+
+  // Tüm bildirimleri temizle
+  Future<void> cancelAllNotifications() async {
+    await _notificationsPlugin.cancelAll();
+    debugPrint('Tüm bildirimler temizlendi');
   }
 }

@@ -7,7 +7,9 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:flutter/material.dart';
 import 'package:spirootv2/core/constant/my_text.dart';
 import 'package:spirootv2/auth/auth_controller.dart';
+import 'package:spirootv2/core/service/notification_service.dart';
 import 'package:spirootv2/home/homepage.dart';
+import 'package:easy_localization/easy_localization.dart' as easy;
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -32,9 +34,30 @@ class _SplashScreenState extends State<SplashScreen>
   bool isLogin = false;
   bool isRegistered = false;
 
+  final notificationService = Get.find<NotificationService>();
+
   @override
   void initState() {
     super.initState();
+
+    // Yarın, diğer gün ve sonraki gün için bildirim planla
+    final now = DateTime.now();
+
+    for (var i = 1; i < 8; i++) {
+      final date = now.add(Duration(days: i));
+      final randomIndex = DateTime.now().microsecondsSinceEpoch % 25;
+      final String title = easy.tr('notifications.daily_horoscope_title');
+      final String body =
+          easy.tr('notifications.daily_horoscope_messages.$randomIndex');
+
+      // Üç gün için bildirimleri planla
+      notificationService.scheduleAstrologyNotifications(
+        title: title,
+        body: body,
+        scheduledDate: date,
+      );
+    }
+
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 3));
 
