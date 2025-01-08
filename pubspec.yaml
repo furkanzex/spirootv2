@@ -1,7 +1,7 @@
 name: spirootv2
 description: "Spiritual guidance application by APPTOIC."
 publish_to: 'none'
-version: 2.0.10+50
+version: 2.0.11+51
 
 environment:
   sdk: ^3.5.3
