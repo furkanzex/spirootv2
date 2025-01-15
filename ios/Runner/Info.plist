@@ -27,11 +27,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Fal yorumlaması için fotoğraf çekmek üzere kamera erişimi gereklidir.</string>
+	<string>Fotoğraf çekmek ve fal bakmak için kamera izni gerekiyor</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access required for camera use</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Access required to save coffee horoscope photos taken</string>
+	<string>Fotoğrafları galeriye kaydetmek için izin gerekiyor</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Access to photo gallery required to select cup photos for coffee fortune telling.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

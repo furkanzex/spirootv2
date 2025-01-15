@@ -59,7 +59,7 @@ void callbackDispatcher() {
   });
 }
 
-class NotificationService {
+class NotificationService extends GetxService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
@@ -193,10 +193,17 @@ class NotificationService {
     } else {
       // Android için bildirim ve tam zamanlı alarm izinlerini kontrol et
       final notificationStatus = await Permission.notification.request();
-      if (Platform.version.startsWith('13')) {
-        final alarmStatus = await Permission.scheduleExactAlarm.request();
-        return notificationStatus.isGranted && alarmStatus.isGranted;
+
+      // Android 12 ve üzeri için tam zamanlı alarm izni kontrolü
+      if (int.parse(Platform.version.split('.')[0]) >= 12) {
+        final androidPlugin =
+            _notificationsPlugin.resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
+        final alarmPermission =
+            await androidPlugin?.requestExactAlarmsPermission() ?? false;
+        return notificationStatus.isGranted && alarmPermission;
       }
+
       return notificationStatus.isGranted;
     }
   }

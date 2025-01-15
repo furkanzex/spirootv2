@@ -7,6 +7,7 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/fortune/services/fortune_service.dart';
+import 'package:spirootv2/core/service/usage_limit_service.dart';
 
 class FortuneCookieScreen extends StatefulWidget {
   const FortuneCookieScreen({super.key});
@@ -90,7 +91,7 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
     super.dispose();
   }
 
-  void _handleTap() {
+  void _handleTap() async {
     if (_isBroken) return;
 
     // Titreşim efekti ekle
@@ -103,6 +104,16 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
     _controller.forward(from: 0);
 
     if (_tapCount >= 10) {
+      // Kullanım sınırını kontrol et
+      final canUse =
+          await UsageLimitService.checkAndIncrementUsage('fortune_cookie');
+      if (!canUse) {
+        setState(() {
+          _tapCount = 0;
+        });
+        return;
+      }
+
       // Son tıklamada daha güçlü titreşim
       HapticFeedback.heavyImpact();
 
@@ -136,6 +147,26 @@ class _FortuneCookieScreenState extends State<FortuneCookieScreen>
         ),
         title: Text(easy.tr("fortune.fortune_cookie"),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
+        actions: [
+          FutureBuilder<int>(
+            future: UsageLimitService.getRemainingUsage('fortune_cookie'),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return SizedBox.shrink();
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.only(right: MySize.defaultPadding),
+                  child: Text(
+                    '${snapshot.data}x',
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: GestureDetector(
         onTapDown: (_) => _handleTap(),

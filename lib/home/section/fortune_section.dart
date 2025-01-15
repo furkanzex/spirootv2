@@ -195,8 +195,6 @@ Widget fortuneSection(
                             return state.completedWidget;
                           case LoadState.failed:
                             return Center(child: Icon(Icons.error));
-                          default:
-                            return Container();
                         }
                       },
                     ),

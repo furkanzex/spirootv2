@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:translator/translator.dart';
 import 'package:confetti/confetti.dart';
 import 'package:spirootv2/core/constant/my_color.dart';
@@ -10,6 +11,8 @@ import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:spirootv2/fortune/services/fortune_service.dart';
+import 'package:spirootv2/core/service/usage_limit_service.dart';
+import 'package:spirootv2/paywall/paywall_screen.dart';
 
 class AffirmationScreen extends StatefulWidget {
   const AffirmationScreen({super.key});
@@ -58,23 +61,44 @@ class _AffirmationScreenState extends State<AffirmationScreen>
       parent: _scaleController,
       curve: Curves.easeInOut,
     ));
+
+    _checkUsageAndLoad();
+  }
+
+  Future<void> _checkUsageAndLoad() async {
+    try {
+      final remainingUsage =
+          await UsageLimitService.getRemainingUsage('affirmation');
+      if (!mounted) return;
+
+      if (remainingUsage <= 0) {
+        await paywall();
+        if (!mounted) return;
+        Get.back();
+        return;
+      }
+
+      await _loadInitialAffirmation();
+    } catch (e) {
+      if (!mounted) return;
+      Get.back();
+    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_isLoading) {
-      _loadInitialAffirmation();
-    }
     final newLocale = context.locale.languageCode;
     FortuneService.onLocaleChanged(newLocale);
   }
 
   Future<void> _loadInitialAffirmation() async {
+    if (!mounted) return;
+
     try {
       final allAffirmations = await FortuneService.loadAffirmations(context);
+      if (!mounted) return;
 
-      // Rastgele 5 affirmation seç
       final random = Random();
       final selectedIndices = <int>{};
       final selectedAffirmations = <String>[];
@@ -86,11 +110,13 @@ class _AffirmationScreenState extends State<AffirmationScreen>
         }
       }
 
+      if (!mounted) return;
       setState(() {
         _selectedAffirmations = selectedAffirmations;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _selectedAffirmations =
             List.filled(5, easy.tr("rest.affirmation_default"));
@@ -99,7 +125,7 @@ class _AffirmationScreenState extends State<AffirmationScreen>
     }
   }
 
-  void _handleTap() {
+  void _handleTap() async {
     if (_isCompleted) return;
 
     HapticFeedback.heavyImpact();
@@ -115,8 +141,22 @@ class _AffirmationScreenState extends State<AffirmationScreen>
           _isCompleted = true;
         });
         _confettiController.play();
+
+        // Olumlama tamamlandıktan sonra kullanım hakkını düşür
+        final canUse =
+            await UsageLimitService.checkAndIncrementUsage('affirmation');
+        if (!canUse) {
+          if (!mounted) return;
+          await paywall();
+          if (!mounted) return;
+          Get.back();
+          return;
+        }
+
+        if (!mounted) return;
         Future.delayed(const Duration(seconds: 3), () {
-          Navigator.pop(context);
+          if (!mounted) return;
+          Get.back();
         });
       } else {
         setState(() {
@@ -242,6 +282,26 @@ class _AffirmationScreenState extends State<AffirmationScreen>
         ),
         title: Text(easy.tr("rest.affirmation"),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
+        actions: [
+          FutureBuilder<int>(
+            future: UsageLimitService.getRemainingUsage('affirmation'),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return SizedBox.shrink();
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.only(right: MySize.defaultPadding),
+                  child: Text(
+                    snapshot.data == 999 ? '∞' : '${snapshot.data}x',
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [

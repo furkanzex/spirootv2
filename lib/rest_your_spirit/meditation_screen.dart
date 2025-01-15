@@ -10,6 +10,7 @@ import 'package:confetti/confetti.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:scaffold_gradient_background/scaffold_gradient_background.dart';
+import 'package:spirootv2/core/service/usage_limit_service.dart';
 
 class MeditationScreen extends StatefulWidget {
   const MeditationScreen({super.key});
@@ -98,7 +99,10 @@ class _MeditationScreenState extends State<MeditationScreen>
     super.dispose();
   }
 
-  void _navigateToMeditationPage() {
+  void _navigateToMeditationPage() async {
+    final canUse = await UsageLimitService.checkAndIncrementUsage('meditation');
+    if (!canUse) return;
+
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -285,6 +289,26 @@ class _MeditationScreenState extends State<MeditationScreen>
         ),
         title: Text(easy.tr("rest.meditation"),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
+        actions: [
+          FutureBuilder<int>(
+            future: UsageLimitService.getRemainingUsage('meditation'),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return SizedBox.shrink();
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.only(right: MySize.defaultPadding),
+                  child: Text(
+                    snapshot.data == 999 ? '∞' : '${snapshot.data}x',
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: _buildFeelingsGrid(),

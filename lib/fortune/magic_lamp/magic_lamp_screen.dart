@@ -9,6 +9,7 @@ import 'package:spirootv2/core/constant/my_style.dart';
 import 'package:spirootv2/core/constant/my_size.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 import 'package:spirootv2/fortune/services/fortune_service.dart';
+import 'package:spirootv2/core/service/usage_limit_service.dart';
 
 class MagicLampScreen extends StatefulWidget {
   const MagicLampScreen({super.key});
@@ -82,6 +83,10 @@ class _MagicLampScreenState extends State<MagicLampScreen>
 
   void _startReading() async {
     if (!_isReading) {
+      final canUse =
+          await UsageLimitService.checkAndIncrementUsage('magic_lamp');
+      if (!canUse) return;
+
       HapticFeedback.heavyImpact();
 
       setState(() {
@@ -155,6 +160,26 @@ class _MagicLampScreenState extends State<MagicLampScreen>
         title: Text(easy.tr('fortune.magic_lamp'),
             style: MyStyle.b4.copyWith(color: MyColor.white)),
         centerTitle: true,
+        actions: [
+          FutureBuilder<int>(
+            future: UsageLimitService.getRemainingUsage('magic_lamp'),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return SizedBox.shrink();
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.only(right: MySize.defaultPadding),
+                  child: Text(
+                    snapshot.data == 999 ? '∞' : '${snapshot.data}x',
+                    style: MyStyle.s2.copyWith(
+                      color: MyColor.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: GestureDetector(
         onPanStart: _handlePanStart,

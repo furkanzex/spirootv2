@@ -89,8 +89,6 @@ class AstrologySection extends StatelessWidget {
             return state.completedWidget;
           case LoadState.failed:
             return const Center(child: Icon(Icons.error));
-          default:
-            return const SizedBox.shrink();
         }
       },
     );

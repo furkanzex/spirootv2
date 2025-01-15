@@ -69,7 +69,12 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkPermissions();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkPermissions();
+      if (mounted) {
+        await _initializeCamera();
+      }
+    });
   }
 
   @override
@@ -105,6 +110,7 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
     if (_isCameraActive) return;
 
     try {
+      debugPrint('Kamera başlatılıyor...');
       cameras = await availableCameras();
       if (cameras.isEmpty) {
         _showError(easy.tr('fortune.camera_not_found'));
@@ -131,21 +137,34 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
             : ImageFormatGroup.bgra8888,
       );
 
+      debugPrint('Kamera kontrolcüsü oluşturuldu, başlatılıyor...');
       await _controller!.initialize();
       if (!mounted) return;
 
+      debugPrint('Kamera ayarları yapılandırılıyor...');
       await Future.wait([
         _controller!.setFocusMode(FocusMode.auto),
         _controller!.setExposureMode(ExposureMode.auto),
         _controller!.setFlashMode(_flashMode),
       ]);
 
+      // Kameranın hazır olması için biraz daha uzun bir süre bekleyelim
+      await Future.delayed(Duration(milliseconds: 1000));
+
+      if (!mounted) return;
+
       _isCameraActive = true;
-      if (mounted) {
-        setState(() {});
-      }
+      setState(() {});
+      debugPrint('Kamera başarıyla başlatıldı ve hazır');
     } catch (e) {
-      _showError(easy.tr('fortune.camera_not_found'));
+      debugPrint('Kamera başlatma hatası: $e');
+      _isCameraActive = false;
+      if (mounted) {
+        _showError(easy.tr('fortune.camera_not_found'));
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          _checkPermissions();
+        });
+      }
     }
   }
 
@@ -163,24 +182,35 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   }
 
   Future<void> _takePicture() async {
-    if (_isProcessing) return;
+    if (_isProcessing) {
+      debugPrint('İşlem zaten devam ediyor');
+      return;
+    }
+
+    if (!_isCameraActive ||
+        _controller == null ||
+        !_controller!.value.isInitialized) {
+      debugPrint('Kamera hazır değil, başlatma deneniyor');
+      await _initializeCamera();
+      return;
+    }
 
     try {
+      debugPrint('Fotoğraf çekme işlemi başlıyor');
       setState(() => _isProcessing = true);
 
-      if (!_isCameraActive) {
-        await _initializeCamera();
-      }
-
-      if (_controller == null || !_controller!.value.isInitialized) {
-        _showError(easy.tr('fortune.camera_not_ready'));
-        return;
+      // Kameranın hazır olduğundan emin olmak için son bir kontrol
+      if (!_controller!.value.isInitialized) {
+        throw Exception('Kamera başlatılamadı');
       }
 
       await _controller!.setFocusMode(FocusMode.locked);
       await _controller!.setExposureMode(ExposureMode.locked);
 
+      debugPrint('Fotoğraf çekiliyor...');
       final XFile photo = await _controller!.takePicture();
+      debugPrint('Fotoğraf çekildi: ${photo.path}');
+
       final File imageFile = File(photo.path);
       final imageBytes = await imageFile.readAsBytes();
 
@@ -200,9 +230,15 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
         _navigateToResult();
       }
     } catch (e) {
+      debugPrint('Fotoğraf çekme hatası: $e');
       _showError(easy.tr('fortune.image_not_taken'));
+      // Hata durumunda kamerayı yeniden başlatmayı deneyelim
+      _isCameraActive = false;
+      await _initializeCamera();
     } finally {
-      setState(() => _isProcessing = false);
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
     }
   }
 
@@ -249,14 +285,10 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
   }
 
   void _navigateToResult() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => FortuneResultScreen(
+    Get.off(() => FortuneResultScreen(
           images: capturedImages,
           fortuneType: widget.fortuneType,
-        ),
-      ),
-    );
+        ));
   }
 
   Future<void> _switchCamera() async {
@@ -277,85 +309,85 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
 
   Future<void> _checkPermissions() async {
     try {
-      final cameraStatus = await Permission.camera.status;
-      final storageStatus = await Permission.storage.status;
+      debugPrint('İzinler kontrol ediliyor...');
+      Map<Permission, PermissionStatus> statuses = {};
 
-      if (cameraStatus.isGranted && storageStatus.isGranted) {
-        await _initializeCamera();
+      if (Platform.isAndroid) {
+        if (int.parse(Platform.operatingSystemVersion.split('.').first) >= 33) {
+          statuses = await [
+            Permission.camera,
+            Permission.photos,
+          ].request();
+        } else {
+          statuses = await [
+            Permission.camera,
+            Permission.storage,
+          ].request();
+        }
+      } else {
+        statuses = await [
+          Permission.camera,
+          Permission.photos,
+        ].request();
+      }
+
+      bool allGranted = true;
+      statuses.forEach((permission, status) {
+        debugPrint(
+            'İzin durumu - ${permission.toString()}: ${status.toString()}');
+        if (!status.isGranted) {
+          allGranted = false;
+        }
+      });
+
+      if (!allGranted) {
+        debugPrint('Bazı izinler reddedildi, dialog gösteriliyor...');
+        if (mounted) {
+          _showPermissionDialog();
+        }
         return;
       }
 
-      // Önce kamera izni iste
-      if (!cameraStatus.isGranted) {
-        final cameraResult = await Permission.camera.request();
-        if (!cameraResult.isGranted) {
-          _showPermissionDialog();
-          return;
-        }
-      }
-
-      // Sonra storage izni iste
-      if (!storageStatus.isGranted) {
-        final storageResult = await Permission.storage.request();
-        if (!storageResult.isGranted) {
-          _showPermissionDialog();
-          return;
-        }
-      }
-
-      // Tüm izinler verildiyse kamerayı başlat
-      await _initializeCamera();
+      debugPrint('Tüm izinler verildi');
     } catch (e) {
-      if (mounted) {
-        _showError(easy.tr('fortune.permission_error'));
-      }
+      debugPrint('İzin kontrolü hatası: $e');
+      // Hata mesajını burada göstermeyelim, sadece loglayalım
     }
   }
 
   void _showPermissionDialog() {
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
+    Get.defaultDialog(
+      title: easy.tr('permissions.title'),
+      titleStyle: MyStyle.s1.copyWith(color: MyColor.white),
+      backgroundColor: MyColor.darkBackgroundColor,
+      content: Text(
+        easy.tr('permissions.camera_required'),
+        style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
+      ),
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: MyColor.darkBackgroundColor,
-          title: Text(
-            easy.tr('permissions.title'),
-            style: MyStyle.s1.copyWith(color: MyColor.white),
-          ),
-          content: Text(
-            easy.tr('permissions.camera_required'),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Get.back();
+            Get.back();
+          },
+          child: Text(
+            easy.tr('permissions.understood'),
             style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Dialog'u kapat
-                Navigator.of(context).pop(); // Kamera ekranından çık
-              },
-              child: Text(
-                easy.tr('permissions.understood'),
-                style: MyStyle.s2.copyWith(color: MyColor.textGreyColor),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Dialog'u kapat
-                await openAppSettings();
-                if (mounted) {
-                  Navigator.of(context).pop(); // Kamera ekranından çık
-                }
-              },
-              child: Text(
-                easy.tr('permissions.open_settings'),
-                style: MyStyle.s2.copyWith(color: MyColor.primaryColor),
-              ),
-            ),
-          ],
-        );
-      },
+        ),
+        TextButton(
+          onPressed: () async {
+            Get.back();
+            await openAppSettings();
+            Get.back();
+          },
+          child: Text(
+            easy.tr('permissions.open_settings'),
+            style: MyStyle.s2.copyWith(color: MyColor.primaryColor),
+          ),
+        ),
+      ],
     );
   }
 
@@ -391,6 +423,12 @@ class _FortuneCameraScreenState extends State<FortuneCameraScreen>
                   mounted)
                 Center(
                   child: CameraPreview(_controller!),
+                )
+              else
+                Center(
+                  child: CircularProgressIndicator(
+                    color: MyColor.primaryColor,
+                  ),
                 ),
               Positioned(
                 top: 0,

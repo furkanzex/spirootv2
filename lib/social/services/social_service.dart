@@ -284,8 +284,7 @@ class SocialService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) =>
-                Comment.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .map((doc) => Comment.fromMap(doc.data(), doc.id))
             .toList());
   }
 
@@ -372,8 +371,7 @@ class SocialService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) =>
-                Comment.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .map((doc) => Comment.fromMap(doc.data(), doc.id))
             .toList());
   }
 
