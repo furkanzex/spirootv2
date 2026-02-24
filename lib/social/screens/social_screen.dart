@@ -40,7 +40,7 @@ class _SocialScreenState extends State<SocialScreen> {
   final _eventsScrollController = ScrollController();
   final FocusNode _locationFocusNode = FocusNode();
   final _placesApi =
-      FlutterGooglePlacesSdk("AIzaSyDri3yUianYuZw3PfZlruuFLg196-UhXE8");
+      FlutterGooglePlacesSdk("placesAPI");
   Timer? _debounce;
   String _searchQuery = '';
 
